@@ -1,0 +1,5 @@
+# Stable camera symlinks for Bumblebee drone
+# 1f00128000.csi = downward-facing (main camera, used for ArUco)
+# 1f00110000.csi = forward-facing (second camera)
+SUBSYSTEM=="video4linux", ENV{ID_PATH}=="platform-1f00128000.csi", ATTR{index}=="0", SYMLINK+="main_camera"
+SUBSYSTEM=="video4linux", ENV{ID_PATH}=="platform-1f00110000.csi", ATTR{index}=="0", SYMLINK+="second_camera"

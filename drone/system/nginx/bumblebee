@@ -1,0 +1,17 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /home/lb/ros2_ws/src/bumblebee/www;
+    index gcs.html index.html;
+    server_name _;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8765;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

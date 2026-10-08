@@ -135,20 +135,16 @@ if(led_msgs_FOUND)
 endif()
 
 # Python scripts (rosidl уже создаёт Python-пакет bumblebee для msgs/srvs)
+# The src/python/ copies are byte-identical to what runs in install/ on the
+# V1.0.0-beta image (030726).
 install(PROGRAMS
   src/python/selfcheck.py
-  # src/vpe_fix.py — canonical version (with quorum/yaw-lock/velocity-gate
-  # redesign) is maintained directly in install/bumblebee/lib/bumblebee/vpe_fix.py
-  # (sourced from ~/bumblebee/.drone_canonical/vpe_fix.py). The copy in src/
-  # is stale by ~250 lines. Re-enable here once src/ is synced.
+  src/python/vpe_fix.py
   src/python/set_params.py
-  src/camera_fix.py
+  src/python/camera_fix.py
+  src/python/aruco_detect.py
+  src/python/qos_relay.py
   src/ros_mjpeg_server.py
-  # src/python/aruco_detect.py — SIGSEGV on live image stream (post May-8 redesign,
-  # not yet stabilised). The working copy is maintained directly in
-  # install/bumblebee/lib/bumblebee/aruco_detect.py (sourced from
-  # ~/bumblebee-backup-20260508-143757/aruco_detect.py). Re-enable here once
-  # the redesign is debugged.
   scripts/servo_rc.py
   scripts/wheel_rc.py
   DESTINATION lib/${PROJECT_NAME}

@@ -1,0 +1,1 @@
+lb ALL=(ALL) NOPASSWD: /usr/bin/nmcli
