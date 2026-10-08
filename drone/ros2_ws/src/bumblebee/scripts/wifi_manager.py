@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""WiFi Manager — Tornado REST API on 127.0.0.1:8765."""
+"""WiFi Manager — Tornado REST API on 0.0.0.0:8765 (used directly by the GCS app)."""
 
 import json
 import logging
 import os
 import subprocess
 import sys
+import threading
 import time
 import uuid
 from datetime import datetime, timedelta
@@ -51,7 +52,17 @@ except Exception as _te:
     _tts_to_tune = None
 LED_BUSY = '/tmp/led_busy'
 ANIM_DIR = '/home/lb/ros2_ws/src/bumblebee/examples/animations'
-ANIMATIONS = {'breathing', 'rainbow', 'police', 'strobe', 'fire', 'theater'}
+ANIMATIONS = {'breathing', 'rainbow', 'police', 'strobe', 'fire', 'theater',
+              'rainbow_theater',
+              # shows: LEDs + looping buzzer melody (see animations/_show.py)
+              'party', 'siren', 'alarm', 'victory'}
+# Touched before every API-driven Wi-Fi switch. wifi_watchdog.sh and the NM
+# dispatcher hold off their hotspot fallback while it is fresh, so they don't
+# abort a join that is still authenticating / getting DHCP.
+WIFI_SWITCH_MARKER = '/tmp/bumblebee-wifi-switch'
+# Delay before a connection-changing nmcli call, so the HTTP reply reaches the
+# GCS before the drone drops the link the GCS is talking over.
+SWITCH_DELAY_S = 1.5
 _anim_proc = None  # subprocess.Popen | None
 
 
@@ -96,6 +107,50 @@ def nmcli(*args):
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip())
     return result.stdout.strip()
+
+
+def _mark_wifi_switch():
+    try:
+        with open(WIFI_SWITCH_MARKER, 'w') as f:
+            f.write(str(int(time.time())))
+    except OSError:
+        logging.exception('cannot write %s', WIFI_SWITCH_MARKER)
+
+
+def _nmcli_after_reply(*args):
+    """Run a link-changing nmcli command after the current reply is sent.
+
+    `nmcli con up/down` on wlan0 tears down the network the GCS is connected
+    through, so it must not run before the response is flushed.
+    """
+    _mark_wifi_switch()
+
+    def worker():
+        time.sleep(SWITCH_DELAY_S)
+        try:
+            nmcli(*args)
+            logging.info('nmcli %s: ok', ' '.join(args))
+        except Exception:
+            logging.exception('nmcli %s failed', ' '.join(args))
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
+def _hotspot_ssid():
+    """Stable hotspot SSID: Bumblebee-<last 4 hex digits of the wlan0 MAC>."""
+    try:
+        with open('/sys/class/net/wlan0/address') as f:
+            mac = f.read().strip().replace(':', '')
+        if len(mac) >= 4:
+            return 'Bumblebee-' + mac[-4:].upper()
+    except OSError:
+        pass
+    return None
+
+
+async def _blocking(fn, *args):
+    """Run a blocking call (nmcli can take seconds) off the IOLoop thread."""
+    return await tornado.ioloop.IOLoop.current().run_in_executor(None, fn, *args)
 
 
 def is_authenticated(handler):
@@ -148,45 +203,50 @@ class AuthLogoutHandler(BaseHandler):
         self.finish(json.dumps({'ok': True}))
 
 
+def _wifi_status():
+    raw = nmcli('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device', 'status')
+    mode = 'unknown'
+    ssid = ''
+    ip = ''
+    signal = 0
+    for line in raw.splitlines():
+        parts = line.split(':')
+        if parts[0] == 'wlan0':
+            state = parts[1]
+            conn = parts[2] if len(parts) > 2 else ''
+            if state == 'connected':
+                mode = 'hotspot' if conn == 'bumblebee-hotspot' else 'client'
+                ssid = conn
+            else:
+                mode = state
+            break
+
+    ip_raw = nmcli('-t', '-f', 'IP4.ADDRESS', 'device', 'show', 'wlan0')
+    for line in ip_raw.splitlines():
+        if line.startswith('IP4.ADDRESS'):
+            ip = line.split(':')[-1].split('/')[0]
+            break
+
+    # --rescan no: the GCS polls this endpoint; an implicit rescan takes
+    # seconds and stalls every other request.
+    wifi_raw = nmcli('-t', '-f', 'IN-USE,SIGNAL,SSID', 'dev', 'wifi', 'list',
+                     '--rescan', 'no')
+    for line in wifi_raw.splitlines():
+        parts = line.split(':')
+        if parts[0] == '*' and len(parts) >= 3:
+            try:
+                signal = int(parts[1])
+            except ValueError:
+                pass
+            break
+
+    return {'mode': mode, 'ssid': ssid, 'ip': ip, 'signal': signal}
+
+
 class StatusHandler(BaseHandler):
-    def get(self):
+    async def get(self):
         try:
-            raw = nmcli('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device', 'status')
-            mode = 'unknown'
-            ssid = ''
-            ip = ''
-            signal = 0
-            for line in raw.splitlines():
-                parts = line.split(':')
-                if parts[0] == 'wlan0':
-                    state = parts[1]
-                    conn = parts[2] if len(parts) > 2 else ''
-                    if state == 'connected':
-                        mode = 'hotspot' if conn == 'bumblebee-hotspot' else 'client'
-                        ssid = conn
-                    else:
-                        mode = state
-                    break
-
-            ip_raw = nmcli('-t', '-f', 'IP4.ADDRESS', 'device', 'show', 'wlan0')
-            for line in ip_raw.splitlines():
-                if line.startswith('IP4.ADDRESS'):
-                    ip = line.split(':')[-1].split('/')[0]
-                    break
-
-            wifi_raw = nmcli('-t', '-f', 'IN-USE,SIGNAL,SSID', 'dev', 'wifi', 'list')
-            for line in wifi_raw.splitlines():
-                parts = line.split(':')
-                if parts[0] == '*' and len(parts) >= 3:
-                    try:
-                        signal = int(parts[1])
-                    except ValueError:
-                        pass
-                    break
-
-            self.finish(json.dumps({
-                'mode': mode, 'ssid': ssid, 'ip': ip, 'signal': signal,
-            }))
+            self.finish(json.dumps(await _blocking(_wifi_status)))
         except Exception as e:
             logging.exception('status error')
             self.set_status(500)
@@ -205,14 +265,18 @@ def _band_for_freq(freq_mhz):
     return ''
 
 
+def _scan_raw():
+    try:
+        nmcli('dev', 'wifi', 'rescan')
+    except Exception:
+        pass
+    return nmcli('-t', '-f', 'IN-USE,SSID,SIGNAL,SECURITY,FREQ', 'dev', 'wifi', 'list')
+
+
 class ScanHandler(BaseHandler):
-    def get(self):
+    async def get(self):
         try:
-            nmcli('dev', 'wifi', 'rescan')
-        except Exception:
-            pass
-        try:
-            raw = nmcli('-t', '-f', 'IN-USE,SSID,SIGNAL,SECURITY,FREQ', 'dev', 'wifi', 'list')
+            raw = await _blocking(_scan_raw)
             networks = []
             seen = set()
             for line in raw.splitlines():
@@ -320,12 +384,21 @@ class ApplyNowHandler(BaseHandler):
             self.finish(json.dumps({'error': 'ssid required'}))
             return
         try:
-            nmcli('con', 'up', ssid)
-            self.finish(json.dumps({'ok': True}))
+            existing = nmcli('-t', '-f', 'NAME', 'con', 'show')
         except Exception as e:
             logging.exception('apply-now error')
             self.set_status(500)
             self.finish(json.dumps({'error': str(e)}))
+            return
+        if ssid not in existing.splitlines():
+            self.set_status(404)
+            self.finish(json.dumps({'error': 'unknown network: ' + ssid}))
+            return
+        # Reply first: bringing the connection up drops the hotspot the GCS is
+        # talking through, so a reply sent afterwards never arrives.
+        _nmcli_after_reply('con', 'up', ssid)
+        logging.info('apply-now: switching to %s', ssid)
+        self.finish(json.dumps({'ok': True}))
 
 
 class ApplyBootHandler(BaseHandler):
@@ -358,6 +431,11 @@ class DeleteNetworkHandler(BaseHandler):
         if not ssid:
             self.set_status(400)
             self.finish(json.dumps({'error': 'ssid required'}))
+            return
+        if ssid == HOTSPOT_CONN:
+            # Without it the drone has no fallback AP and cannot be provisioned.
+            self.set_status(403)
+            self.finish(json.dumps({'error': 'the hotspot profile cannot be deleted'}))
             return
         try:
             nmcli('con', 'delete', ssid)
@@ -397,17 +475,20 @@ class ModeHandler(BaseHandler):
             self.set_status(400)
             self.finish(json.dumps({'error': "mode must be 'hotspot' or 'client'"}))
             return
+        # Both directions drop the link the GCS is using, so reply first and
+        # switch right after (see _nmcli_after_reply).
         try:
             if target == 'hotspot':
-                nmcli('connection', 'up', HOTSPOT_CONN)
-                logging.info('switched to hotspot mode')
+                ssid = _hotspot_ssid()
+                if ssid:
+                    nmcli('connection', 'modify', HOTSPOT_CONN, 'wifi.ssid', ssid)
+                _nmcli_after_reply('connection', 'up', HOTSPOT_CONN)
+                logging.info('switching to hotspot mode')
             else:
-                # Bring hotspot down — wifi_watchdog will pick a visible known network.
-                try:
-                    nmcli('connection', 'down', HOTSPOT_CONN)
-                except RuntimeError:
-                    pass  # already down
-                logging.info('switched to client mode (watchdog will reconnect)')
+                if _current_mode() == 'hotspot':
+                    # wifi_watchdog will pick a visible known network.
+                    _nmcli_after_reply('connection', 'down', HOTSPOT_CONN)
+                logging.info('switching to client mode (watchdog will reconnect)')
             self.finish(json.dumps({'ok': True, 'mode': target}))
         except Exception as e:
             logging.exception('mode set error')
@@ -464,6 +545,7 @@ class LedAnimationHandler(BaseHandler):
         _stop_anim()
         try:
             _anim_proc = subprocess.Popen(['python3', script])
+            _anim_proc._name = name
             self.finish(json.dumps({'ok': True, 'name': name, 'pid': _anim_proc.pid}))
         except Exception as e:
             logging.exception('led animation spawn')
@@ -582,5 +664,5 @@ def make_app():
 if __name__ == '__main__':
     app = make_app()
     app.listen(8765, address='0.0.0.0')
-    logging.info('wifi-manager started on 127.0.0.1:8765')
+    logging.info('wifi-manager started on 0.0.0.0:8765')
     tornado.ioloop.IOLoop.current().start()

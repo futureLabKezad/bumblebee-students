@@ -1,0 +1,17 @@
+# Files the GCS-connectivity update installs on a running drone.
+# <source in payload/>  <destination on the drone>  <owner>  <mode>
+# The source path is relative to drone/ in the repo.
+ros2_ws/src/bumblebee/scripts/wifi_manager.py              /home/lb/ros2_ws/src/bumblebee/scripts/wifi_manager.py              lb:lb 0644
+ros2_ws/src/bumblebee/scripts/wifi_watchdog.sh             /home/lb/ros2_ws/src/bumblebee/scripts/wifi_watchdog.sh             lb:lb 0755
+ros2_ws/src/bumblebee/scripts/set_identity.sh              /home/lb/ros2_ws/src/bumblebee/scripts/set_identity.sh              lb:lb 0755
+ros2_ws/src/bumblebee/scripts/sys_metrics.py               /home/lb/ros2_ws/src/bumblebee/scripts/sys_metrics.py               lb:lb 0644
+ros2_ws/src/bumblebee/examples/animations/_show.py           /home/lb/ros2_ws/src/bumblebee/examples/animations/_show.py           lb:lb 0644
+ros2_ws/src/bumblebee/examples/animations/rainbow_theater.py /home/lb/ros2_ws/src/bumblebee/examples/animations/rainbow_theater.py lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/party.py           /home/lb/ros2_ws/src/bumblebee/examples/animations/party.py           lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/siren.py           /home/lb/ros2_ws/src/bumblebee/examples/animations/siren.py           lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/alarm.py           /home/lb/ros2_ws/src/bumblebee/examples/animations/alarm.py           lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/victory.py         /home/lb/ros2_ws/src/bumblebee/examples/animations/victory.py         lb:lb 0755
+system/networkmanager/dispatcher.d/99-hotspot-fallback     /etc/NetworkManager/dispatcher.d/99-hotspot-fallback     root:root 0755
+system/networkmanager/dispatcher.d/90-bumblebee-identity   /etc/NetworkManager/dispatcher.d/90-bumblebee-identity   root:root 0755
+system/networkmanager/conf.d/99-bumblebee-wifi-powersave.conf /etc/NetworkManager/conf.d/99-bumblebee-wifi-powersave.conf root:root 0644
+system/cloud/99-bumblebee.cfg                              /etc/cloud/cloud.cfg.d/99-bumblebee.cfg                  root:root 0644

@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+# Copyright 2026 FutureLab
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""rainbow_theater — theater chase (every 3rd pixel lit) in rainbow colours."""
+import colorsys
+import signal
+import sys
+import time
+
+sys.path.insert(0, '/home/lb/ros2_ws/src/bumblebee/examples')
+import drone
+
+STEP_MS = 120
+NUM_LEDS = 11
+STRIPS = (drone.LED_1, drone.LED_2, drone.LED_3,
+          drone.LED_4, drone.LED_5, drone.LED_6)
+HUE_STEP = 0.07  # hue advance per frame
+
+_running = True
+
+
+def _stop(*_):
+    global _running
+    _running = False
+
+
+signal.signal(signal.SIGTERM, _stop)
+signal.signal(signal.SIGINT, _stop)
+
+drone.led_take_control()
+try:
+    offset = 0
+    hue0 = 0.0
+    while _running:
+        for s in STRIPS:
+            for i in range(NUM_LEDS):
+                if (i + offset) % 3 == 0:
+                    r, g, b = colorsys.hsv_to_rgb((hue0 + i / NUM_LEDS) % 1.0, 1.0, 1.0)
+                    drone.set_led(s, i, int(r * 255), int(g * 255), int(b * 255))
+                else:
+                    drone.set_led(s, i, 0, 0, 0)
+        time.sleep(STEP_MS / 1000.0)
+        offset = (offset + 1) % 3
+        hue0 = (hue0 + HUE_STEP) % 1.0
+finally:
+    try:
+        drone.led_off()
+    except OSError:
+        pass
+    drone.led_release_control()

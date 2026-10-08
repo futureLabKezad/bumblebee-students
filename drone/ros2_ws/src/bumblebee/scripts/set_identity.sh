@@ -23,10 +23,23 @@
 set -e
 
 NAME_FILE=/home/lb/drone_name
+# wlan0 MAC the name was assigned on. A card cloned from another drone carries
+# that drone's name; a MAC mismatch means "new drone", so the name is re-derived.
+# No binding file (drones set up before this existed): keep the name as is.
+MAC_FILE=/home/lb/drone_name.mac
 SERVICE_FILE=/etc/avahi/services/bumblebee.service
 
+MAC=$(cat /sys/class/net/wlan0/address 2>/dev/null | tr -d '[:space:]')
+# Short hardware id, also used in the hotspot SSID (Bumblebee-<ID>).
+HWID=$(echo "$MAC" | tr -d ':' | tail -c 5 | tr '[:lower:]' '[:upper:]')
+
 read_name() {
-    [ -s "$NAME_FILE" ] && tr -d '[:space:]' < "$NAME_FILE"
+    [ -s "$NAME_FILE" ] || return 0
+    if [ -s "$MAC_FILE" ] && [ -n "$MAC" ] && [ "$(tr -d '[:space:]' < "$MAC_FILE")" != "$MAC" ]; then
+        echo "set_identity: $NAME_FILE belongs to another drone ($(cat "$MAC_FILE")), re-deriving" >&2
+        return 0
+    fi
+    tr -d '[:space:]' < "$NAME_FILE"
 }
 
 derive_name() {
@@ -45,7 +58,11 @@ derive_name() {
 NAME="$(read_name || true)"
 if [ -z "$NAME" ]; then
     NAME="$(derive_name || true)"
-    [ -n "$NAME" ] && { echo "$NAME" > "$NAME_FILE"; chown lb:lb "$NAME_FILE" 2>/dev/null || true; }
+    if [ -n "$NAME" ]; then
+        echo "$NAME" > "$NAME_FILE"
+        [ -n "$MAC" ] && echo "$MAC" > "$MAC_FILE"
+        chown lb:lb "$NAME_FILE" "$MAC_FILE" 2>/dev/null || true
+    fi
 fi
 if [ -z "$NAME" ]; then
     echo "set_identity: no client IP yet, leaving hostname unchanged"
@@ -77,6 +94,7 @@ cat > "$SERVICE_FILE" <<EOF
     <txt-record>mjpeg=8080</txt-record>
     <txt-record>metrics=8888</txt-record>
     <txt-record>api=8765</txt-record>
+    <txt-record>id=$HWID</txt-record>
   </service>
 </service-group>
 EOF
