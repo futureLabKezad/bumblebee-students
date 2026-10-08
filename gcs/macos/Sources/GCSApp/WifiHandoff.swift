@@ -199,7 +199,11 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
 
         // 5) Wait for the drone to reappear on the shared network via Bonjour.
-        if let host = await Self.waitForDrone() {
+        // Drones with current software advertise their hardware id in the
+        // Bonjour TXT record and use it in the hotspot SSID (Bumblebee-<id>),
+        // so we can wait for exactly the drone we just provisioned.
+        let expectedID = String(hotspotSSID.dropFirst(kHotspotPrefix.count))
+        if let host = await Self.waitForDrone(expectedID: expectedID) {
             phase = .done(host)
             onDrone(host)
         } else {
@@ -229,18 +233,22 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
         return false
     }
 
-    /// Wait for any drone to appear via Bonjour, returning its host/IP.
-    private static func waitForDrone(timeout: TimeInterval = 60) async -> String? {
+    /// Wait for the provisioned drone to appear via Bonjour, returning its IP.
+    /// A drone that advertises a different `id` is someone else's; one with no
+    /// `id` runs older software and is accepted as before.
+    private static func waitForDrone(expectedID: String, timeout: TimeInterval = 60) async -> String? {
         await withCheckedContinuation { cont in
             Task { @MainActor in
                 var resumed = false
-                let browser = BonjourDroneBrowser { ip, _ in
+                let browser = BonjourDroneBrowser(
+                    onFound: { ip, _, id in
+                        guard !resumed, id == nil || id == expectedID else { return }
+                        resumed = true
+                        cont.resume(returning: ip)
+                    },
                     // 10.42.0.1 is the drone's own hotspot: a stale record from
-                    // before the switch, not the drone on the shared network.
-                    guard !resumed, !ip.hasPrefix("10.42.") else { return }
-                    resumed = true
-                    cont.resume(returning: ip)
-                }
+                    // before the switch. Resolve again until the new address shows.
+                    accept: { ip in !ip.hasPrefix("10.42.") })
                 browser.start()
                 DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
                     browser.stop()                       // keeps browser alive until fired
