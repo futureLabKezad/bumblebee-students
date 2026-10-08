@@ -65,9 +65,14 @@ final class RosbridgeClient: NSObject {
         t.resume()
         // rosbridge has no explicit "ready" handshake; subscribe immediately.
         for s in subs { send(subscribe: s) }
-        DispatchQueue.main.async {
-            self.store.rosConnected = true
-            self.store.log("rosbridge connected (\(self.host))")
+        // Only report "linked" once the socket really answers: a WebSocket
+        // ping succeeds only after the upgrade to :9090 has completed.
+        t.sendPing { [weak self] error in
+            guard let self = self, error == nil, gen == self.generation, self.active else { return }
+            DispatchQueue.main.async {
+                self.store.rosConnected = true
+                self.store.log("rosbridge connected (\(self.host))")
+            }
         }
         receive(gen)
     }

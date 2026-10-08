@@ -26,6 +26,15 @@ final class DroneAPI {
 
     struct APIError: LocalizedError { let message: String; var errorDescription: String? { message } }
 
+    /// True when a request died because the network under it went away (not
+    /// because the drone refused it). Drones before the reply-first fix switch
+    /// Wi-Fi before answering apply-now, so their reply is always lost this way.
+    static func isLinkDrop(_ error: Error) -> Bool {
+        guard let e = error as? URLError else { return false }
+        return [.timedOut, .networkConnectionLost, .notConnectedToInternet,
+                .cannotConnectToHost, .cannotFindHost].contains(e.code)
+    }
+
     private func url(_ path: String) -> URL? { URL(string: "http://\(host):\(Self.port)\(path)") }
 
     // Generic request returning raw Data + status.

@@ -42,6 +42,9 @@ final class DroneScanner: ObservableObject {
     /// True once at least one scan has finished — lets the UI tell "haven't
     /// scanned yet" apart from "scanned and found nothing".
     @Published private(set) var hasScanned = false
+    /// Set when Bonjour browsing cannot run at all — on macOS almost always
+    /// because Local Network access was denied for this app.
+    @Published private(set) var discoveryError: String?
 
     private let probeQueue = DispatchQueue(label: "gcs.scan", attributes: .concurrent)
     private let session = URLSession(configuration: .ephemeral)
@@ -50,9 +53,16 @@ final class DroneScanner: ObservableObject {
     /// Starts continuous Bonjour discovery. Safe to call more than once.
     func startDiscovery() {
         guard bonjour == nil else { return }
-        let browser = BonjourDroneBrowser { [weak self] ip, name in
-            Task { @MainActor in self?.upsertBonjour(ip: ip, name: name) }
-        }
+        let browser = BonjourDroneBrowser(
+            onFound: { [weak self] ip, name in
+                Task { @MainActor in self?.upsertBonjour(ip: ip, name: name) }
+            },
+            onLost: { [weak self] ip in
+                Task { @MainActor in self?.found.removeAll { $0.id == ip && $0.bonjour } }
+            },
+            onError: { [weak self] message in
+                Task { @MainActor in self?.discoveryError = message }
+            })
         bonjour = browser
         browser.start()
     }
@@ -74,7 +84,10 @@ final class DroneScanner: ObservableObject {
         guard !scanning else { return }
         guard let prefix = Self.localSubnetPrefix() else { hasScanned = true; return }
         scanning = true
-        found = []
+        // Keep Bonjour-found drones: NetServiceBrowser does not re-report
+        // services it already announced, so clearing them would hide those
+        // drones until the app restarts.
+        found.removeAll { !$0.bonjour }
 
         let group = DispatchGroup()
         let gate = DispatchSemaphore(value: 48) // cap concurrent sockets
@@ -201,10 +214,17 @@ final class DroneScanner: ObservableObject {
 final class BonjourDroneBrowser: NSObject, NetServiceBrowserDelegate, NetServiceDelegate {
     private let browser = NetServiceBrowser()
     private var resolving = Set<NetService>()   // retain services during resolve
+    private var resolvedIP: [String: String] = [:] // service name -> IPv4, for didRemove
     private let onFound: (String, String) -> Void
+    private let onLost: ((String) -> Void)?
+    private let onError: ((String) -> Void)?
 
-    init(onFound: @escaping (String, String) -> Void) {
+    init(onFound: @escaping (String, String) -> Void,
+         onLost: ((String) -> Void)? = nil,
+         onError: ((String) -> Void)? = nil) {
         self.onFound = onFound
+        self.onLost = onLost
+        self.onError = onError
         super.init()
         browser.delegate = self
     }
@@ -220,12 +240,29 @@ final class BonjourDroneBrowser: NSObject, NetServiceBrowserDelegate, NetService
         service.resolve(withTimeout: 5.0)
     }
 
+    func netServiceBrowser(_ browser: NetServiceBrowser, didRemove service: NetService, moreComing: Bool) {
+        resolving.remove(service)
+        if let ip = resolvedIP.removeValue(forKey: service.name) { onLost?(ip) }
+    }
+
+    func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch errorDict: [String: NSNumber]) {
+        onError?("Bonjour discovery is blocked. Allow Bumblebee GCS in System Settings → "
+                 + "Privacy & Security → Local Network, then restart the app.")
+    }
+
     // MARK: NetServiceDelegate
 
     func netServiceDidResolveAddress(_ sender: NetService) {
-        defer { resolving.remove(sender) }
+        // The first callback may carry only the IPv6 address; keep the service
+        // retained so the IPv4 one can still arrive in a later callback.
         guard let ip = Self.ipv4(from: sender) else { return }
+        resolving.remove(sender)
+        resolvedIP[sender.name] = ip
         onFound(ip, Self.txtName(sender) ?? sender.name)
+    }
+
+    func netServiceDidStop(_ sender: NetService) {
+        resolving.remove(sender)
     }
 
     func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {

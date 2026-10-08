@@ -117,7 +117,8 @@ struct LaunchView: View {
             } else {
                 emptyState(scanner.scanning || !scanner.hasScanned ? "Looking for drones…"
                                                                    : "No drones found",
-                           "Drones on this WiFi appear here automatically. Or use the options below.")
+                           scanner.discoveryError
+                               ?? "Drones on this WiFi appear here automatically. Or use the options below.")
             }
         }
     }

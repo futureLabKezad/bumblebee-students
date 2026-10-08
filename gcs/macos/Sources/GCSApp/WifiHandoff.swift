@@ -179,7 +179,14 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
         // 3) Push the Mac's WiFi and apply it on the drone (no auth required).
         do {
             try await api.saveNetwork(ssid: targetSSID, password: targetPassword)
+        } catch {
+            phase = .failed("Couldn't set WiFi on the drone: \(error.localizedDescription)"); return
+        }
+        do {
             try await api.applyNow(ssid: targetSSID)
+        } catch where DroneAPI.isLinkDrop(error) {
+            // The drone dropped its hotspot to join targetSSID before the reply
+            // reached us (older drone software) — that is the expected outcome.
         } catch {
             phase = .failed("Couldn't set WiFi on the drone: \(error.localizedDescription)"); return
         }
@@ -228,7 +235,9 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
             Task { @MainActor in
                 var resumed = false
                 let browser = BonjourDroneBrowser { ip, _ in
-                    guard !resumed else { return }
+                    // 10.42.0.1 is the drone's own hotspot: a stale record from
+                    // before the switch, not the drone on the shared network.
+                    guard !resumed, !ip.hasPrefix("10.42.") else { return }
                     resumed = true
                     cont.resume(returning: ip)
                 }
