@@ -9,8 +9,17 @@ ACTION="$2"
 
 log() { echo "$(date): $1" >> /tmp/wifi-manager.log 2>/dev/null || true; }
 
-SWITCH_MARKER=/tmp/bumblebee-wifi-switch   # touched by wifi_manager.py before an API Wi-Fi switch
+# Deliberate switches drop wlan0 on purpose; don't abort the join they start.
+#   /tmp/bumblebee-wifi-switch  - wifi_manager.py, GCS-requested switch
+#   /run/bumblebee-wifi-probe   - wifi_watchdog.sh, trying a known network
+# wifi_watchdog.sh brings the hotspot back if such a join fails.
 SWITCH_GRACE=45
+fresh() {
+    local t
+    t=$(cat "$1" 2>/dev/null)
+    case "$t" in ''|*[!0-9]*) return 1 ;; esac
+    [ $(( $(date +%s) - t )) -lt $SWITCH_GRACE ]
+}
 
 # If already in hotspot mode - skip
 CONN=$(nmcli -t -f DEVICE,CONNECTION device status 2>/dev/null | grep "^wlan0:" | cut -d: -f2)
@@ -19,25 +28,19 @@ CONN=$(nmcli -t -f DEVICE,CONNECTION device status 2>/dev/null | grep "^wlan0:" 
 # Wait a bit to avoid triggering on brief disconnects
 sleep 5
 
-# The GCS just switched networks on purpose (wlan0 "down" is expected):
-# wifi_watchdog.sh takes over if the new network never comes up.
-t=$(cat "$SWITCH_MARKER" 2>/dev/null)
-case "$t" in ''|*[!0-9]*) ;; *)
-    [ $(( $(date +%s) - t )) -lt $SWITCH_GRACE ] && exit 0 ;;
-esac
+fresh /tmp/bumblebee-wifi-switch && exit 0
+fresh /run/bumblebee-wifi-probe && exit 0
 
 STATE=$(nmcli -t -f DEVICE,STATE device status 2>/dev/null | grep "^wlan0:" | cut -d: -f2)
-case "$STATE" in
-    connected|connecting*) exit 0 ;;   # joining a network: don't abort it
-esac
-
-# Stable SSID: Bumblebee-<last 4 hex digits of the wlan0 MAC>
-MAC=$(tr -d ':\n' < /sys/class/net/wlan0/address 2>/dev/null)
-if [ ${#MAC} -ge 4 ]; then
-    SSID="Bumblebee-$(echo "${MAC: -4}" | tr '[:lower:]' '[:upper:]')"
-else
-    SSID="Bumblebee-$((RANDOM % 9000 + 1000))"
+if [ "$STATE" != "connected" ]; then
+    # Stable SSID: Bumblebee-<last 4 hex digits of the wlan0 MAC>
+    MAC=$(tr -d ':\n' < /sys/class/net/wlan0/address 2>/dev/null)
+    if [ ${#MAC} -ge 4 ]; then
+        SSID="Bumblebee-$(echo "${MAC: -4}" | tr '[:lower:]' '[:upper:]')"
+    else
+        SSID="Bumblebee-$((RANDOM % 9000 + 1000))"
+    fi
+    log "wlan0 disconnected, activating hotspot $SSID"
+    nmcli connection modify bumblebee-hotspot wifi.ssid "$SSID" 2>/dev/null
+    nmcli connection up bumblebee-hotspot 2>> /tmp/wifi-manager.log || true
 fi
-log "wlan0 disconnected, activating hotspot $SSID"
-nmcli connection modify bumblebee-hotspot wifi.ssid "$SSID" 2>/dev/null
-nmcli connection up bumblebee-hotspot 2>> /tmp/wifi-manager.log || true

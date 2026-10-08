@@ -89,7 +89,10 @@ while read -r src dst owner mode; do
     if [ -e "$dest" ]; then
         mkdir -p "$BACKUP$(dirname "$dst")"
         $SUDO cp -p "$dest" "$BACKUP$dst"
-        echo "$SUDO cp -p '$BACKUP$dst' '$dest'" >> "$ROLLBACK"
+        # copy next to it, then rename: a script that is running right now
+        # (watchdog, dispatcher) keeps reading the old inode instead of a
+        # half-rewritten file
+        echo "$SUDO cp -p '$BACKUP$dst' '$dest.bbnew' && $SUDO mv -f '$dest.bbnew' '$dest'" >> "$ROLLBACK"
     else
         echo "$SUDO rm -f '$dest'" >> "$ROLLBACK"
     fi
@@ -117,8 +120,13 @@ if [ "$RESET_NAME" -eq 1 ]; then
 elif [ -s "$NAME_FILE" ] && [ ! -s "$MAC_FILE" ] && [ -n "$MAC" ]; then
     # Keep this drone's current name and bind it to its own wlan0 MAC, so a
     # card later cloned into another drone gets a fresh name there.
+    NAME=$(tr -d '[:space:]' < "$NAME_FILE")
     echo "$MAC" > "$MAC_FILE"
-    say "keeping name '$(tr -d '[:space:]' < "$NAME_FILE")' (bound to $MAC)"
+    say "keeping name '$NAME' (bound to $MAC)"
+    if [ "$NAME" = "bumblebee-4" ]; then
+        say "WARNING: 'bumblebee-4' is the name baked into the V1.0.0-beta image."
+        say "         Unless this really is drone 4, re-run with --reset-name."
+    fi
 fi
 [ -z "$ROOT" ] && chown lb:lb "$NAME_FILE" "$MAC_FILE" 2>/dev/null || true
 
@@ -133,4 +141,4 @@ $SUDO systemctl restart wifi-manager wifi-watchdog sys_metrics
 $SUDO systemctl restart bumblebee-identity
 
 say "done. Backup + rollback: $ROLLBACK"
-say "Wi-Fi power-save change applies on the next reconnect or reboot."
+say "Wi-Fi power-save change takes effect after the next reboot."

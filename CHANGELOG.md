@@ -11,9 +11,13 @@ and downloadable builds.
 - GCS Wi-Fi hand-off always reported failure: the drone switched networks
   before replying to `apply-now`. The drone now replies first; the macOS GCS
   also tolerates the lost reply from older drones.
-- Drone re-raised its hotspot (with a new random SSID) 5 s into joining a
-  network; the watchdog retried the wrong saved network. Both now hold off
-  while a join is in progress and use a stable SSID `Bumblebee-<hwid>`.
+- Drone re-raised its hotspot (with a new random SSID) 5 s into a GCS- or
+  watchdog-initiated join, so returning from the hotspot to a known network
+  rarely worked. Deliberate switches are now marked and left alone; a failed
+  join brings the hotspot straight back (with a 10 min back-off per network),
+  the hotspot is not dropped while the GCS uses it or after "hotspot mode" was
+  chosen in the GCS, the newest provisioned / visible network is tried first,
+  and the SSID is stable: `Bumblebee-<hwid>`.
 - Every drone flashed from the V1.0.0-beta image was named `Bumblebee-4`;
   the name is now bound to the wlan0 MAC and re-derived on a cloned card.
 - macOS GCS: rescan no longer hides Bonjour-found drones; IPv6-first resolves
@@ -25,12 +29,15 @@ and downloadable builds.
 
 ### Added
 - LED animation `rainbow_theater` and shows `party`, `siren`, `alarm`,
-  `victory` (LEDs + buzzer) used by the macOS GCS.
+  `victory` used by the macOS GCS. The show's melody is played by
+  `wifi_manager.py` (silent while armed); the LED scripts stay I2C-only.
 - `drone/system/`: drone-only config captured from the image (nginx, udev,
   sudoers, NetworkManager dispatcher/conf, camera tuning and calibration).
 - `drone/tools/deploy.sh`: update a running drone with backup and rollback.
 - `gcs/tools/mock_drone.py`: test the GCS against the real drone backend
-  without hardware. `test/test_wifi_manager.py` unit tests.
+  without hardware. Tests: `test/test_wifi_manager.py` (REST API, fake
+  nmcli) and `test/test_wifi_watchdog.py` (watchdog against a simulated
+  NetworkManager).
 
 ## v1.0.0 — 2026-07-29
 

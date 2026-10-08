@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""alarm — show: red strobe on the whole body + urgent chirps on the buzzer."""
+"""alarm — show: red strobe on the whole body (+ urgent chirps, played by wifi_manager)."""
 import _show
 from _show import drone
 
@@ -26,4 +26,4 @@ def frame(t):
     _show.fill(RED if (t * STROBE_HZ * 2) % 2 < 1 else OFF)
 
 
-_show.run(frame, drone.TUNE_WARN, fps=16, gap=0.5)
+_show.run(frame, fps=16)

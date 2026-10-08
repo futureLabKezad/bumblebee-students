@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""siren — show: police-style red/blue flasher + two-tone wail on the buzzer."""
+"""siren — show: police-style red/blue flasher (+ two-tone wail, played by wifi_manager)."""
 import _show
 from _show import drone
 
@@ -21,7 +21,6 @@ LEFT = (drone.LED_1, drone.LED_2, drone.LED_5)
 RIGHT = (drone.LED_3, drone.LED_4, drone.LED_6)
 RED = (220, 0, 0)
 BLUE = (0, 0, 220)
-WAIL = 'MNT100L4O5AO6DO5AO6D'  # hi-lo two-tone, 2.4 s
 FLIP_S = 0.25
 
 
@@ -34,4 +33,4 @@ def frame(t):
         _show.paint(RIGHT, RED)
 
 
-_show.run(frame, WAIL, fps=10, gap=0.1)
+_show.run(frame, fps=10)

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""party — show: rainbow spinning around the body + Mario theme on the buzzer."""
+"""party — show: rainbow spinning around the body (+ Mario theme, played by wifi_manager)."""
 import colorsys
 
 import _show
@@ -29,4 +29,4 @@ def frame(t):
         drone.set_led(strip, drone.LED_ALL, int(r * 255), int(g * 255), int(b * 255))
 
 
-_show.run(frame, drone.TUNE_MARIO, fps=12, gap=0.6)
+_show.run(frame, fps=12)

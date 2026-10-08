@@ -13,5 +13,4 @@ ros2_ws/src/bumblebee/examples/animations/alarm.py           /home/lb/ros2_ws/sr
 ros2_ws/src/bumblebee/examples/animations/victory.py         /home/lb/ros2_ws/src/bumblebee/examples/animations/victory.py         lb:lb 0755
 system/networkmanager/dispatcher.d/99-hotspot-fallback     /etc/NetworkManager/dispatcher.d/99-hotspot-fallback     root:root 0755
 system/networkmanager/dispatcher.d/90-bumblebee-identity   /etc/NetworkManager/dispatcher.d/90-bumblebee-identity   root:root 0755
-system/networkmanager/conf.d/99-bumblebee-wifi-powersave.conf /etc/NetworkManager/conf.d/99-bumblebee-wifi-powersave.conf root:root 0644
-system/cloud/99-bumblebee.cfg                              /etc/cloud/cloud.cfg.d/99-bumblebee.cfg                  root:root 0644
+system/networkmanager/conf.d/zz-bumblebee-wifi-powersave.conf /etc/NetworkManager/conf.d/zz-bumblebee-wifi-powersave.conf root:root 0644

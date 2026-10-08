@@ -10,7 +10,8 @@ IFACE="$1"
 ACTION="$2"
 
 [ "$IFACE" != "wlan0" ] && exit 0
-[ "$ACTION" != "up" ] && exit 0
+# "dhcp4-change": on dual-stack networks the IPv4 lease can arrive after "up"
+case "$ACTION" in up|dhcp4-change) ;; *) exit 0 ;; esac
 [ "$CONNECTION_ID" = "bumblebee-hotspot" ] && exit 0
 
 systemctl restart --no-block bumblebee-identity.service

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""victory — show: golden chase around the ring + fanfare on the buzzer."""
+"""victory — show: golden chase around the ring (+ fanfare, played by wifi_manager)."""
 import _show
 from _show import drone
 
@@ -29,4 +29,4 @@ def frame(t):
         drone.set_led(strip, drone.LED_ALL, *rgb)
 
 
-_show.run(frame, drone.TUNE_VICTORY, fps=10, gap=1.5)
+_show.run(frame, fps=10)

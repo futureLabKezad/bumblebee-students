@@ -26,6 +26,7 @@ import threading
 import time
 import unittest
 
+import tornado.gen
 from tornado.testing import AsyncHTTPTestCase
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -47,14 +48,18 @@ class FakeNmcli:
     def __init__(self):
         self.calls = []
         self.lock = threading.Lock()
-        self.connections = ['netplan-wlan0-Y', 'Home WiFi', wm.HOTSPOT_CONN]
+        self.connections = ['netplan-wlan0-Y', 'Home WiFi', 'Lab:5G', wm.HOTSPOT_CONN]
+        self.priorities = {'netplan-wlan0-Y': 10, 'Home WiFi': 12, 'Lab:5G': 0, wm.HOTSPOT_CONN: 0}
         self.wlan0 = ('connected', wm.HOTSPOT_CONN)
 
     def __call__(self, *args):
         with self.lock:
             self.calls.append(args)
         if args[:4] == ('-t', '-f', 'NAME', 'con'):
-            return '\n'.join(self.connections)
+            # nmcli -t escapes ':' and '\\' inside values
+            return '\n'.join(c.replace('\\', '\\\\').replace(':', '\\:') for c in self.connections)
+        if args[:4] == ('-t', '-f', 'TYPE,AUTOCONNECT-PRIORITY', 'con'):
+            return '\n'.join('802-11-wireless:%d' % p for p in self.priorities.values())
         if args[:4] == ('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device'):
             return 'wlan0:%s:%s\neth0:unavailable:' % self.wlan0
         if args[:4] == ('-t', '-f', 'IP4.ADDRESS', 'device'):
@@ -72,15 +77,16 @@ class WifiManagerTest(AsyncHTTPTestCase):
     def setUp(self):
         self.fake = FakeNmcli()
         self.tmp = tempfile.TemporaryDirectory()
-        self._orig = (wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S)
+        self._orig = (wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S, wm.HOTSPOT_PIN_MARKER)
         wm.nmcli = self.fake
         wm.WIFI_SWITCH_MARKER = os.path.join(self.tmp.name, 'switch')
+        wm.HOTSPOT_PIN_MARKER = os.path.join(self.tmp.name, 'pinned')
         wm.SWITCH_DELAY_S = 0.2
         super().setUp()
 
     def tearDown(self):
         super().tearDown()
-        wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S = self._orig
+        wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S, wm.HOTSPOT_PIN_MARKER = self._orig
         self.tmp.cleanup()
 
     def get_app(self):
@@ -109,6 +115,17 @@ class WifiManagerTest(AsyncHTTPTestCase):
         self.assertTrue(os.path.exists(wm.WIFI_SWITCH_MARKER))
         self.assertTrue(self.wait_for(lambda: self.fake.called('con', 'up', 'Home WiFi')))
 
+    def test_apply_now_profile_name_with_colon(self):
+        resp = self.post('/api/wifi/apply-now', {'ssid': 'Lab:5G'})
+        self.assertEqual(resp.code, 200)
+        self.assertTrue(self.wait_for(lambda: self.fake.called('con', 'up', 'Lab:5G')))
+
+    def test_save_gives_new_network_top_priority(self):
+        resp = self.post('/api/wifi/save', {'ssid': 'Classroom', 'password': 'x' * 8})
+        self.assertEqual(resp.code, 200)
+        prio = [c for c in self.fake.calls if 'connection.autoconnect-priority' in c][-1]
+        self.assertEqual(prio[-1], '13')   # one above the current max (12)
+
     def test_apply_now_unknown_network(self):
         resp = self.post('/api/wifi/apply-now', {'ssid': 'Nope'})
         self.assertEqual(resp.code, 404)
@@ -127,6 +144,14 @@ class WifiManagerTest(AsyncHTTPTestCase):
         self.assertEqual(json.loads(resp.body), {'ok': True, 'mode': 'hotspot'})
         self.assertTrue(self.wait_for(
             lambda: self.fake.called('connection', 'up', wm.HOTSPOT_CONN)))
+
+    def test_hotspot_mode_is_pinned_until_client_mode(self):
+        self.fake.wlan0 = ('connected', 'Home WiFi')
+        self.post('/api/wifi/mode', {'mode': 'hotspot'})
+        self.assertTrue(os.path.exists(wm.HOTSPOT_PIN_MARKER))
+        self.fake.wlan0 = ('connected', wm.HOTSPOT_CONN)
+        self.post('/api/wifi/mode', {'mode': 'client'})
+        self.assertFalse(os.path.exists(wm.HOTSPOT_PIN_MARKER))
 
     def test_mode_client_from_hotspot(self):
         resp = self.post('/api/wifi/mode', {'mode': 'client'})
@@ -157,6 +182,82 @@ class WifiManagerTest(AsyncHTTPTestCase):
         resp = self.post('/api/wifi/network', {'ssid': 'Home WiFi'}, method='DELETE')
         self.assertEqual(resp.code, 200)
         self.assertEqual(self.fake.called('con', 'delete'), [('con', 'delete', 'Home WiFi')])
+
+
+class FakeDrone:
+    TUNE_MARIO = 'MFT200L8O5EEP8EP8CEP8GP8P4<GP4'
+    TUNE_WARN = 'MFT200L16O5AP16AP16A'
+    TUNE_VICTORY = 'MFT180L8O5CEGO6CL4C'
+
+    def __init__(self):
+        self.tunes = []
+        self.armed = False
+
+    def play_tune(self, tune, fmt='QBASIC'):
+        self.tunes.append(tune)
+
+    def get_fcu_status(self, max_age=3.0):
+        return {'armed': self.armed}
+
+    def set_led(self, *a):
+        pass
+
+
+class ShowsTest(AsyncHTTPTestCase):
+    """POST /api/led/animation for a show: LED script + tune loop in-process."""
+
+    def setUp(self):
+        self.drone = FakeDrone()
+        self.tmp = tempfile.TemporaryDirectory()
+        for name in wm.ANIMATIONS:   # LED scripts that just wait for SIGTERM
+            with open(os.path.join(self.tmp.name, name + '.py'), 'w') as f:
+                f.write('import time\nwhile True: time.sleep(1)\n')
+        self._orig = (getattr(wm, '_drone', None), wm._LED_OK, wm.ANIM_DIR, wm.LED_BUSY)
+        wm._drone, wm._LED_OK, wm.ANIM_DIR = self.drone, True, self.tmp.name
+        wm.LED_BUSY = os.path.join(self.tmp.name, 'led_busy')
+        super().setUp()
+
+    def tearDown(self):
+        wm._stop_anim()
+        super().tearDown()
+        wm._drone, wm._LED_OK, wm.ANIM_DIR, wm.LED_BUSY = self._orig
+        self.tmp.cleanup()
+
+    def get_app(self):
+        return wm.make_app()
+
+    def start(self, name):
+        return self.fetch('/api/led/animation', method='POST', body=json.dumps({'name': name}))
+
+    def test_show_repeats_its_tune_until_stopped(self):
+        self.assertEqual(self.start('alarm').code, 200)      # 0.375 s tune + 0.5 s gap
+        self.io_loop.run_sync(lambda: tornado.gen.sleep(2.4))
+        real = [t for t in self.drone.tunes if t == FakeDrone.TUNE_WARN]
+        self.assertGreaterEqual(len(real), 2)
+        self.assertEqual(json.loads(self.fetch('/api/led/status').body)['animation'], 'alarm')
+        self.fetch('/api/led/reset', method='POST', body='')
+        n = len(self.drone.tunes)
+        self.io_loop.run_sync(lambda: tornado.gen.sleep(1.2))
+        self.assertEqual(len(self.drone.tunes), n, 'tune kept playing after the show stopped')
+
+    def test_show_is_silent_while_armed(self):
+        self.drone.armed = True
+        self.start('siren')
+        self.io_loop.run_sync(lambda: tornado.gen.sleep(1.0))
+        self.assertNotIn('MNT100L4O5AO6DO5AO6D', self.drone.tunes)
+
+    def test_plain_animation_plays_no_tune(self):
+        self.start('rainbow')
+        self.io_loop.run_sync(lambda: tornado.gen.sleep(1.0))
+        self.assertEqual(self.drone.tunes, [])
+
+    def test_tune_seconds(self):
+        ts = wm._tune_seconds
+        self.assertAlmostEqual(ts('T120L4C'), 0.5)
+        self.assertAlmostEqual(ts('T120L4C.'), 0.75)
+        self.assertAlmostEqual(ts('T60C8'), 0.5)
+        self.assertAlmostEqual(ts('T120P2'), 1.0)
+        self.assertAlmostEqual(ts('MNT100L4O5AO6DO5AO6D'), 2.4)
 
 
 class AnimationsTest(unittest.TestCase):

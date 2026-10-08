@@ -71,6 +71,8 @@ def led_take_control(): pass
 def led_release_control(): pass
 def play_tune(tune, format='QBASIC'):
     print('[mock-drone] BUZZER %s %s' % (format, tune), flush=True)
+def get_fcu_status(max_age=3.0):
+    return {'connected': True, 'armed': False, 'mode': 'POSCTL', 'cell': 4.0, 'ok': True}
 '''
 
 

@@ -18,6 +18,7 @@
 import json
 import logging
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -52,10 +53,18 @@ except Exception as _te:
     _tts_to_tune = None
 LED_BUSY = '/tmp/led_busy'
 ANIM_DIR = '/home/lb/ros2_ws/src/bumblebee/examples/animations'
+# Shows = an LED script from ANIM_DIR plus a buzzer melody that this process
+# replays (it already owns a ROS node via drone.py, so the LED script stays
+# I2C-only like the other animations). name -> (drone.py tune constant or
+# literal QBASIC tune, seconds of silence between repeats).
+SHOWS = {
+    'party':   ('TUNE_MARIO', 0.6),
+    'siren':   ('MNT100L4O5AO6DO5AO6D', 0.1),   # hi-lo two-tone wail
+    'alarm':   ('TUNE_WARN', 0.5),
+    'victory': ('TUNE_VICTORY', 1.5),
+}
 ANIMATIONS = {'breathing', 'rainbow', 'police', 'strobe', 'fire', 'theater',
-              'rainbow_theater',
-              # shows: LEDs + looping buzzer melody (see animations/_show.py)
-              'party', 'siren', 'alarm', 'victory'}
+              'rainbow_theater'} | set(SHOWS)
 # Touched before every API-driven Wi-Fi switch. wifi_watchdog.sh and the NM
 # dispatcher hold off their hotspot fallback while it is fresh, so they don't
 # abort a join that is still authenticating / getting DHCP.
@@ -63,11 +72,16 @@ WIFI_SWITCH_MARKER = '/tmp/bumblebee-wifi-switch'
 # Delay before a connection-changing nmcli call, so the HTTP reply reaches the
 # GCS before the drone drops the link the GCS is talking over.
 SWITCH_DELAY_S = 1.5
+# Present while the GCS asked for hotspot mode: wifi_watchdog.sh then stops
+# probing for known networks (which would switch the drone back to client).
+HOTSPOT_PIN_MARKER = '/tmp/bumblebee-hotspot-pinned'
 _anim_proc = None  # subprocess.Popen | None
+_show_gen = 0      # bumped on every animation stop/start; ends a show's tune loop
 
 
 def _stop_anim():
-    global _anim_proc
+    global _anim_proc, _show_gen
+    _show_gen += 1
     if _anim_proc is not None and _anim_proc.poll() is None:
         try:
             _anim_proc.terminate()
@@ -146,6 +160,96 @@ def _hotspot_ssid():
     except OSError:
         pass
     return None
+
+
+def _nm_unescape(value):
+    """Undo nmcli terse-mode escaping of ':' and '\\' in a single field."""
+    out, i = [], 0
+    while i < len(value):
+        if value[i] == '\\' and i + 1 < len(value):
+            i += 1
+        out.append(value[i])
+        i += 1
+    return ''.join(out)
+
+
+def _con_names():
+    """Names of all saved NetworkManager connections (unescaped)."""
+    return [_nm_unescape(n) for n in nmcli('-t', '-f', 'NAME', 'con', 'show').splitlines()]
+
+
+def _next_wifi_priority():
+    """One above every saved Wi-Fi profile, so the network the GCS provisioned
+    last wins both NM autoconnect and wifi_watchdog.sh's retry order."""
+    best = 9
+    for line in nmcli('-t', '-f', 'TYPE,AUTOCONNECT-PRIORITY', 'con', 'show').splitlines():
+        kind, _, prio = line.partition(':')
+        if kind == '802-11-wireless':
+            try:
+                best = max(best, int(prio))
+            except ValueError:
+                pass
+    return str(min(best + 1, 999))
+
+
+def _tune_seconds(tune):
+    """Play length of a QBASIC (PX4 PLAY_TUNE) string, in seconds."""
+    tempo, length, total = 120, 4, 0.0
+    for tok in re.findall(r'M[FBNLS]|[TLONP]\d+|[A-G][#+-]?\d*\.*|[<>]', tune.upper()):
+        head = tok[0]
+        if (head == 'M' and len(tok) == 2) or head in '<>O':
+            continue
+        if head == 'T':
+            tempo = int(tok[1:])
+            continue
+        if head == 'L':
+            length = int(tok[1:])
+            continue
+        dots = tok.count('.')
+        digits = re.sub(r'\D', '', tok)
+        if head == 'P':
+            n = int(digits)
+        elif head == 'N':
+            n = length
+        else:
+            n = int(digits) if digits else length
+        total += (240.0 / tempo) / n * (2 - 0.5 ** dots)
+    return total
+
+
+def _fcu_armed():
+    try:
+        return bool(_drone.get_fcu_status().get('armed'))
+    except Exception:
+        return False
+
+
+def _start_show_tune(name, gen):
+    """Replay the show's melody until the show is stopped (gen changes).
+    Silent while the drone is armed, so PX4's own warning tunes stay audible."""
+    tune, gap = SHOWS[name]
+    tune = getattr(_drone, tune, tune)
+    period = _tune_seconds(tune) + gap
+    loop = tornado.ioloop.IOLoop.current()
+    try:
+        # A brand-new DDS publisher drops its first message; create it with a
+        # silent rest so the first real repeat is heard.
+        _drone.play_tune('MFT255L64P64')
+    except Exception:
+        logging.exception('show %s: buzzer unavailable', name)
+        return
+
+    def tick():
+        if gen != _show_gen:
+            return
+        if not _fcu_armed():
+            try:
+                _drone.play_tune(tune)
+            except Exception:
+                logging.exception('show %s: play_tune failed', name)
+        loop.call_later(period, tick)
+
+    loop.call_later(0.5, tick)
 
 
 async def _blocking(fn, *args):
@@ -350,8 +454,7 @@ class SaveNetworkHandler(BaseHandler):
             self.finish(json.dumps({'error': 'ssid required'}))
             return
         try:
-            existing = nmcli('-t', '-f', 'NAME', 'con', 'show')
-            if ssid in existing.splitlines():
+            if ssid in _con_names():
                 if password:
                     nmcli('con', 'modify', ssid, 'wifi-sec.psk', password)
             else:
@@ -365,7 +468,7 @@ class SaveNetworkHandler(BaseHandler):
                           'con-name', ssid, 'ssid', ssid)
             nmcli('con', 'modify', ssid,
                   'connection.autoconnect', 'yes',
-                  'connection.autoconnect-priority', '10')
+                  'connection.autoconnect-priority', _next_wifi_priority())
             self.finish(json.dumps({'ok': True}))
         except Exception as e:
             logging.exception('save error')
@@ -384,13 +487,13 @@ class ApplyNowHandler(BaseHandler):
             self.finish(json.dumps({'error': 'ssid required'}))
             return
         try:
-            existing = nmcli('-t', '-f', 'NAME', 'con', 'show')
+            known = _con_names()
         except Exception as e:
             logging.exception('apply-now error')
             self.set_status(500)
             self.finish(json.dumps({'error': str(e)}))
             return
-        if ssid not in existing.splitlines():
+        if ssid not in known:
             self.set_status(404)
             self.finish(json.dumps({'error': 'unknown network: ' + ssid}))
             return
@@ -479,12 +582,17 @@ class ModeHandler(BaseHandler):
         # switch right after (see _nmcli_after_reply).
         try:
             if target == 'hotspot':
+                open(HOTSPOT_PIN_MARKER, 'w').close()
                 ssid = _hotspot_ssid()
                 if ssid:
                     nmcli('connection', 'modify', HOTSPOT_CONN, 'wifi.ssid', ssid)
                 _nmcli_after_reply('connection', 'up', HOTSPOT_CONN)
                 logging.info('switching to hotspot mode')
             else:
+                try:
+                    os.remove(HOTSPOT_PIN_MARKER)
+                except OSError:
+                    pass
                 if _current_mode() == 'hotspot':
                     # wifi_watchdog will pick a visible known network.
                     _nmcli_after_reply('connection', 'down', HOTSPOT_CONN)
@@ -546,6 +654,8 @@ class LedAnimationHandler(BaseHandler):
         try:
             _anim_proc = subprocess.Popen(['python3', script])
             _anim_proc._name = name
+            if name in SHOWS:
+                _start_show_tune(name, _show_gen)
             self.finish(json.dumps({'ok': True, 'name': name, 'pid': _anim_proc.pid}))
         except Exception as e:
             logging.exception('led animation spawn')
