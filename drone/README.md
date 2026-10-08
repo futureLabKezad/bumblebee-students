@@ -25,3 +25,25 @@ colcon build --symlink-install --packages-select bumblebee
 ```
 
 How it all fits together: [System Architecture](https://github.com/futureLabKezad/bumblebee-students/wiki/System‐Architecture) · [Launch Pipeline](https://github.com/futureLabKezad/bumblebee-students/wiki/Launch‐Pipeline) · [System Services](https://github.com/futureLabKezad/bumblebee-students/wiki/System‐Services)
+
+## Updating a running drone
+
+`tools/deploy.sh` installs the files listed in `tools/MANIFEST` on a drone
+over SSH. It backs up everything it replaces and writes a `rollback.sh`, refuses
+to run while the drone is armed, and only restarts the Wi-Fi / metrics /
+identity services. `bumblebee.service` and the flight stack are not touched.
+
+```bash
+drone/tools/deploy.sh <drone-ip>                 # keeps the drone's current name
+drone/tools/deploy.sh <drone-ip> --reset-name    # drones flashed from V1.0.0-beta (all "bumblebee-4")
+```
+
+Roll back with `bash ~/.bumblebee-update/<timestamp>/rollback.sh` on the drone.
+
+## Tests
+
+```bash
+pip install tornado bcrypt
+cd drone/ros2_ws/src/bumblebee && python3 -m unittest test/test_wifi_manager.py
+python3 gcs/tools/mock_drone.py     # mock drone for the GCS apps (real wifi_manager.py)
+```
