@@ -32,7 +32,7 @@ NAME="bumblebee-$VERSION-rpi5"
 SLACK_MB=1024            # free space left in the shrunk root fs before first boot
 
 [ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 1; }
-for t in losetup e2fsck resize2fs sfdisk xz tar install; do
+for t in losetup e2fsck resize2fs sfdisk xz tar install zerofree openssl python3; do
     command -v "$t" >/dev/null || { echo "missing tool: $t" >&2; exit 1; }
 done
 
@@ -111,6 +111,21 @@ network:
 NETCFG
 fi
 rm -rf "$MNT/boot/firmware/System Volume Information"   # Windows chkdsk leftover
+# boot partition cloud-init user-data: the seed carried the hash of a private
+# password (set in Raspberry Pi Imager for the dev card). It is only used if
+# cloud-init ever sees a new instance; make it the documented default "lb",
+# the same password /etc/shadow has.
+if [ -f "$MNT/boot/firmware/user-data" ]; then
+    LB_HASH=$(openssl passwd -6 lb)
+    LB_HASH="$LB_HASH" python3 - "$MNT/boot/firmware/user-data" <<'PY'
+import os, re, sys
+p = sys.argv[1]
+text = open(p).read()
+text = re.sub(r'^(\s*passwd:\s*).*$', lambda m: m.group(1) + '"%s"' % os.environ['LB_HASH'],
+              text, flags=re.M)
+open(p, 'w').write(text)
+PY
+fi
 # cloud-init keeps copies of the seed it booted with (user-data with the
 # password hash, network-config with Wi-Fi passwords) in its instance cache.
 # Drop those copies but keep the instance markers, so cloud-init does not
@@ -124,7 +139,11 @@ done
 rm -f "$MNT"/var/lib/cloud/data/*.json "$MNT"/var/lib/cloud/data/previous-hostname
 # unique per machine: regenerated on first boot
 : > "$MNT/etc/machine-id"
-rm -f "$MNT/var/lib/systemd/random-seed" "$MNT/etc/iscsi/initiatorname.iscsi"
+rm -f "$MNT/var/lib/systemd/random-seed"
+if [ -e "$MNT/etc/iscsi/initiatorname.iscsi" ]; then   # reset, as the package ships it:
+    printf 'GenerateName=yes\n' > "$MNT/etc/iscsi/initiatorname.iscsi"   # unique name on first use
+    chmod 600 "$MNT/etc/iscsi/initiatorname.iscsi"
+fi
 rm -f "$MNT"/etc/ssh/ssh_host_*
 install -d "$MNT/etc/systemd/system/ssh.service.d"
 install -m 0644 "$REPO/drone/image/ssh-hostkeys.conf" \
@@ -166,6 +185,12 @@ while read -r src dst _; do
     cmp -s "$WORK/bb-update/payload/$src" "$MNT$dst" || { echo "not installed: $dst" >&2; exit 1; }
 done < "$WORK/bb-update/MANIFEST"
 
+# Deleted files stay readable in free space (old Wi-Fi passwords, history,
+# logs). Zero the free clusters of the FAT boot partition here; the root fs
+# is zeroed with zerofree after shrinking.
+dd if=/dev/zero of="$MNT/boot/firmware/.zero" bs=1M status=none 2>/dev/null || true
+sync; rm -f "$MNT/boot/firmware/.zero"; sync
+
 umount "$MNT/boot/firmware" "$MNT"
 
 # ---- 6. shrink -------------------------------------------------------------------
@@ -177,6 +202,8 @@ BLOCKS=$(dumpe2fs -h "${LOOP}p2" 2>/dev/null | awk -F: '/^Block count/ {gsub(/ /
 BLOCKS=$((BLOCKS + SLACK_MB * 1024 * 1024 / BS))
 resize2fs "${LOOP}p2" "$BLOCKS" >/dev/null 2>&1
 e2fsck -fy "${LOOP}p2" >/dev/null || [ $? -le 1 ]
+say "zeroing free space"
+zerofree "${LOOP}p2"
 START=$(sfdisk -d "$IMG" | awk -F'[=,]' '/'"$(basename "$IMG")"'2 / {gsub(/ /,"",$2); print $2}')
 SECTORS=$(( (BLOCKS * BS + 511) / 512 ))
 SECTORS=$(( (SECTORS + 2047) / 2048 * 2048 ))   # round up to 1 MiB

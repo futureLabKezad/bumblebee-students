@@ -45,6 +45,18 @@ LOOP=$(losetup -P --show -fr "$WORK/img")
 check "boot partition is FAT32 (type c)" bash -c "sfdisk -d '$WORK/img' | grep -q 'start=        2048,.*type=c'"
 check "root fs is clean (e2fsck -n)" e2fsck -fn "${LOOP}p2"
 
+echo "== raw image (incl. free space) holds no Wi-Fi passwords"
+python3 - "$WORK/img" <<'PY' && ok "no Wi-Fi passwords other than the public hotspot one" || bad "Wi-Fi passwords found in the raw image"
+import mmap, re, sys
+with open(sys.argv[1], 'rb') as f:
+    mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+    values = {m.group(1) for m in re.finditer(rb'password: "([^"\n]{8,64})"', mm)}
+    values |= {m.group(1) for m in re.finditer(rb'\bpsk=([^\s]{8,64})', mm)}
+others = values - {b'12345678'}
+print('       distinct password values found: %d (hotspot excluded), not printed' % len(others))
+sys.exit(1 if others else 0)
+PY
+
 mkdir -p "$MNT"
 mount -o ro "${LOOP}p2" "$MNT"
 mount -o ro "${LOOP}p1" "$MNT/boot/firmware"
@@ -79,6 +91,11 @@ check "no credentials in cloud-init cache / backups" bash -c "! grep -rlsE 'pass
 check "cloud-init instance marker kept" bash -c "ls -d '$MNT'/var/lib/cloud/instances/*/ >/dev/null 2>&1 && test -e '$MNT/var/lib/cloud/data/instance-id'"
 check "no crash dumps" bash -c "[ -z \"\$(ls -A '$MNT'/var/crash 2>/dev/null)\" ]"
 check "random-seed removed" test ! -e "$MNT/var/lib/systemd/random-seed"
+check "iSCSI initiator name reset" grep -qx 'GenerateName=yes' "$MNT/etc/iscsi/initiatorname.iscsi"
+check "boot user-data password is the documented 'lb'" python3 -W ignore -c "
+import crypt, re, sys
+h = re.search(r'^\s*passwd:\s*\"?([^\"\s]+)', open('$MNT/boot/firmware/user-data').read(), re.M).group(1)
+sys.exit(0 if crypt.crypt('lb', h) == h else 1)"
 
 echo "== things that must still be there"
 for p in /home/lb/ros2_ws/install/bumblebee/lib/bumblebee/simple_offboard \
