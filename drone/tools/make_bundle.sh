@@ -37,5 +37,9 @@ while read -r src _; do
 done < "$TOOLS/MANIFEST"
 # Record which commit the bundle was built from.
 git -c safe.directory='*' -C "$DRONE_DIR" describe --always --dirty > "$STAGE/bb-update/VERSION" 2>/dev/null || echo unknown > "$STAGE/bb-update/VERSION"
-COPYFILE_DISABLE=1 tar --no-xattrs --no-mac-metadata -C "$STAGE" -czf "$OUT" bb-update
+# macOS (bsdtar): keep extended attributes / AppleDouble files out of the
+# archive, otherwise GNU tar on the drone warns about unknown headers.
+TAR_OPTS=()
+tar --version 2>/dev/null | grep -q bsdtar && TAR_OPTS=(--no-xattrs --no-mac-metadata)
+COPYFILE_DISABLE=1 tar ${TAR_OPTS[@]+"${TAR_OPTS[@]}"} -C "$STAGE" -czf "$OUT" bb-update
 echo "$OUT ($(cat "$STAGE/bb-update/VERSION"))"
