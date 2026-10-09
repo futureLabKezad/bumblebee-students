@@ -16,9 +16,9 @@
 HOTSPOT_CONN="bumblebee-hotspot"
 CHECK_INTERVAL=${BB_CHECK_INTERVAL:-5}
 RECONNECT_INTERVAL=${BB_RECONNECT_INTERVAL:-60}   # min hotspot uptime between probes for known wifi
-RECONNECT_ATTEMPTS=${BB_RECONNECT_ATTEMPTS:-10}   # how many times to try rejoining a known wifi before hotspot
-RECONNECT_TRY_INTERVAL=${BB_RECONNECT_TRY_INTERVAL:-6}  # seconds between attempts
 RECONNECT_DEADLINE=${BB_RECONNECT_DEADLINE:-90}   # hard cap on the reconnect loop before the hotspot comes up
+SCAN_WAIT=${BB_SCAN_WAIT:-4}                      # seconds for a Wi-Fi scan to fill the list
+SCAN_ROUNDS=${BB_SCAN_ROUNDS:-2}                  # scans before deciding "no known network in range"
 JOIN_TIMEOUT=${BB_JOIN_TIMEOUT:-40}               # max seconds a probe join from the hotspot may take
 TRY_TIMEOUT=${BB_TRY_TIMEOUT:-20}                 # max seconds one reconnect attempt may block
 PROBE_BACKOFF=${BB_PROBE_BACKOFF:-600}            # don't re-probe a network that just failed to join
@@ -89,12 +89,43 @@ ranked_client_conns() {
         ssid=$(nmcli -g 802-11-wireless.ssid con show "$uuid" 2>/dev/null)
         vis=0
         [ -n "$ssid" ] && grep -qxF -- "$ssid" <<< "$visible" && vis=1
+        # hidden networks never show up in a scan: always worth a try
+        [ "$(nmcli -g 802-11-wireless.hidden con show "$uuid" 2>/dev/null)" = "yes" ] && vis=1
         echo "$vis:${prio:-0}:${ts:-0}:$uuid"
     done | sort -t: -k1,1nr -k2,2nr -k3,3nr
 }
 
 con_label() {
     nmcli -g connection.id con show "$1" 2>/dev/null || echo "$1"
+}
+
+# Wait while wlan0 is "connecting" (up to $1 s); true once connected.
+wait_connected() {
+    local end=$(( $(date +%s) + $1 ))
+    while [ "$(date +%s)" -lt "$end" ]; do
+        case "$(wlan0_field STATE)" in
+            connected) return 0 ;;
+            connecting*) sleep 1 ;;
+            *) return 1 ;;
+        esac
+    done
+    [ "$(wlan0_field STATE)" = "connected" ]
+}
+
+# Saved client profiles worth trying now: in range (or hidden) and not just failed.
+candidates() {
+    local vis uuid
+    while IFS=: read -r vis _ _ uuid; do
+        [ "$vis" = "1" ] || break             # ranked: visible ones come first
+        in_backoff "$uuid" || echo "$uuid"
+    done < <(ranked_client_conns)
+}
+
+has_client_profiles() {
+    local hs
+    hs=$(hotspot_uuid)
+    nmcli -t -f UUID,TYPE con show 2>/dev/null |
+        awk -F: -v hs="$hs" '$2 == "802-11-wireless" && $1 != hs {found = 1} END {exit !found}'
 }
 
 raise_hotspot() {
@@ -188,37 +219,40 @@ while true; do
         nmcli connection modify "$uuid" connection.autoconnect yes 2>/dev/null
     done
 
-    # wlan0 not connected and not already on the hotspot:
-    # actively try to rejoin a known wifi RECONNECT_ATTEMPTS times, raise hotspot only if all fail.
-    # Never reboots — this is the sole path on wifi loss (boot-time AND in-flight).
+    # wlan0 not connected and not already on the hotspot: rejoin a known
+    # network that is in range, otherwise raise the hotspot right away (a fresh
+    # drone, or one taken away from its saved network, shows its hotspot within
+    # seconds instead of after a long retry loop). Never reboots - this is the
+    # sole path on wifi loss (boot-time AND in-flight).
     if [ "$STATE" != "connected" ] && [ "$hotspot_starting" -eq 0 ]; then
-        # best profile not just failed (by the GCS or by us)
-        CLIENT_CONN=""
-        while IFS=: read -r _ _ _ uuid; do
-            in_backoff "$uuid" || { CLIENT_CONN=$uuid; break; }
-        done < <(ranked_client_conns)
-        log "wlan0 not connected (state=$STATE), reconnect loop to $( [ -n "$CLIENT_CONN" ] && con_label "$CLIENT_CONN" || echo '<none>')"
         reconnected=0
         deadline=$(( $(date +%s) + RECONNECT_DEADLINE ))
-        for i in $(seq 1 "$RECONNECT_ATTEMPTS"); do
-            [ -n "$CLIENT_CONN" ] || break        # nothing worth trying: hotspot now
-            [ "$(date +%s)" -lt "$deadline" ] || break
-            ST=$(wlan0_field STATE)
-            case "$ST" in
-                connecting*) ;;   # previous attempt still in progress: don't restart it
-                *) nmcli -w "$TRY_TIMEOUT" connection up "$CLIENT_CONN" 2>/dev/null ;;
-            esac
-            sleep "$RECONNECT_TRY_INTERVAL"
-            ST=$(wlan0_field STATE)
-            if [ "$ST" = "connected" ]; then
-                log "reconnected on attempt $i"
-                reconnected=1
-                break
-            fi
-            log "reconnect attempt $i/$RECONNECT_ATTEMPTS failed"
-        done
-        if [ "$reconnected" -eq 0 ]; then
-            raise_hotspot "reconnect failed after $RECONNECT_ATTEMPTS attempts"
+        case "$STATE" in
+            connecting*)                        # NM is already joining (e.g. boot autoconnect)
+                wait_connected "$TRY_TIMEOUT" && reconnected=1 ;;
+        esac
+        TRIED=""
+        if [ "$reconnected" -eq 0 ] && has_client_profiles; then
+            for _round in $(seq 1 "$SCAN_ROUNDS"); do
+                nmcli dev wifi rescan 2>/dev/null
+                sleep "$SCAN_WAIT"
+                for uuid in $(candidates); do
+                    [ "$(date +%s)" -lt "$deadline" ] || break 2
+                    case " $TRIED " in *" $uuid "*) continue ;; esac
+                    TRIED="$TRIED $uuid"
+                    log "wlan0 not connected (state=$STATE), trying '$(con_label "$uuid")'"
+                    nmcli -w "$TRY_TIMEOUT" connection up "$uuid" 2>/dev/null
+                    if wait_connected 2; then reconnected=1; break 2; fi
+                done
+                [ -n "$TRIED" ] && break        # tried what was in range: don't rescan
+            done
+        fi
+        if [ "$reconnected" -eq 1 ]; then
+            log "reconnected"
+        elif [ -n "$TRIED" ]; then
+            raise_hotspot "could not join a known network"
+        else
+            raise_hotspot "no known network in range"
         fi
     fi
 

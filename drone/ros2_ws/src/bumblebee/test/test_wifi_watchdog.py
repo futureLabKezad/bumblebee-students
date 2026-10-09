@@ -76,6 +76,8 @@ elif t == 'SSID' and 'list' in args:
 elif t == '802-11-wireless.ssid':
     # `con show <id>` is multiline output: values are NOT escaped
     out = ['802-11-wireless.ssid:' + find(args[-1])['ssid']]
+elif args[:2] == ['-g', '802-11-wireless.hidden']:
+    out = [find(args[-1]).get('hidden', 'no')]
 elif args[:2] == ['-g', '802-11-wireless.ssid']:
     out = [esc(find(args[-1])['ssid'])]   # -g escapes like -t tabular
 elif args[:2] == ['-g', 'connection.id']:
@@ -96,7 +98,7 @@ elif args[:2] == ['connection', 'up']:
     if c['name'] == 'bumblebee-hotspot':
         st['conn'], st['state'] = c['name'], 'connected'
         st['hotspot_ups'].append(c['ssid'])
-    elif c['ssid'] in st['visible'] and c.get('psk_ok', True):
+    elif (c['ssid'] in st['visible'] or c.get('hidden') == 'yes') and c.get('psk_ok', True):
         st['conn'], st['state'] = c['name'], 'connected'
         c['ts'] = int(time.time())
     else:
@@ -136,8 +138,7 @@ class WatchdogSim(unittest.TestCase):
         self.env = dict(os.environ,
                         PATH=d + os.pathsep + os.environ['PATH'],
                         FAKE_STATE=self.state_path,
-                        BB_CHECK_INTERVAL='0.2', BB_RECONNECT_INTERVAL='2',
-                        BB_RECONNECT_ATTEMPTS='3', BB_RECONNECT_TRY_INTERVAL='0.2',
+                        BB_CHECK_INTERVAL='0.2', BB_RECONNECT_INTERVAL='2', BB_SCAN_WAIT='0.2',
                         BB_JOIN_TIMEOUT='5', BB_PROBE_BACKOFF='30', BB_SWITCH_GRACE='3',
                         BB_API_SWITCH_MARKER=os.path.join(d, 'api-switch'),
                         BB_API_FAILED_LOG=os.path.join(d, 'api-failed'),
@@ -244,11 +245,25 @@ class WatchdogSim(unittest.TestCase):
         self.assertEqual(st['conn'], HOTSPOT)
         self.assertEqual(self.ups(st, 'u-home'), [])
 
-    def test_reconnect_loop_has_a_deadline(self):
-        self.env.update(BB_RECONNECT_ATTEMPTS='1000', BB_RECONNECT_DEADLINE='2')
+    # -- fast hotspot when no known network is around -------------------------
+
+    def test_saved_network_out_of_range_gives_hotspot_fast(self):
         st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home')],
-                                'visible': [], 'conn': '', 'state': 'disconnected'}, 5)
+                                'visible': [], 'conn': '', 'state': 'disconnected'}, 2.5)
         self.assertEqual(st['conn'], HOTSPOT)
+        self.assertEqual(self.ups(st, 'u-home'), [], 'tried a network that is not in range')
+
+    def test_hidden_network_is_still_tried(self):
+        hidden = con('Lab', 'u-lab')
+        hidden['hidden'] = 'yes'
+        st = self.run_watchdog({'cons': [self.hotspot(), hidden],
+                                'visible': [], 'conn': '', 'state': 'disconnected'}, 2.5)
+        self.assertEqual(st['conn'], 'Lab')
+
+    def test_does_not_interrupt_networkmanager_joining(self):
+        st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home')],
+                                'visible': ['Home'], 'conn': '', 'state': 'connecting (configuring)'}, 2)
+        self.assertEqual([c for c in st['calls'] if 'up' in c], [])
 
     def test_autoconnect_only_rewritten_when_off(self):
         cons = [self.hotspot(), con('Home', 'u-home'), con('Lab', 'u-lab')]
