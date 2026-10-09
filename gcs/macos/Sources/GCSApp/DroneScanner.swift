@@ -157,6 +157,10 @@ final class DroneScanner: ObservableObject {
                                    completion: @escaping @Sendable (Bool) -> Void) {
         guard let nwPort = NWEndpoint.Port(rawValue: port) else { completion(false); return }
         let conn = NWConnection(host: NWEndpoint.Host(ip), port: nwPort, using: .tcp)
+        // One serial queue per probe: the state handler and the timeout must
+        // not race on `finished` (on the shared concurrent queue they could both
+        // complete, and a double DispatchGroup.leave() in scan() crashes).
+        let queue = DispatchQueue(label: "gcs.scan.probe", target: probeQueue)
         var finished = false
         let done: (Bool) -> Void = { ok in
             if finished { return }
@@ -171,8 +175,8 @@ final class DroneScanner: ObservableObject {
             default: break
             }
         }
-        conn.start(queue: probeQueue)
-        probeQueue.asyncAfter(deadline: .now() + timeout) { done(false) }
+        conn.start(queue: queue)
+        queue.asyncAfter(deadline: .now() + timeout) { done(false) }
     }
 
     // MARK: - Subnet discovery
@@ -298,7 +302,11 @@ final class BonjourDroneBrowser: NSObject, NetServiceBrowserDelegate, NetService
     }
 
     func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
-        resolving.remove(sender)
+        if retries[sender.name] != nil, accept != nil {
+            retryLater(sender)        // still waiting for a usable address
+        } else {
+            resolving.remove(sender)
+        }
     }
 
     // MARK: Resolving

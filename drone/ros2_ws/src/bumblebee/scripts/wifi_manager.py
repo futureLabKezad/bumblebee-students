@@ -173,6 +173,25 @@ def _nm_unescape(value):
     return ''.join(out)
 
 
+def _nm_fields(line):
+    """Split one nmcli -t line into unescaped fields ('\\:' is not a separator)."""
+    fields, cur, i = [], [], 0
+    while i < len(line):
+        ch = line[i]
+        if ch == '\\' and i + 1 < len(line):
+            cur.append(line[i + 1])
+            i += 2
+            continue
+        if ch == ':':
+            fields.append(''.join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+        i += 1
+    fields.append(''.join(cur))
+    return fields
+
+
 def _con_names():
     """Names of all saved NetworkManager connections (unescaped)."""
     return [_nm_unescape(n) for n in nmcli('-t', '-f', 'NAME', 'con', 'show').splitlines()]
@@ -217,9 +236,12 @@ def _tune_seconds(tune):
     return total
 
 
-def _fcu_armed():
+def _fcu_safe_for_tune():
+    """True only with a fresh FCU state saying disarmed. Unknown counts as
+    armed: a show's melody must never cover PX4's own warnings in flight."""
     try:
-        return bool(_drone.get_fcu_status().get('armed'))
+        st = _drone.get_fcu_status()
+        return bool(st.get('ok')) and not st.get('armed')
     except Exception:
         return False
 
@@ -240,9 +262,9 @@ def _start_show_tune(name, gen):
         return
 
     def tick():
-        if gen != _show_gen:
-            return
-        if not _fcu_armed():
+        if gen != _show_gen or _anim_proc is None or _anim_proc.poll() is not None:
+            return   # stopped, replaced, or the LED script exited
+        if _fcu_safe_for_tune():
             try:
                 _drone.play_tune(tune)
             except Exception:
@@ -314,7 +336,7 @@ def _wifi_status():
     ip = ''
     signal = 0
     for line in raw.splitlines():
-        parts = line.split(':')
+        parts = _nm_fields(line)
         if parts[0] == 'wlan0':
             state = parts[1]
             conn = parts[2] if len(parts) > 2 else ''
@@ -426,7 +448,7 @@ class NetworksHandler(BaseHandler):
             raw = nmcli('-t', '-f', 'NAME,TYPE', 'con', 'show')
             networks = []
             for line in raw.splitlines():
-                parts = line.split(':')
+                parts = _nm_fields(line)
                 if len(parts) < 2:
                     continue
                 name, con_type = parts[0], parts[1]
@@ -497,6 +519,10 @@ class ApplyNowHandler(BaseHandler):
             self.set_status(404)
             self.finish(json.dumps({'error': 'unknown network: ' + ssid}))
             return
+        try:
+            os.remove(HOTSPOT_PIN_MARKER)   # a client network was chosen
+        except OSError:
+            pass
         # Reply first: bringing the connection up drops the hotspot the GCS is
         # talking through, so a reply sent afterwards never arrives.
         _nmcli_after_reply('con', 'up', ssid)
@@ -517,7 +543,7 @@ class ApplyBootHandler(BaseHandler):
         try:
             nmcli('con', 'modify', ssid,
                   'connection.autoconnect', 'yes',
-                  'connection.autoconnect-priority', '10')
+                  'connection.autoconnect-priority', _next_wifi_priority())
             self.finish(json.dumps({'ok': True, 'note': 'will connect on next boot'}))
         except Exception as e:
             logging.exception('apply-boot error')

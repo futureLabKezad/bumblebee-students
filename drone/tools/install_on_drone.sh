@@ -92,7 +92,9 @@ while read -r src dst owner mode; do
         # copy next to it, then rename: a script that is running right now
         # (watchdog, dispatcher) keeps reading the old inode instead of a
         # half-rewritten file
-        echo "$SUDO cp -p '$BACKUP$dst' '$dest.bbnew' && $SUDO mv -f '$dest.bbnew' '$dest'" >> "$ROLLBACK"
+        # (two lines, so `set -e` in rollback.sh stops on either failing)
+        echo "$SUDO cp -p '$BACKUP$dst' '$dest.bbnew'" >> "$ROLLBACK"
+        echo "$SUDO mv -f '$dest.bbnew' '$dest'" >> "$ROLLBACK"
     else
         echo "$SUDO rm -f '$dest'" >> "$ROLLBACK"
     fi
@@ -118,14 +120,17 @@ if [ "$RESET_NAME" -eq 1 ]; then
     rm -f "$NAME_FILE" "$MAC_FILE"
     say "drone name reset; a new one is derived from the client IP"
 elif [ -s "$NAME_FILE" ] && [ ! -s "$MAC_FILE" ] && [ -n "$MAC" ]; then
-    # Keep this drone's current name and bind it to its own wlan0 MAC, so a
-    # card later cloned into another drone gets a fresh name there.
     NAME=$(tr -d '[:space:]' < "$NAME_FILE")
-    echo "$MAC" > "$MAC_FILE"
-    say "keeping name '$NAME' (bound to $MAC)"
     if [ "$NAME" = "bumblebee-4" ]; then
-        say "WARNING: 'bumblebee-4' is the name baked into the V1.0.0-beta image."
-        say "         Unless this really is drone 4, re-run with --reset-name."
+        # The name baked into the V1.0.0-beta image: don't make it permanent.
+        say "WARNING: this drone is called 'bumblebee-4', the name baked into the"
+        say "         V1.0.0-beta image, so every drone flashed from it has it too."
+        say "         Name left unbound. Re-run with --reset-name unless this really is drone 4."
+    else
+        # Keep this drone's name and bind it to its own wlan0 MAC, so a card
+        # later cloned into another drone gets a fresh name there.
+        echo "$MAC" > "$MAC_FILE"
+        say "keeping name '$NAME' (bound to $MAC)"
     fi
 fi
 [ -z "$ROOT" ] && chown lb:lb "$NAME_FILE" "$MAC_FILE" 2>/dev/null || true
@@ -136,7 +141,21 @@ fi
 } | { [ -n "$SUDO" ] && sed 's/^systemctl/sudo systemctl/' || cat; } >> "$ROLLBACK"
 chmod +x "$ROLLBACK"
 
-# ---- 4. restart only the non-flight services that changed ------------------
+# ---- 4. stable hotspot SSID --------------------------------------------------
+# The profile keeps the random SSID of its last activation until the watchdog
+# raises it again; set the stable one now (an active hotspot keeps its current
+# SSID until it is next brought up).
+if [ -z "$ROOT" ] && [ ${#MAC} -ge 17 ]; then
+    HS_SSID="Bumblebee-$(echo "$MAC" | tr -d ':' | tail -c 5 | tr '[:lower:]' '[:upper:]')"
+    OLD_SSID=$($SUDO nmcli -g 802-11-wireless.ssid connection show bumblebee-hotspot 2>/dev/null || true)
+    if [ -n "$OLD_SSID" ] && [ "$OLD_SSID" != "$HS_SSID" ]; then
+        $SUDO nmcli connection modify bumblebee-hotspot wifi.ssid "$HS_SSID"
+        echo "$SUDO nmcli connection modify bumblebee-hotspot wifi.ssid '$OLD_SSID'" >> "$ROLLBACK"
+        say "hotspot SSID: $OLD_SSID -> $HS_SSID"
+    fi
+fi
+
+# ---- 5. restart only the non-flight services that changed ------------------
 $SUDO systemctl restart wifi-manager wifi-watchdog sys_metrics
 $SUDO systemctl restart bumblebee-identity
 

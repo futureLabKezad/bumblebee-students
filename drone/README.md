@@ -44,6 +44,6 @@ Roll back with `bash ~/.bumblebee-update/<timestamp>/rollback.sh` on the drone.
 
 ```bash
 pip install tornado bcrypt
-cd drone/ros2_ws/src/bumblebee && python3 -m unittest test/test_wifi_manager.py test/test_wifi_watchdog.py
+cd drone/ros2_ws/src/bumblebee && python3 -m unittest test/test_wifi_manager.py test/test_wifi_watchdog.py test/test_set_identity.py
 python3 gcs/tools/mock_drone.py     # mock drone for the GCS apps (real wifi_manager.py)
 ```

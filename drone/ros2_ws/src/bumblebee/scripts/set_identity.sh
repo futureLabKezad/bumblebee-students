@@ -22,14 +22,14 @@
 # the name never drifts even while the drone is in hotspot/AP mode (10.42.0.1).
 set -e
 
-NAME_FILE=/home/lb/drone_name
+NAME_FILE=${BB_NAME_FILE:-/home/lb/drone_name}
 # wlan0 MAC the name was assigned on. A card cloned from another drone carries
 # that drone's name; a MAC mismatch means "new drone", so the name is re-derived.
 # No binding file (drones set up before this existed): keep the name as is.
-MAC_FILE=/home/lb/drone_name.mac
-SERVICE_FILE=/etc/avahi/services/bumblebee.service
+MAC_FILE=${BB_MAC_FILE:-/home/lb/drone_name.mac}
+SERVICE_FILE=${BB_SERVICE_FILE:-/etc/avahi/services/bumblebee.service}
 
-MAC=$(cat /sys/class/net/wlan0/address 2>/dev/null | tr -d '[:space:]')
+MAC=$(cat "${BB_WLAN_ADDRESS:-/sys/class/net/wlan0/address}" 2>/dev/null | tr -d '[:space:]')
 # Short hardware id, also used in the hotspot SSID (Bumblebee-<ID>).
 HWID=$(echo "$MAC" | tr -d ':' | tail -c 5 | tr '[:lower:]' '[:upper:]')
 
@@ -80,8 +80,12 @@ if [ "$(hostnamectl --static)" != "$NAME" ]; then
     HOSTNAME_CHANGED=1
 fi
 
-# 2) DNS-SD service record advertising the ports the GCS app needs + friendly name
-cat > "$SERVICE_FILE" <<EOF
+# 2) DNS-SD service record advertising the ports the GCS app needs + friendly name.
+#    Written to a temp file first: avahi is only poked when something changed,
+#    because a reload withdraws and re-announces the service (the GCS would see
+#    the drone vanish and come back on every DHCP renewal).
+NEW_SERVICE=$(mktemp)
+cat > "$NEW_SERVICE" <<EOF
 <?xml version="1.0" standalone='no'?>
 <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
 <service-group>
@@ -98,6 +102,12 @@ cat > "$SERVICE_FILE" <<EOF
   </service>
 </service-group>
 EOF
+SERVICE_CHANGED=0
+if ! cmp -s "$NEW_SERVICE" "$SERVICE_FILE"; then
+    install -m 0644 "$NEW_SERVICE" "$SERVICE_FILE"
+    SERVICE_CHANGED=1
+fi
+rm -f "$NEW_SERVICE"
 
 # 3) Let avahi pick up the new hostname + service record. A live hostname change
 #    needs a full restart to re-evaluate the %h instance name; a plain reload is
@@ -105,6 +115,6 @@ EOF
 #    already set before avahi starts).
 if [ "$HOSTNAME_CHANGED" = "1" ]; then
     systemctl restart avahi-daemon 2>/dev/null || true
-else
+elif [ "$SERVICE_CHANGED" = "1" ]; then
     systemctl reload avahi-daemon 2>/dev/null || systemctl restart avahi-daemon 2>/dev/null || true
 fi

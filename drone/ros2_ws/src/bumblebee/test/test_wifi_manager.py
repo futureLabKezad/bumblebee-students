@@ -58,6 +58,8 @@ class FakeNmcli:
         if args[:4] == ('-t', '-f', 'NAME', 'con'):
             # nmcli -t escapes ':' and '\\' inside values
             return '\n'.join(c.replace('\\', '\\\\').replace(':', '\\:') for c in self.connections)
+        if args[:4] == ('-t', '-f', 'NAME,TYPE', 'con'):
+            return '\n'.join(c.replace(':', '\\:') + ':802-11-wireless' for c in self.connections)
         if args[:4] == ('-t', '-f', 'TYPE,AUTOCONNECT-PRIORITY', 'con'):
             return '\n'.join('802-11-wireless:%d' % p for p in self.priorities.values())
         if args[:4] == ('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device'):
@@ -119,6 +121,16 @@ class WifiManagerTest(AsyncHTTPTestCase):
         resp = self.post('/api/wifi/apply-now', {'ssid': 'Lab:5G'})
         self.assertEqual(resp.code, 200)
         self.assertTrue(self.wait_for(lambda: self.fake.called('con', 'up', 'Lab:5G')))
+
+    def test_networks_lists_unescaped_names(self):
+        names = [n['name'] for n in json.loads(self.fetch('/api/wifi/networks').body)]
+        self.assertIn('Lab:5G', names)
+        self.assertNotIn(wm.HOTSPOT_CONN, names)
+
+    def test_apply_now_clears_hotspot_pin(self):
+        open(wm.HOTSPOT_PIN_MARKER, 'w').close()
+        self.post('/api/wifi/apply-now', {'ssid': 'Home WiFi'})
+        self.assertFalse(os.path.exists(wm.HOTSPOT_PIN_MARKER))
 
     def test_save_gives_new_network_top_priority(self):
         resp = self.post('/api/wifi/save', {'ssid': 'Classroom', 'password': 'x' * 8})
@@ -192,12 +204,13 @@ class FakeDrone:
     def __init__(self):
         self.tunes = []
         self.armed = False
+        self.fresh = True
 
     def play_tune(self, tune, fmt='QBASIC'):
         self.tunes.append(tune)
 
     def get_fcu_status(self, max_age=3.0):
-        return {'armed': self.armed}
+        return {'ok': self.fresh, 'armed': self.armed}
 
     def set_led(self, *a):
         pass
@@ -245,6 +258,19 @@ class ShowsTest(AsyncHTTPTestCase):
         self.start('siren')
         self.io_loop.run_sync(lambda: tornado.gen.sleep(1.0))
         self.assertNotIn('MNT100L4O5AO6DO5AO6D', self.drone.tunes)
+
+    def test_show_is_silent_without_fresh_fcu_state(self):
+        self.drone.fresh = False
+        self.start('alarm')
+        self.io_loop.run_sync(lambda: tornado.gen.sleep(1.5))
+        self.assertNotIn(FakeDrone.TUNE_WARN, self.drone.tunes)
+
+    def test_tune_stops_when_led_script_exits(self):
+        with open(os.path.join(self.tmp.name, 'alarm.py'), 'w') as f:
+            f.write('import time\ntime.sleep(0.3)\n')     # LED script dies early
+        self.start('alarm')
+        self.io_loop.run_sync(lambda: tornado.gen.sleep(2.5))
+        self.assertLessEqual(len([t for t in self.drone.tunes if t == FakeDrone.TUNE_WARN]), 1)
 
     def test_plain_animation_plays_no_tune(self):
         self.start('rainbow')

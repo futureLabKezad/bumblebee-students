@@ -234,27 +234,36 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     /// Wait for the provisioned drone to appear via Bonjour, returning its IP.
-    /// A drone that advertises a different `id` is someone else's; one with no
-    /// `id` runs older software and is accepted as before.
-    private static func waitForDrone(expectedID: String, timeout: TimeInterval = 60) async -> String? {
+    /// A drone advertising the expected `id` is taken at once; a drone with no
+    /// `id` runs older software and is accepted as before. A drone with a
+    /// different `id` is only taken if nothing better shows up within
+    /// `mismatchGrace` — e.g. a drone updated while on its hotspot, whose
+    /// hotspot SSID still carries the old random suffix.
+    private static func waitForDrone(expectedID: String, timeout: TimeInterval = 60,
+                                     mismatchGrace: TimeInterval = 25) async -> String? {
         await withCheckedContinuation { cont in
             Task { @MainActor in
                 var resumed = false
-                let browser = BonjourDroneBrowser(
-                    onFound: { ip, _, id in
-                        guard !resumed, id == nil || id == expectedID else { return }
-                        resumed = true
-                        cont.resume(returning: ip)
-                    },
-                    // 10.42.0.1 is the drone's own hotspot: a stale record from
-                    // before the switch. Resolve again until the new address shows.
-                    accept: { ip in !ip.hasPrefix("10.42.") })
-                browser.start()
-                DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
-                    browser.stop()                       // keeps browser alive until fired
+                var fallback: String?
+                func finish(_ ip: String?) {
                     guard !resumed else { return }
                     resumed = true
-                    cont.resume(returning: nil)
+                    cont.resume(returning: ip)
+                }
+                let browser = BonjourDroneBrowser(
+                    onFound: { ip, _, id in
+                        if id == nil || id == expectedID { finish(ip) } else if fallback == nil { fallback = ip }
+                    },
+                    // The drone's own hotspot address is a stale record from
+                    // before the switch. Resolve again until the new one shows.
+                    accept: { ip in ip != kHotspotGatewayHost })
+                browser.start()
+                DispatchQueue.main.asyncAfter(deadline: .now() + mismatchGrace) {
+                    if let ip = fallback { finish(ip) }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
+                    browser.stop()                       // keeps browser alive until fired
+                    finish(fallback)
                 }
             }
         }
