@@ -88,8 +88,9 @@ class WifiManagerTest(AsyncHTTPTestCase):
         self.fake = FakeNmcli()
         self.tmp = tempfile.TemporaryDirectory()
         self._orig = (wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S, wm.HOTSPOT_PIN_MARKER,
-                      wm.WIFI_FAILED_LOG, wm._hotspot_ssid)
+                      wm.WIFI_FAILED_LOG, wm._hotspot_ssid, wm.LAST_ERROR_FILE)
         wm.WIFI_FAILED_LOG = os.path.join(self.tmp.name, 'failed')
+        wm.LAST_ERROR_FILE = os.path.join(self.tmp.name, 'last-error.json')
         wm._hotspot_ssid = lambda: 'Bumblebee-ABCD'
         wm.nmcli = self.fake
         wm.WIFI_SWITCH_MARKER = os.path.join(self.tmp.name, 'switch')
@@ -100,7 +101,7 @@ class WifiManagerTest(AsyncHTTPTestCase):
     def tearDown(self):
         super().tearDown()
         (wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S, wm.HOTSPOT_PIN_MARKER,
-         wm.WIFI_FAILED_LOG, wm._hotspot_ssid) = self._orig
+         wm.WIFI_FAILED_LOG, wm._hotspot_ssid, wm.LAST_ERROR_FILE) = self._orig
         self.tmp.cleanup()
 
     def get_app(self):
@@ -157,6 +158,12 @@ class WifiManagerTest(AsyncHTTPTestCase):
         with open(wm.WIFI_FAILED_LOG) as f:
             self.assertTrue(f.read().startswith('uuid-Bad Net '))
         self.assertFalse(os.path.exists(wm.WIFI_SWITCH_MARKER))
+        # the reason is reported to the GCS in /api/wifi/status
+        err = json.loads(self.fetch('/api/wifi/status').body)['last_error']
+        self.assertEqual((err['ssid'], err['reason']), ('Bad Net', 'wrong_password'))
+        # a new apply-now clears it
+        self.post('/api/wifi/apply-now', {'ssid': 'Home WiFi'})
+        self.assertNotIn('last_error', json.loads(self.fetch('/api/wifi/status').body))
 
     def test_scan_unescapes_ssids(self):
         nets = json.loads(self.fetch('/api/wifi/scan').body)
@@ -204,9 +211,10 @@ class WifiManagerTest(AsyncHTTPTestCase):
     def test_status_contract_and_no_rescan(self):
         resp = self.fetch('/api/wifi/status')
         self.assertEqual(resp.code, 200)
-        self.assertEqual(json.loads(resp.body),
-                         {'mode': 'hotspot', 'ssid': wm.HOTSPOT_CONN,
-                          'ip': '10.42.0.1', 'signal': 77, 'id': 'ABCD'})
+        body = json.loads(resp.body)
+        body.pop('last_error', None)
+        self.assertEqual(body, {'mode': 'hotspot', 'ssid': wm.HOTSPOT_CONN,
+                                'ip': '10.42.0.1', 'signal': 77, 'id': 'ABCD'})
         wifi_list = [c for c in self.fake.calls if 'list' in c]
         self.assertTrue(wifi_list and all('--rescan' in c for c in wifi_list))
 

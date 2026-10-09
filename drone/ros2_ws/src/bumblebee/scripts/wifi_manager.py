@@ -151,21 +151,46 @@ def _nmcli_after_reply(*args, on_fail=None):
         try:
             nmcli('-w', str(JOIN_TIMEOUT_S), *args, timeout=JOIN_TIMEOUT_S + 10)
             logging.info('nmcli %s: ok', ' '.join(args))
-        except Exception:
+        except Exception as exc:
             logging.exception('nmcli %s failed', ' '.join(args))
             if on_fail is not None:
                 try:
-                    on_fail()
+                    on_fail(exc)
                 except Exception:
                     logging.exception('switch failure handler')
 
     threading.Thread(target=worker, daemon=True).start()
 
 
-def _join_failed(name):
+# Why the last GCS-requested join failed; reported in /api/wifi/status so the
+# GCS can tell the user (read over the hotspot the drone falls back to).
+LAST_ERROR_FILE = '/tmp/bumblebee-wifi-last-error.json'
+
+
+def _join_reason(exc):
+    """Map an nmcli failure to a short reason code for the GCS."""
+    text = str(exc).lower()
+    if isinstance(exc, subprocess.TimeoutExpired) or 'timeout' in text or 'timed out' in text:
+        return 'timeout'
+    if 'secrets were required' in text or 'no secrets' in text or 'psk' in text or '802.1x' in text:
+        return 'wrong_password'
+    if 'no network with ssid' in text or 'ssid-not-found' in text or 'not found' in text:
+        return 'not_found'
+    if 'ip configuration' in text or 'dhcp' in text:
+        return 'no_ip'
+    return 'failed'
+
+
+def _join_failed(name, exc=None):
     """A GCS-requested join failed (wrong password, out of range, no DHCP):
     bring the hotspot straight back so the GCS can reach the drone again, and
     tell wifi_watchdog.sh not to retry that network for a while."""
+    try:
+        with open(LAST_ERROR_FILE, 'w') as f:
+            json.dump({'ssid': name, 'reason': _join_reason(exc) if exc else 'failed',
+                       'message': str(exc)[-300:] if exc else '', 'time': int(time.time())}, f)
+    except OSError:
+        logging.exception('cannot record join error')
     try:
         uuid = nmcli('-g', 'connection.uuid', 'con', 'show', name).strip()
         with open(WIFI_FAILED_LOG, 'a') as f:
@@ -406,7 +431,13 @@ def _wifi_status():
                 pass
             break
 
-    return {'mode': mode, 'ssid': ssid, 'ip': ip, 'signal': signal, 'id': _hwid()}
+    status = {'mode': mode, 'ssid': ssid, 'ip': ip, 'signal': signal, 'id': _hwid()}
+    try:
+        with open(LAST_ERROR_FILE) as f:
+            status['last_error'] = json.load(f)
+    except (OSError, ValueError):
+        pass
+    return status
 
 
 class StatusHandler(BaseHandler):
@@ -559,13 +590,14 @@ class ApplyNowHandler(BaseHandler):
             self.set_status(404)
             self.finish(json.dumps({'error': 'unknown network: ' + ssid}))
             return
-        try:
-            os.remove(HOTSPOT_PIN_MARKER)   # a client network was chosen
-        except OSError:
-            pass
+        for f in (HOTSPOT_PIN_MARKER, LAST_ERROR_FILE):  # a client network was chosen;
+            try:                                       # forget the previous failure
+                os.remove(f)
+            except OSError:
+                pass
         # Reply first: bringing the connection up drops the hotspot the GCS is
         # talking through, so a reply sent afterwards never arrives.
-        _nmcli_after_reply('con', 'up', ssid, on_fail=lambda: _join_failed(ssid))
+        _nmcli_after_reply('con', 'up', ssid, on_fail=lambda exc: _join_failed(ssid, exc))
         logging.info('apply-now: switching to %s', ssid)
         self.finish(json.dumps({'ok': True}))
 

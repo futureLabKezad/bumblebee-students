@@ -36,18 +36,32 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
         case needLocationPermission
         case scanning
         case picking                 // hotspots listed for selection
-        case joiningHotspot(String)
-        case pushingCreds
-        case waitingForDrone
+        // setup steps, in order
+        case joiningHotspot(String)  // 1. talking to the new drone over its own WiFi
+        case pushingCreds            // 2. handing it our WiFi name + password
+        case waitingForDrone         // 3. drone joins our WiFi, the Mac comes back, we find it
+        case diagnosing              // it did not show up: asking the drone why
         case done(String)            // resolved drone host
-        case failed(String)
+        case failed(Failure)
 
         var isBusy: Bool {
             switch self {
-            case .scanning, .joiningHotspot, .pushingCreds, .waitingForDrone: return true
+            case .scanning, .joiningHotspot, .pushingCreds, .waitingForDrone, .diagnosing: return true
             default: return false
             }
         }
+    }
+
+    /// A failed setup, explained in user terms.
+    struct Failure: Equatable {
+        enum Kind: Equatable {
+            case wrongPassword, notFound, noAddress, isolated, droneSilent, other
+        }
+        let kind: Kind
+        let title: String
+        let detail: String
+        /// Offer "connect directly to the drone" (no shared WiFi needed).
+        var offerDirect: Bool { kind != .wrongPassword }
     }
 
     struct Hotspot: Identifiable, Equatable {
@@ -110,7 +124,10 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
     // MARK: - Scan for drone hotspots
 
     func scanHotspots() async {
-        guard let iface = interface else { phase = .failed("No WiFi interface on this Mac"); return }
+        guard let iface = interface else {
+            phase = .failed(Failure(kind: .other, title: "This Mac has no WiFi", detail: "Turn WiFi on and try again."))
+            return
+        }
         guard locationAuthorized() else {
             phase = .needLocationPermission
             loc.requestWhenInUseAuthorization()
@@ -131,83 +148,162 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
             hotspots = list.sorted { $0.rssi > $1.rssi }
             phase = .picking
         } catch {
-            phase = .failed("WiFi scan failed: \(error.localizedDescription)")
+            phase = .failed(Failure(kind: .other, title: "WiFi scan failed",
+                                    detail: error.localizedDescription))
         }
     }
 
     // MARK: - Full hand-off
 
-    /// Join `hotspotSSID`, push (`targetSSID`,`targetPassword`) to the drone,
-    /// let the Mac rejoin its network, then wait for the drone. Calls
-    /// `onDrone(host)` with the resolved drone address on success.
+    /// Set up a new drone: join its own WiFi (`hotspotSSID`), hand it
+    /// `targetSSID`/`targetPassword`, bring the Mac back to `targetSSID` and
+    /// find exactly that drone there. If it does not show up, ask the drone why
+    /// (it re-raises its WiFi ~45 s after a failed join) and explain it.
     func provision(hotspotSSID: String,
                    targetSSID: String,
                    targetPassword: String,
                    onDrone: @escaping (String) -> Void) async {
         guard let iface = interface else {
-            phase = .failed("No WiFi interface on this Mac"); return
+            phase = .failed(Failure(kind: .other, title: "This Mac has no WiFi", detail: "Turn WiFi on and try again."))
+            return
         }
-        // 1) Join the drone's setup hotspot. CoreWLAN's associate can throw a
-        //    transient error ("tmpErr") when the interface is busy switching —
-        //    retry a few times, re-fetching a fresh CWNetwork each attempt.
+        // 1) Join the drone's own WiFi.
         phase = .joiningHotspot(hotspotSSID)
-        var lastErr = ""
-        var joined = false
+        if let err = await joinHotspot(hotspotSSID, iface) {
+            phase = .failed(Failure(kind: .droneSilent, title: "Couldn't reach \(hotspotSSID)",
+                                    detail: "\(err). Make sure the drone is on and glowing blue, then try again."))
+            await returnHome(iface, targetSSID, targetPassword)
+            return
+        }
+
+        // 2) Talk to it and hand over our WiFi.
+        phase = .pushingCreds
+        let api = DroneAPI()
+        api.host = kHotspotGatewayHost
+        guard let status = await Self.waitForBackend(api) else {
+            phase = .failed(Failure(kind: .droneSilent, title: "The drone didn't answer",
+                                    detail: "The Mac joined \(hotspotSSID) but the drone's software didn't respond. Wait a minute after power-on and try again."))
+            await returnHome(iface, targetSSID, targetPassword)
+            return
+        }
+        // The drone we are talking to tells us its id, so we can recognise
+        // exactly this drone once it is on the shared network.
+        let expectedID = status.id
+        do {
+            try await api.saveNetwork(ssid: targetSSID, password: targetPassword)
+            try await api.applyNow(ssid: targetSSID)
+        } catch where DroneAPI.isLinkDrop(error) {
+            // Older drone software switches WiFi before replying — expected.
+        } catch {
+            phase = .failed(Failure(kind: .other, title: "Couldn't send the WiFi settings",
+                                    detail: error.localizedDescription))
+            await returnHome(iface, targetSSID, targetPassword)
+            return
+        }
+
+        // 3) The drone joins our WiFi; bring the Mac back and look for it.
+        phase = .waitingForDrone
+        await returnHome(iface, targetSSID, targetPassword)
+        if let host = await Self.waitForDrone(expectedID: expectedID) {
+            phase = .done(host)
+            onDrone(host)
+            return
+        }
+
+        // 4) Not there: find out why.
+        phase = .diagnosing
+        phase = .failed(await diagnose(iface: iface, hotspotSSID: hotspotSSID,
+                                       targetSSID: targetSSID, targetPassword: targetPassword))
+    }
+
+    /// Work with a drone over its own WiFi (no shared network; the Mac has no
+    /// internet meanwhile). Returns the drone's address on success.
+    func connectDirect(hotspotSSID: String, onDrone: @escaping (String) -> Void) async {
+        guard let iface = interface else { return }
+        phase = .joiningHotspot(hotspotSSID)
+        if let err = await joinHotspot(hotspotSSID, iface) {
+            phase = .failed(Failure(kind: .droneSilent, title: "Couldn't reach \(hotspotSSID)", detail: err))
+            return
+        }
+        let api = DroneAPI()
+        api.host = kHotspotGatewayHost
+        guard await Self.waitForBackend(api) != nil else {
+            phase = .failed(Failure(kind: .droneSilent, title: "The drone didn't answer",
+                                    detail: "Wait a minute after power-on and try again."))
+            return
+        }
+        phase = .done(kHotspotGatewayHost)
+        onDrone(kHotspotGatewayHost)
+    }
+
+    /// After a failed setup the drone raises its WiFi again; read the reason it
+    /// recorded, then put the Mac back on `targetSSID`.
+    private func diagnose(iface: CWInterface, hotspotSSID: String,
+                          targetSSID: String, targetPassword: String) async -> Failure {
+        var net: CWNetwork?
+        let deadline = Date().addingTimeInterval(75)
+        while Date() < deadline {
+            net = (try? await Self.scan(iface))?.first(where: { $0.ssid == hotspotSSID })
+            if net != nil { break }
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+        }
+        guard let net else {
+            // Its WiFi did not come back, so the drone is most likely on
+            // targetSSID — but this Mac cannot reach it there.
+            return Failure(kind: .isolated,
+                           title: "The drone joined \(targetSSID), but this Mac can't see it",
+                           detail: "Some networks keep devices apart (guest WiFi, \"AP isolation\"). Use another network — for example a phone hotspot — or connect directly to the drone.")
+        }
+        var reason: DroneAPI.JoinError?
+        if (try? iface.associate(to: net, password: kHotspotPSK)) != nil {
+            let api = DroneAPI()
+            api.host = kHotspotGatewayHost
+            reason = await Self.waitForBackend(api, timeout: 20)?.lastError
+        }
+        await returnHome(iface, targetSSID, targetPassword)
+
+        switch reason?.reason {
+        case "wrong_password":
+            return Failure(kind: .wrongPassword, title: "Wrong password for \(targetSSID)",
+                           detail: "The drone couldn't log in to \(targetSSID). Check the password and try again.")
+        case "not_found":
+            return Failure(kind: .notFound, title: "The drone can't see \(targetSSID)",
+                           detail: "Move the drone closer to the router. If \(targetSSID) is a 5 GHz-only network, use one that also has 2.4 GHz.")
+        case "no_ip":
+            return Failure(kind: .noAddress, title: "\(targetSSID) didn't give the drone an address",
+                           detail: "The router didn't respond (DHCP). Restart the router or use another network.")
+        default:
+            return Failure(kind: .other, title: "The drone couldn't join \(targetSSID)",
+                           detail: reason.map { $0.message.isEmpty ? "Try again." : $0.message } ?? "Try again, or connect directly to the drone.")
+        }
+    }
+
+    /// Join the drone's setup WiFi; nil on success, else a short error.
+    private func joinHotspot(_ ssid: String, _ iface: CWInterface) async -> String? {
+        // CoreWLAN's associate can throw a transient error ("tmpErr") while the
+        // interface is busy switching — retry with a fresh CWNetwork.
+        var lastErr = "its WiFi is not in range"
         for attempt in 1...4 {
-            var net = networksBySSID[hotspotSSID]
-            if net == nil {
-                net = (try? await Self.scan(iface))?.first(where: { $0.ssid == hotspotSSID })
+            var net = networksBySSID[ssid]
+            if net == nil || attempt > 1 {
+                net = (try? await Self.scan(iface))?.first(where: { $0.ssid == ssid })
             }
-            guard let net else { lastErr = "hotspot no longer in range"; break }
-            do { try iface.associate(to: net, password: kHotspotPSK); joined = true; break }
+            guard let net else { lastErr = "its WiFi is not in range"; break }
+            do { try iface.associate(to: net, password: kHotspotPSK); return nil }
             catch {
                 lastErr = error.localizedDescription
                 if attempt < 4 { try? await Task.sleep(nanoseconds: 2_000_000_000) }
             }
         }
-        guard joined else {
-            phase = .failed("Couldn't join \(hotspotSSID): \(lastErr)"); return
-        }
+        return lastErr
+    }
 
-        // 2) Wait for the drone backend on the hotspot gateway.
-        phase = .pushingCreds
-        let api = DroneAPI()
-        api.host = kHotspotGatewayHost
-        guard let status = await Self.waitForBackend(api) else {
-            phase = .failed("Drone didn't respond on its hotspot (10.42.0.1)"); return
-        }
-        // The drone we are talking to over its hotspot tells us its id, so we
-        // can recognise exactly this drone once it is on the shared network.
-        let expectedID = status.id
-        // 3) Push the Mac's WiFi and apply it on the drone (no auth required).
-        do {
-            try await api.saveNetwork(ssid: targetSSID, password: targetPassword)
-        } catch {
-            phase = .failed("Couldn't set WiFi on the drone: \(error.localizedDescription)"); return
-        }
-        do {
-            try await api.applyNow(ssid: targetSSID)
-        } catch where DroneAPI.isLinkDrop(error) {
-            // The drone dropped its hotspot to join targetSSID before the reply
-            // reached us (older drone software) — that is the expected outcome.
-        } catch {
-            phase = .failed("Couldn't set WiFi on the drone: \(error.localizedDescription)"); return
-        }
-
-        // 4) The drone drops its hotspot to join `targetSSID`; macOS then
-        //    auto-rejoins the remembered network. Nudge it if we can see it.
-        phase = .waitingForDrone
-        if let home = try? await Self.scan(iface).first(where: { $0.ssid == targetSSID }) {
-            try? iface.associate(to: home, password: targetPassword)
-        }
-
-        // 5) Wait for that drone to reappear on the shared network via Bonjour.
-        if let host = await Self.waitForDrone(expectedID: expectedID) {
-            phase = .done(host)
-            onDrone(host)
-        } else {
-            phase = .failed("Drone didn't come back online on \(targetSSID) — check the WiFi "
-                            + "password and retry. If it did join, pick it from the drone list.")
+    /// Put the Mac back on the network it came from (macOS would also do it on
+    /// its own, but slower).
+    private func returnHome(_ iface: CWInterface, _ ssid: String, _ password: String) async {
+        guard !ssid.isEmpty, iface.ssid() != ssid else { return }
+        if let home = (try? await Self.scan(iface))?.first(where: { $0.ssid == ssid }) {
+            try? iface.associate(to: home, password: password)
         }
     }
 
@@ -224,7 +320,7 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     /// Poll the drone's backend until it answers (or times out).
-    private static func waitForBackend(_ api: DroneAPI, timeout: TimeInterval = 25) async -> DroneAPI.WifiStatus? {
+    fileprivate static func waitForBackend(_ api: DroneAPI, timeout: TimeInterval = 25) async -> DroneAPI.WifiStatus? {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if let status = try? await api.wifiStatus() { return status }

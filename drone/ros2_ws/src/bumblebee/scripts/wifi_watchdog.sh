@@ -89,8 +89,6 @@ ranked_client_conns() {
         ssid=$(nmcli -g 802-11-wireless.ssid con show "$uuid" 2>/dev/null)
         vis=0
         [ -n "$ssid" ] && grep -qxF -- "$ssid" <<< "$visible" && vis=1
-        # hidden networks never show up in a scan: always worth a try
-        [ "$(nmcli -g 802-11-wireless.hidden con show "$uuid" 2>/dev/null)" = "yes" ] && vis=1
         echo "$vis:${prio:-0}:${ts:-0}:$uuid"
     done | sort -t: -k1,1nr -k2,2nr -k3,3nr
 }
@@ -112,13 +110,52 @@ wait_connected() {
     [ "$(wlan0_field STATE)" = "connected" ]
 }
 
-# Saved client profiles worth trying now: in range (or hidden) and not just failed.
+# Saved client profiles worth trying now, not just failed: the ones seen in
+# the scan first, then hidden networks (they never show up in a scan).
 candidates() {
-    local vis uuid
+    local vis uuid hidden=""
     while IFS=: read -r vis _ _ uuid; do
-        [ "$vis" = "1" ] || break             # ranked: visible ones come first
-        in_backoff "$uuid" || echo "$uuid"
+        in_backoff "$uuid" && continue
+        if [ "$vis" = "1" ]; then
+            echo "$uuid"
+        elif [ "$(nmcli -g 802-11-wireless.hidden con show "$uuid" 2>/dev/null)" = "yes" ]; then
+            hidden="$hidden $uuid"
+        fi
     done < <(ranked_client_conns)
+    for uuid in $hidden; do echo "$uuid"; done
+}
+
+# NetworkManager may connect (or start connecting) on its own at any moment,
+# e.g. its boot autoconnect. Re-read wlan0 before acting. Returns 0 when the
+# watchdog must not start a join: connected (reconnected=1), joined after
+# waiting for a join already in progress, or already on the hotspot.
+nm_busy_or_done() {
+    local st cn
+    st=$(wlan0_field STATE); cn=$(wlan0_field CONNECTION)
+    [ "$cn" = "$HOTSPOT_CONN" ] && { on_hotspot=1; return 0; }
+    [ "$st" = "connected" ] && { reconnected=1; return 0; }
+    case "$st" in
+        connecting*)
+            if wait_connected "$TRY_TIMEOUT"; then reconnected=1; return 0; fi
+            [ "$(wlan0_field CONNECTION)" = "$HOTSPOT_CONN" ] && { on_hotspot=1; return 0; }
+            ;;
+    esac
+    return 1
+}
+
+# One join attempt by the watchdog itself. Marked like a probe, so the NM
+# dispatcher does not raise the hotspot over it. Returns 0 once connected;
+# a wrong password puts the profile in back-off (no point retrying).
+try_join() {
+    local uuid=$1 out
+    date +%s > "$PROBE_MARKER" 2>/dev/null
+    out=$(nmcli -w "$TRY_TIMEOUT" connection up "$uuid" 2>&1)
+    if wait_connected "$TRY_TIMEOUT"; then rm -f "$PROBE_MARKER"; return 0; fi
+    rm -f "$PROBE_MARKER"
+    case "$out" in
+        *[Ss]ecrets*|*802-1[xX]*|*psk*) mark_failed "$uuid"; return 2 ;;   # wrong password
+    esac
+    return 1
 }
 
 has_client_profiles() {
@@ -226,29 +263,35 @@ while true; do
     # sole path on wifi loss (boot-time AND in-flight).
     if [ "$STATE" != "connected" ] && [ "$hotspot_starting" -eq 0 ]; then
         reconnected=0
+        on_hotspot=0
         deadline=$(( $(date +%s) + RECONNECT_DEADLINE ))
-        case "$STATE" in
-            connecting*)                        # NM is already joining (e.g. boot autoconnect)
-                wait_connected "$TRY_TIMEOUT" && reconnected=1 ;;
-        esac
         TRIED=""
-        if [ "$reconnected" -eq 0 ] && has_client_profiles; then
+        if ! nm_busy_or_done && has_client_profiles; then
             for _round in $(seq 1 "$SCAN_ROUNDS"); do
                 nmcli dev wifi rescan 2>/dev/null
                 sleep "$SCAN_WAIT"
+                nm_busy_or_done && break        # NM got there on its own meanwhile
                 for uuid in $(candidates); do
                     [ "$(date +%s)" -lt "$deadline" ] || break 2
                     case " $TRIED " in *" $uuid "*) continue ;; esac
+                    nm_busy_or_done && break 2
                     TRIED="$TRIED $uuid"
-                    log "wlan0 not connected (state=$STATE), trying '$(con_label "$uuid")'"
-                    nmcli -w "$TRY_TIMEOUT" connection up "$uuid" 2>/dev/null
-                    if wait_connected 2; then reconnected=1; break 2; fi
+                    log "wlan0 not connected, trying '$(con_label "$uuid")'"
+                    try_join "$uuid"; rc=$?
+                    [ $rc -eq 0 ] && { reconnected=1; break 2; }
+                    if [ $rc -eq 1 ] && [ "$(date +%s)" -lt "$deadline" ]; then
+                        nm_busy_or_done && break 2
+                        log "retrying '$(con_label "$uuid")' once"      # transient failure
+                        try_join "$uuid" && { reconnected=1; break 2; }
+                    fi
                 done
                 [ -n "$TRIED" ] && break        # tried what was in range: don't rescan
             done
         fi
         if [ "$reconnected" -eq 1 ]; then
-            log "reconnected"
+            log "connected"
+        elif [ "$on_hotspot" -eq 1 ] || nm_busy_or_done; then
+            [ "$reconnected" -eq 1 ] && log "connected"   # already settled, nothing to do
         elif [ -n "$TRIED" ]; then
             raise_hotspot "could not join a known network"
         else

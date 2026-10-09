@@ -53,6 +53,11 @@ def find(key):
     return None
 
 args = sys.argv[1:]
+# NetworkManager acting on its own (e.g. boot autoconnect) at a given time
+auto = st.get('nm_auto')
+if auto and time.time() >= auto['at'] and not auto.get('done'):
+    st['conn'], st['state'] = auto['conn'], 'connected'
+    auto['done'] = True
 st['calls'].append(args)
 if args[:1] == ['-w']:
     args = args[2:]
@@ -98,13 +103,20 @@ elif args[:2] == ['connection', 'up']:
     if c['name'] == 'bumblebee-hotspot':
         st['conn'], st['state'] = c['name'], 'connected'
         st['hotspot_ups'].append(c['ssid'])
+    elif c.get('fail_first', 0) > 0:          # transient failure (busy AP)
+        c['fail_first'] -= 1
+        st['conn'], st['state'] = '', 'disconnected'
+        rc = 4
+        out = ['Error: Connection activation failed: The Wi-Fi network could not be found.']
     elif (c['ssid'] in st['visible'] or c.get('hidden') == 'yes') and c.get('psk_ok', True):
         st['conn'], st['state'] = c['name'], 'connected'
         c['ts'] = int(time.time())
     else:
         st['conn'], st['state'] = '', 'disconnected'
         rc = 4
-        out = ['Error: Connection activation failed.']
+        out = ['Error: Connection activation failed: Secrets were required, but not provided.'
+               if c['ssid'] in st['visible'] else
+               'Error: Connection activation failed: The Wi-Fi network could not be found.']
 save()
 print('\n'.join(out))
 sys.exit(rc)
@@ -271,6 +283,47 @@ class WatchdogSim(unittest.TestCase):
         st = self.run_watchdog({'cons': cons, 'visible': ['Home'], 'conn': 'Home', 'state': 'connected'}, 2)
         modified = [c[2] for c in st['calls'] if c[:2] == ['connection', 'modify']]
         self.assertEqual(sorted(set(modified)), ['u-lab'])
+
+    # -- third review: don't fight NetworkManager, hidden networks, retries ----
+
+    def test_no_join_on_top_of_nm_autoconnect(self):
+        self.env.update(BB_SCAN_WAIT='1')
+        st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home')],
+                                'visible': ['Home'], 'conn': '', 'state': 'disconnected',
+                                'nm_auto': {'conn': 'Home', 'at': time.time() + 0.6}}, 3)
+        self.assertEqual(st['conn'], 'Home')
+        self.assertEqual(self.ups(st, 'u-home'), [], 'restarted a join NM had already done')
+        self.assertEqual(st['hotspot_ups'], [])
+
+    def test_hidden_profile_does_not_pull_drone_off_hotspot(self):
+        hidden = con('Lab', 'u-lab')
+        hidden['hidden'] = 'yes'
+        st = self.run_watchdog({'cons': [self.hotspot(), hidden],
+                                'visible': [], 'conn': HOTSPOT, 'state': 'connected'}, 6)
+        self.assertEqual(st['conn'], HOTSPOT)
+        self.assertEqual([c for c in st['calls'] if c[:2] == ['connection', 'down']], [])
+
+    def test_wrong_password_is_not_retried(self):
+        st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home', psk_ok=False)],
+                                'visible': ['Home'], 'conn': '', 'state': 'disconnected'}, 3)
+        self.assertEqual(len(self.ups(st, 'u-home')), 1)
+        self.assertEqual(st['conn'], HOTSPOT)
+
+    def test_transient_failure_is_retried_once(self):
+        flaky = con('Home', 'u-home')
+        flaky['fail_first'] = 1
+        st = self.run_watchdog({'cons': [self.hotspot(), flaky],
+                                'visible': ['Home'], 'conn': '', 'state': 'disconnected'}, 3)
+        self.assertEqual(st['conn'], 'Home')
+        self.assertEqual(len(self.ups(st, 'u-home')), 2)
+
+    def test_visible_network_tried_before_hidden(self):
+        hidden = con('Lab', 'u-lab', prio=50)
+        hidden['hidden'] = 'yes'
+        st = self.run_watchdog({'cons': [self.hotspot(), hidden, con('Home', 'u-home')],
+                                'visible': ['Home'], 'conn': '', 'state': 'disconnected'}, 3)
+        self.assertEqual(st['conn'], 'Home')
+        self.assertEqual(self.ups(st, 'u-lab'), [])
 
     # -- review findings: profile choice -----------------------------------
 

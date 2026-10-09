@@ -108,7 +108,12 @@ final class DroneAPI {
         var mode: String; var ssid: String; var ip: String; var signal: Int
         /// Drone hardware id (as in its Bonjour TXT record); nil on older drone software.
         var id: String? = nil
+        /// Why the drone's last WiFi join requested by the app failed, if it did.
+        var lastError: JoinError? = nil
     }
+    /// Reported by the drone in /api/wifi/status after a failed apply-now.
+    /// `reason`: wrong_password | not_found | no_ip | timeout | failed.
+    struct JoinError: Equatable { var ssid: String; var reason: String; var message: String }
     struct ScanNet: Identifiable { let id = UUID(); var ssid: String; var signal: Int; var inUse: Bool; var band: String; var freq: Int }
 
     func wifiStatus() async throws -> WifiStatus {
@@ -117,7 +122,12 @@ final class DroneAPI {
                           ssid: obj["ssid"] as? String ?? "—",
                           ip: obj["ip"] as? String ?? "—",
                           signal: obj["signal"] as? Int ?? 0,
-                          id: (obj["id"] as? String).flatMap { $0.isEmpty ? nil : $0 })
+                          id: (obj["id"] as? String).flatMap { $0.isEmpty ? nil : $0 },
+                          lastError: (obj["last_error"] as? [String: Any]).map {
+                              JoinError(ssid: $0["ssid"] as? String ?? "",
+                                        reason: $0["reason"] as? String ?? "failed",
+                                        message: $0["message"] as? String ?? "")
+                          })
     }
     func wifiSetMode(_ mode: String) async throws { try await ok("POST", "/api/wifi/mode", json: ["mode": mode]) }
     func login(pin: String) async throws -> Bool {
