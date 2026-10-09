@@ -36,6 +36,6 @@ while read -r src _; do
     cp "$DRONE_DIR/$src" "$STAGE/bb-update/payload/$src"
 done < "$TOOLS/MANIFEST"
 # Record which commit the bundle was built from.
-git -C "$DRONE_DIR" describe --always --dirty > "$STAGE/bb-update/VERSION" 2>/dev/null || echo unknown > "$STAGE/bb-update/VERSION"
+git -c safe.directory='*' -C "$DRONE_DIR" describe --always --dirty > "$STAGE/bb-update/VERSION" 2>/dev/null || echo unknown > "$STAGE/bb-update/VERSION"
 COPYFILE_DISABLE=1 tar --no-xattrs --no-mac-metadata -C "$STAGE" -czf "$OUT" bb-update
 echo "$OUT ($(cat "$STAGE/bb-update/VERSION"))"
