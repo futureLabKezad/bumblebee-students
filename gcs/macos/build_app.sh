@@ -39,8 +39,12 @@ for b in "$BIN_DIR"/*.bundle; do
 done
 cp Sources/GCSApp/Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
-# Ad-hoc sign so it launches without a quarantine/Gatekeeper hard stop.
-codesign --force --deep --sign - "$APP" >/dev/null 2>&1 || true
+# Ad-hoc sign so it launches without a quarantine/Gatekeeper hard stop. The
+# designated requirement names only the bundle id, so macOS keeps the app's
+# Location / Local Network permissions across rebuilds (a plain ad-hoc
+# signature is tied to the exact binary and every rebuild looks like a new app).
+codesign --force --deep --sign - \
+    --requirements '=designated => identifier "com.bumblebee.gcs"' "$APP" >/dev/null 2>&1 || true
 
 echo "==> done: $APP"
 echo "    run with:  open \"$APP\"   (or: \"$APP/Contents/MacOS/GCSApp\")"
