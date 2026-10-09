@@ -1,0 +1,59 @@
+# Copyright 2026 FutureLab
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gcs-macos:
+    name: macOS GCS app builds
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build release app bundle
+        working-directory: gcs/macos
+        run: ./build_app.sh release
+      - name: Check the bundle
+        working-directory: gcs/macos
+        run: |
+          test -x "build/Bumblebee GCS.app/Contents/MacOS/GCSApp"
+          plutil -lint "build/Bumblebee GCS.app/Contents/Info.plist"
+
+  drone-tests:
+    name: Drone scripts (unit + simulation tests)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'   # the drone runs Ubuntu 24.04's python 3.12
+      - name: Install test dependencies
+        run: pip install 'tornado==6.4' bcrypt
+      - name: Syntax-check shell scripts
+        run: |
+          for f in drone/ros2_ws/src/bumblebee/scripts/*.sh drone/tools/*.sh \
+                   drone/system/networkmanager/dispatcher.d/*; do
+            bash -n "$f" || exit 1
+          done
+      - name: Run tests
+        working-directory: drone/ros2_ws/src/bumblebee
+        run: >
+          python -m unittest -v
+          test/test_wifi_manager.py test/test_wifi_watchdog.py test/test_set_identity.py
