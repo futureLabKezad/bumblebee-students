@@ -45,22 +45,32 @@ LOOP=$(losetup -P --show -fr "$WORK/img")
 check "boot partition is FAT32 (type c)" bash -c "sfdisk -d '$WORK/img' | grep -q 'start=        2048,.*type=c'"
 check "root fs is clean (e2fsck -n)" e2fsck -fn "${LOOP}p2"
 
-echo "== raw image (incl. free space) holds no Wi-Fi passwords"
-python3 - "$WORK/img" <<'PY' && ok "no Wi-Fi passwords other than the public hotspot one" || bad "Wi-Fi passwords found in the raw image"
-import mmap, re, sys
-with open(sys.argv[1], 'rb') as f:
-    mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
-    values = {m.group(1) for m in re.finditer(rb'password: "([^"\n]{8,64})"', mm)}
-    values |= {m.group(1) for m in re.finditer(rb'\bpsk=([^\s]{8,64})', mm)}
-others = values - {b'12345678'}
-print('       distinct password values found: %d (hotspot excluded), not printed' % len(others))
-sys.exit(1 if others else 0)
-PY
-
 mkdir -p "$MNT"
 mount -o ro "${LOOP}p2" "$MNT"
 mount -o ro "${LOOP}p1" "$MNT/boot/firmware"
 echo "== root fs: $(df -h "$MNT" | awk 'NR==2 {print $2" total, "$4" free"}')"
+
+echo "== free space holds no leftover passwords"
+# Password-like strings in the raw image (free space included) that are not in
+# any live file are residue of deleted files (e.g. old Wi-Fi configs).
+# Strings in live files (package docs/examples) are covered by the checks below.
+python3 - "$WORK/img" "$MNT" <<'PY' && ok "no deleted-file password residue" || bad "password residue in free space"
+import mmap, re, subprocess, sys, tempfile
+img, root = sys.argv[1], sys.argv[2]
+pats = [rb'password: "([^"\n]{8,64})"', rb'\bpsk=([^\s]{8,64})']
+with open(img, 'rb') as f:
+    mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+    values = {m.group(1) for p in pats for m in re.finditer(p, mm)}
+values.discard(b'12345678')                    # public hotspot password
+with tempfile.NamedTemporaryFile() as tf:      # one pass over the live files for all values
+    tf.write(b'\n'.join(values) + b'\n'); tf.flush()
+    live = set(subprocess.run(['grep', '-rhoaF', '-f', tf.name, root],
+                              capture_output=True).stdout.split(b'\n')) if values else set()
+residue = [v for v in values if v not in live]
+print('       %d password-like strings, %d not in any live file (values not printed)'
+      % (len(values), len(residue)))
+sys.exit(1 if residue else 0)
+PY
 
 echo "== update installed"
 MAN="$REPO/drone/tools/MANIFEST"
