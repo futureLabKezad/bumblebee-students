@@ -111,8 +111,20 @@ network:
 NETCFG
 fi
 rm -rf "$MNT/boot/firmware/System Volume Information"   # Windows chkdsk leftover
+# cloud-init keeps copies of the seed it booted with (user-data with the
+# password hash, network-config with Wi-Fi passwords) in its instance cache.
+# Drop those copies but keep the instance markers, so cloud-init does not
+# treat the first boot of a flashed card as a new instance (it re-reads the
+# seed from the boot partition when the cache is gone).
+for d in "$MNT"/var/lib/cloud/instances/*/; do
+    [ -d "$d" ] || continue
+    rm -f "$d"obj.pkl "$d"user-data.txt* "$d"vendor-data*.txt* "$d"cloud-config.txt \
+          "$d"network-config* "$d"datasource
+done
+rm -f "$MNT"/var/lib/cloud/data/*.json "$MNT"/var/lib/cloud/data/previous-hostname
 # unique per machine: regenerated on first boot
 : > "$MNT/etc/machine-id"
+rm -f "$MNT/var/lib/systemd/random-seed" "$MNT/etc/iscsi/initiatorname.iscsi"
 rm -f "$MNT"/etc/ssh/ssh_host_*
 install -d "$MNT/etc/systemd/system/ssh.service.d"
 install -m 0644 "$REPO/drone/image/ssh-hostkeys.conf" \
@@ -125,10 +137,12 @@ rm -f "$MNT"/home/lb/.bash_history "$MNT"/root/.bash_history \
       "$MNT"/home/lb/.python_history "$MNT"/home/lb/.lesshst "$MNT"/home/lb/.viminfo "$MNT"/root/.viminfo
 rm -rf "$MNT"/home/lb/.ros/log "$MNT"/tmp/* "$MNT"/var/tmp/*
 rm -f "$MNT"/var/cache/apt/archives/*.deb
+rm -rf "$MNT"/var/crash/* "$MNT"/var/backups/*           # crash dumps; old passwd/shadow copies
+rm -rf "$MNT"/home/lb/ros2_ws/log "$MNT"/home/lb/.cache "$MNT"/home/lb/.sudo_as_admin_successful
 # hand-made backups and freeze dumps from the development drone
 rm -rf "$MNT"/home/lb/bumblebee-backup-* "$MNT"/home/lb/freeze_* "$MNT"/home/lb/examples_baks_*
 find "$MNT/home/lb" -maxdepth 1 -name '*.bak*' -delete
-find "$MNT/home/lb/ros2_ws/src" "$MNT/home/lb/ros2_ws/install" -name '*.bak*' -delete
+find "$MNT/home/lb/ros2_ws/src" "$MNT/home/lb/ros2_ws/install" -type f -name '*.bak*' -delete
 
 # ---- 4. version stamp --------------------------------------------------------------
 COMMIT=$(git -c safe.directory='*' -C "$REPO" describe --always --dirty 2>/dev/null || echo unknown)
@@ -141,6 +155,9 @@ say "checking"
 if grep -rlE 'psk|password' "$MNT"/etc/netplan "$MNT"/etc/NetworkManager/system-connections 2>/dev/null \
         | xargs -r grep -L 'name: "bumblebee-hotspot"' | grep .; then
     echo "client Wi-Fi credentials left in the image" >&2; exit 1
+fi
+if grep -rlsE 'password|passwd|psk' "$MNT/var/lib/cloud" "$MNT/var/backups" | grep .; then
+    echo "credentials left in the cloud-init cache / backups" >&2; exit 1
 fi
 [ -s "$MNT/etc/machine-id" ] && { echo "machine-id not cleared" >&2; exit 1; }
 ls "$MNT"/etc/ssh/ssh_host_* >/dev/null 2>&1 && { echo "ssh host keys left" >&2; exit 1; }

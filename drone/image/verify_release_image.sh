@@ -75,6 +75,10 @@ check "no shell history" bash -c "! ls '$MNT'/home/lb/.bash_history '$MNT'/root/
 check "journal empty" bash -c "[ -z \"\$(ls -A '$MNT'/var/log/journal 2>/dev/null)\" ]"
 check "no dev backups in /home/lb" bash -c "! ls -d '$MNT'/home/lb/bumblebee-backup-* >/dev/null 2>&1"
 check "hostname reset" grep -qx bumblebee "$MNT/etc/hostname"
+check "no credentials in cloud-init cache / backups" bash -c "! grep -rlsE 'password|passwd|psk' '$MNT/var/lib/cloud' '$MNT/var/backups' | grep -q ."
+check "cloud-init instance marker kept" bash -c "ls -d '$MNT'/var/lib/cloud/instances/*/ >/dev/null 2>&1 && test -e '$MNT/var/lib/cloud/data/instance-id'"
+check "no crash dumps" bash -c "[ -z \"\$(ls -A '$MNT'/var/crash 2>/dev/null)\" ]"
+check "random-seed removed" test ! -e "$MNT/var/lib/systemd/random-seed"
 
 echo "== things that must still be there"
 for p in /home/lb/ros2_ws/install/bumblebee/lib/bumblebee/simple_offboard \
