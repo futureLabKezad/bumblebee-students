@@ -104,7 +104,11 @@ final class DroneAPI {
 
     // MARK: - WiFi / auth
 
-    struct WifiStatus { var mode: String; var ssid: String; var ip: String; var signal: Int }
+    struct WifiStatus {
+        var mode: String; var ssid: String; var ip: String; var signal: Int
+        /// Drone hardware id (as in its Bonjour TXT record); nil on older drone software.
+        var id: String? = nil
+    }
     struct ScanNet: Identifiable { let id = UUID(); var ssid: String; var signal: Int; var inUse: Bool; var band: String; var freq: Int }
 
     func wifiStatus() async throws -> WifiStatus {
@@ -112,7 +116,8 @@ final class DroneAPI {
         return WifiStatus(mode: obj["mode"] as? String ?? "—",
                           ssid: obj["ssid"] as? String ?? "—",
                           ip: obj["ip"] as? String ?? "—",
-                          signal: obj["signal"] as? Int ?? 0)
+                          signal: obj["signal"] as? Int ?? 0,
+                          id: (obj["id"] as? String).flatMap { $0.isEmpty ? nil : $0 })
     }
     func wifiSetMode(_ mode: String) async throws { try await ok("POST", "/api/wifi/mode", json: ["mode": mode]) }
     func login(pin: String) async throws -> Bool {

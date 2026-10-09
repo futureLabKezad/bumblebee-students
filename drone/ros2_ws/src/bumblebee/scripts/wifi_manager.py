@@ -72,6 +72,12 @@ WIFI_SWITCH_MARKER = '/tmp/bumblebee-wifi-switch'
 # Delay before a connection-changing nmcli call, so the HTTP reply reaches the
 # GCS before the drone drops the link the GCS is talking over.
 SWITCH_DELAY_S = 1.5
+# How long a GCS-requested join may take before we give up and bring the
+# hotspot back (auth + DHCP on a slow hotspot can take ~20 s).
+JOIN_TIMEOUT_S = 40
+# Networks whose GCS-requested join just failed ("uuid epoch" lines);
+# wifi_watchdog.sh backs off from them like from its own failed probes.
+WIFI_FAILED_LOG = '/tmp/bumblebee-wifi-failed'
 # Present while the GCS asked for hotspot mode: wifi_watchdog.sh then stops
 # probing for known networks (which would switch the drone back to client).
 HOTSPOT_PIN_MARKER = '/tmp/bumblebee-hotspot-pinned'
@@ -112,11 +118,11 @@ def load_config():
         return json.load(f)
 
 
-def nmcli(*args):
+def nmcli(*args, timeout=15):
     """Run nmcli, return stdout. Raises RuntimeError on non-zero exit."""
     result = subprocess.run(
         ['nmcli'] + list(args),
-        capture_output=True, text=True, timeout=15,
+        capture_output=True, text=True, timeout=timeout,
     )
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip())
@@ -131,23 +137,57 @@ def _mark_wifi_switch():
         logging.exception('cannot write %s', WIFI_SWITCH_MARKER)
 
 
-def _nmcli_after_reply(*args):
+def _nmcli_after_reply(*args, on_fail=None):
     """Run a link-changing nmcli command after the current reply is sent.
 
     `nmcli con up/down` on wlan0 tears down the network the GCS is connected
-    through, so it must not run before the response is flushed.
+    through, so it must not run before the response is flushed. `on_fail` runs
+    if the command fails or times out.
     """
     _mark_wifi_switch()
 
     def worker():
         time.sleep(SWITCH_DELAY_S)
         try:
-            nmcli(*args)
+            nmcli('-w', str(JOIN_TIMEOUT_S), *args, timeout=JOIN_TIMEOUT_S + 10)
             logging.info('nmcli %s: ok', ' '.join(args))
         except Exception:
             logging.exception('nmcli %s failed', ' '.join(args))
+            if on_fail is not None:
+                try:
+                    on_fail()
+                except Exception:
+                    logging.exception('switch failure handler')
 
     threading.Thread(target=worker, daemon=True).start()
+
+
+def _join_failed(name):
+    """A GCS-requested join failed (wrong password, out of range, no DHCP):
+    bring the hotspot straight back so the GCS can reach the drone again, and
+    tell wifi_watchdog.sh not to retry that network for a while."""
+    try:
+        uuid = nmcli('-g', 'connection.uuid', 'con', 'show', name).strip()
+        with open(WIFI_FAILED_LOG, 'a') as f:
+            f.write('%s %d\n' % (uuid, int(time.time())))
+    except Exception:
+        logging.exception('cannot record failed join of %s', name)
+    try:
+        os.remove(WIFI_SWITCH_MARKER)    # nothing deliberate is pending any more
+    except OSError:
+        pass
+    ssid = _hotspot_ssid()
+    if ssid:
+        nmcli('connection', 'modify', HOTSPOT_CONN, 'wifi.ssid', ssid)
+    nmcli('connection', 'up', HOTSPOT_CONN, timeout=30)
+    logging.info('join of %s failed, hotspot back up', name)
+
+
+def _hwid():
+    """Short hardware id (last 4 hex digits of the wlan0 MAC), as advertised in
+    the Bonjour TXT record and used in the hotspot SSID."""
+    ssid = _hotspot_ssid()
+    return ssid[len('Bumblebee-'):] if ssid else ''
 
 
 def _hotspot_ssid():
@@ -366,7 +406,7 @@ def _wifi_status():
                 pass
             break
 
-    return {'mode': mode, 'ssid': ssid, 'ip': ip, 'signal': signal}
+    return {'mode': mode, 'ssid': ssid, 'ip': ip, 'signal': signal, 'id': _hwid()}
 
 
 class StatusHandler(BaseHandler):
@@ -406,7 +446,7 @@ class ScanHandler(BaseHandler):
             networks = []
             seen = set()
             for line in raw.splitlines():
-                parts = line.split(':')
+                parts = _nm_fields(line)
                 if len(parts) < 5:
                     continue
                 in_use = parts[0] == '*'
@@ -525,7 +565,7 @@ class ApplyNowHandler(BaseHandler):
             pass
         # Reply first: bringing the connection up drops the hotspot the GCS is
         # talking through, so a reply sent afterwards never arrives.
-        _nmcli_after_reply('con', 'up', ssid)
+        _nmcli_after_reply('con', 'up', ssid, on_fail=lambda: _join_failed(ssid))
         logging.info('apply-now: switching to %s', ssid)
         self.finish(json.dumps({'ok': True}))
 
@@ -578,7 +618,7 @@ class DeleteNetworkHandler(BaseHandler):
 def _current_mode():
     raw = nmcli('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device', 'status')
     for line in raw.splitlines():
-        parts = line.split(':')
+        parts = _nm_fields(line)
         if parts[0] == 'wlan0' and len(parts) >= 3:
             if parts[1] == 'connected':
                 return 'hotspot' if parts[2] == HOTSPOT_CONN else 'client'

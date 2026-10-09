@@ -67,12 +67,17 @@ elif t == 'UUID,NAME':
     out = ['%s:%s' % (c['uuid'], esc(c['name'])) for c in st['cons']]
 elif t == 'UUID,TYPE':
     out = ['%s:802-11-wireless' % c['uuid'] for c in st['cons']]
+elif t == 'UUID,TYPE,AUTOCONNECT':
+    out = ['%s:802-11-wireless:%s' % (c['uuid'], c.get('auto', 'yes')) for c in st['cons']]
 elif t == 'UUID,TYPE,AUTOCONNECT-PRIORITY,TIMESTAMP':
     out = ['%s:802-11-wireless:%d:%d' % (c['uuid'], c['prio'], c['ts']) for c in st['cons']]
 elif t == 'SSID' and 'list' in args:
     out = [esc(s) for s in st['visible']]
 elif t == '802-11-wireless.ssid':
-    out = ['802-11-wireless.ssid:' + esc(find(args[-1])['ssid'])]
+    # `con show <id>` is multiline output: values are NOT escaped
+    out = ['802-11-wireless.ssid:' + find(args[-1])['ssid']]
+elif args[:2] == ['-g', '802-11-wireless.ssid']:
+    out = [esc(find(args[-1])['ssid'])]   # -g escapes like -t tabular
 elif args[:2] == ['-g', 'connection.id']:
     out = [find(args[-1])['name']]
 elif args[:3] == ['dev', 'wifi', 'rescan']:
@@ -81,6 +86,8 @@ elif args[:2] == ['connection', 'modify']:
     c = find(args[2])
     if 'wifi.ssid' in args:
         c['ssid'] = args[args.index('wifi.ssid') + 1]
+    if 'connection.autoconnect' in args:
+        c['auto'] = args[args.index('connection.autoconnect') + 1]
 elif args[:2] == ['connection', 'down']:
     if find(args[2])['name'] == st['conn']:
         st['conn'], st['state'] = '', 'disconnected'
@@ -101,11 +108,11 @@ print('\n'.join(out))
 sys.exit(rc)
 '''
 
-FAKE_IP = r'''#!/usr/bin/env python3
+FAKE_SS = r'''#!/usr/bin/env python3
 import json, os
 with open(os.environ['FAKE_STATE']) as f:
     st = json.load(f)
-for n in st.get('neigh', []):
+for n in st.get('tcp', []):     # "Recv-Q Send-Q Local:Port Peer:Port"
     print(n)
 '''
 
@@ -118,7 +125,7 @@ class WatchdogSim(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         d = self.tmp.name
-        for name, body in (('nmcli', FAKE_NMCLI), ('ip', FAKE_IP)):
+        for name, body in (('nmcli', FAKE_NMCLI), ('ss', FAKE_SS)):
             p = os.path.join(d, name)
             with open(p, 'w') as f:
                 f.write(body.replace('/usr/bin/env python3', sys.executable, 1))
@@ -133,6 +140,8 @@ class WatchdogSim(unittest.TestCase):
                         BB_RECONNECT_ATTEMPTS='3', BB_RECONNECT_TRY_INTERVAL='0.2',
                         BB_JOIN_TIMEOUT='5', BB_PROBE_BACKOFF='30', BB_SWITCH_GRACE='3',
                         BB_API_SWITCH_MARKER=os.path.join(d, 'api-switch'),
+                        BB_API_FAILED_LOG=os.path.join(d, 'api-failed'),
+                        BB_RECONNECT_DEADLINE='60', BB_TRY_TIMEOUT='5',
                         BB_PROBE_MARKER=os.path.join(d, 'probe'),
                         BB_HOTSPOT_PIN_MARKER=os.path.join(d, 'pinned'),
                         BB_WLAN_ADDRESS=os.path.join(d, 'addr'),
@@ -200,7 +209,7 @@ class WatchdogSim(unittest.TestCase):
     def test_active_hotspot_client_is_not_kicked(self):
         st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home')],
                                 'visible': ['Home'], 'conn': HOTSPOT, 'state': 'connected',
-                                'neigh': ['10.42.0.23 lladdr aa:bb:cc:dd:ee:ff REACHABLE']}, 5)
+                                'tcp': ['0 0 10.42.0.1:9090 10.42.0.23:51234']}, 5)
         self.assertEqual(st['conn'], HOTSPOT)
 
     def test_hands_off_after_api_switch(self):
@@ -209,6 +218,44 @@ class WatchdogSim(unittest.TestCase):
         st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home')],
                                 'visible': [], 'conn': '', 'state': 'connecting (configuring)'}, 2)
         self.assertEqual([c for c in st['calls'] if 'up' in c], [])
+
+    def test_hotspot_client_without_gcs_session_does_not_block_probe(self):
+        # a phone joined to the hotspot, but no GCS connection is open
+        st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home')],
+                                'visible': ['Home'], 'conn': HOTSPOT, 'state': 'connected',
+                                'tcp': ['0 0 192.168.1.50:22 192.168.1.7:50000']}, 8)
+        self.assertEqual(st['conn'], 'Home')
+
+    # -- second review: failed GCS-requested switch ----------------------------
+
+    def test_failed_gcs_switch_brings_hotspot_back_after_grace(self):
+        with open(self.env['BB_API_SWITCH_MARKER'], 'w') as f:
+            f.write(str(int(time.time())))
+        st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home', psk_ok=False)],
+                                'visible': ['Home'], 'conn': '', 'state': 'disconnected'}, 5)
+        self.assertEqual(st['conn'], HOTSPOT)
+        self.assertEqual(self.ups(st, 'u-home'), [], 'retried the network that just failed')
+
+    def test_network_failed_by_gcs_is_not_retried(self):
+        with open(self.env['BB_API_FAILED_LOG'], 'w') as f:
+            f.write('u-home %d\n' % int(time.time()))
+        st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home')],
+                                'visible': ['Home'], 'conn': '', 'state': 'disconnected'}, 3)
+        self.assertEqual(st['conn'], HOTSPOT)
+        self.assertEqual(self.ups(st, 'u-home'), [])
+
+    def test_reconnect_loop_has_a_deadline(self):
+        self.env.update(BB_RECONNECT_ATTEMPTS='1000', BB_RECONNECT_DEADLINE='2')
+        st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home')],
+                                'visible': [], 'conn': '', 'state': 'disconnected'}, 5)
+        self.assertEqual(st['conn'], HOTSPOT)
+
+    def test_autoconnect_only_rewritten_when_off(self):
+        cons = [self.hotspot(), con('Home', 'u-home'), con('Lab', 'u-lab')]
+        cons[2]['auto'] = 'no'
+        st = self.run_watchdog({'cons': cons, 'visible': ['Home'], 'conn': 'Home', 'state': 'connected'}, 2)
+        modified = [c[2] for c in st['calls'] if c[:2] == ['connection', 'modify']]
+        self.assertEqual(sorted(set(modified)), ['u-lab'])
 
     # -- review findings: profile choice -----------------------------------
 

@@ -14,7 +14,8 @@ and downloadable builds.
 - Drone re-raised its hotspot (with a new random SSID) 5 s into a GCS- or
   watchdog-initiated join, so returning from the hotspot to a known network
   rarely worked. Deliberate switches are now marked and left alone; a failed
-  join brings the hotspot straight back (with a 10 min back-off per network),
+  join (GCS-requested or the watchdog's own) brings the hotspot straight back
+  (with a 10 min back-off per network),
   the hotspot is not dropped while the GCS uses it or after "hotspot mode" was
   chosen in the GCS, the newest provisioned / visible network is tried first,
   and the SSID is stable: `Bumblebee-<hwid>`.

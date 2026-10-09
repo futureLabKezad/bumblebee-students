@@ -301,6 +301,17 @@ final class BonjourDroneBrowser: NSObject, NetServiceBrowserDelegate, NetService
         onFound(ip, Self.txt(sender, "name") ?? sender.name, Self.txt(sender, "id"))
     }
 
+    /// Resolution ended (5 s timeout) without a usable IPv4 address — e.g. only
+    /// IPv6 arrived. Try again while retries last instead of dropping the drone.
+    func netServiceDidStop(_ sender: NetService) {
+        guard resolving.contains(sender) else { return }
+        if retries[sender.name] != nil {
+            retryLater(sender)
+        } else {
+            resolving.remove(sender)
+        }
+    }
+
     func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
         if retries[sender.name] != nil, accept != nil {
             retryLater(sender)        // still waiting for a usable address

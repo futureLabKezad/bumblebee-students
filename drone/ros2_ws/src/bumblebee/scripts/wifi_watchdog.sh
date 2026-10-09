@@ -17,8 +17,10 @@ HOTSPOT_CONN="bumblebee-hotspot"
 CHECK_INTERVAL=${BB_CHECK_INTERVAL:-5}
 RECONNECT_INTERVAL=${BB_RECONNECT_INTERVAL:-60}   # min hotspot uptime between probes for known wifi
 RECONNECT_ATTEMPTS=${BB_RECONNECT_ATTEMPTS:-10}   # how many times to try rejoining a known wifi before hotspot
-RECONNECT_TRY_INTERVAL=${BB_RECONNECT_TRY_INTERVAL:-6}  # seconds between attempts (10 x 6 ~= 60s before hotspot)
+RECONNECT_TRY_INTERVAL=${BB_RECONNECT_TRY_INTERVAL:-6}  # seconds between attempts
+RECONNECT_DEADLINE=${BB_RECONNECT_DEADLINE:-90}   # hard cap on the reconnect loop before the hotspot comes up
 JOIN_TIMEOUT=${BB_JOIN_TIMEOUT:-40}               # max seconds a probe join from the hotspot may take
+TRY_TIMEOUT=${BB_TRY_TIMEOUT:-20}                 # max seconds one reconnect attempt may block
 PROBE_BACKOFF=${BB_PROBE_BACKOFF:-600}            # don't re-probe a network that just failed to join
 
 # wifi_manager.py (user lb) touches this before a GCS-requested switch; hands
@@ -27,6 +29,8 @@ PROBE_BACKOFF=${BB_PROBE_BACKOFF:-600}            # don't re-probe a network tha
 API_SWITCH_MARKER=${BB_API_SWITCH_MARKER:-/tmp/bumblebee-wifi-switch}
 PROBE_MARKER=${BB_PROBE_MARKER:-/run/bumblebee-wifi-probe}   # read by the NM dispatcher
 SWITCH_GRACE=${BB_SWITCH_GRACE:-45}
+# Networks whose GCS-requested join failed ("uuid epoch"), see wifi_manager.py.
+API_FAILED_LOG=${BB_API_FAILED_LOG:-/tmp/bumblebee-wifi-failed}
 # Present while the GCS asked for hotspot mode: don't switch back to client.
 HOTSPOT_PIN_MARKER=${BB_HOTSPOT_PIN_MARKER:-/tmp/bumblebee-hotspot-pinned}
 WLAN_ADDRESS=${BB_WLAN_ADDRESS:-/sys/class/net/wlan0/address}
@@ -58,9 +62,12 @@ wlan0_field() {   # CONNECTION or STATE of wlan0
     nmcli -t -f DEVICE,"$1" device status 2>/dev/null | grep "^wlan0:" | cut -d: -f2-
 }
 
-# Someone (the GCS) is actively talking to us over the hotspot.
+# A GCS (or SSH) session is open over the hotspot right now: an established
+# TCP connection from a hotspot client to one of our service ports.
 clients_on_hotspot() {
-    ip -4 neigh show dev wlan0 2>/dev/null | grep -qE 'REACHABLE|DELAY|PROBE'
+    ss -Htn state established \
+        '( sport = :8765 or sport = :9090 or sport = :8080 or sport = :8888 or sport = :22 )' 2>/dev/null \
+        | awk '{print $4}' | grep -q '^10\.42\.'
 }
 
 hotspot_uuid() {
@@ -78,8 +85,8 @@ ranked_client_conns() {
     while IFS=: read -r uuid kind prio ts; do
         [ "$kind" = "802-11-wireless" ] || continue
         [ "$uuid" = "$hs" ] && continue
-        # same nmcli -t escaping on both sides, so compare escaped forms
-        ssid=$(nmcli -t -f 802-11-wireless.ssid con show "$uuid" 2>/dev/null | cut -d: -f2-)
+        # -g escapes ':' and '\' like `dev wifi list -t`, so compare escaped forms
+        ssid=$(nmcli -g 802-11-wireless.ssid con show "$uuid" 2>/dev/null)
         vis=0
         [ -n "$ssid" ] && grep -qxF -- "$ssid" <<< "$visible" && vis=1
         echo "$vis:${prio:-0}:${ts:-0}:$uuid"
@@ -108,13 +115,18 @@ raise_hotspot() {
 # Failed probe joins as "uuid epoch" lines (plain variable: no bash-4 features,
 # so the script also runs under the test harness on macOS bash 3.2).
 FAILED=""
-failed_at() { awk -v u="$1" '$1 == u {t = $2} END {print t + 0}' <<< "$FAILED"; }
+failed_at() {   # latest failure of a profile, from our probes or from the GCS
+    { echo "$FAILED"; cat "$API_FAILED_LOG" 2>/dev/null; } |
+        awk -v u="$1" '$1 == u && $2 > t {t = $2} END {print t + 0}'
+}
+in_backoff() { [ $(( $(date +%s) - $(failed_at "$1") )) -lt "$PROBE_BACKOFF" ]; }
 mark_failed() { FAILED="$(awk -v u="$1" '$1 != u' <<< "$FAILED")"$'\n'"$1 $(date +%s)"; }
 
 log "wifi_watchdog started"
 
 last_reconnect=0
 hotspot_starting=0
+api_grace=0
 
 while true; do
     CONN=$(wlan0_field CONNECTION)
@@ -122,8 +134,19 @@ while true; do
 
     # The GCS just asked for a switch: let NetworkManager finish it.
     if [ "$(since_api_switch)" -lt "$SWITCH_GRACE" ]; then
+        api_grace=1
         sleep "$CHECK_INTERVAL"
         continue
+    fi
+    # ...and it did not end up connected: bring the hotspot straight back so the
+    # GCS can reach the drone, instead of a long reconnect loop.
+    if [ "$api_grace" = 1 ]; then
+        api_grace=0
+        if [ "$STATE" != "connected" ]; then
+            raise_hotspot "GCS-requested switch did not connect"
+            sleep "$CHECK_INTERVAL"
+            continue
+        fi
     fi
 
     if [ "$CONN" = "$HOTSPOT_CONN" ]; then
@@ -137,7 +160,7 @@ while true; do
             sleep 3
             while IFS=: read -r vis _ _ uuid; do
                 [ "$vis" = "1" ] || break   # ranked: visible ones come first
-                [ $((now - $(failed_at "$uuid"))) -lt "$PROBE_BACKOFF" ] && continue
+                in_backoff "$uuid" && continue
                 name=$(con_label "$uuid")
                 log "known network '$name' visible, switching from hotspot"
                 date +%s > "$PROBE_MARKER" 2>/dev/null
@@ -157,10 +180,11 @@ while true; do
         continue
     fi
 
-    # Reset autoconnect for all known wifi connections
+    # Re-enable autoconnect on known wifi connections that lost it. Only touch
+    # profiles that need it: every modify rewrites a netplan file and reloads NM.
     hs=$(hotspot_uuid)
-    nmcli -t -f UUID,TYPE con show 2>/dev/null | while IFS=: read -r uuid kind; do
-        [ "$kind" = "802-11-wireless" ] && [ "$uuid" != "$hs" ] || continue
+    nmcli -t -f UUID,TYPE,AUTOCONNECT con show 2>/dev/null | while IFS=: read -r uuid kind auto; do
+        [ "$kind" = "802-11-wireless" ] && [ "$uuid" != "$hs" ] && [ "$auto" = "no" ] || continue
         nmcli connection modify "$uuid" connection.autoconnect yes 2>/dev/null
     done
 
@@ -168,14 +192,21 @@ while true; do
     # actively try to rejoin a known wifi RECONNECT_ATTEMPTS times, raise hotspot only if all fail.
     # Never reboots — this is the sole path on wifi loss (boot-time AND in-flight).
     if [ "$STATE" != "connected" ] && [ "$hotspot_starting" -eq 0 ]; then
-        CLIENT_CONN=$(ranked_client_conns | head -1 | cut -d: -f4)
+        # best profile not just failed (by the GCS or by us)
+        CLIENT_CONN=""
+        while IFS=: read -r _ _ _ uuid; do
+            in_backoff "$uuid" || { CLIENT_CONN=$uuid; break; }
+        done < <(ranked_client_conns)
         log "wlan0 not connected (state=$STATE), reconnect loop to $( [ -n "$CLIENT_CONN" ] && con_label "$CLIENT_CONN" || echo '<none>')"
         reconnected=0
+        deadline=$(( $(date +%s) + RECONNECT_DEADLINE ))
         for i in $(seq 1 "$RECONNECT_ATTEMPTS"); do
+            [ -n "$CLIENT_CONN" ] || break        # nothing worth trying: hotspot now
+            [ "$(date +%s)" -lt "$deadline" ] || break
             ST=$(wlan0_field STATE)
             case "$ST" in
                 connecting*) ;;   # previous attempt still in progress: don't restart it
-                *) [ -n "$CLIENT_CONN" ] && nmcli connection up "$CLIENT_CONN" 2>/dev/null ;;
+                *) nmcli -w "$TRY_TIMEOUT" connection up "$CLIENT_CONN" 2>/dev/null ;;
             esac
             sleep "$RECONNECT_TRY_INTERVAL"
             ST=$(wlan0_field STATE)

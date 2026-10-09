@@ -12,7 +12,8 @@ log() { echo "$(date): $1" >> /tmp/wifi-manager.log 2>/dev/null || true; }
 # Deliberate switches drop wlan0 on purpose; don't abort the join they start.
 #   /tmp/bumblebee-wifi-switch  - wifi_manager.py, GCS-requested switch
 #   /run/bumblebee-wifi-probe   - wifi_watchdog.sh, trying a known network
-# wifi_watchdog.sh brings the hotspot back if such a join fails.
+# If such a join fails, wifi_manager.py (GCS switch) or wifi_watchdog.sh (probe,
+# or when the switch grace runs out unconnected) brings the hotspot back.
 SWITCH_GRACE=45
 fresh() {
     local t

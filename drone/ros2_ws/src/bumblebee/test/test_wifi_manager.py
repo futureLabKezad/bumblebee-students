@@ -48,13 +48,19 @@ class FakeNmcli:
     def __init__(self):
         self.calls = []
         self.lock = threading.Lock()
-        self.connections = ['netplan-wlan0-Y', 'Home WiFi', 'Lab:5G', wm.HOTSPOT_CONN]
-        self.priorities = {'netplan-wlan0-Y': 10, 'Home WiFi': 12, 'Lab:5G': 0, wm.HOTSPOT_CONN: 0}
+        self.connections = ['netplan-wlan0-Y', 'Home WiFi', 'Lab:5G', 'Bad Net', wm.HOTSPOT_CONN]
+        self.priorities = {'netplan-wlan0-Y': 10, 'Home WiFi': 12, 'Lab:5G': 0, 'Bad Net': 5, wm.HOTSPOT_CONN: 0}
         self.wlan0 = ('connected', wm.HOTSPOT_CONN)
 
-    def __call__(self, *args):
+    def __call__(self, *args, timeout=15):
+        if args[:1] == ('-w',):          # nmcli -w <secs> ...: record the command itself
+            args = args[2:]
         with self.lock:
             self.calls.append(args)
+        if args[:2] == ('-g', 'connection.uuid'):
+            return 'uuid-' + args[-1]
+        if args[:3] == ('con', 'up', 'Bad Net'):
+            raise RuntimeError('Error: Connection activation failed: Secrets were required')
         if args[:4] == ('-t', '-f', 'NAME', 'con'):
             # nmcli -t escapes ':' and '\\' inside values
             return '\n'.join(c.replace('\\', '\\\\').replace(':', '\\:') for c in self.connections)
@@ -66,6 +72,8 @@ class FakeNmcli:
             return 'wlan0:%s:%s\neth0:unavailable:' % self.wlan0
         if args[:4] == ('-t', '-f', 'IP4.ADDRESS', 'device'):
             return 'IP4.ADDRESS[1]:10.42.0.1/24'
+        if 'IN-USE,SSID,SIGNAL,SECURITY,FREQ' in args:
+            return '*:Lab\\:5G:80:WPA2:2437 MHz\n:Home WiFi:55:WPA2:5180 MHz'
         if 'list' in args:
             return '*:77:Bumblebee-ABCD'
         return ''
@@ -79,7 +87,10 @@ class WifiManagerTest(AsyncHTTPTestCase):
     def setUp(self):
         self.fake = FakeNmcli()
         self.tmp = tempfile.TemporaryDirectory()
-        self._orig = (wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S, wm.HOTSPOT_PIN_MARKER)
+        self._orig = (wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S, wm.HOTSPOT_PIN_MARKER,
+                      wm.WIFI_FAILED_LOG, wm._hotspot_ssid)
+        wm.WIFI_FAILED_LOG = os.path.join(self.tmp.name, 'failed')
+        wm._hotspot_ssid = lambda: 'Bumblebee-ABCD'
         wm.nmcli = self.fake
         wm.WIFI_SWITCH_MARKER = os.path.join(self.tmp.name, 'switch')
         wm.HOTSPOT_PIN_MARKER = os.path.join(self.tmp.name, 'pinned')
@@ -88,7 +99,8 @@ class WifiManagerTest(AsyncHTTPTestCase):
 
     def tearDown(self):
         super().tearDown()
-        wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S, wm.HOTSPOT_PIN_MARKER = self._orig
+        (wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S, wm.HOTSPOT_PIN_MARKER,
+         wm.WIFI_FAILED_LOG, wm._hotspot_ssid) = self._orig
         self.tmp.cleanup()
 
     def get_app(self):
@@ -138,6 +150,19 @@ class WifiManagerTest(AsyncHTTPTestCase):
         prio = [c for c in self.fake.calls if 'connection.autoconnect-priority' in c][-1]
         self.assertEqual(prio[-1], '13')   # one above the current max (12)
 
+    def test_failed_join_brings_hotspot_back(self):
+        resp = self.post('/api/wifi/apply-now', {'ssid': 'Bad Net'})
+        self.assertEqual(resp.code, 200)
+        self.assertTrue(self.wait_for(lambda: self.fake.called('connection', 'up', wm.HOTSPOT_CONN)))
+        with open(wm.WIFI_FAILED_LOG) as f:
+            self.assertTrue(f.read().startswith('uuid-Bad Net '))
+        self.assertFalse(os.path.exists(wm.WIFI_SWITCH_MARKER))
+
+    def test_scan_unescapes_ssids(self):
+        nets = json.loads(self.fetch('/api/wifi/scan').body)
+        self.assertEqual([n['ssid'] for n in nets][:1], ['Home WiFi'])   # 5 GHz first
+        self.assertIn('Lab:5G', [n['ssid'] for n in nets])
+
     def test_apply_now_unknown_network(self):
         resp = self.post('/api/wifi/apply-now', {'ssid': 'Nope'})
         self.assertEqual(resp.code, 404)
@@ -181,7 +206,7 @@ class WifiManagerTest(AsyncHTTPTestCase):
         self.assertEqual(resp.code, 200)
         self.assertEqual(json.loads(resp.body),
                          {'mode': 'hotspot', 'ssid': wm.HOTSPOT_CONN,
-                          'ip': '10.42.0.1', 'signal': 77})
+                          'ip': '10.42.0.1', 'signal': 77, 'id': 'ABCD'})
         wifi_list = [c for c in self.fake.calls if 'list' in c]
         self.assertTrue(wifi_list and all('--rescan' in c for c in wifi_list))
 

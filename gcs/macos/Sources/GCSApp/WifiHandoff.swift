@@ -173,9 +173,12 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
         phase = .pushingCreds
         let api = DroneAPI()
         api.host = kHotspotGatewayHost
-        guard await Self.waitForBackend(api) else {
+        guard let status = await Self.waitForBackend(api) else {
             phase = .failed("Drone didn't respond on its hotspot (10.42.0.1)"); return
         }
+        // The drone we are talking to over its hotspot tells us its id, so we
+        // can recognise exactly this drone once it is on the shared network.
+        let expectedID = status.id
         // 3) Push the Mac's WiFi and apply it on the drone (no auth required).
         do {
             try await api.saveNetwork(ssid: targetSSID, password: targetPassword)
@@ -198,16 +201,13 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
             try? iface.associate(to: home, password: targetPassword)
         }
 
-        // 5) Wait for the drone to reappear on the shared network via Bonjour.
-        // Drones with current software advertise their hardware id in the
-        // Bonjour TXT record and use it in the hotspot SSID (Bumblebee-<id>),
-        // so we can wait for exactly the drone we just provisioned.
-        let expectedID = String(hotspotSSID.dropFirst(kHotspotPrefix.count))
+        // 5) Wait for that drone to reappear on the shared network via Bonjour.
         if let host = await Self.waitForDrone(expectedID: expectedID) {
             phase = .done(host)
             onDrone(host)
         } else {
-            phase = .failed("Drone didn't come back online — check the WiFi password and retry")
+            phase = .failed("Drone didn't come back online on \(targetSSID) — check the WiFi "
+                            + "password and retry. If it did join, pick it from the drone list.")
         }
     }
 
@@ -224,27 +224,23 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     /// Poll the drone's backend until it answers (or times out).
-    private static func waitForBackend(_ api: DroneAPI, timeout: TimeInterval = 25) async -> Bool {
+    private static func waitForBackend(_ api: DroneAPI, timeout: TimeInterval = 25) async -> DroneAPI.WifiStatus? {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
-            if (try? await api.wifiStatus()) != nil { return true }
+            if let status = try? await api.wifiStatus() { return status }
             try? await Task.sleep(nanoseconds: 1_000_000_000)
         }
-        return false
+        return nil
     }
 
     /// Wait for the provisioned drone to appear via Bonjour, returning its IP.
-    /// A drone advertising the expected `id` is taken at once; a drone with no
-    /// `id` runs older software and is accepted as before. A drone with a
-    /// different `id` is only taken if nothing better shows up within
-    /// `mismatchGrace` — e.g. a drone updated while on its hotspot, whose
-    /// hotspot SSID still carries the old random suffix.
-    private static func waitForDrone(expectedID: String, timeout: TimeInterval = 60,
-                                     mismatchGrace: TimeInterval = 25) async -> String? {
+    /// With an id (current drone software) only that exact drone is accepted —
+    /// never another team's drone. Without one (older drone software, no id in
+    /// its status or TXT record) the first drone without an id is taken, as before.
+    private static func waitForDrone(expectedID: String?, timeout: TimeInterval = 60) async -> String? {
         await withCheckedContinuation { cont in
             Task { @MainActor in
                 var resumed = false
-                var fallback: String?
                 func finish(_ ip: String?) {
                     guard !resumed else { return }
                     resumed = true
@@ -252,18 +248,15 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
                 }
                 let browser = BonjourDroneBrowser(
                     onFound: { ip, _, id in
-                        if id == nil || id == expectedID { finish(ip) } else if fallback == nil { fallback = ip }
+                        if id == expectedID { finish(ip) }
                     },
                     // The drone's own hotspot address is a stale record from
                     // before the switch. Resolve again until the new one shows.
                     accept: { ip in ip != kHotspotGatewayHost })
                 browser.start()
-                DispatchQueue.main.asyncAfter(deadline: .now() + mismatchGrace) {
-                    if let ip = fallback { finish(ip) }
-                }
                 DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
                     browser.stop()                       // keeps browser alive until fired
-                    finish(fallback)
+                    finish(nil)
                 }
             }
         }
