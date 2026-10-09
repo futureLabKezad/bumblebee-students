@@ -26,18 +26,9 @@ HOST="$1"; shift
 case "$HOST" in *@*) ;; *) HOST="lb@$HOST" ;; esac
 
 TOOLS="$(cd "$(dirname "$0")" && pwd)"
-DRONE_DIR="$(dirname "$TOOLS")"
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
-
-mkdir -p "$STAGE/bb-update/payload"
-cp "$TOOLS/install_on_drone.sh" "$TOOLS/MANIFEST" "$STAGE/bb-update/"
-while read -r src _; do
-    case "$src" in ''|'#'*) continue ;; esac
-    mkdir -p "$STAGE/bb-update/payload/$(dirname "$src")"
-    cp "$DRONE_DIR/$src" "$STAGE/bb-update/payload/$src"
-done < "$TOOLS/MANIFEST"
-COPYFILE_DISABLE=1 tar -C "$STAGE" -czf "$STAGE/bb-update.tgz" bb-update
+"$TOOLS/make_bundle.sh" "$STAGE/bb-update.tgz" >/dev/null
 
 echo "Uploading update to $HOST ..."
 scp -q "$STAGE/bb-update.tgz" "$HOST:/tmp/bb-update.tgz"
