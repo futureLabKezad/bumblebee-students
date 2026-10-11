@@ -18,4 +18,9 @@ source /home/lb/ros2_ws/install/setup.bash
 # diagnostic: flush ROS/DDS logs immediately so the last lines before a freeze land on disk
 export RCUTILS_LOGGING_BUFFERED_STREAM=0
 export RCUTILS_CONSOLE_OUTPUT_FORMAT='[{severity} {time}] [{name}]: {message}'
+# The flight controller's MAVLink baud differs between drones (PX4 SER_TEL1_BAUD):
+# find it before MAVROS opens the UART. Read-only; always prints a URL (the
+# remembered/configured one if the flight controller is silent).
+BB_FCU_URL=$(python3 /home/lb/ros2_ws/src/bumblebee/scripts/fcu_detect.py) || true
+export BB_FCU_URL
 exec ros2 launch bumblebee bumblebee.launch.py

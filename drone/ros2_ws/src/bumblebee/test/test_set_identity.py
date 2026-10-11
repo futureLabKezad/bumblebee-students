@@ -76,30 +76,55 @@ class SetIdentity(unittest.TestCase):
         log = self.read('systemctl.log') or ''
         return [line for line in log.splitlines() if 'avahi' in line]
 
-    def test_legacy_name_without_binding_is_kept(self):
-        self.write('drone_name', 'bumblebee-4')
-        self.run_script('172.20.10.7')
-        self.assertEqual(self.read('hostname'), 'bumblebee-4')
-        self.assertIsNone(self.read('drone_name.mac'))
+    def test_name_comes_from_mac_without_network(self):
+        self.run_script('10.42.0.1')            # hotspot mode, first boot
+        self.assertEqual(self.read('hostname'), 'bumblebee-abcd')
+        svc = self.read('bumblebee.service')
+        self.assertIn('<txt-record>name=Bumblebee-ABCD</txt-record>', svc)
+        self.assertIn('<txt-record>id=ABCD</txt-record>', svc)
+        self.assertIsNone(self.read('drone_name'))
 
-    def test_cloned_card_rederives_name(self):
-        self.write('drone_name', 'bumblebee-4')
+    def test_name_does_not_follow_the_ip(self):
+        self.run_script('172.20.10.7')
+        self.run_script('192.168.1.192')
+        self.assertEqual(self.read('hostname'), 'bumblebee-abcd')
+
+    def test_ip_derived_name_is_retired(self):
+        self.write('drone_name', 'bumblebee-4')  # baked into the V1.0.0-beta image
+        self.run_script('172.20.10.7')
+        self.assertEqual(self.read('hostname'), 'bumblebee-abcd')
+        self.assertIsNone(self.read('drone_name'))
+
+    def test_custom_name_is_kept_and_bound(self):
+        self.write('drone_name', 'Falcon')
+        self.run_script('172.20.10.7')
+        self.assertEqual(self.read('hostname'), 'falcon')
+        self.assertIn('<txt-record>name=Falcon</txt-record>', self.read('bumblebee.service'))
+        self.assertEqual(self.read('drone_name.mac'), MAC)
+
+    def test_custom_name_of_another_drone_is_ignored(self):
+        self.write('drone_name', 'falcon')
         self.write('drone_name.mac', 'aa:bb:cc:dd:ee:ff')
         self.run_script('172.20.10.7')
-        self.assertEqual(self.read('drone_name'), 'bumblebee-7')
-        self.assertEqual(self.read('drone_name.mac'), MAC)
-        self.assertEqual(self.read('hostname'), 'bumblebee-7')
+        self.assertEqual(self.read('hostname'), 'bumblebee-abcd')
+        self.assertEqual(self.read('drone_name'), 'falcon')   # left for its own drone
 
-    def test_no_client_ip_leaves_things_alone(self):
-        self.run_script('10.42.0.1')
-        self.assertIsNone(self.read('drone_name'))
+    def test_invalid_custom_name_is_ignored(self):
+        self.write('drone_name', 'my_drone!')
+        self.run_script('172.20.10.7')
+        self.assertEqual(self.read('hostname'), 'bumblebee-abcd')
+
+    def test_custom_name_equal_to_default_displays_like_it(self):
+        self.write('drone_name', 'bumblebee-abcd')
+        self.run_script('172.20.10.7')
+        self.assertIn('<txt-record>name=Bumblebee-ABCD</txt-record>', self.read('bumblebee.service'))
+
+    def test_no_mac_leaves_things_alone(self):
+        with open(self.p('addr'), 'w') as f:
+            f.write('')
+        self.run_script('172.20.10.7')
+        self.assertIsNone(self.read('hostname'))
         self.assertIsNone(self.read('bumblebee.service'))
-
-    def test_service_record_has_name_and_id(self):
-        self.run_script('172.20.10.9')
-        svc = self.read('bumblebee.service')
-        self.assertIn('<txt-record>name=Bumblebee-9</txt-record>', svc)
-        self.assertIn('<txt-record>id=ABCD</txt-record>', svc)
 
     def test_rerun_does_not_poke_avahi(self):
         self.run_script('172.20.10.9')

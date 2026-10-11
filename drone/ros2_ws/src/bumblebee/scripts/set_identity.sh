@@ -16,16 +16,18 @@
 # Assign a stable, unique identity to this drone so it advertises <name>.local
 # and a _bumblebee._tcp Bonjour service the GCS app auto-discovers by name.
 #
-# The name is derived once from the drone's wlan0 client-IP last octet
-# (172.20.10.4 -> bumblebee-4) and persisted in /home/lb/drone_name, which the
-# operator may edit to override. On later boots the file is authoritative, so
-# the name never drifts even while the drone is in hotspot/AP mode (10.42.0.1).
+# The name comes from the wlan0 MAC: bumblebee-<last 4 hex digits>, shown as
+# Bumblebee-20EC -- the same id as the drone's own hotspot SSID, so a drone has
+# one name everywhere, needs no network to get it (first boot in hotspot mode
+# included) and keeps it whatever IP the router hands out.
+#
+# /home/lb/drone_name, if present, overrides it with a custom name. The file is
+# bound to the MAC it was set on (drone_name.mac): a card cloned from another
+# drone carries that drone's custom name, which is ignored here. Names the
+# older scheme derived from the client IP (bumblebee-<octet>) are retired.
 set -e
 
 NAME_FILE=${BB_NAME_FILE:-/home/lb/drone_name}
-# wlan0 MAC the name was assigned on. A card cloned from another drone carries
-# that drone's name; a MAC mismatch means "new drone", so the name is re-derived.
-# No binding file (drones set up before this existed): keep the name as is.
 MAC_FILE=${BB_MAC_FILE:-/home/lb/drone_name.mac}
 SERVICE_FILE=${BB_SERVICE_FILE:-/etc/avahi/services/bumblebee.service}
 
@@ -33,44 +35,48 @@ MAC=$(cat "${BB_WLAN_ADDRESS:-/sys/class/net/wlan0/address}" 2>/dev/null | tr -d
 # Short hardware id, also used in the hotspot SSID (Bumblebee-<ID>).
 HWID=$(echo "$MAC" | tr -d ':' | tail -c 5 | tr '[:lower:]' '[:upper:]')
 
-read_name() {
+custom_name() {
+    local name
     [ -s "$NAME_FILE" ] || return 0
+    name=$(tr -d '[:space:]' < "$NAME_FILE" | tr '[:upper:]' '[:lower:]')
     if [ -s "$MAC_FILE" ] && [ -n "$MAC" ] && [ "$(tr -d '[:space:]' < "$MAC_FILE")" != "$MAC" ]; then
-        echo "set_identity: $NAME_FILE belongs to another drone ($(cat "$MAC_FILE")), re-deriving" >&2
+        echo "set_identity: $NAME_FILE belongs to another drone ($(cat "$MAC_FILE")), ignoring it" >&2
         return 0
     fi
-    tr -d '[:space:]' < "$NAME_FILE"
-}
-
-derive_name() {
-    # last octet of the wlan0 client IPv4; skip hotspot (10.42.x) / link-local
-    local ip octet
-    ip=$(ip -4 -o addr show wlan0 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1)
-    case "$ip" in
-        ""|10.42.*|169.254.*) return 0 ;;
+    case "$name" in
+        bumblebee-[0-9]|bumblebee-[0-9][0-9]|bumblebee-[0-9][0-9][0-9])
+            echo "set_identity: retiring IP-derived name $name" >&2
+            rm -f "$NAME_FILE" "$MAC_FILE"
+            return 0 ;;
     esac
-    octet=$(echo "$ip" | awk -F. '{print $4}')
-    [ -n "$octet" ] && echo "bumblebee-$octet"
+    # hostname rules: letters, digits and inner hyphens, at most 63 chars
+    if ! [[ "$name" =~ ^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$ ]]; then
+        echo "set_identity: '$name' in $NAME_FILE is not a valid hostname, ignoring it" >&2
+        return 0
+    fi
+    echo "$name"
 }
 
-# Guard command substitutions so `set -e` doesn't abort when the file is absent
-# (first run) or no client IP is available yet.
-NAME="$(read_name || true)"
-if [ -z "$NAME" ]; then
-    NAME="$(derive_name || true)"
-    if [ -n "$NAME" ]; then
-        echo "$NAME" > "$NAME_FILE"
-        [ -n "$MAC" ] && echo "$MAC" > "$MAC_FILE"
-        chown lb:lb "$NAME_FILE" "$MAC_FILE" 2>/dev/null || true
-    fi
-fi
-if [ -z "$NAME" ]; then
-    echo "set_identity: no client IP yet, leaving hostname unchanged"
+if [ -z "$HWID" ]; then
+    echo "set_identity: no wlan0 MAC yet, leaving hostname unchanged"
     exit 0
 fi
-
-# Human-friendly display name (Bumblebee-4).
-DISP="$(tr '[:lower:]' '[:upper:]' <<< ${NAME:0:1})${NAME:1}"
+NAME="$(custom_name || true)"
+if [ -n "$NAME" ]; then
+    # Bind a custom name to this drone the first time it is seen here.
+    if [ ! -s "$MAC_FILE" ]; then
+        echo "$MAC" > "$MAC_FILE"
+        chown lb:lb "$MAC_FILE" 2>/dev/null || true
+    fi
+    if [[ "$NAME" =~ ^bumblebee-[0-9a-f]{4}$ ]]; then
+        DISP="Bumblebee-$(tr '[:lower:]' '[:upper:]' <<< "${NAME:10}")"
+    else
+        DISP="$(tr '[:lower:]' '[:upper:]' <<< "${NAME:0:1}")${NAME:1}"
+    fi
+else
+    NAME="bumblebee-$(tr '[:upper:]' '[:lower:]' <<< "$HWID")"
+    DISP="Bumblebee-$HWID"
+fi
 echo "set_identity: name=$NAME display=$DISP"
 
 # 1) Hostname -> avahi auto-advertises <name>.local

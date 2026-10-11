@@ -21,7 +21,7 @@ chk() { local m=$1; shift; if "$@" >/dev/null 2>&1; then ok "$m"; else bad "$m";
 
 echo "== system"
 echo "  version:  $(cat /etc/bumblebee_version 2>/dev/null || echo 'none (not a release image)')"
-echo "  hostname: $(hostname)   name file: $(cat ~/drone_name 2>/dev/null || echo -)"
+echo "  hostname: $(hostname)   custom name: $(cat ~/drone_name 2>/dev/null || echo none)"
 echo "  root fs:  $(df -h / | awk 'NR==2 {print $2" size, "$4" free"}')"
 chk "root partition grown to the card (> 10 GB)" test "$(df -BG --output=size / | tail -1 | tr -dc 0-9)" -gt 10
 chk "machine-id generated" test -s /etc/machine-id
@@ -45,6 +45,10 @@ done
 chk "Wi-Fi API answers" curl -fsS -m 5 http://127.0.0.1:8765/api/wifi/status
 
 echo "== flight stack"
+echo "  flight controller link: $(cat ~/.bumblebee/fcu_url 2>/dev/null || echo 'not detected yet') (detected at start)"
+grep -h 'fcu_detect' /tmp/bumblebee.log 2>/dev/null | tail -1 | sed 's/^/  /'
+SCOPE=$(sed -n 's/^ROS_AUTOMATIC_DISCOVERY_RANGE=//p' /etc/bumblebee/ros.env 2>/dev/null)
+echo "  ROS 2 scope: ${SCOPE:-SUBNET (shared with every drone on this Wi-Fi!)}"
 chk "cameras present (/dev/main_camera, /dev/second_camera)" test -e /dev/main_camera -a -e /dev/second_camera
 chk "flight controller UART present (/dev/ttyAMA0)" test -e /dev/ttyAMA0
 STATE=$(bash -c 'source /opt/ros/jazzy/setup.bash; source ~/ros2_ws/install/setup.bash; timeout 10 ros2 topic echo --once /mavros/state' 2>/dev/null)

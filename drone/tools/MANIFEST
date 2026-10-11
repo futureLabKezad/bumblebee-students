@@ -14,3 +14,17 @@ ros2_ws/src/bumblebee/examples/animations/victory.py         /home/lb/ros2_ws/sr
 system/networkmanager/dispatcher.d/99-hotspot-fallback     /etc/NetworkManager/dispatcher.d/99-hotspot-fallback     root:root 0755
 system/networkmanager/dispatcher.d/90-bumblebee-identity   /etc/NetworkManager/dispatcher.d/90-bumblebee-identity   root:root 0755
 system/networkmanager/conf.d/zz-bumblebee-wifi-powersave.conf /etc/NetworkManager/conf.d/zz-bumblebee-wifi-powersave.conf root:root 0644
+# Flight-controller baud detection (takes effect when bumblebee.service starts).
+ros2_ws/src/bumblebee/scripts/fcu_detect.py                /home/lb/ros2_ws/src/bumblebee/scripts/fcu_detect.py                lb:lb 0755
+system/start_bumblebee.sh                                  /home/lb/start_bumblebee.sh                                         lb:lb 0755
+ros2_ws/src/bumblebee/launch/bumblebee.launch.py           /home/lb/ros2_ws/src/bumblebee/launch/bumblebee.launch.py           lb:lb 0644
+ros2_ws/src/bumblebee/launch/bumblebee.launch.py           /home/lb/ros2_ws/install/bumblebee/share/bumblebee/launch/bumblebee.launch.py lb:lb 0644
+# Identity from the MAC, set before avahi announces the host.
+system/systemd/bumblebee-identity.service                  /etc/systemd/system/bumblebee-identity.service                      root:root 0644
+# Per-drone ROS 2 network scope (several drones on one Wi-Fi stay apart).
+system/bumblebee/ros.env                                   /etc/bumblebee/ros.env                                              root:root 0644
+system/systemd/ros-env.conf                                /etc/systemd/system/bumblebee.service.d/ros-env.conf                root:root 0644
+system/systemd/ros-env.conf                                /etc/systemd/system/wifi-manager.service.d/ros-env.conf             root:root 0644
+system/systemd/ros-env.conf                                /etc/systemd/system/notify-manager.service.d/ros-env.conf           root:root 0644
+system/systemd/ros-env.conf                                /etc/systemd/system/led-default.service.d/ros-env.conf              root:root 0644
+system/profile.d/bumblebee-ros.sh                          /etc/profile.d/bumblebee-ros.sh                                     root:root 0644

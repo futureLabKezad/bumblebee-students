@@ -20,6 +20,7 @@ mavros:
       - setpoint_position
       - setpoint_attitude
       - setpoint_velocity
+      - play_tune
 
 mavros/mavros:
   ros__parameters:

@@ -1,8 +1,12 @@
 [Unit]
 Description=Bumblebee drone identity (hostname + Bonjour service record)
 Documentation=file:/home/lb/ros2_ws/src/bumblebee/scripts/set_identity.sh
-After=network-online.target NetworkManager.service
-Wants=network-online.target
+# The name comes from the wlan0 MAC, so no network is needed: run as soon as
+# wlan0 exists and before avahi first announces the host (no stray "lb.local"
+# records) and before the services that report the name.
+Wants=sys-subsystem-net-devices-wlan0.device
+After=sys-subsystem-net-devices-wlan0.device
+Before=avahi-daemon.service bumblebee.service wifi-manager.service sys_metrics.service
 
 [Service]
 Type=oneshot

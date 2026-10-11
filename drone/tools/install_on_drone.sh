@@ -17,14 +17,14 @@
 # MANIFEST next to this script, backing up every file it replaces, and writes
 # a rollback.sh into the backup directory.
 #
-# Never touches the flight stack: bumblebee.service, MAVROS, simple_offboard
-# and PX4 parameters are not restarted or modified. Refuses to run while the
-# drone is armed.
+# Never restarts the flight stack: bumblebee.service, MAVROS and simple_offboard
+# keep running, and PX4 parameters are not touched. Files of the flight stack
+# (start_bumblebee.sh, the launch file) take effect at the next reboot.
+# Refuses to run while the drone is armed.
 #
 #   install_on_drone.sh [--reset-name] [--force]
-#     --reset-name  forget /home/lb/drone_name and derive a new name (use on
-#                   drones flashed from the V1.0.0-beta image, which all
-#                   carry "bumblebee-4")
+#     --reset-name  forget a custom name in /home/lb/drone_name; the drone is
+#                   then called Bumblebee-<last 4 hex digits of its MAC> again
 #     --force       skip the "is it armed?" check (only if ROS is not running)
 #
 # BB_ROOT=/some/dir runs against a fake root for testing (no sudo/systemctl).
@@ -116,26 +116,20 @@ for f in "$NAME_FILE" "$MAC_FILE"; do
         echo "rm -f '$f'" >> "$ROLLBACK"
     fi
 done
+# set_identity.sh names the drone after its MAC and retires the old IP-derived
+# names (bumblebee-4 from the V1.0.0-beta image included) by itself; a custom
+# name in drone_name is kept and bound to this drone's MAC there.
 if [ "$RESET_NAME" -eq 1 ]; then
     rm -f "$NAME_FILE" "$MAC_FILE"
-    say "drone name reset; a new one is derived from the client IP"
-elif [ -s "$NAME_FILE" ] && [ ! -s "$MAC_FILE" ] && [ -n "$MAC" ]; then
-    NAME=$(tr -d '[:space:]' < "$NAME_FILE")
-    if [ "$NAME" = "bumblebee-4" ]; then
-        # The name baked into the V1.0.0-beta image: don't make it permanent.
-        say "WARNING: this drone is called 'bumblebee-4', the name baked into the"
-        say "         V1.0.0-beta image, so every drone flashed from it has it too."
-        say "         Name left unbound. Re-run with --reset-name unless this really is drone 4."
-    else
-        # Keep this drone's name and bind it to its own wlan0 MAC, so a card
-        # later cloned into another drone gets a fresh name there.
-        echo "$MAC" > "$MAC_FILE"
-        say "keeping name '$NAME' (bound to $MAC)"
-    fi
+    say "custom drone name removed"
 fi
-[ -z "$ROOT" ] && chown lb:lb "$NAME_FILE" "$MAC_FILE" 2>/dev/null || true
+if [ ${#MAC} -ge 17 ]; then
+    say "drone name: Bumblebee-$(echo "$MAC" | tr -d ':' | tail -c 5 | tr '[:lower:]' '[:upper:]')" \
+        "$( [ -s "$NAME_FILE" ] && echo "(custom name in $NAME_FILE wins: $(cat "$NAME_FILE"))")"
+fi
 
 {
+    echo "systemctl daemon-reload || true"
     echo "systemctl restart wifi-manager wifi-watchdog sys_metrics bumblebee-identity || true"
     echo "echo 'rolled back to the state before $TS'"
 } | { [ -n "$SUDO" ] && sed 's/^systemctl/sudo systemctl/' || cat; } >> "$ROLLBACK"
@@ -156,8 +150,10 @@ if [ -z "$ROOT" ] && [ ${#MAC} -ge 17 ]; then
 fi
 
 # ---- 5. restart only the non-flight services that changed ------------------
+$SUDO systemctl daemon-reload            # unit files and drop-ins may have changed
 $SUDO systemctl restart wifi-manager wifi-watchdog sys_metrics
 $SUDO systemctl restart bumblebee-identity
 
 say "done. Backup + rollback: $ROLLBACK"
-say "Wi-Fi power-save change takes effect after the next reboot."
+say "Reboot the drone to finish: flight-controller rate detection, the per-drone"
+say "ROS network scope and the Wi-Fi power-save change take effect after a reboot."
