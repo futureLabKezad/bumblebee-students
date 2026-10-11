@@ -347,12 +347,12 @@ public sealed class LaunchView : Grid
             icon,
             Ui.VStack(3,
                 Ui.Text(hotspot.Ssid, new FontSpec(14.5, new Windows.UI.Text.FontWeight(600)), ConnectPalette.Text),
-                Ui.Text("new drone · set up over hotspot", new FontSpec(11.5, new Windows.UI.Text.FontWeight(400), Mono: true), ConnectPalette.Muted2)));
+                Ui.Text("new drone · tap to add", new FontSpec(11.5, new Windows.UI.Text.FontWeight(400), Mono: true), ConnectPalette.Muted2)));
 
         var right = Ui.HStack(10,
             Ui.Text($"{hotspot.Rssi} dBm", Fonts.Label with { Mono = true }, ConnectPalette.Faint),
             Ui.HStack(6,
-                Ui.Text("Set up", Fonts.Button, ConnectPalette.Orange),
+                Ui.Text("Add", Fonts.Button, ConnectPalette.Orange),
                 Ui.Text("→", new FontSpec(13, new Windows.UI.Text.FontWeight(400), Mono: true), ConnectPalette.Orange)));
 
         var content = Ui.SpaceBetween(left, right, 8);
@@ -360,12 +360,13 @@ public sealed class LaunchView : Grid
         return new HoverRow(content, 12,
             ConnectPalette.RowBg, Palette.WithAlpha(ConnectPalette.Orange, 0.06),
             ConnectPalette.Hairline, Palette.WithAlpha(ConnectPalette.Orange, 0.5),
-            onTap: OpenSetup);
+            onTap: () => OpenSetup(hotspot.Ssid));
     }
 
-    private async void OpenSetup()
+    /// <summary>Окно «Добавить дрон»; с preselected — сразу этот дрон.</summary>
+    private async void OpenSetup(string? preselected = null)
     {
-        var dlg = new ProvisioningDialog(_app) { XamlRoot = XamlRoot };
+        var dlg = new ProvisioningDialog(_app, preselected) { XamlRoot = XamlRoot };
         try { await dlg.ShowAsync(); } catch { }
     }
 }

@@ -21,6 +21,9 @@ namespace BumblebeeGcs.Services;
 public sealed class AppSettings
 {
     public string? LastHost { get; set; }
+    /// <summary>Последняя обычная (не `Bumblebee-*`) WiFi этого ПК — её отдаём дрону,
+    /// даже если ПК сейчас сидит на хотспоте дрона.</summary>
+    public string? LastHomeSsid { get; set; }
     public List<KnownDrone> KnownDrones { get; set; } = new();
 
     private static string Dir =>

@@ -19,7 +19,8 @@ namespace BumblebeeGcs.Services;
 /// <summary>
 /// DNS-SD (Bonjour/mDNS) браузер сервиса дрона `_bumblebee._tcp` — нативный
 /// WinRT-аналог NetServiceBrowser. Резолвит каждый найденный сервис в IPv4 и
-/// читает дружественное имя из TXT-записи `name`.
+/// читает дружественное имя из TXT-записи `name` и id дрона из `id`
+/// (последние 4 hex-цифры MAC, как в SSID его хотспота).
 /// </summary>
 public sealed class DnssdBrowser : IDisposable
 {
@@ -37,10 +38,13 @@ public sealed class DnssdBrowser : IDisposable
     };
 
     private readonly DeviceWatcher _watcher;
-    private readonly Action<string, string> _onFound; // (ip, name) — на фоновом потоке
+    private readonly Action<string, string, string?> _onFound; // (ip, name, id) — на фоновом потоке
     private bool _started;
 
-    public DnssdBrowser(Action<string, string> onFound)
+    public DnssdBrowser(Action<string, string> onFound) : this((ip, name, _) => onFound(ip, name)) { }
+
+    /// <summary>id = null у дронов со старым ПО (нет TXT `id`).</summary>
+    public DnssdBrowser(Action<string, string, string?> onFound)
     {
         _onFound = onFound;
         _watcher = DeviceInformation.CreateWatcher(Aqs, Props, DeviceInformationKind.AssociationEndpointService);
@@ -70,10 +74,10 @@ public sealed class DnssdBrowser : IDisposable
     {
         var ip = FirstIpv4(props);
         if (ip is null) return;
-        var name = TxtName(props)
+        var name = TxtValue(props, "name")
                    ?? (props.TryGetValue("System.Devices.Dnssd.InstanceName", out var inst) ? inst as string : null)
                    ?? ip;
-        _onFound(ip, name);
+        _onFound(ip, name, TxtValue(props, "id"));
     }
 
     private static string? FirstIpv4(IReadOnlyDictionary<string, object> props)
@@ -88,14 +92,14 @@ public sealed class DnssdBrowser : IDisposable
         return null;
     }
 
-    private static string? TxtName(IReadOnlyDictionary<string, object> props)
+    private static string? TxtValue(IReadOnlyDictionary<string, object> props, string key)
     {
         if (!props.TryGetValue("System.Devices.Dnssd.TextAttributes", out var raw)) return null;
         if (raw is not string[] txt) return null;
         foreach (var entry in txt)
         {
             var eq = entry.IndexOf('=');
-            if (eq > 0 && entry[..eq] == "name")
+            if (eq > 0 && entry[..eq] == key)
             {
                 var v = entry[(eq + 1)..];
                 return string.IsNullOrEmpty(v) ? null : v;

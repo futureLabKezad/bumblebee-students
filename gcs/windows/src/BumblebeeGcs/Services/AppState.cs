@@ -40,7 +40,7 @@ public sealed class AppState
     {
         Scanner = new DroneScanner(dq);
         Metrics = new MetricsClient(dq);
-        Handoff = new WifiHandoff(dq);
+        Handoff = new WifiHandoff(dq, _settings);
         Ros = new RosbridgeClient(Telemetry, dq);
     }
 

@@ -17,17 +17,18 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   gcs-macos:
-    name: macOS GCS app builds
+    name: macOS GCS app (ready-to-run .dmg)
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - name: Build release app bundle
+      - name: Build release app bundle (Apple Silicon + Intel)
         working-directory: gcs/macos
         run: ./build_app.sh release
       - name: Check the bundle
@@ -35,6 +36,68 @@ jobs:
         run: |
           test -x "build/Bumblebee GCS.app/Contents/MacOS/GCSApp"
           plutil -lint "build/Bumblebee GCS.app/Contents/Info.plist"
+          lipo "build/Bumblebee GCS.app/Contents/MacOS/GCSApp" -verify_arch arm64 x86_64
+          codesign --verify --deep --strict "build/Bumblebee GCS.app"
+      - name: Package disk image
+        working-directory: gcs/macos
+        run: ./make_dmg.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BumblebeeGCS-mac
+          path: |
+            gcs/macos/build/BumblebeeGCS-*-mac.dmg
+            gcs/macos/build/BumblebeeGCS-*-mac.dmg.sha256
+          if-no-files-found: error
+
+  gcs-windows:
+    name: Windows GCS app (ready-to-run .zip)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Publish self-contained app (no .NET needed on the PC)
+        working-directory: gcs/windows
+        run: dotnet publish src\BumblebeeGcs\BumblebeeGcs.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64 -o publish\BumblebeeGCS
+      - name: Package zip
+        working-directory: gcs/windows
+        shell: pwsh
+        run: |
+          $ver = ([xml](Get-Content src\BumblebeeGcs\BumblebeeGcs.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if (-not (Test-Path publish\BumblebeeGCS\BumblebeeGcs.exe)) { throw "BumblebeeGcs.exe missing from publish output" }
+          Copy-Item "How to open.txt" "publish\BumblebeeGCS\Как открыть - How to open.txt"
+          $zip = "BumblebeeGCS-$ver-windows-x64.zip"
+          Compress-Archive -Path publish\BumblebeeGCS -DestinationPath $zip
+          (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() + "  $zip" | Out-File -Encoding ascii "$zip.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BumblebeeGCS-windows
+          path: |
+            gcs/windows/BumblebeeGCS-*-windows-x64.zip
+            gcs/windows/BumblebeeGCS-*-windows-x64.zip.sha256
+          if-no-files-found: error
+
+  release:
+    name: Publish GCS downloads (tags gcs-v*)
+    if: startsWith(github.ref, 'refs/tags/gcs-v')
+    needs: [gcs-macos, gcs-windows]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          body: |
+            Ready-to-run Bumblebee GCS — nothing to build.
+            - Mac (Apple Silicon and Intel, macOS 14+): open the .dmg, drag the app onto Applications.
+            - Windows 10/11 x64: unzip, run BumblebeeGcs.exe.
+            First launch: see "How to open" inside (one-time system warning; allow Location to find drones).
 
   drone-tests:
     name: Drone scripts (unit + simulation tests)
@@ -49,7 +112,8 @@ jobs:
       - name: Syntax-check shell scripts
         run: |
           for f in drone/ros2_ws/src/bumblebee/scripts/*.sh drone/tools/*.sh \
-                   drone/system/networkmanager/dispatcher.d/*; do
+                   drone/system/networkmanager/dispatcher.d/* drone/system/start_bumblebee.sh \
+                   drone/system/profile.d/*.sh drone/image/*.sh; do
             bash -n "$f" || exit 1
           done
       - name: Run tests
@@ -57,3 +121,4 @@ jobs:
         run: >
           python -m unittest -v
           test/test_wifi_manager.py test/test_wifi_watchdog.py test/test_set_identity.py
+          test/test_fcu_detect.py
