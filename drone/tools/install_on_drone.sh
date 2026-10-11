@@ -56,6 +56,8 @@ if [ -z "$ROOT" ] && [ "$FORCE" -eq 0 ]; then
     if [ -f /opt/ros/jazzy/setup.bash ]; then
         set +u
         # shellcheck disable=SC1091
+        # this drone's ROS domain, or /mavros/state is not visible
+        [ -r /etc/bumblebee/ros.env ] && { set -a; . /etc/bumblebee/ros.env; set +a; }
         source /opt/ros/jazzy/setup.bash
         [ -f /home/lb/ros2_ws/install/setup.bash ] && source /home/lb/ros2_ws/install/setup.bash
         set -u
@@ -124,8 +126,11 @@ if [ "$RESET_NAME" -eq 1 ]; then
     say "custom drone name removed"
 fi
 if [ ${#MAC} -ge 17 ]; then
-    say "drone name: Bumblebee-$(echo "$MAC" | tr -d ':' | tail -c 5 | tr '[:lower:]' '[:upper:]')" \
-        "$( [ -s "$NAME_FILE" ] && echo "(custom name in $NAME_FILE wins: $(cat "$NAME_FILE"))")"
+    CUSTOM=$(tr -d '[:space:]' < "$NAME_FILE" 2>/dev/null || true)
+    case "$CUSTOM" in
+        ''|bumblebee-[0-9]|bumblebee-[0-9][0-9]|bumblebee-[0-9][0-9][0-9]) CUSTOM="" ;;  # IP-derived: retired
+    esac
+    say "drone name: Bumblebee-$(echo "$MAC" | tr -d ':' | tail -c 5 | tr '[:lower:]' '[:upper:]')${CUSTOM:+ (custom name in $NAME_FILE wins: $CUSTOM)}"
 fi
 
 {
@@ -156,4 +161,4 @@ $SUDO systemctl restart bumblebee-identity
 
 say "done. Backup + rollback: $ROLLBACK"
 say "Reboot the drone to finish: flight-controller rate detection, the per-drone"
-say "ROS network scope and the Wi-Fi power-save change take effect after a reboot."
+say "ROS domain and the Wi-Fi power-save change take effect after a reboot."

@@ -21,8 +21,9 @@ ros2_ws/src/bumblebee/launch/bumblebee.launch.py           /home/lb/ros2_ws/src/
 ros2_ws/src/bumblebee/launch/bumblebee.launch.py           /home/lb/ros2_ws/install/bumblebee/share/bumblebee/launch/bumblebee.launch.py lb:lb 0644
 # Identity from the MAC, set before avahi announces the host.
 system/systemd/bumblebee-identity.service                  /etc/systemd/system/bumblebee-identity.service                      root:root 0644
-# Per-drone ROS 2 network scope (several drones on one Wi-Fi stay apart).
-system/bumblebee/ros.env                                   /etc/bumblebee/ros.env                                              root:root 0644
+# Per-drone ROS 2 domain (several drones on one Wi-Fi stay apart); ros.env
+# itself is written per drone by set_identity.sh.
+ros2_ws/src/bumblebee/scripts/ros_domain.py                /home/lb/ros2_ws/src/bumblebee/scripts/ros_domain.py                lb:lb 0755
 system/systemd/ros-env.conf                                /etc/systemd/system/bumblebee.service.d/ros-env.conf                root:root 0644
 system/systemd/ros-env.conf                                /etc/systemd/system/wifi-manager.service.d/ros-env.conf             root:root 0644
 system/systemd/ros-env.conf                                /etc/systemd/system/notify-manager.service.d/ros-env.conf           root:root 0644

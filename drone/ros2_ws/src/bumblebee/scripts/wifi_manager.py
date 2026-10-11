@@ -782,6 +782,29 @@ class LedResetHandler(BaseHandler):
         self.finish(json.dumps({'ok': True}))
 
 
+class FcuStatusHandler(BaseHandler):
+    """Flight-controller link and arming state, read-only. set_identity.sh
+    restarts the ROS services for a new ROS domain only when this says
+    disarmed; unknown (no fresh state) must be treated as armed."""
+    def get(self):
+        if not _LED_OK:
+            self.set_status(503)
+            self.finish(json.dumps({'error': 'drone unavailable'}))
+            return
+        try:
+            st = _drone.get_fcu_status()
+            self.finish(json.dumps({
+                'ok': bool(st.get('ok')),
+                'connected': bool(st.get('connected')),
+                'armed': bool(st.get('armed')),
+                'mode': str(st.get('mode') or ''),
+            }))
+        except Exception as e:
+            logging.exception('fcu status error')
+            self.set_status(500)
+            self.finish(json.dumps({'error': str(e)}))
+
+
 class SoundsPlayHandler(BaseHandler):
     def post(self):
         if not _LED_OK:
@@ -864,6 +887,7 @@ def make_app():
         (r'/api/led/animation',   LedAnimationHandler),
         (r'/api/led/status',      LedStatusHandler),
         (r'/api/led/reset',       LedResetHandler),
+        (r'/api/fcu/status',      FcuStatusHandler),
         (r'/api/sounds/play',     SoundsPlayHandler),
         (r'/api/sounds/tts',      SoundsTtsHandler),
     ])

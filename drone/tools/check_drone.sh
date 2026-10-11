@@ -47,11 +47,11 @@ chk "Wi-Fi API answers" curl -fsS -m 5 http://127.0.0.1:8765/api/wifi/status
 echo "== flight stack"
 echo "  flight controller link: $(cat ~/.bumblebee/fcu_url 2>/dev/null || echo 'not detected yet') (detected at start)"
 grep -h 'fcu_detect' /tmp/bumblebee.log 2>/dev/null | tail -1 | sed 's/^/  /'
-SCOPE=$(sed -n 's/^ROS_AUTOMATIC_DISCOVERY_RANGE=//p' /etc/bumblebee/ros.env 2>/dev/null)
-echo "  ROS 2 scope: ${SCOPE:-SUBNET (shared with every drone on this Wi-Fi!)}"
+DOMAIN=$(sed -n 's/^ROS_DOMAIN_ID=//p' /etc/bumblebee/ros.env 2>/dev/null)
+echo "  ROS 2 domain: ${DOMAIN:-0 (shared with every drone on this Wi-Fi!)}  (laptop rviz: export ROS_DOMAIN_ID=${DOMAIN:-0})"
 chk "cameras present (/dev/main_camera, /dev/second_camera)" test -e /dev/main_camera -a -e /dev/second_camera
 chk "flight controller UART present (/dev/ttyAMA0)" test -e /dev/ttyAMA0
-STATE=$(bash -c 'source /opt/ros/jazzy/setup.bash; source ~/ros2_ws/install/setup.bash; timeout 10 ros2 topic echo --once /mavros/state' 2>/dev/null)
+STATE=$(bash -c 'source /etc/profile.d/bumblebee-ros.sh 2>/dev/null; source /opt/ros/jazzy/setup.bash; source ~/ros2_ws/install/setup.bash; timeout 10 ros2 topic echo --once /mavros/state' 2>/dev/null)
 if echo "$STATE" | grep -q '^connected: true'; then ok "MAVROS connected to PX4 ($(echo "$STATE" | grep -E '^(armed|mode):' | tr '\n' ' '))"
 else bad "MAVROS not connected to PX4 (is the flight controller powered?)"; fi
 echo "  recent errors in /tmp/bumblebee.log:"

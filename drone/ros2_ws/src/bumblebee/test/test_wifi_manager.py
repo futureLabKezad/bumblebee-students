@@ -243,7 +243,8 @@ class FakeDrone:
         self.tunes.append(tune)
 
     def get_fcu_status(self, max_age=3.0):
-        return {'ok': self.fresh, 'armed': self.armed}
+        return {'ok': self.fresh, 'armed': self.armed, 'connected': self.fresh,
+                'mode': 'AUTO.LOITER', 'cell': float('nan')}
 
     def set_led(self, *a):
         pass
@@ -285,6 +286,13 @@ class ShowsTest(AsyncHTTPTestCase):
         n = len(self.drone.tunes)
         self.io_loop.run_sync(lambda: tornado.gen.sleep(1.2))
         self.assertEqual(len(self.drone.tunes), n, 'tune kept playing after the show stopped')
+
+    def test_fcu_status_endpoint(self):
+        self.drone.armed = True
+        d = json.loads(self.fetch('/api/fcu/status').body)   # NaN cell must not leak into JSON
+        self.assertEqual(d, {'ok': True, 'connected': True, 'armed': True, 'mode': 'AUTO.LOITER'})
+        self.drone.fresh = False
+        self.assertFalse(json.loads(self.fetch('/api/fcu/status').body)['ok'])
 
     def test_show_is_silent_while_armed(self):
         self.drone.armed = True

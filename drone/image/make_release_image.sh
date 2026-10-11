@@ -86,8 +86,9 @@ done < "$WORK/bb-update/MANIFEST"
 
 # ---- 3. strip per-drone state ------------------------------------------------------
 say "stripping per-drone state"
-# per-drone runtime state (remembered flight-controller rate, ...)
+# per-drone runtime state (remembered flight-controller rate, ROS domain, ...)
 rm -rf "$MNT/home/lb/.bumblebee"
+rm -f "$MNT/etc/bumblebee/ros.env" "$MNT/etc/bumblebee/ros_domain"
 # identity: derived again on each drone (set_identity.sh)
 rm -f "$MNT/home/lb/drone_name" "$MNT/home/lb/drone_name.mac" \
       "$MNT/etc/avahi/services/bumblebee.service"
