@@ -96,7 +96,7 @@ struct ProvisioningView: View {
             Button("Close") { handoff.reset(); dismiss() }
                 .buttonStyle(.plain)
                 .foregroundStyle(ConnectTheme.muted)
-                .disabled(handoff.phase.isBusy)
+                .disabled(handoff.phase.isProvisioning)
         }
     }
 
@@ -341,6 +341,7 @@ struct ProvisioningView: View {
     // MARK: - Actions
 
     private func add(_ drone: String) {
+        guard !handoff.phase.isProvisioning, !homeWifi.isEmpty else { return }
         guard !password.isEmpty else {
             needPassword = true; editingPassword = true; passwordFocused = true
             return

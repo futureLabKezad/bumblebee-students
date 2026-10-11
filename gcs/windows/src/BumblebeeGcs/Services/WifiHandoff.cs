@@ -66,7 +66,9 @@ public sealed class WifiHandoff
     /// <summary>Причина для Phase == Failed.</summary>
     public Failure? LastFailure { get; private set; }
 
-    public bool IsBusy => Phase is PhaseKind.Scanning or PhaseKind.JoiningHotspot
+    /// <summary>Идёт настройка дрона (не фоновое сканирование: оно не мешает
+    /// ни кнопкам, ни закрытию окна).</summary>
+    public bool IsBusy => Phase is PhaseKind.JoiningHotspot
         or PhaseKind.PushingCreds or PhaseKind.WaitingForDrone or PhaseKind.Diagnosing;
 
     public sealed record Hotspot(string Ssid, int Rssi);
@@ -156,6 +158,7 @@ public sealed class WifiHandoff
 
     public async Task ScanHotspotsAsync()
     {
+        if (IsBusy) return;                 // скан не должен перебить идущую настройку
         if (PrimaryInterfaceId() is null)
         {
             Fail(Explain(FailureKind.Other, "This PC has no WiFi", "Turn WiFi on and try again."));
@@ -167,12 +170,13 @@ public sealed class WifiHandoff
             LocationBlocked = access == GeolocationAccessStatus.Denied;
             if (access != GeolocationAccessStatus.Allowed)
             {
-                SetPhase(PhaseKind.NeedLocationPermission);
+                if (!IsBusy) SetPhase(PhaseKind.NeedLocationPermission);
                 return;
             }
         }
         catch { }
 
+        if (IsBusy) return;                 // настройку начали, пока ждали разрешения
         SetPhase(PhaseKind.Scanning);
         RefreshCurrentSsid();
         try
@@ -188,11 +192,13 @@ public sealed class WifiHandoff
                     .ToList();
             });
             Hotspots = list;
-            SetPhase(PhaseKind.Picking);
+            // Пока сканировали, могли нажать «Add»: не затираем начатую настройку.
+            if (Phase == PhaseKind.Scanning) SetPhase(PhaseKind.Picking);
+            else Changed?.Invoke();
         }
         catch (Exception ex)
         {
-            Fail(Explain(FailureKind.Other, "WiFi scan failed", ex.Message));
+            if (Phase == PhaseKind.Scanning) Fail(Explain(FailureKind.Other, "WiFi scan failed", ex.Message));
         }
     }
 
@@ -206,6 +212,15 @@ public sealed class WifiHandoff
     /// </summary>
     public async Task ProvisionAsync(string hotspotSsid, string targetSsid, string targetPassword,
                                      Action<string> onDrone)
+    {
+        // Задача запускается без await (`_ =`): любое исключение должно стать
+        // понятной ошибкой, а не оставить окно «занятым» навсегда.
+        try { await ProvisionCoreAsync(hotspotSsid, targetSsid, targetPassword, onDrone); }
+        catch (Exception ex) { Fail(Explain(FailureKind.Other, "Setup stopped", ex.Message)); }
+    }
+
+    private async Task ProvisionCoreAsync(string hotspotSsid, string targetSsid, string targetPassword,
+                                          Action<string> onDrone)
     {
         if (PrimaryInterfaceId() is not Guid iface)
         {
@@ -281,6 +296,12 @@ public sealed class WifiHandoff
     /// </summary>
     public async Task ConnectDirectAsync(string hotspotSsid, Action<string> onDrone)
     {
+        try { await ConnectDirectCoreAsync(hotspotSsid, onDrone); }
+        catch (Exception ex) { Fail(Explain(FailureKind.Other, "Couldn't connect", ex.Message)); }
+    }
+
+    private async Task ConnectDirectCoreAsync(string hotspotSsid, Action<string> onDrone)
+    {
         if (PrimaryInterfaceId() is not Guid iface) return;
         SetPhase(PhaseKind.JoiningHotspot, hotspotSsid);
         if (await JoinHotspotAsync(iface, hotspotSsid) is string err)
@@ -310,8 +331,12 @@ public sealed class WifiHandoff
         {
             visible = await Task.Run(async () =>
             {
-                try { await NativeWifi.ScanNetworksAsync(TimeSpan.FromSeconds(5)); } catch { }
-                return NativeWifi.EnumerateBssNetworks().Any(n => n.Ssid.ToString() == hotspotSsid);
+                try
+                {
+                    try { await NativeWifi.ScanNetworksAsync(TimeSpan.FromSeconds(5)); } catch { }
+                    return NativeWifi.EnumerateBssNetworks().Any(n => n.Ssid.ToString() == hotspotSsid);
+                }
+                catch { return false; }
             });
             if (visible) break;
             await Task.Delay(3000);

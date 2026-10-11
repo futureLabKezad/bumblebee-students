@@ -174,7 +174,7 @@ public sealed class ProvisioningDialog : ContentDialog
     {
         _subtitle.Text = HeaderSubtitle();
         View view;
-        if (_handoff.IsBusy && _handoff.Phase != WifiHandoff.PhaseKind.Scanning) view = View.Progress;
+        if (_handoff.IsBusy) view = View.Progress;
         else if (_handoff.Phase == WifiHandoff.PhaseKind.Failed && _handoff.LastFailure is not null) view = View.Failure;
         else if (_handoff.Phase == WifiHandoff.PhaseKind.NeedLocationPermission) view = View.Permission;
         else view = View.Pick;
@@ -265,7 +265,9 @@ public sealed class ProvisioningDialog : ContentDialog
         }
 
         UpdateWifiCard();
-        _addPreselectedSlot.Child = _preselected is string drone && _needPassword
+        // Кнопка держится, пока выбранный на стартовом экране дрон ждёт пароля
+        // (не пропадает на первой набранной букве).
+        _addPreselectedSlot.Child = _preselected is string drone && _lastDrone == drone
             ? Ui.AccentButton($"Add {drone}", () => Add(drone))
             : null;
     }

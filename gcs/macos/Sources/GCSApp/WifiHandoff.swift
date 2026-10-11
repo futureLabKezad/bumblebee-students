@@ -50,6 +50,9 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
             default: return false
             }
         }
+
+        /// Setting a drone up (a background rescan is not: it blocks no button).
+        var isProvisioning: Bool { isBusy && self != .scanning }
     }
 
     /// A failed setup, explained in user terms.
@@ -144,6 +147,8 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
     // MARK: - Scan for drone hotspots
 
     func scanHotspots() async {
+        // A rescan must never overwrite a setup that is running.
+        guard !phase.isProvisioning else { return }
         guard let iface = interface else {
             phase = .failed(Failure(kind: .other, title: "This Mac has no WiFi", detail: "Turn WiFi on and try again."))
             return
@@ -166,10 +171,13 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
             }
             networksBySSID = map
             hotspots = list.sorted { $0.rssi > $1.rssi }
-            phase = .picking
+            // "Add" may have been pressed while we scanned: keep that setup.
+            if phase == .scanning { phase = .picking }
         } catch {
-            phase = .failed(Failure(kind: .other, title: "WiFi scan failed",
-                                    detail: error.localizedDescription))
+            if phase == .scanning {
+                phase = .failed(Failure(kind: .other, title: "WiFi scan failed",
+                                        detail: error.localizedDescription))
+            }
         }
     }
 
