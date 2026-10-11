@@ -72,8 +72,21 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     @Published private(set) var phase: Phase = .idle
     @Published private(set) var hotspots: [Hotspot] = []
-    /// The Mac's current WiFi SSID — the network we hand to the drone.
+    /// The Mac's current WiFi SSID. Can be a drone's own hotspot: macOS
+    /// remembers the ones it joined and may hop onto them by itself.
     @Published private(set) var currentSSID: String = ""
+    /// Last ordinary (non-drone) network this Mac was on.
+    @Published private(set) var rememberedHome: String =
+        UserDefaults.standard.string(forKey: WifiHandoff.homeSSIDKey) ?? ""
+    private static let homeSSIDKey = "lastHomeSSID"
+
+    /// True while the Mac sits on a drone's own WiFi.
+    var onDroneHotspot: Bool { currentSSID.hasPrefix(kHotspotPrefix) }
+
+    /// The network we hand to the drone: the Mac's WiFi, never a drone
+    /// hotspot. On a hotspot it is the network the Mac was on before (and
+    /// returns to after the hand-off); empty when there is none to offer.
+    var homeSSID: String { onDroneHotspot ? rememberedHome : currentSSID }
 
     private let loc = CLLocationManager()
     private var networksBySSID: [String: CWNetwork] = [:]
@@ -87,7 +100,14 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     func reset() { phase = .idle }
 
-    func refreshCurrentSSID() { currentSSID = interface?.ssid() ?? "" }
+    func refreshCurrentSSID() {
+        let ssid = interface?.ssid() ?? ""
+        if ssid != currentSSID { currentSSID = ssid }
+        if !ssid.isEmpty, !ssid.hasPrefix(kHotspotPrefix), ssid != rememberedHome {
+            rememberedHome = ssid
+            UserDefaults.standard.set(ssid, forKey: Self.homeSSIDKey)
+        }
+    }
 
     // MARK: - Location (required for WiFi scan / SSID on macOS 14+)
 

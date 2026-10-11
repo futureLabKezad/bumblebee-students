@@ -53,8 +53,7 @@ struct ProvisioningView: View {
         .onAppear {
             handoff.reset()
             handoff.refreshCurrentSSID()
-            password = AppKeychain.password(for: handoff.currentSSID) ?? ""
-            editingPassword = password.isEmpty
+            loadPassword()
             Task {
                 await handoff.scanHotspots()
                 if let drone = preselected, !homeWifi.isEmpty {
@@ -73,11 +72,15 @@ struct ProvisioningView: View {
         .onChange(of: doneHost) { _, host in
             if let host { app.connect(to: host); dismiss() }
         }
+        .onChange(of: homeWifi) { _, _ in
+            // The Mac moved to another network while the window was open.
+            if !handoff.phase.isBusy { loadPassword() }
+        }
     }
 
     private var doneHost: String? { if case let .done(h) = handoff.phase { return h }; return nil }
     private var failure: WifiHandoff.Failure? { if case let .failed(f) = handoff.phase { return f }; return nil }
-    private var homeWifi: String { handoff.currentSSID }
+    private var homeWifi: String { handoff.homeSSID }
 
     // MARK: - Header
 
@@ -85,8 +88,7 @@ struct ProvisioningView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Add a drone").font(.system(size: 20, weight: .bold))
-                Text(homeWifi.isEmpty ? "Connect this Mac to WiFi first"
-                                      : "It will join \(homeWifi), the same WiFi as this Mac")
+                Text(headerSubtitle)
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundStyle(ConnectTheme.muted)
             }
@@ -320,6 +322,20 @@ struct ProvisioningView: View {
         }
         .frame(maxWidth: .infinity)
         .onAppear { handoff.requestLocation() }
+    }
+
+    private var headerSubtitle: String {
+        if homeWifi.isEmpty {
+            return handoff.onDroneHotspot ? "This Mac is on a drone's WiFi — connect it to your WiFi first"
+                                          : "Connect this Mac to WiFi first"
+        }
+        return handoff.onDroneHotspot ? "It will join \(homeWifi); this Mac goes back to it afterwards"
+                                      : "It will join \(homeWifi), the same WiFi as this Mac"
+    }
+
+    private func loadPassword() {
+        password = AppKeychain.password(for: homeWifi) ?? ""
+        editingPassword = password.isEmpty
     }
 
     // MARK: - Actions

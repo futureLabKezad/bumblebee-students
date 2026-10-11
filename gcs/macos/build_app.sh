@@ -20,9 +20,14 @@ cd "$(dirname "$0")"
 APP_NAME="Bumblebee GCS"
 CONFIG="${1:-release}"
 
-echo "==> swift build ($CONFIG)"
-swift build -c "$CONFIG"
-BIN_DIR="$(swift build -c "$CONFIG" --show-bin-path)"
+# Universal binary by default, so one .app runs on Apple Silicon and Intel
+# Macs. ARCHS=arm64 ./build_app.sh builds for this Mac only (faster).
+ARCHS="${ARCHS:-arm64 x86_64}"
+ARCH_FLAGS=()
+for a in $ARCHS; do ARCH_FLAGS+=(--arch "$a"); done
+echo "==> swift build ($CONFIG, $ARCHS)"
+swift build -c "$CONFIG" "${ARCH_FLAGS[@]}"
+BIN_DIR="$(swift build -c "$CONFIG" "${ARCH_FLAGS[@]}" --show-bin-path)"
 BIN="$BIN_DIR/GCSApp"
 
 APP="build/${APP_NAME}.app"
