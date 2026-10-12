@@ -34,3 +34,8 @@ ros2_ws/src/bumblebee/scripts/fcu_armed.py                 /home/lb/ros2_ws/src/
 ros2_ws/src/bumblebee/scripts/clock_jump.sh                /home/lb/ros2_ws/src/bumblebee/scripts/clock_jump.sh                lb:lb 0755
 system/systemd/bumblebee-clock-jump.service                /etc/systemd/system/bumblebee-clock-jump.service                    root:root 0644
 system/systemd/bumblebee-clock-jump.timer                  /etc/systemd/system/bumblebee-clock-jump.timer                      root:root 0644
+# RC helpers: no RC signal (0 us) means stop, not "knob fully reversed".
+ros2_ws/src/bumblebee/scripts/wheel_rc.py                  /home/lb/ros2_ws/src/bumblebee/scripts/wheel_rc.py                  lb:lb 0755
+ros2_ws/src/bumblebee/scripts/wheel_rc.py                  /home/lb/ros2_ws/install/bumblebee/lib/bumblebee/wheel_rc.py        lb:lb 0755
+ros2_ws/src/bumblebee/scripts/servo_rc.py                  /home/lb/ros2_ws/src/bumblebee/scripts/servo_rc.py                  lb:lb 0755
+ros2_ws/src/bumblebee/scripts/servo_rc.py                  /home/lb/ros2_ws/install/bumblebee/lib/bumblebee/servo_rc.py        lb:lb 0755
