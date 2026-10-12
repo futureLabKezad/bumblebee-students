@@ -126,6 +126,13 @@ NEW_ENV=$(mktemp)
         echo "# rviz/rqt on a laptop: export ROS_DOMAIN_ID=$DOMAIN"
         echo "ROS_DOMAIN_ID=$DOMAIN"
     fi
+    echo "#"
+    echo "# Fast DDS over UDP only, for the services too (the original image set this"
+    echo "# in /etc/environment, which only login sessions read). With the default"
+    echo "# shared-memory transport the drone's nodes stopped receiving each other's"
+    echo "# data 1-2 minutes after MAVROS began streaming the flight controller at"
+    echo "# full rate, until restarted (Fast-DDS #6569); over UDP it ran 15+ min clean."
+    echo "FASTDDS_BUILTIN_TRANSPORTS=UDPv4"
 } > "$NEW_ENV"
 if ! cmp -s "$NEW_ENV" "$ROS_ENV"; then
     mkdir -p "$(dirname "$ROS_ENV")"

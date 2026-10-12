@@ -172,6 +172,7 @@ class SetIdentity(unittest.TestCase):
     def test_domain_written_and_advertised(self):
         self.run_script('192.168.1.5', FAKE_DOMAIN='37')
         self.assertIn('ROS_DOMAIN_ID=37', self.ros_env().splitlines())
+        self.assertIn('FASTDDS_BUILTIN_TRANSPORTS=UDPv4', self.ros_env().splitlines())
         self.assertIn('<txt-record>ros_domain=37</txt-record>', self.read('bumblebee.service'))
 
     def test_other_drones_are_looked_at_only_on_a_client_wifi(self):

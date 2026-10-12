@@ -49,7 +49,10 @@ PORT = int(os.environ.get('BB_ROSBRIDGE_PORT', '9090'))
 CHECK_S = float(os.environ.get('BB_WD_CHECK_S', '10'))
 FAIL_S = float(os.environ.get('BB_WD_FAIL_S', '30'))
 GRACE_S = float(os.environ.get('BB_WD_GRACE_S', '60'))      # after a (re)start of the stack
-BACKOFF_S = float(os.environ.get('BB_WD_BACKOFF_S', '120'))
+BACKOFF_S = float(os.environ.get('BB_WD_BACKOFF_S', '600'))
+# A restart that does not help will not help the next time either: stop after
+# a few per boot instead of restarting the flight stack forever.
+MAX_RESTARTS = int(os.environ.get('BB_WD_MAX_RESTARTS', '3'))
 UNITS = ['bumblebee', 'notify-manager', 'wifi-manager']
 
 log = logging.getLogger('ros_watchdog')
@@ -118,6 +121,7 @@ class Watchdog:
     def __init__(self, now):
         self.last_ok = now
         self.last_restart = -1e9
+        self.restarts = 0
 
     def step(self, now, stack_age, healthy, fcu):
         """Return 'restart', 'wait' or 'ok'. fcu: armed / disarmed / unknown."""
@@ -134,6 +138,9 @@ class Watchdog:
             return 'wait'
         if fcu != 'disarmed' or now - self.last_restart < BACKOFF_S:
             return 'wait'
+        if self.restarts >= MAX_RESTARTS:
+            return 'give_up'
+        self.restarts += 1
         self.last_restart = now
         self.last_ok = now
         return 'restart'
@@ -156,6 +163,10 @@ def main():
             warned = False
         elif decision == 'wait' and not healthy and fcu == 'armed' and not warned:
             log.warning('ROS graph stopped delivering data while ARMED: not restarting; land first')
+            warned = True
+        elif decision == 'give_up' and not warned:
+            log.warning('ROS graph still not delivering data after %d restarts: giving up '
+                        'until the next boot', MAX_RESTARTS)
             warned = True
         elif decision == 'ok':
             warned = False

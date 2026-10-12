@@ -59,6 +59,15 @@ class Decisions(unittest.TestCase):
         self.assertEqual(wd.step(t + F + 1, G + 100, False, 'disarmed'), 'wait')
         self.assertEqual(wd.step(t + B + 1, G + 100, False, 'disarmed'), 'restart')
 
+    def test_gives_up_after_max_restarts(self):
+        wd = wdm.Watchdog(0)
+        t, results = 0, []
+        for _ in range(wdm.MAX_RESTARTS + 2):
+            t += B + F + 10
+            results.append(wd.step(t, G + t, False, 'disarmed'))
+        self.assertEqual(results.count('restart'), wdm.MAX_RESTARTS)
+        self.assertEqual(results[-1], 'give_up')
+
     def test_recovery_resets_the_fail_window(self):
         wd = wdm.Watchdog(0)
         wd.step(F - 5, G + 100, False, 'disarmed')
