@@ -1,0 +1,12 @@
+[Unit]
+Description=Bumblebee: restart the ROS stack if it stops delivering data (only when disarmed)
+Documentation=file:/home/lb/ros2_ws/src/bumblebee/scripts/ros_watchdog.py
+After=bumblebee.service
+
+[Service]
+ExecStart=/usr/bin/python3 -u /home/lb/ros2_ws/src/bumblebee/scripts/ros_watchdog.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

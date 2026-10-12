@@ -116,6 +116,14 @@ if [ ! -e "$WANTS/bumblebee-clock-jump.timer" ]; then
     say "enabled bumblebee-clock-jump.timer"
 fi
 
+MU_WANTS="$ROOT/etc/systemd/system/multi-user.target.wants"
+if [ ! -e "$MU_WANTS/bumblebee-ros-watchdog.service" ]; then
+    $SUDO mkdir -p "$MU_WANTS"
+    $SUDO ln -sf /etc/systemd/system/bumblebee-ros-watchdog.service "$MU_WANTS/bumblebee-ros-watchdog.service"
+    echo "$SUDO rm -f '$MU_WANTS/bumblebee-ros-watchdog.service'" >> "$ROLLBACK"
+    say "enabled bumblebee-ros-watchdog.service"
+fi
+
 # ---- 3. drone identity -----------------------------------------------------
 NAME_FILE="$ROOT/home/lb/drone_name"
 MAC_FILE="$ROOT/home/lb/drone_name.mac"
@@ -145,7 +153,7 @@ if [ ${#MAC} -ge 17 ]; then
 fi
 
 {
-    echo "systemctl stop bumblebee-clock-jump.timer || true"
+    echo "systemctl stop bumblebee-clock-jump.timer bumblebee-ros-watchdog || true"
     echo "systemctl daemon-reload || true"
     echo "systemctl restart wifi-manager wifi-watchdog sys_metrics bumblebee-identity || true"
     echo "echo 'rolled back to the state before $TS'"
@@ -169,6 +177,8 @@ fi
 # ---- 5. restart only the non-flight services that changed ------------------
 $SUDO systemctl daemon-reload            # unit files and drop-ins may have changed
 $SUDO systemctl start bumblebee-clock-jump.timer || true
+$SUDO systemctl restart bumblebee-ros-watchdog || true
+[ -z "$ROOT" ] && $SUDO sysctl --system >/dev/null 2>&1 || true   # bigger DDS socket buffers
 $SUDO systemctl restart wifi-manager wifi-watchdog sys_metrics
 $SUDO systemctl restart bumblebee-identity
 

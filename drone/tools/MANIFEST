@@ -39,3 +39,8 @@ ros2_ws/src/bumblebee/scripts/wheel_rc.py                  /home/lb/ros2_ws/src/
 ros2_ws/src/bumblebee/scripts/wheel_rc.py                  /home/lb/ros2_ws/install/bumblebee/lib/bumblebee/wheel_rc.py        lb:lb 0755
 ros2_ws/src/bumblebee/scripts/servo_rc.py                  /home/lb/ros2_ws/src/bumblebee/scripts/servo_rc.py                  lb:lb 0755
 ros2_ws/src/bumblebee/scripts/servo_rc.py                  /home/lb/ros2_ws/install/bumblebee/lib/bumblebee/servo_rc.py        lb:lb 0755
+# ROS graph watchdog (restart the stack if it stops delivering data; disarmed only)
+ros2_ws/src/bumblebee/scripts/ros_watchdog.py              /home/lb/ros2_ws/src/bumblebee/scripts/ros_watchdog.py              lb:lb 0755
+system/systemd/bumblebee-ros-watchdog.service              /etc/systemd/system/bumblebee-ros-watchdog.service                  root:root 0644
+# Bigger socket buffers for Fast DDS
+system/sysctl.d/60-bumblebee-dds.conf                      /etc/sysctl.d/60-bumblebee-dds.conf                                 root:root 0644
