@@ -1,6 +1,11 @@
 # 🎛️ Ground Control Station — Source Code
 
-Source code of the Bumblebee GCS desktop apps. Ready-to-run builds are on the download links — see [Ground Control Station](https://github.com/futureLabKezad/bumblebee-students/wiki/Ground‐Control‐Station) in the wiki.
+Source code of the Bumblebee GCS desktop apps. Ready-to-run builds of **Bumblebee GCS 1.1.0** are on the GitHub release [gcs-v1.1.0](https://github.com/futureLabKezad/bumblebee-students/releases/tag/gcs-v1.1.0) — see [Ground Control Station](https://github.com/futureLabKezad/bumblebee-students/wiki/Ground‐Control‐Station) in the wiki:
+
+- **Mac** — `BumblebeeGCS-1.1.0-mac.dmg` (universal: Apple Silicon and Intel, macOS 14+). Drag the app to Applications; on first launch use System Settings → Privacy & Security → *Open Anyway*. Allow Location when asked: without it macOS hides Wi-Fi names from the app.
+- **Windows** — `BumblebeeGCS-1.1.0-windows-x64.zip` (Windows 10/11 x64, self-contained). Unzip and run `BumblebeeGcs.exe`; allow Location for Wi-Fi scanning.
+
+Drones on the network are listed automatically by name (Bonjour `_bumblebee._tcp`); **Add drone** sets a new drone up over its `Bumblebee-XXXX` hotspot and sends it your Wi-Fi. Battery shows "—": PX4 battery measurement is off (`BAT1_SOURCE = -1`, see `PX4_parameters/`).
 
 | Folder | Platform | Stack | Build |
 | --- | --- | --- | --- |

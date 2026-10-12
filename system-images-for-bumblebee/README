@@ -2,7 +2,7 @@
 
 This folder contains Raspberry Pi system images for the Bumblebee drone.
 
-Flash the image to an SD card and insert it into the drone's Raspberry Pi — no additional setup required. The image ships Ubuntu 24.04 with ROS 2 Jazzy and the full pre-built Bumblebee stack (login `lb` / `lb`).
+Flash the image to an SD card (16 GB or larger) and insert it into the drone's Raspberry Pi 5 — no additional setup required. The image ships Ubuntu 24.04 with ROS 2 Jazzy and the full pre-built Bumblebee stack (login `lb` / `lb`). Current version: **1.0.1** (`bumblebee-1.0.1-rpi5.img.xz`, ~2.0 GB, 8.4 GB unpacked), one image for every drone.
 
 Available images and download links: see [download.md](download.md).
 
@@ -11,9 +11,21 @@ For full flashing instructions and first-boot steps:
 
 ## Flashing the Image
 
+Use **[Raspberry Pi Imager](https://www.raspberrypi.com/software/)**: *Device* → Raspberry Pi 5, *Operating System* → **Use custom** → pick `bumblebee-1.0.1-rpi5.img.xz` (no need to unpack), *Storage* → your SD card. When asked about OS customisation, answer **No** — the image sets itself up.
+
+Or from the command line:
+
 ```bash
-# Flash straight from the .img.gz (replace /dev/sdX with your SD card)
-gunzip -c bumblebee.img.gz | sudo dd of=/dev/sdX bs=4M status=progress
+# Flash straight from the .img.xz (replace /dev/sdX with your SD card)
+xz -dc bumblebee-1.0.1-rpi5.img.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
-Or use **[Raspberry Pi Imager](https://www.raspberrypi.com/software/)** for a simpler experience — it accepts the `.img.gz` directly, no need to unpack.
+## First boot
+
+- The root partition grows to fill the card, and the drone generates its own SSH host keys and machine-id.
+- The drone names itself after its Wi-Fi MAC: `Bumblebee-XXXX` (hostname `bumblebee-xxxx`, reachable as `bumblebee-xxxx.local`).
+- With no known Wi-Fi in range it raises its hotspot `Bumblebee-XXXX` (password `12345678`, drone at `10.42.0.1`). In the ground station app press **Add drone** to send it your Wi-Fi.
+
+Before 1.0.1 the image was `V1.0.0-beta` (`.img.gz`): every drone flashed from it had the same name (`Bumblebee-4`), SSH keys and machine-id. It stays available for rollback (see [download.md](download.md)).
+
+The release image is built reproducibly from the V1.0.0-beta base by `drone/image/make_release_image.sh` and checked by `drone/image/verify_release_image.sh` (82 checks).
