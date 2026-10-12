@@ -31,11 +31,13 @@ its own domain (1-101; 0 stays the ROS default for laptops):
 
 The choice is remembered, so a drone keeps its domain from boot to boot.
 Called by set_identity.sh (root): without --browse at boot, with --browse from
-the NetworkManager hook once Wi-Fi is up. avahi-utils is not installed, so the
+the NetworkManager hook once Wi-Fi is up and from the minute timer; with
+--keep N when a move has to wait (PX4 not confirmed disarmed), so the next pass
+starts from the domain the flight stack really runs on. avahi-utils is not installed, so the
 browse is a one-shot mDNS query (RFC 6762 legacy unicast) answered by the
 other drones' avahi daemons.
 
-Usage: ros_domain.py --mac 88:a2:9e:57:20:ec --id 20EC --state FILE [--browse]
+Usage: ros_domain.py --mac 88:a2:9e:57:20:ec --id 20EC --state FILE [--browse | --keep N]
 """
 import argparse
 import os
@@ -240,9 +242,19 @@ def main(argv=None):
     ap.add_argument('--id', required=True, help='drone id (last 4 hex of the MAC)')
     ap.add_argument('--state', required=True)
     ap.add_argument('--browse', action='store_true', help='avoid domains other drones use')
+    ap.add_argument('--keep', type=int, metavar='N',
+                    help='the flight stack stays on N for now: remember N')
     a = ap.parse_args(argv)
 
     mac, my_id = a.mac.strip().lower(), a.id.strip().upper()
+    if a.keep is not None:
+        if FIRST <= a.keep <= LAST:
+            try:
+                write_state(a.state, a.keep, mac)
+            except OSError as e:
+                log('cannot remember domain %d: %s' % (a.keep, e))
+        print(a.keep)
+        return 0
     domain = read_state(a.state, mac) or preferred(mac)
     if a.browse:
         try:

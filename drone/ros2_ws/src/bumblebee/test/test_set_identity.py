@@ -44,8 +44,10 @@ STUBS = {
 }
 
 
-# Stand-in for fcu_armed.py: PX4's heartbeat says $FAKE_FCU.
-FCU_ARMED_STUB = 'import os\nprint(os.environ.get("FAKE_FCU", "unknown"))\n'
+# Stand-in for fcu_armed.py: PX4's heartbeat says $FAKE_FCU (each call logged).
+FCU_ARMED_STUB = ('import os\n'
+                  'open(os.path.join(os.environ["D"], "fcu.log"), "a").write("call\\n")\n'
+                  'print(os.environ.get("FAKE_FCU", "unknown"))\n')
 
 # Stand-in for ros_domain.py: records its arguments, answers $FAKE_DOMAIN.
 ROS_DOMAIN_STUB = '''import os, sys
@@ -79,7 +81,8 @@ class SetIdentity(unittest.TestCase):
                         BB_ROS_STATE=self.p('ros_domain'), BB_ROS_ENV=self.p('ros.env'),
                         BB_ROS_DOMAIN_PY=self.p('ros_domain_stub.py'), BB_BROWSE_DELAY='0',
                         BB_FCU_ARMED_PY=self.p('fcu_armed_stub.py'), BB_PROC=self.p('proc'),
-                        BB_ETC_ENVIRONMENT=self.p('environment'), BB_IDENTITY_LOCK=self.p('lock'))
+                        BB_ETC_ENVIRONMENT=self.p('environment'), BB_IDENTITY_LOCK=self.p('lock'),
+                        BB_STACK_FILE=self.p('stack_domain'))
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -229,6 +232,65 @@ class SetIdentity(unittest.TestCase):
             self.assertIn('<txt-record>ros_domain=12</txt-record>', self.read('bumblebee.service'), fcu)
             self.assertIn('ROS_DOMAIN_ID=12', self.read('environment'), fcu)
             self.assertEqual(self.restarts(), [], fcu)
+
+    def recorded_stack(self, domain, pid=100, record_pid=None):
+        """The stack as start_bumblebee.sh leaves it right before `ros2 launch`:
+        domain recorded, MAVROS not up yet."""
+        self.unit('bumblebee', pid, domain)
+        self.write('stack_domain', '%s %s' % (domain, record_pid or pid))
+
+    def fcu_calls(self):
+        return len((self.read('fcu.log') or '').splitlines())
+
+    def test_recorded_stack_counts_before_mavros_is_up(self):
+        # review rc4: the launch is past reading ros.env, MAVROS not spawned yet
+        for fcu in ('armed', 'unknown'):
+            self.write('ros.env', 'ROS_DOMAIN_ID=12')
+            self.recorded_stack(12)
+            self.unit('wifi-manager', 200, 12)
+            self.run_script('192.168.1.5', FAKE_DOMAIN='37', FAKE_FCU=fcu)
+            self.assertIn('ROS_DOMAIN_ID=12', self.ros_env(), fcu)
+            self.assertIn('<txt-record>ros_domain=12</txt-record>', self.read('bumblebee.service'), fcu)
+            self.assertIn('ROS_DOMAIN_ID=12', self.read('environment'), fcu)
+            self.assertEqual(self.restarts(), [], fcu)
+        self.recorded_stack(12)
+        self.run_script('192.168.1.5', FAKE_DOMAIN='37', FAKE_FCU='disarmed')
+        self.assertEqual(self.restarts(), ['--no-block try-restart bumblebee wifi-manager notify-manager'])
+
+    def test_stale_stack_record_is_ignored(self):
+        # record of an earlier run (other pid), stack still in its start-up waits
+        self.write('ros.env', 'ROS_DOMAIN_ID=12')
+        self.recorded_stack(12, pid=100, record_pid=99)
+        self.run_script('192.168.1.5', FAKE_DOMAIN='37', FAKE_FCU='armed')
+        self.assertIn('ROS_DOMAIN_ID=37', self.ros_env())     # the stack reads it itself
+        self.assertEqual(self.restarts(), [])
+
+    def test_deferred_move_remembers_the_running_domain(self):
+        # review rc4: else a move picked for a clash now gone is applied after landing
+        self.write('ros.env', 'ROS_DOMAIN_ID=12')
+        self.stack(12)
+        self.run_script('192.168.1.5', FAKE_DOMAIN='37', FAKE_FCU='armed')
+        keeps = [c for c in self.read('ros_domain.log').splitlines() if '--keep' in c]
+        self.assertEqual(len(keeps), 1)
+        self.assertTrue(keeps[0].endswith('--keep 12'), keeps[0])
+
+    def test_px4_is_asked_once_and_only_before_writing(self):
+        # review rc4: the decision is final before ros.env / TXT are written,
+        # so they always name the domain the stack runs on
+        self.write('ros.env', 'ROS_DOMAIN_ID=12')
+        self.stack(12)
+        self.run_script('192.168.1.5', FAKE_DOMAIN='37', FAKE_FCU='disarmed')
+        self.assertEqual(self.fcu_calls(), 1)
+        self.assertIn('ROS_DOMAIN_ID=37', self.ros_env())
+        self.assertIn('<txt-record>ros_domain=37</txt-record>', self.read('bumblebee.service'))
+        self.assertEqual(self.restarts(), ['--no-block try-restart bumblebee wifi-manager notify-manager'])
+
+    def test_no_px4_question_without_a_move(self):
+        self.write('ros.env', 'ROS_DOMAIN_ID=37')
+        self.stack(37)
+        self.run_script('192.168.1.5', FAKE_DOMAIN='37')
+        self.assertEqual(self.fcu_calls(), 0)
+        self.assertEqual(self.restarts(), [])
 
     def test_helpers_follow_when_the_stack_is_not_running(self):
         self.write('ros.env', 'ROS_DOMAIN_ID=12')

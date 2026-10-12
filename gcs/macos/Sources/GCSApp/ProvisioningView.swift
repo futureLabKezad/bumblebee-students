@@ -33,6 +33,7 @@ struct ProvisioningView: View {
     @State private var editingPassword = false
     @State private var lastDrone: String?          // hotspot SSID of the last attempt
     @State private var needPassword = false
+    @State private var closed = false              // Close pressed: never start a setup
     @FocusState private var passwordFocused: Bool
 
     private let rescan = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
@@ -59,7 +60,7 @@ struct ProvisioningView: View {
             // `.task` is cancelled when the window closes: closing it during the
             // first scan must not start a setup with no window left.
             await handoff.scanHotspots()
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, !closed else { return }
             if let drone = preselected, !homeWifi.isEmpty {
                 if password.isEmpty { needPassword = true; passwordFocused = true; lastDrone = drone }
                 else { add(drone) }
@@ -97,7 +98,7 @@ struct ProvisioningView: View {
                     .foregroundStyle(ConnectTheme.muted)
             }
             Spacer()
-            Button("Close") { handoff.reset(); dismiss() }
+            Button("Close") { closed = true; handoff.reset(); dismiss() }
                 .buttonStyle(.plain)
                 .foregroundStyle(ConnectTheme.muted)
                 .disabled(handoff.phase.isProvisioning)
@@ -345,7 +346,7 @@ struct ProvisioningView: View {
     // MARK: - Actions
 
     private func add(_ drone: String) {
-        guard !handoff.phase.isProvisioning, !homeWifi.isEmpty else { return }
+        guard !closed, !handoff.phase.isProvisioning, !homeWifi.isEmpty else { return }
         guard !password.isEmpty else {
             needPassword = true; editingPassword = true; passwordFocused = true
             return

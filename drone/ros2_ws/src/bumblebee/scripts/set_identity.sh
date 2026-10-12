@@ -40,6 +40,9 @@ SCRIPTS=$(dirname "$(readlink -f "$0")")
 ROS_DOMAIN_PY=${BB_ROS_DOMAIN_PY:-$SCRIPTS/ros_domain.py}
 FCU_ARMED_PY=${BB_FCU_ARMED_PY:-$SCRIPTS/fcu_armed.py}
 PROC=${BB_PROC:-/proc}
+# "<domain> <pid>": what start_bumblebee.sh launched the flight stack with
+# (bumblebee.service RuntimeDirectory, so it goes away when the stack stops).
+STACK_FILE=${BB_STACK_FILE:-/run/bumblebee-stack/domain}
 
 # Runs at boot, from the NetworkManager hook and every minute from a timer:
 # never two at once.
@@ -94,14 +97,25 @@ else
 fi
 echo "set_identity: name=$NAME display=$DISP"
 
-# 0) ROS 2 domain. On a client Wi-Fi (not at early boot, not on our own
+# 1) Hostname -> avahi auto-advertises <name>.local
+HOSTNAME_CHANGED=0
+if [ "$(hostnamectl --static)" != "$NAME" ]; then
+    hostnamectl set-hostname "$NAME"
+    HOSTNAME_CHANGED=1
+fi
+
+# 2) ROS 2 domain. On a client Wi-Fi (not at early boot, not on our own
 #    hotspot) look at the domains other drones advertise and avoid them. What
-#    counts is the domain the services actually run with (their environment),
-#    not what ros.env says. The flight stack is restarted onto a new domain
-#    only when PX4's own heartbeat says disarmed -- read straight from the
-#    flight controller (fcu_armed.py), never through ROS, where during a clash
-#    the other drone's state could answer. Otherwise everything stays on the
-#    running domain and the next pass (timer, every minute) tries again.
+#    counts is the domain the flight stack actually runs with: start_bumblebee.sh
+#    reads ros.env under the same lock as this script and records the domain
+#    right before `ros2 launch` ($STACK_FILE). Until then it has not chosen, so
+#    a new domain is simply written and the stack picks it up; after that, the
+#    stack is restarted onto a new domain only when PX4's own heartbeat says
+#    disarmed -- read straight from the flight controller (fcu_armed.py), never
+#    through ROS, where during a clash the other drone's state could answer.
+#    Otherwise everything (files, advertisement, helpers) stays on the running
+#    domain and the next pass (timer, every minute) tries again. The decision
+#    is final before anything is written, and the restart follows right after.
 client_ip() {
     ip -4 -o addr show wlan0 2>/dev/null | awk '{print $4}' | cut -d/ -f1 \
         | grep -v -E '^(10\.42\.|169\.254\.)' | head -n1
@@ -120,6 +134,24 @@ unit_domain() {
 mavros_running() {
     pgrep -f '^/opt/ros/jazzy/lib/mavros/mavros_node' >/dev/null 2>&1
 }
+stack_domain() {
+    # Domain the flight stack has fixed for itself; '' while it has not.
+    local d="" pid="" main
+    systemctl is-active --quiet bumblebee 2>/dev/null || return 0
+    main=$(systemctl show -p MainPID --value bumblebee 2>/dev/null)
+    if [ -r "$STACK_FILE" ]; then
+        read -r d pid < "$STACK_FILE" || true
+        if [ -n "$pid" ] && [ "$pid" = "$main" ]; then
+            echo "${d:-0}"
+            return 0
+        fi
+    fi
+    # start script without that record (older install): a running MAVROS
+    if mavros_running; then
+        d=$(unit_domain bumblebee)
+        echo "${d:-0}"                        # started before domains existed
+    fi
+}
 CUR_DOMAIN=$(sed -n 's/^ROS_DOMAIN_ID=//p' "$ROS_ENV" 2>/dev/null | tail -n1)
 BROWSE=""
 if [ -n "$(client_ip)" ]; then
@@ -128,11 +160,7 @@ if [ -n "$(client_ip)" ]; then
 fi
 DOMAIN=$(python3 "$ROS_DOMAIN_PY" --mac "$MAC" --id "$HWID" --state "$ROS_STATE" $BROWSE || true)
 case "$DOMAIN" in ''|*[!0-9]*) DOMAIN="$CUR_DOMAIN" ;; esac
-STACK_DOMAIN=""
-if systemctl is-active --quiet bumblebee 2>/dev/null && mavros_running; then
-    STACK_DOMAIN=$(unit_domain bumblebee)
-    STACK_DOMAIN=${STACK_DOMAIN:-0}           # started before domains existed
-fi
+STACK_DOMAIN=$(stack_domain)
 RESTART_STACK=0
 if [ -n "$DOMAIN" ] && [ -n "$STACK_DOMAIN" ] && [ "$DOMAIN" != "$STACK_DOMAIN" ]; then
     if fcu_disarmed; then
@@ -141,6 +169,9 @@ if [ -n "$DOMAIN" ] && [ -n "$STACK_DOMAIN" ] && [ "$DOMAIN" != "$STACK_DOMAIN" 
     else
         echo "set_identity: ROS domain $STACK_DOMAIN -> $DOMAIN deferred (PX4 not confirmed disarmed)" >&2
         DOMAIN="$STACK_DOMAIN"
+        # remember the running domain, so the next pass checks it afresh
+        # instead of moving later to a domain picked for a clash now gone
+        python3 "$ROS_DOMAIN_PY" --mac "$MAC" --id "$HWID" --state "$ROS_STATE" --keep "$DOMAIN" >/dev/null || true
     fi
 fi
 NEW_ENV=$(mktemp)
@@ -176,23 +207,8 @@ if [ -n "$DOMAIN" ] || grep -q '^ROS_DOMAIN_ID=' "$ETC_ENVIRONMENT" 2>/dev/null;
     cmp -s "$NEW_ETC" "$ETC_ENVIRONMENT" || install -m 0644 "$NEW_ETC" "$ETC_ENVIRONMENT"
     rm -f "$NEW_ETC"
 fi
-# Helpers not on this domain (not flight-critical: always safe to restart).
-AUX=""
-for u in wifi-manager notify-manager; do
-    d=$(unit_domain "$u")
-    if systemctl is-active --quiet "$u" 2>/dev/null && [ "${d:-0}" != "${DOMAIN:-0}" ]; then
-        AUX="$AUX $u"
-    fi
-done
 
-# 1) Hostname -> avahi auto-advertises <name>.local
-HOSTNAME_CHANGED=0
-if [ "$(hostnamectl --static)" != "$NAME" ]; then
-    hostnamectl set-hostname "$NAME"
-    HOSTNAME_CHANGED=1
-fi
-
-# 2) DNS-SD service record advertising the ports the GCS app needs + friendly name.
+# 3) DNS-SD service record advertising the ports the GCS app needs + friendly name.
 #    Written to a temp file first: avahi is only poked when something changed,
 #    because a reload withdraws and re-announces the service (the GCS would see
 #    the drone vanish and come back on every DHCP renewal).
@@ -222,7 +238,24 @@ if ! cmp -s "$NEW_SERVICE" "$SERVICE_FILE"; then
 fi
 rm -f "$NEW_SERVICE"
 
-# 3) Let a running avahi pick up the new hostname + service record. A live
+# 4) A new ROS domain: restart what runs ROS nodes so they meet again -- the
+#    flight stack right after its disarmed check above (nothing slow in
+#    between); otherwise only the helpers not yet on this domain (not
+#    flight-critical: always safe to restart).
+if [ "$RESTART_STACK" = "1" ]; then
+    systemctl --no-block try-restart bumblebee wifi-manager notify-manager 2>/dev/null || true
+else
+    AUX=""
+    for u in wifi-manager notify-manager; do
+        d=$(unit_domain "$u")
+        if systemctl is-active --quiet "$u" 2>/dev/null && [ "${d:-0}" != "${DOMAIN:-0}" ]; then
+            AUX="$AUX $u"
+        fi
+    done
+    [ -z "$AUX" ] || systemctl --no-block try-restart $AUX 2>/dev/null || true
+fi
+
+# 5) Let a running avahi pick up the new hostname + service record. A live
 #    hostname change needs a full restart to re-evaluate the %h instance name; a
 #    reload is enough when only the service file changed. At boot avahi is not
 #    running yet (bumblebee-identity.service is ordered before it) and reads both
@@ -234,16 +267,4 @@ if systemctl is-active --quiet avahi-daemon 2>/dev/null; then
     elif [ "$SERVICE_CHANGED" = "1" ]; then
         systemctl --no-block reload-or-restart avahi-daemon 2>/dev/null || true
     fi
-fi
-
-# 4) A new ROS domain: restart what runs ROS nodes so they meet again. The
-#    flight stack only after a fresh disarmed check.
-if [ "$RESTART_STACK" = "1" ]; then
-    if fcu_disarmed; then
-        systemctl --no-block try-restart bumblebee wifi-manager notify-manager 2>/dev/null || true
-    else
-        echo "set_identity: PX4 no longer reports disarmed: flight stack not restarted" >&2
-    fi
-elif [ -n "$AUX" ]; then
-    systemctl --no-block try-restart $AUX 2>/dev/null || true
 fi

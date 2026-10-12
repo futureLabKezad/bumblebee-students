@@ -25,6 +25,7 @@ system/systemd/bumblebee-identity.service                  /etc/systemd/system/b
 # itself is written per drone by set_identity.sh.
 ros2_ws/src/bumblebee/scripts/ros_domain.py                /home/lb/ros2_ws/src/bumblebee/scripts/ros_domain.py                lb:lb 0755
 system/systemd/ros-env.conf                                /etc/systemd/system/bumblebee.service.d/ros-env.conf                root:root 0644
+system/systemd/bumblebee.service.d/stack-domain.conf       /etc/systemd/system/bumblebee.service.d/stack-domain.conf           root:root 0644
 system/systemd/ros-env.conf                                /etc/systemd/system/wifi-manager.service.d/ros-env.conf             root:root 0644
 system/systemd/ros-env.conf                                /etc/systemd/system/notify-manager.service.d/ros-env.conf           root:root 0644
 system/systemd/ros-env.conf                                /etc/systemd/system/led-default.service.d/ros-env.conf              root:root 0644
@@ -47,3 +48,5 @@ system/sysctl.d/60-bumblebee-dds.conf                      /etc/sysctl.d/60-bumb
 # Per-minute ROS domain re-check (late clashes, deferred moves)
 system/systemd/bumblebee-identity-recheck.service          /etc/systemd/system/bumblebee-identity-recheck.service              root:root 0644
 system/systemd/bumblebee-identity-recheck.timer            /etc/systemd/system/bumblebee-identity-recheck.timer                root:root 0644
+# FCU/battery freshness on monotonic time (imported by wifi_manager, notify_manager)
+ros2_ws/src/bumblebee/examples/drone.py                    /home/lb/ros2_ws/src/bumblebee/examples/drone.py                    lb:lb 0644

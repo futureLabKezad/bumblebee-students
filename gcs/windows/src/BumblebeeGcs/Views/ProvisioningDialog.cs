@@ -100,6 +100,7 @@ public sealed class ProvisioningDialog : ContentDialog
         Ui.OnTap(close, () =>
         {
             if (_handoff.IsBusy) return;
+            _closed = true;                // before Hide(): Closed comes only after the hide animation
             _handoff.Reset();
             Hide();
         });
@@ -117,7 +118,11 @@ public sealed class ProvisioningDialog : ContentDialog
         Content = root;
 
         // Пока идёт настройка, диалог нельзя закрыть (Esc / клик мимо).
-        Closing += (_, e) => { if (_handoff.IsBusy) e.Cancel = true; };
+        Closing += (_, e) =>
+        {
+            if (_handoff.IsBusy) e.Cancel = true;
+            else _closed = true;           // Esc / programmatic Hide(): closing has begun
+        };
 
         // Новые дроны появляются через ~30 с после включения — держим список свежим.
         _rescan.Tick += (_, _) =>

@@ -128,6 +128,19 @@ class Choice(unittest.TestCase):
             seen = {rd.FIRST + (k * step) % span for k in range(span)}
             self.assertEqual(len(seen), span, mac)
 
+    def test_keep_remembers_the_running_domain(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, 'ros_domain')
+            rd.write_state(p, 54, MAC)                # a move picked earlier, deferred
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                rd.main(['--mac', MAC, '--id', '20EC', '--state', p, '--keep', '17'])
+            self.assertEqual(int(out.getvalue()), 17)
+            self.assertEqual(rd.read_state(p, MAC), 17)
+            with contextlib.redirect_stdout(io.StringIO()):
+                rd.main(['--mac', MAC, '--id', '20EC', '--state', p, '--keep', '0'])   # out of range
+            self.assertEqual(rd.read_state(p, MAC), 17)
+
     def test_state_is_bound_to_the_mac(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, 'sub', 'ros_domain')

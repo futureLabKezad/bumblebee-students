@@ -20,14 +20,22 @@ import AppKit
 /// entering an IP by hand and setting up a brand-new drone over its hotspot.
 /// Copy is English and type is SF (system); the orange/blue palette lives in
 /// `ConnectTheme` and is scoped to this screen + the splash.
+/// One opening of the setup sheet; `drone` is the hotspot SSID tapped, if any.
+struct SetupRequest: Identifiable {
+    let id = UUID()
+    let drone: String?
+}
+
 struct LaunchView: View {
     @EnvironmentObject var app: AppState
     @EnvironmentObject var scanner: DroneScanner
     @EnvironmentObject var handoff: WifiHandoff
     @State private var manualIP = ""
     @State private var lastPingOK = false
-    @State private var showSetup = false
-    @State private var setupDrone: String?
+    /// The open "Add a drone" sheet and the drone it was opened for. One value
+    /// for both, passed by `.sheet(item:)`: with a separate flag the sheet was
+    /// built from a stale copy and never saw the drone that was tapped.
+    @State private var setup: SetupRequest?
 
     var body: some View {
         ZStack {
@@ -51,8 +59,8 @@ struct LaunchView: View {
             .padding(.horizontal, 24)
         }
         .foregroundStyle(ConnectTheme.text)
-        .sheet(isPresented: $showSetup, onDismiss: { setupDrone = nil }) {
-            ProvisioningView(preselected: setupDrone)
+        .sheet(item: $setup) { request in
+            ProvisioningView(preselected: request.drone)
         }
         .task { await handoff.scanHotspots() }   // surface drone hotspots in the list
     }
@@ -96,7 +104,7 @@ struct LaunchView: View {
                     ProgressView().controlSize(.small).scaleEffect(0.7)
                 }
                 Spacer()
-                Button { showSetup = true } label: {
+                Button { setup = SetupRequest(drone: nil) } label: {
                     HStack(spacing: 5) {
                         Image(systemName: "plus").font(.system(size: 11, weight: .bold))
                         Text("Add drone").font(.system(size: 12, weight: .semibold))
@@ -129,7 +137,7 @@ struct LaunchView: View {
                     // Drones only reachable via their own setup hotspot (offline
                     // from this WiFi). Tapping opens the hand-off wizard.
                     ForEach(handoff.hotspots) { h in
-                        HotspotDroneRow(hotspot: h) { setupDrone = h.ssid; showSetup = true }
+                        HotspotDroneRow(hotspot: h) { setup = SetupRequest(drone: h.ssid) }
                     }
                 }
             } else {

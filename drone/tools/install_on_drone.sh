@@ -99,6 +99,16 @@ while read -r src dst owner mode; do
     say "installed $dst"
 done < "$HERE/MANIFEST"
 
+# /etc/environment is not shipped but rewritten: set_identity.sh keeps this
+# drone's ROS_DOMAIN_ID in it. Rollback restores it as it was before.
+ENV_FILE="$ROOT/etc/environment"
+if [ -e "$ENV_FILE" ]; then
+    mkdir -p "$BACKUP/etc"
+    $SUDO cp -p "$ENV_FILE" "$BACKUP/etc/environment"
+    echo "$SUDO cp -p '$BACKUP/etc/environment' '$ENV_FILE.bbnew'" >> "$ROLLBACK"
+    echo "$SUDO mv -f '$ENV_FILE.bbnew' '$ENV_FILE'" >> "$ROLLBACK"
+fi
+
 # Enable the clock-jump reaction and the per-minute domain re-check. Symlinks
 # rather than `systemctl enable`, so it works the same on a running drone and
 # on a mounted image (BB_ROOT).
