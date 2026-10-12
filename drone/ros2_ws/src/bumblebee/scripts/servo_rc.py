@@ -48,6 +48,8 @@ class ServoRC(Node):
         if len(msg.channels) <= CH9_IDX:
             return
         ch9 = msg.channels[CH9_IDX]
+        if not 800 <= ch9 <= 2200:
+            return               # no RC signal (PX4 reports 0 us): leave the servo alone
         pressed = ch9 > THRESHOLD
         state = 'up' if pressed else 'down'
         if state == self._last:

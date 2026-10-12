@@ -35,6 +35,9 @@ CH7_IDX = 6    # channel 7 is index 6 (0-based)
 STOP    = 128  # neutral 0-255 value
 SPEED_GAIN = 2.0  # multiply wheel speed 2x (saturates at extremes)
 MIN_WRITE_INTERVAL = 0.1  # s -- floor between I2C writes when value is unchanged
+# Real RC pulse widths. PX4 reports 0 us when no transmitter/receiver is on;
+# without this check that read as "knob fully reversed" -> wheel full reverse.
+RC_MIN_US, RC_MAX_US = 800, 2200
 
 
 class WheelRC(Node):
@@ -51,8 +54,11 @@ class WheelRC(Node):
         if len(msg.channels) <= CH7_IDX:
             return
         ch7 = msg.channels[CH7_IDX]
-        # 1000-2000 us -> -100..+100
-        normalized = max(-100.0, min(100.0, (ch7 - 1500) / 5.0))
+        if not RC_MIN_US <= ch7 <= RC_MAX_US:
+            normalized = 0.0     # no RC signal: the wheel stops, never drives
+        else:
+            # 1000-2000 us -> -100..+100
+            normalized = max(-100.0, min(100.0, (ch7 - 1500) / 5.0))
         # dead zone
         if abs(normalized) < 5:
             normalized = 0.0
