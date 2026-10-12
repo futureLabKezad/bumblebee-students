@@ -38,7 +38,9 @@ drone/tools/deploy.sh <drone-ip>                 # keeps the drone's current nam
 drone/tools/deploy.sh <drone-ip> --reset-name    # drones flashed from V1.0.0-beta (all "bumblebee-4")
 ```
 
-Roll back with `bash ~/.bumblebee-update/<timestamp>/rollback.sh` on the drone.
+Roll back with `bash ~/.bumblebee-update/<timestamp>/rollback.sh` on the drone,
+then reboot it (`sudo reboot`): until then the flight stack keeps running with
+the update.
 
 ## Tests
 

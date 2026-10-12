@@ -50,6 +50,9 @@ struct ProvisioningView: View {
             .padding(28)
         }
         .frame(width: 560, height: 580)
+        // Esc goes through the Close button (below), never around it: it is
+        // ignored while a setup runs and always marks the sheet closed.
+        .interactiveDismissDisabled()
         .foregroundStyle(ConnectTheme.text)
         .onAppear {
             handoff.reset()
@@ -99,6 +102,7 @@ struct ProvisioningView: View {
             }
             Spacer()
             Button("Close") { closed = true; handoff.reset(); dismiss() }
+                .keyboardShortcut(.cancelAction)
                 .buttonStyle(.plain)
                 .foregroundStyle(ConnectTheme.muted)
                 .disabled(handoff.phase.isProvisioning)

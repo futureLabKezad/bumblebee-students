@@ -77,6 +77,18 @@ ROLLBACK="$BACKUP/rollback.sh"
     echo 'set -e'
 } > "$ROLLBACK"
 
+# /etc/environment is not shipped but rewritten: set_identity.sh keeps this
+# drone's ROS_DOMAIN_ID in it. Rollback restores it as it was before; copied
+# before anything new is installed (the new NetworkManager hook could run
+# set_identity.sh mid-install).
+ENV_FILE="$ROOT/etc/environment"
+if [ -e "$ENV_FILE" ]; then
+    mkdir -p "$BACKUP/etc"
+    $SUDO cp -p "$ENV_FILE" "$BACKUP/etc/environment"
+    echo "$SUDO cp -p '$BACKUP/etc/environment' '$ENV_FILE.bbnew'" >> "$ROLLBACK"
+    echo "$SUDO mv -f '$ENV_FILE.bbnew' '$ENV_FILE'" >> "$ROLLBACK"
+fi
+
 # MANIFEST lines: <source relative to payload> <destination> <owner> <mode>
 while read -r src dst owner mode; do
     case "$src" in ''|'#'*) continue ;; esac
@@ -98,16 +110,6 @@ while read -r src dst owner mode; do
     [ -z "$ROOT" ] && $SUDO chown "$owner" "$dest"
     say "installed $dst"
 done < "$HERE/MANIFEST"
-
-# /etc/environment is not shipped but rewritten: set_identity.sh keeps this
-# drone's ROS_DOMAIN_ID in it. Rollback restores it as it was before.
-ENV_FILE="$ROOT/etc/environment"
-if [ -e "$ENV_FILE" ]; then
-    mkdir -p "$BACKUP/etc"
-    $SUDO cp -p "$ENV_FILE" "$BACKUP/etc/environment"
-    echo "$SUDO cp -p '$BACKUP/etc/environment' '$ENV_FILE.bbnew'" >> "$ROLLBACK"
-    echo "$SUDO mv -f '$ENV_FILE.bbnew' '$ENV_FILE'" >> "$ROLLBACK"
-fi
 
 # Enable the clock-jump reaction and the per-minute domain re-check. Symlinks
 # rather than `systemctl enable`, so it works the same on a running drone and
@@ -163,6 +165,7 @@ fi
     echo "systemctl daemon-reload || true"
     echo "systemctl restart wifi-manager wifi-watchdog sys_metrics bumblebee-identity || true"
     echo "echo 'rolled back to the state before $TS'"
+    echo "echo 'Reboot the drone now (sudo reboot): the flight stack still runs with the update until then.'"
 } | { [ -n "$SUDO" ] && sed 's/^systemctl/sudo systemctl/' || cat; } >> "$ROLLBACK"
 chmod +x "$ROLLBACK"
 
