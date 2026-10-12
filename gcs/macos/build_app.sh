@@ -20,9 +20,14 @@ cd "$(dirname "$0")"
 APP_NAME="Bumblebee GCS"
 CONFIG="${1:-release}"
 
-echo "==> swift build ($CONFIG)"
-swift build -c "$CONFIG"
-BIN_DIR="$(swift build -c "$CONFIG" --show-bin-path)"
+# Universal binary by default, so one .app runs on Apple Silicon and Intel
+# Macs. ARCHS=arm64 ./build_app.sh builds for this Mac only (faster).
+ARCHS="${ARCHS:-arm64 x86_64}"
+ARCH_FLAGS=()
+for a in $ARCHS; do ARCH_FLAGS+=(--arch "$a"); done
+echo "==> swift build ($CONFIG, $ARCHS)"
+swift build -c "$CONFIG" "${ARCH_FLAGS[@]}"
+BIN_DIR="$(swift build -c "$CONFIG" "${ARCH_FLAGS[@]}" --show-bin-path)"
 BIN="$BIN_DIR/GCSApp"
 
 APP="build/${APP_NAME}.app"
@@ -39,8 +44,12 @@ for b in "$BIN_DIR"/*.bundle; do
 done
 cp Sources/GCSApp/Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
-# Ad-hoc sign so it launches without a quarantine/Gatekeeper hard stop.
-codesign --force --deep --sign - "$APP" >/dev/null 2>&1 || true
+# Ad-hoc sign so it launches without a quarantine/Gatekeeper hard stop. The
+# designated requirement names only the bundle id, so macOS keeps the app's
+# Location / Local Network permissions across rebuilds (a plain ad-hoc
+# signature is tied to the exact binary and every rebuild looks like a new app).
+codesign --force --deep --sign - \
+    --requirements '=designated => identifier "com.bumblebee.gcs"' "$APP" >/dev/null 2>&1 || true
 
 echo "==> done: $APP"
 echo "    run with:  open \"$APP\"   (or: \"$APP/Contents/MacOS/GCSApp\")"

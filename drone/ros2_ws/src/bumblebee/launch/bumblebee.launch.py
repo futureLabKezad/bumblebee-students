@@ -16,6 +16,8 @@
 Main Bumblebee launch file (ROS 2 Jazzy)
 Replaces bumblebee.launch (ROS 1 Noetic)
 """
+import os
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, TimerAction
 from launch.conditions import IfCondition, UnlessCondition
@@ -23,6 +25,13 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource, Any
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression, EnvironmentVariable
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+
+
+def _fcu_url_override():
+    """fcu_url found by scripts/fcu_detect.py (start_bumblebee.sh exports it as
+    BB_FCU_URL); without it MAVROS uses the one in mavros_params.yaml."""
+    url = os.environ.get('BB_FCU_URL', '').strip()
+    return [{'fcu_url': url}] if url else []
 
 
 def generate_launch_description():
@@ -69,7 +78,7 @@ def generate_launch_description():
         parameters=[
             '/home/lb/mavros_params.yaml',
             {'target_system_id': fcu_sys_id},
-        ],
+        ] + _fcu_url_override(),
     )
 
     # ── SIMPLE OFFBOARD ─────────────────────────────────────────────────────

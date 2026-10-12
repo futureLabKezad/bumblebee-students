@@ -13,13 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""WiFi Manager — Tornado REST API on 127.0.0.1:8765."""
+"""WiFi Manager — Tornado REST API on 0.0.0.0:8765 (used directly by the GCS app)."""
 
 import json
 import logging
 import os
+import re
 import subprocess
 import sys
+import threading
 import time
 import uuid
 from datetime import datetime, timedelta
@@ -51,12 +53,41 @@ except Exception as _te:
     _tts_to_tune = None
 LED_BUSY = '/tmp/led_busy'
 ANIM_DIR = '/home/lb/ros2_ws/src/bumblebee/examples/animations'
-ANIMATIONS = {'breathing', 'rainbow', 'police', 'strobe', 'fire', 'theater'}
+# Shows = an LED script from ANIM_DIR plus a buzzer melody that this process
+# replays (it already owns a ROS node via drone.py, so the LED script stays
+# I2C-only like the other animations). name -> (drone.py tune constant or
+# literal QBASIC tune, seconds of silence between repeats).
+SHOWS = {
+    'party':   ('TUNE_MARIO', 0.6),
+    'siren':   ('MNT100L4O5AO6DO5AO6D', 0.1),   # hi-lo two-tone wail
+    'alarm':   ('TUNE_WARN', 0.5),
+    'victory': ('TUNE_VICTORY', 1.5),
+}
+ANIMATIONS = {'breathing', 'rainbow', 'police', 'strobe', 'fire', 'theater',
+              'rainbow_theater'} | set(SHOWS)
+# Touched before every API-driven Wi-Fi switch. wifi_watchdog.sh and the NM
+# dispatcher hold off their hotspot fallback while it is fresh, so they don't
+# abort a join that is still authenticating / getting DHCP.
+WIFI_SWITCH_MARKER = '/tmp/bumblebee-wifi-switch'
+# Delay before a connection-changing nmcli call, so the HTTP reply reaches the
+# GCS before the drone drops the link the GCS is talking over.
+SWITCH_DELAY_S = 1.5
+# How long a GCS-requested join may take before we give up and bring the
+# hotspot back (auth + DHCP on a slow hotspot can take ~20 s).
+JOIN_TIMEOUT_S = 40
+# Networks whose GCS-requested join just failed ("uuid epoch" lines);
+# wifi_watchdog.sh backs off from them like from its own failed probes.
+WIFI_FAILED_LOG = '/tmp/bumblebee-wifi-failed'
+# Present while the GCS asked for hotspot mode: wifi_watchdog.sh then stops
+# probing for known networks (which would switch the drone back to client).
+HOTSPOT_PIN_MARKER = '/tmp/bumblebee-hotspot-pinned'
 _anim_proc = None  # subprocess.Popen | None
+_show_gen = 0      # bumped on every animation stop/start; ends a show's tune loop
 
 
 def _stop_anim():
-    global _anim_proc
+    global _anim_proc, _show_gen
+    _show_gen += 1
     if _anim_proc is not None and _anim_proc.poll() is None:
         try:
             _anim_proc.terminate()
@@ -87,15 +118,230 @@ def load_config():
         return json.load(f)
 
 
-def nmcli(*args):
+def nmcli(*args, timeout=15):
     """Run nmcli, return stdout. Raises RuntimeError on non-zero exit."""
     result = subprocess.run(
         ['nmcli'] + list(args),
-        capture_output=True, text=True, timeout=15,
+        capture_output=True, text=True, timeout=timeout,
     )
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip())
     return result.stdout.strip()
+
+
+def _mark_wifi_switch():
+    try:
+        with open(WIFI_SWITCH_MARKER, 'w') as f:
+            f.write(str(int(time.time())))
+    except OSError:
+        logging.exception('cannot write %s', WIFI_SWITCH_MARKER)
+
+
+def _nmcli_after_reply(*args, on_fail=None):
+    """Run a link-changing nmcli command after the current reply is sent.
+
+    `nmcli con up/down` on wlan0 tears down the network the GCS is connected
+    through, so it must not run before the response is flushed. `on_fail` runs
+    if the command fails or times out.
+    """
+    _mark_wifi_switch()
+
+    def worker():
+        time.sleep(SWITCH_DELAY_S)
+        try:
+            nmcli('-w', str(JOIN_TIMEOUT_S), *args, timeout=JOIN_TIMEOUT_S + 10)
+            logging.info('nmcli %s: ok', ' '.join(args))
+        except Exception as exc:
+            logging.exception('nmcli %s failed', ' '.join(args))
+            if on_fail is not None:
+                try:
+                    on_fail(exc)
+                except Exception:
+                    logging.exception('switch failure handler')
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
+# Why the last GCS-requested join failed; reported in /api/wifi/status so the
+# GCS can tell the user (read over the hotspot the drone falls back to).
+LAST_ERROR_FILE = '/tmp/bumblebee-wifi-last-error.json'
+
+
+def _join_reason(exc):
+    """Map an nmcli failure to a short reason code for the GCS."""
+    text = str(exc).lower()
+    if isinstance(exc, subprocess.TimeoutExpired) or 'timeout' in text or 'timed out' in text:
+        return 'timeout'
+    if 'secrets were required' in text or 'no secrets' in text or 'psk' in text or '802.1x' in text:
+        return 'wrong_password'
+    if 'no network with ssid' in text or 'ssid-not-found' in text or 'not found' in text:
+        return 'not_found'
+    if 'ip configuration' in text or 'dhcp' in text:
+        return 'no_ip'
+    return 'failed'
+
+
+def _join_failed(name, exc=None):
+    """A GCS-requested join failed (wrong password, out of range, no DHCP):
+    bring the hotspot straight back so the GCS can reach the drone again, and
+    tell wifi_watchdog.sh not to retry that network for a while."""
+    try:
+        with open(LAST_ERROR_FILE, 'w') as f:
+            json.dump({'ssid': name, 'reason': _join_reason(exc) if exc else 'failed',
+                       'message': str(exc)[-300:] if exc else '', 'time': int(time.time())}, f)
+    except OSError:
+        logging.exception('cannot record join error')
+    try:
+        uuid = nmcli('-g', 'connection.uuid', 'con', 'show', name).strip()
+        with open(WIFI_FAILED_LOG, 'a') as f:
+            f.write('%s %d\n' % (uuid, int(time.time())))
+    except Exception:
+        logging.exception('cannot record failed join of %s', name)
+    try:
+        os.remove(WIFI_SWITCH_MARKER)    # nothing deliberate is pending any more
+    except OSError:
+        pass
+    ssid = _hotspot_ssid()
+    if ssid:
+        nmcli('connection', 'modify', HOTSPOT_CONN, 'wifi.ssid', ssid)
+    nmcli('connection', 'up', HOTSPOT_CONN, timeout=30)
+    logging.info('join of %s failed, hotspot back up', name)
+
+
+def _hwid():
+    """Short hardware id (last 4 hex digits of the wlan0 MAC), as advertised in
+    the Bonjour TXT record and used in the hotspot SSID."""
+    ssid = _hotspot_ssid()
+    return ssid[len('Bumblebee-'):] if ssid else ''
+
+
+def _hotspot_ssid():
+    """Stable hotspot SSID: Bumblebee-<last 4 hex digits of the wlan0 MAC>."""
+    try:
+        with open('/sys/class/net/wlan0/address') as f:
+            mac = f.read().strip().replace(':', '')
+        if len(mac) >= 4:
+            return 'Bumblebee-' + mac[-4:].upper()
+    except OSError:
+        pass
+    return None
+
+
+def _nm_unescape(value):
+    """Undo nmcli terse-mode escaping of ':' and '\\' in a single field."""
+    out, i = [], 0
+    while i < len(value):
+        if value[i] == '\\' and i + 1 < len(value):
+            i += 1
+        out.append(value[i])
+        i += 1
+    return ''.join(out)
+
+
+def _nm_fields(line):
+    """Split one nmcli -t line into unescaped fields ('\\:' is not a separator)."""
+    fields, cur, i = [], [], 0
+    while i < len(line):
+        ch = line[i]
+        if ch == '\\' and i + 1 < len(line):
+            cur.append(line[i + 1])
+            i += 2
+            continue
+        if ch == ':':
+            fields.append(''.join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+        i += 1
+    fields.append(''.join(cur))
+    return fields
+
+
+def _con_names():
+    """Names of all saved NetworkManager connections (unescaped)."""
+    return [_nm_unescape(n) for n in nmcli('-t', '-f', 'NAME', 'con', 'show').splitlines()]
+
+
+def _next_wifi_priority():
+    """One above every saved Wi-Fi profile, so the network the GCS provisioned
+    last wins both NM autoconnect and wifi_watchdog.sh's retry order."""
+    best = 9
+    for line in nmcli('-t', '-f', 'TYPE,AUTOCONNECT-PRIORITY', 'con', 'show').splitlines():
+        kind, _, prio = line.partition(':')
+        if kind == '802-11-wireless':
+            try:
+                best = max(best, int(prio))
+            except ValueError:
+                pass
+    return str(min(best + 1, 999))
+
+
+def _tune_seconds(tune):
+    """Play length of a QBASIC (PX4 PLAY_TUNE) string, in seconds."""
+    tempo, length, total = 120, 4, 0.0
+    for tok in re.findall(r'M[FBNLS]|[TLONP]\d+|[A-G][#+-]?\d*\.*|[<>]', tune.upper()):
+        head = tok[0]
+        if (head == 'M' and len(tok) == 2) or head in '<>O':
+            continue
+        if head == 'T':
+            tempo = int(tok[1:])
+            continue
+        if head == 'L':
+            length = int(tok[1:])
+            continue
+        dots = tok.count('.')
+        digits = re.sub(r'\D', '', tok)
+        if head == 'P':
+            n = int(digits)
+        elif head == 'N':
+            n = length
+        else:
+            n = int(digits) if digits else length
+        total += (240.0 / tempo) / n * (2 - 0.5 ** dots)
+    return total
+
+
+def _fcu_safe_for_tune():
+    """True only with a fresh FCU state saying disarmed. Unknown counts as
+    armed: a show's melody must never cover PX4's own warnings in flight."""
+    try:
+        st = _drone.get_fcu_status()
+        return bool(st.get('connected')) and not st.get('armed')
+    except Exception:
+        return False
+
+
+def _start_show_tune(name, gen):
+    """Replay the show's melody until the show is stopped (gen changes).
+    Silent while the drone is armed, so PX4's own warning tunes stay audible."""
+    tune, gap = SHOWS[name]
+    tune = getattr(_drone, tune, tune)
+    period = _tune_seconds(tune) + gap
+    loop = tornado.ioloop.IOLoop.current()
+    try:
+        # A brand-new DDS publisher drops its first message; create it with a
+        # silent rest so the first real repeat is heard.
+        _drone.play_tune('MFT255L64P64')
+    except Exception:
+        logging.exception('show %s: buzzer unavailable', name)
+        return
+
+    def tick():
+        if gen != _show_gen or _anim_proc is None or _anim_proc.poll() is not None:
+            return   # stopped, replaced, or the LED script exited
+        if _fcu_safe_for_tune():
+            try:
+                _drone.play_tune(tune)
+            except Exception:
+                logging.exception('show %s: play_tune failed', name)
+        loop.call_later(period, tick)
+
+    loop.call_later(0.5, tick)
+
+
+async def _blocking(fn, *args):
+    """Run a blocking call (nmcli can take seconds) off the IOLoop thread."""
+    return await tornado.ioloop.IOLoop.current().run_in_executor(None, fn, *args)
 
 
 def is_authenticated(handler):
@@ -148,45 +394,56 @@ class AuthLogoutHandler(BaseHandler):
         self.finish(json.dumps({'ok': True}))
 
 
+def _wifi_status():
+    raw = nmcli('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device', 'status')
+    mode = 'unknown'
+    ssid = ''
+    ip = ''
+    signal = 0
+    for line in raw.splitlines():
+        parts = _nm_fields(line)
+        if parts[0] == 'wlan0':
+            state = parts[1]
+            conn = parts[2] if len(parts) > 2 else ''
+            if state == 'connected':
+                mode = 'hotspot' if conn == 'bumblebee-hotspot' else 'client'
+                ssid = conn
+            else:
+                mode = state
+            break
+
+    ip_raw = nmcli('-t', '-f', 'IP4.ADDRESS', 'device', 'show', 'wlan0')
+    for line in ip_raw.splitlines():
+        if line.startswith('IP4.ADDRESS'):
+            ip = line.split(':')[-1].split('/')[0]
+            break
+
+    # --rescan no: the GCS polls this endpoint; an implicit rescan takes
+    # seconds and stalls every other request.
+    wifi_raw = nmcli('-t', '-f', 'IN-USE,SIGNAL,SSID', 'dev', 'wifi', 'list',
+                     '--rescan', 'no')
+    for line in wifi_raw.splitlines():
+        parts = line.split(':')
+        if parts[0] == '*' and len(parts) >= 3:
+            try:
+                signal = int(parts[1])
+            except ValueError:
+                pass
+            break
+
+    status = {'mode': mode, 'ssid': ssid, 'ip': ip, 'signal': signal, 'id': _hwid()}
+    try:
+        with open(LAST_ERROR_FILE) as f:
+            status['last_error'] = json.load(f)
+    except (OSError, ValueError):
+        pass
+    return status
+
+
 class StatusHandler(BaseHandler):
-    def get(self):
+    async def get(self):
         try:
-            raw = nmcli('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device', 'status')
-            mode = 'unknown'
-            ssid = ''
-            ip = ''
-            signal = 0
-            for line in raw.splitlines():
-                parts = line.split(':')
-                if parts[0] == 'wlan0':
-                    state = parts[1]
-                    conn = parts[2] if len(parts) > 2 else ''
-                    if state == 'connected':
-                        mode = 'hotspot' if conn == 'bumblebee-hotspot' else 'client'
-                        ssid = conn
-                    else:
-                        mode = state
-                    break
-
-            ip_raw = nmcli('-t', '-f', 'IP4.ADDRESS', 'device', 'show', 'wlan0')
-            for line in ip_raw.splitlines():
-                if line.startswith('IP4.ADDRESS'):
-                    ip = line.split(':')[-1].split('/')[0]
-                    break
-
-            wifi_raw = nmcli('-t', '-f', 'IN-USE,SIGNAL,SSID', 'dev', 'wifi', 'list')
-            for line in wifi_raw.splitlines():
-                parts = line.split(':')
-                if parts[0] == '*' and len(parts) >= 3:
-                    try:
-                        signal = int(parts[1])
-                    except ValueError:
-                        pass
-                    break
-
-            self.finish(json.dumps({
-                'mode': mode, 'ssid': ssid, 'ip': ip, 'signal': signal,
-            }))
+            self.finish(json.dumps(await _blocking(_wifi_status)))
         except Exception as e:
             logging.exception('status error')
             self.set_status(500)
@@ -205,18 +462,22 @@ def _band_for_freq(freq_mhz):
     return ''
 
 
+def _scan_raw():
+    try:
+        nmcli('dev', 'wifi', 'rescan')
+    except Exception:
+        pass
+    return nmcli('-t', '-f', 'IN-USE,SSID,SIGNAL,SECURITY,FREQ', 'dev', 'wifi', 'list')
+
+
 class ScanHandler(BaseHandler):
-    def get(self):
+    async def get(self):
         try:
-            nmcli('dev', 'wifi', 'rescan')
-        except Exception:
-            pass
-        try:
-            raw = nmcli('-t', '-f', 'IN-USE,SSID,SIGNAL,SECURITY,FREQ', 'dev', 'wifi', 'list')
+            raw = await _blocking(_scan_raw)
             networks = []
             seen = set()
             for line in raw.splitlines():
-                parts = line.split(':')
+                parts = _nm_fields(line)
                 if len(parts) < 5:
                     continue
                 in_use = parts[0] == '*'
@@ -258,7 +519,7 @@ class NetworksHandler(BaseHandler):
             raw = nmcli('-t', '-f', 'NAME,TYPE', 'con', 'show')
             networks = []
             for line in raw.splitlines():
-                parts = line.split(':')
+                parts = _nm_fields(line)
                 if len(parts) < 2:
                     continue
                 name, con_type = parts[0], parts[1]
@@ -286,8 +547,7 @@ class SaveNetworkHandler(BaseHandler):
             self.finish(json.dumps({'error': 'ssid required'}))
             return
         try:
-            existing = nmcli('-t', '-f', 'NAME', 'con', 'show')
-            if ssid in existing.splitlines():
+            if ssid in _con_names():
                 if password:
                     nmcli('con', 'modify', ssid, 'wifi-sec.psk', password)
             else:
@@ -301,7 +561,7 @@ class SaveNetworkHandler(BaseHandler):
                           'con-name', ssid, 'ssid', ssid)
             nmcli('con', 'modify', ssid,
                   'connection.autoconnect', 'yes',
-                  'connection.autoconnect-priority', '10')
+                  'connection.autoconnect-priority', _next_wifi_priority())
             self.finish(json.dumps({'ok': True}))
         except Exception as e:
             logging.exception('save error')
@@ -320,12 +580,26 @@ class ApplyNowHandler(BaseHandler):
             self.finish(json.dumps({'error': 'ssid required'}))
             return
         try:
-            nmcli('con', 'up', ssid)
-            self.finish(json.dumps({'ok': True}))
+            known = _con_names()
         except Exception as e:
             logging.exception('apply-now error')
             self.set_status(500)
             self.finish(json.dumps({'error': str(e)}))
+            return
+        if ssid not in known:
+            self.set_status(404)
+            self.finish(json.dumps({'error': 'unknown network: ' + ssid}))
+            return
+        for f in (HOTSPOT_PIN_MARKER, LAST_ERROR_FILE):  # a client network was chosen;
+            try:                                       # forget the previous failure
+                os.remove(f)
+            except OSError:
+                pass
+        # Reply first: bringing the connection up drops the hotspot the GCS is
+        # talking through, so a reply sent afterwards never arrives.
+        _nmcli_after_reply('con', 'up', ssid, on_fail=lambda exc: _join_failed(ssid, exc))
+        logging.info('apply-now: switching to %s', ssid)
+        self.finish(json.dumps({'ok': True}))
 
 
 class ApplyBootHandler(BaseHandler):
@@ -341,7 +615,7 @@ class ApplyBootHandler(BaseHandler):
         try:
             nmcli('con', 'modify', ssid,
                   'connection.autoconnect', 'yes',
-                  'connection.autoconnect-priority', '10')
+                  'connection.autoconnect-priority', _next_wifi_priority())
             self.finish(json.dumps({'ok': True, 'note': 'will connect on next boot'}))
         except Exception as e:
             logging.exception('apply-boot error')
@@ -359,6 +633,11 @@ class DeleteNetworkHandler(BaseHandler):
             self.set_status(400)
             self.finish(json.dumps({'error': 'ssid required'}))
             return
+        if ssid == HOTSPOT_CONN:
+            # Without it the drone has no fallback AP and cannot be provisioned.
+            self.set_status(403)
+            self.finish(json.dumps({'error': 'the hotspot profile cannot be deleted'}))
+            return
         try:
             nmcli('con', 'delete', ssid)
             self.finish(json.dumps({'ok': True}))
@@ -371,7 +650,7 @@ class DeleteNetworkHandler(BaseHandler):
 def _current_mode():
     raw = nmcli('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device', 'status')
     for line in raw.splitlines():
-        parts = line.split(':')
+        parts = _nm_fields(line)
         if parts[0] == 'wlan0' and len(parts) >= 3:
             if parts[1] == 'connected':
                 return 'hotspot' if parts[2] == HOTSPOT_CONN else 'client'
@@ -397,17 +676,25 @@ class ModeHandler(BaseHandler):
             self.set_status(400)
             self.finish(json.dumps({'error': "mode must be 'hotspot' or 'client'"}))
             return
+        # Both directions drop the link the GCS is using, so reply first and
+        # switch right after (see _nmcli_after_reply).
         try:
             if target == 'hotspot':
-                nmcli('connection', 'up', HOTSPOT_CONN)
-                logging.info('switched to hotspot mode')
+                open(HOTSPOT_PIN_MARKER, 'w').close()
+                ssid = _hotspot_ssid()
+                if ssid:
+                    nmcli('connection', 'modify', HOTSPOT_CONN, 'wifi.ssid', ssid)
+                _nmcli_after_reply('connection', 'up', HOTSPOT_CONN)
+                logging.info('switching to hotspot mode')
             else:
-                # Bring hotspot down — wifi_watchdog will pick a visible known network.
                 try:
-                    nmcli('connection', 'down', HOTSPOT_CONN)
-                except RuntimeError:
-                    pass  # already down
-                logging.info('switched to client mode (watchdog will reconnect)')
+                    os.remove(HOTSPOT_PIN_MARKER)
+                except OSError:
+                    pass
+                if _current_mode() == 'hotspot':
+                    # wifi_watchdog will pick a visible known network.
+                    _nmcli_after_reply('connection', 'down', HOTSPOT_CONN)
+                logging.info('switching to client mode (watchdog will reconnect)')
             self.finish(json.dumps({'ok': True, 'mode': target}))
         except Exception as e:
             logging.exception('mode set error')
@@ -464,6 +751,9 @@ class LedAnimationHandler(BaseHandler):
         _stop_anim()
         try:
             _anim_proc = subprocess.Popen(['python3', script])
+            _anim_proc._name = name
+            if name in SHOWS:
+                _start_show_tune(name, _show_gen)
             self.finish(json.dumps({'ok': True, 'name': name, 'pid': _anim_proc.pid}))
         except Exception as e:
             logging.exception('led animation spawn')
@@ -490,6 +780,31 @@ class LedResetHandler(BaseHandler):
         except OSError:
             pass
         self.finish(json.dumps({'ok': True}))
+
+
+class FcuStatusHandler(BaseHandler):
+    """Flight-controller link and arming state, read-only. set_identity.sh
+    restarts the ROS services for a new ROS domain only when this says
+    disarmed; unknown (no fresh state) must be treated as armed."""
+    def get(self):
+        if not _LED_OK:
+            self.set_status(503)
+            self.finish(json.dumps({'error': 'drone unavailable'}))
+            return
+        try:
+            st = _drone.get_fcu_status()
+            # ok only with a fresh state from a *linked* flight controller:
+            # MAVROS publishes connected=false, armed=false when the link drops
+            self.finish(json.dumps({
+                'ok': bool(st.get('connected')),
+                'connected': bool(st.get('connected')),
+                'armed': bool(st.get('armed')),
+                'mode': str(st.get('mode') or ''),
+            }))
+        except Exception as e:
+            logging.exception('fcu status error')
+            self.set_status(500)
+            self.finish(json.dumps({'error': str(e)}))
 
 
 class SoundsPlayHandler(BaseHandler):
@@ -574,6 +889,7 @@ def make_app():
         (r'/api/led/animation',   LedAnimationHandler),
         (r'/api/led/status',      LedStatusHandler),
         (r'/api/led/reset',       LedResetHandler),
+        (r'/api/fcu/status',      FcuStatusHandler),
         (r'/api/sounds/play',     SoundsPlayHandler),
         (r'/api/sounds/tts',      SoundsTtsHandler),
     ])
@@ -582,5 +898,5 @@ def make_app():
 if __name__ == '__main__':
     app = make_app()
     app.listen(8765, address='0.0.0.0')
-    logging.info('wifi-manager started on 127.0.0.1:8765')
+    logging.info('wifi-manager started on 0.0.0.0:8765')
     tornado.ioloop.IOLoop.current().start()

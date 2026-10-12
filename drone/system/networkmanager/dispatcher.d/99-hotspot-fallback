@@ -1,0 +1,47 @@
+#!/bin/bash
+# NM dispatcher: activate hotspot when wlan0 loses connection
+# Installed as /etc/NetworkManager/dispatcher.d/99-hotspot-fallback (root, 0755).
+IFACE="$1"
+ACTION="$2"
+
+[ "$IFACE" != "wlan0" ] && exit 0
+[ "$ACTION" != "down" ] && [ "$ACTION" != "connectivity-change" ] && exit 0
+
+log() { echo "$(date): $1" >> /tmp/wifi-manager.log 2>/dev/null || true; }
+
+# Deliberate switches drop wlan0 on purpose; don't abort the join they start.
+#   /tmp/bumblebee-wifi-switch  - wifi_manager.py, GCS-requested switch
+#   /run/bumblebee-wifi-probe   - wifi_watchdog.sh, trying a known network
+# If such a join fails, wifi_manager.py (GCS switch) or wifi_watchdog.sh (probe,
+# or when the switch grace runs out unconnected) brings the hotspot back.
+SWITCH_GRACE=45
+fresh() {
+    local t
+    t=$(cat "$1" 2>/dev/null)
+    case "$t" in ''|*[!0-9]*) return 1 ;; esac
+    [ $(( $(date +%s) - t )) -lt $SWITCH_GRACE ]
+}
+
+# If already in hotspot mode - skip
+CONN=$(nmcli -t -f DEVICE,CONNECTION device status 2>/dev/null | grep "^wlan0:" | cut -d: -f2)
+[ "$CONN" = "bumblebee-hotspot" ] && exit 0
+
+# Wait a bit to avoid triggering on brief disconnects
+sleep 5
+
+fresh /tmp/bumblebee-wifi-switch && exit 0
+fresh /run/bumblebee-wifi-probe && exit 0
+
+STATE=$(nmcli -t -f DEVICE,STATE device status 2>/dev/null | grep "^wlan0:" | cut -d: -f2)
+if [ "$STATE" != "connected" ]; then
+    # Stable SSID: Bumblebee-<last 4 hex digits of the wlan0 MAC>
+    MAC=$(tr -d ':\n' < /sys/class/net/wlan0/address 2>/dev/null)
+    if [ ${#MAC} -ge 4 ]; then
+        SSID="Bumblebee-$(echo "${MAC: -4}" | tr '[:lower:]' '[:upper:]')"
+    else
+        SSID="Bumblebee-$((RANDOM % 9000 + 1000))"
+    fi
+    log "wlan0 disconnected, activating hotspot $SSID"
+    nmcli connection modify bumblebee-hotspot wifi.ssid "$SSID" 2>/dev/null
+    nmcli connection up bumblebee-hotspot 2>> /tmp/wifi-manager.log || true
+fi

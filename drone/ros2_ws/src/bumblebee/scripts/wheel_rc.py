@@ -35,6 +35,14 @@ CH7_IDX = 6    # channel 7 is index 6 (0-based)
 STOP    = 128  # neutral 0-255 value
 SPEED_GAIN = 2.0  # multiply wheel speed 2x (saturates at extremes)
 MIN_WRITE_INTERVAL = 0.1  # s -- floor between I2C writes when value is unchanged
+# Real RC pulse widths. PX4 reports 0 us when no transmitter/receiver is on;
+# without this check that read as "knob fully reversed" -> wheel full reverse.
+RC_MIN_US, RC_MAX_US = 800, 2200
+
+
+# No in-range CH7 frame for this long (RC stream stopped, short frames,
+# receiver failsafe) -> stop the wheel once.
+SIGNAL_TIMEOUT_S = 1.0
 
 
 class WheelRC(Node):
@@ -42,39 +50,53 @@ class WheelRC(Node):
         super().__init__('wheel_rc')
         self._last_speed = None      # last value written to the ATtiny
         self._last_write = 0.0       # monotonic time of last I2C write
+        self._last_valid = 0.0       # monotonic time of the last in-range CH7 frame
         self.sub = self.create_subscription(
             RCIn, '/mavros/mavros/in', self._cb, 10)
+        self.create_timer(0.25, self._check_signal)
         self.get_logger().info(
             'WheelRC ready -- CH7 knob: -100=full rev, 0=stop, +100=full fwd')
 
     def _cb(self, msg):
-        if len(msg.channels) <= CH7_IDX:
-            return
-        ch7 = msg.channels[CH7_IDX]
-        # 1000-2000 us -> -100..+100
-        normalized = max(-100.0, min(100.0, (ch7 - 1500) / 5.0))
+        ch7 = msg.channels[CH7_IDX] if len(msg.channels) > CH7_IDX else 0
+        if not RC_MIN_US <= ch7 <= RC_MAX_US:
+            normalized = 0.0     # no RC signal: the wheel stops, never drives
+        else:
+            self._last_valid = time.monotonic()
+            # 1000-2000 us -> -100..+100
+            normalized = max(-100.0, min(100.0, (ch7 - 1500) / 5.0))
         # dead zone
         if abs(normalized) < 5:
             normalized = 0.0
         # -100..+100 -> 0..255 (128 = stop)
         speed = int(128 + normalized * SPEED_GAIN * 127 / 100)
         speed = max(0, min(255, speed))
-        # Throttle I2C traffic: skip unchanged values, and rate-limit repeats.
-        # RCIn streams continuously (~10-50 Hz); writing every frame was the
-        # biggest source of in-flight 0x30 bus contention.
-        now = time.monotonic()
-        if speed == self._last_speed and (now - self._last_write) < MIN_WRITE_INTERVAL:
-            return
-        self._last_speed = speed
-        self._last_write = now
-        drone.set_servo_speed(speed)
         if normalized > 0:
             direction = f'FWD {normalized:.0f}%'
         elif normalized < 0:
             direction = f'REV {abs(normalized):.0f}%'
         else:
             direction = 'STOP'
-        self.get_logger().info(f'Wheel: {direction} (CH7={ch7}us, speed={speed})')
+        self._write(speed, f'{direction} (CH7={ch7}us, speed={speed})')
+
+    def _check_signal(self):
+        if self._last_speed not in (None, STOP) and \
+                time.monotonic() - self._last_valid > SIGNAL_TIMEOUT_S:
+            self._write(STOP, 'STOP (no RC signal)')
+
+    def _write(self, speed, label):
+        # Throttle I2C traffic: skip unchanged values, and rate-limit repeats.
+        # RCIn streams continuously (~10-50 Hz); writing every frame was the
+        # biggest source of in-flight 0x30 bus contention.
+        now = time.monotonic()
+        if speed == self._last_speed and (now - self._last_write) < MIN_WRITE_INTERVAL:
+            return
+        changed = speed != self._last_speed
+        self._last_speed = speed
+        self._last_write = now
+        drone.set_servo_speed(speed)
+        if changed:
+            self.get_logger().info(f'Wheel: {label}')
 
 
 def main():

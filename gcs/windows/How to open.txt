@@ -1,0 +1,19 @@
+Bumblebee GCS для Windows 10/11 (x64). Ничего устанавливать не нужно.
+
+1. Распакуйте архив (правой кнопкой -> «Извлечь всё»).
+2. Откройте папку BumblebeeGCS и запустите BumblebeeGcs.exe.
+3. Если Windows показывает «Windows защитила ваш компьютер»: нажмите
+   «Подробнее» -> «Выполнить в любом случае». Это нужно один раз.
+4. Разрешите доступ к местоположению (Параметры -> Конфиденциальность и
+   защита -> Расположение): без этого Windows не показывает программам
+   названия Wi-Fi сетей, и новые дроны не видны.
+
+Bumblebee GCS for Windows 10/11 (x64). Nothing to install.
+
+1. Unzip the archive (right-click -> "Extract All").
+2. Open the BumblebeeGCS folder and run BumblebeeGcs.exe.
+3. If Windows shows "Windows protected your PC": click "More info" ->
+   "Run anyway". Needed once.
+4. Allow Location (Settings -> Privacy & security -> Location): Windows only
+   shows WiFi names to apps that have it, and new drones are found by their
+   WiFi name.

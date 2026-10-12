@@ -1,0 +1,17 @@
+#!/bin/bash
+# NM dispatcher: re-run set_identity.sh when wlan0 joins a client network.
+# Installed as /etc/NetworkManager/dispatcher.d/90-bumblebee-identity (root, 0755).
+#
+# bumblebee-identity.service runs once at boot. A drone that boots into its
+# hotspot (no Wi-Fi configured yet) has no client IP to derive its name from,
+# and after the GCS provisions Wi-Fi it would keep advertising the image's
+# default name until the next reboot. set_identity.sh is idempotent.
+IFACE="$1"
+ACTION="$2"
+
+[ "$IFACE" != "wlan0" ] && exit 0
+# "dhcp4-change": on dual-stack networks the IPv4 lease can arrive after "up"
+case "$ACTION" in up|dhcp4-change) ;; *) exit 0 ;; esac
+[ "$CONNECTION_ID" = "bumblebee-hotspot" ] && exit 0
+
+systemctl restart --no-block bumblebee-identity.service

@@ -12,25 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 import SwiftUI
 import AppKit
 
-/// One-tap drone setup over its WiFi hotspot. Shows the Mac's current network
-/// (auto-filled) + a password field (typed once, remembered in the app's own
-/// keychain), scans the air for `Bumblebee-*` setup hotspots, and on selection
-/// runs the full hand-off with a live loading state until the drone is back
-/// online and connected.
+/// "Add a drone": pick a new drone nearby, confirm this Mac's WiFi password,
+/// and the app does the rest — it talks to the drone over the drone's own
+/// WiFi, hands it this Mac's network, brings the Mac back and connects. The
+/// drone's own WiFi is an implementation detail; it only surfaces as the
+/// "connect directly" fallback when the shared network cannot work.
 struct ProvisioningView: View {
     @EnvironmentObject var app: AppState
     @EnvironmentObject var handoff: WifiHandoff
     @Environment(\.dismiss) private var dismiss
+    /// Drone picked on the launch screen: added right away if the WiFi
+    /// password is already known.
+    var preselected: String? = nil
 
-    @State private var targetPassword = ""
+    @State private var password = ""
+    @State private var editingPassword = false
+    @State private var lastDrone: String?          // hotspot SSID of the last attempt
+    @State private var needPassword = false
+    @State private var closed = false              // Close pressed: never start a setup
+    @FocusState private var passwordFocused: Bool
+
+    private let rescan = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ZStack {
             ConnectTheme.background.ignoresSafeArea()
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 18) {
                 header
                 Divider().overlay(ConnectTheme.hairline)
                 content
@@ -38,106 +49,325 @@ struct ProvisioningView: View {
             }
             .padding(28)
         }
-        .frame(width: 560, height: 560)
+        .frame(width: 560, height: 580)
+        // Esc goes through the Close button (below), never around it: it is
+        // ignored while a setup runs and always marks the sheet closed.
+        .interactiveDismissDisabled()
         .foregroundStyle(ConnectTheme.text)
         .onAppear {
+            handoff.reset()
             handoff.refreshCurrentSSID()
-            targetPassword = AppKeychain.password(for: handoff.currentSSID) ?? ""
-            Task { await handoff.scanHotspots() }
+            loadPassword()
+        }
+        .task {
+            // `.task` is cancelled when the window closes: closing it during the
+            // first scan must not start a setup with no window left.
+            await handoff.scanHotspots()
+            guard !Task.isCancelled, !closed else { return }
+            if let drone = preselected, !homeWifi.isEmpty {
+                if password.isEmpty { needPassword = true; passwordFocused = true; lastDrone = drone }
+                else { add(drone) }
+            }
+        }
+        .onReceive(rescan) { _ in
+            // Keep the list fresh while the user is choosing (new drones appear
+            // ~30 s after power-on).
+            if handoff.phase == .picking || handoff.phase == .idle {
+                Task { await handoff.scanHotspots() }
+            }
         }
         .onChange(of: doneHost) { _, host in
             if let host { app.connect(to: host); dismiss() }
         }
+        .onChange(of: homeWifi) { _, _ in
+            // The Mac moved to another network while the window was open (seen
+            // during a rescan, so not gated on isBusy, which includes scanning).
+            if !handoff.phase.isProvisioning { needPassword = false; loadPassword() }
+        }
     }
-
-    // MARK: - Derived phase helpers
 
     private var doneHost: String? { if case let .done(h) = handoff.phase { return h }; return nil }
-    private var failedMsg: String? { if case let .failed(m) = handoff.phase { return m }; return nil }
-
-    private var canProvision: Bool {
-        !handoff.currentSSID.isEmpty && !targetPassword.isEmpty && !handoff.phase.isBusy
-    }
+    private var failure: WifiHandoff.Failure? { if case let .failed(f) = handoff.phase { return f }; return nil }
+    private var homeWifi: String { handoff.homeSSID }
 
     // MARK: - Header
 
     private var header: some View {
-        HStack {
+        HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Set up a drone").font(.system(size: 20, weight: .bold))
-                Text("Over its WiFi hotspot — no cables, no router")
+                Text("Add a drone").font(.system(size: 20, weight: .bold))
+                Text(headerSubtitle)
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundStyle(ConnectTheme.muted)
             }
             Spacer()
-            Button("Close") { handoff.reset(); dismiss() }
+            Button("Close") { closed = true; handoff.reset(); dismiss() }
+                .keyboardShortcut(.cancelAction)
                 .buttonStyle(.plain)
                 .foregroundStyle(ConnectTheme.muted)
-                .disabled(handoff.phase.isBusy)
+                .disabled(handoff.phase.isProvisioning)
         }
     }
 
-    // MARK: - Content by phase
+    // MARK: - Content
 
     @ViewBuilder private var content: some View {
-        if handoff.phase.isBusy {
-            busyView
+        if handoff.phase.isBusy && handoff.phase != .scanning {
+            progressView
+        } else if let failure {
+            failureView(failure)
         } else if handoff.phase == .needLocationPermission {
             permissionView
         } else {
-            formView
+            pickView
         }
     }
 
-    // Loading window shown throughout join → push → wait.
-    private var busyView: some View {
-        VStack(spacing: 18) {
+    // Choosing a drone.
+    private var pickView: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            sectionLabel("NEW DRONES NEARBY")
+            if handoff.hotspots.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 10) {
+                        ProgressView().controlSize(.small)
+                        Text("Looking for drones…").font(.system(size: 14, weight: .semibold))
+                    }
+                    Text("Turn the drone on. In about 30 seconds its lights breathe blue and it shows up here.")
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundStyle(ConnectTheme.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(ConnectTheme.rowBg)
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(ConnectTheme.hairline, lineWidth: 1))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            } else {
+                ScrollView {
+                    VStack(spacing: 8) { ForEach(handoff.hotspots) { droneRow($0) } }
+                }
+                .frame(maxHeight: 200)
+            }
+
+            sectionLabel("YOUR WIFI")
+            wifiCard
+            if let drone = preselected, needPassword {
+                HStack {
+                    Spacer()
+                    primaryButton("Add \(drone)") { add(drone) }
+                }
+            }
+        }
+    }
+
+    private func droneRow(_ h: WifiHandoff.Hotspot) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "airplane.circle.fill").font(.system(size: 22))
+                .foregroundStyle(ConnectTheme.orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(h.ssid).font(.system(size: 14.5, weight: .semibold))
+                Text("new drone · \(signalWord(h.rssi)) signal")
+                    .font(.system(size: 11.5, design: .monospaced)).foregroundStyle(ConnectTheme.muted2)
+            }
             Spacer()
-            ProgressView().controlSize(.large)
-            Text(busyText)
-                .font(.system(size: 14, weight: .semibold))
-                .multilineTextAlignment(.center)
-            Text("Keep this window open — the Mac will switch networks and come back on its own.")
+            Button { add(h.ssid) } label: {
+                Text("Add").font(.system(size: 13, weight: .semibold))
+                    .padding(.vertical, 8).padding(.horizontal, 18)
+                    .background(homeWifi.isEmpty ? Color.white.opacity(0.06) : ConnectTheme.blue)
+                    .foregroundStyle(homeWifi.isEmpty ? ConnectTheme.faint : .white)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+            .disabled(homeWifi.isEmpty)
+        }
+        .padding(.vertical, 11).padding(.horizontal, 14)
+        .background(ConnectTheme.rowBg)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ConnectTheme.hairline, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // This Mac's network + its password (asked once, remembered on this Mac).
+    private var wifiCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                Image(systemName: "wifi").foregroundStyle(ConnectTheme.blueSoft)
+                Text(homeWifi.isEmpty ? "Not connected" : homeWifi).font(.system(size: 14, weight: .semibold))
+                Spacer()
+                if !editingPassword && !password.isEmpty {
+                    Text("password saved").font(.system(size: 11, design: .monospaced))
+                        .foregroundStyle(ConnectTheme.green)
+                    Button("Change") { editingPassword = true; passwordFocused = true }
+                        .buttonStyle(.plain).font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(ConnectTheme.blueSoft)
+                }
+            }
+            if editingPassword || password.isEmpty {
+                SecureField("Password for \(homeWifi.isEmpty ? "your WiFi" : homeWifi)", text: $password)
+                    .textFieldStyle(.plain).font(.system(size: 14, design: .monospaced))
+                    .focused($passwordFocused)
+                    .padding(.horizontal, 12).padding(.vertical, 9)
+                    .background(Color.white.opacity(0.04))
+                    .overlay(RoundedRectangle(cornerRadius: 8)
+                        .stroke(needPassword ? ConnectTheme.orange : ConnectTheme.hairline, lineWidth: 1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                Text(needPassword ? "Enter the password first — the drone needs it to join \(homeWifi)."
+                                  : "The drone needs it to join this network. Saved on this Mac.")
+                    .font(.system(size: 10.5, design: .monospaced))
+                    .foregroundStyle(needPassword ? ConnectTheme.orange : ConnectTheme.faint)
+            }
+        }
+        .padding(14)
+        .background(ConnectTheme.rowBg)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ConnectTheme.hairline, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // Live checklist while the app works.
+    private var progressView: some View {
+        let step = currentStep
+        let drone = lastDrone ?? "the drone"
+        return VStack(alignment: .leading, spacing: 14) {
+            sectionLabel("ADDING \(drone.uppercased())")
+            VStack(alignment: .leading, spacing: 12) {
+                checkRow("Connecting to \(drone)", index: 1, current: step)
+                checkRow("Sending your WiFi \(homeWifi)", index: 2, current: step)
+                checkRow("Drone joins \(homeWifi), Mac comes back", index: 3, current: step)
+                checkRow(step == 4 ? "Checking what went wrong…" : "Finding the drone on \(homeWifi)",
+                         index: 4, current: step)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(ConnectTheme.rowBg)
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(ConnectTheme.hairline, lineWidth: 1))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            Text("This takes up to a minute. The Mac briefly leaves \(homeWifi) and comes back on its own — keep this window open.")
                 .font(.system(size: 11.5, design: .monospaced))
                 .foregroundStyle(ConnectTheme.muted)
-                .multilineTextAlignment(.center)
-            Spacer()
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity)
     }
 
-    private var busyText: String {
+    private var currentStep: Int {
         switch handoff.phase {
-        case .scanning: return "Scanning the air for drone hotspots…"
-        case .joiningHotspot(let s): return "Joining \(s)…"
-        case .pushingCreds: return "Sending your WiFi to the drone…"
-        case .waitingForDrone: return "Waiting for the drone to join \(handoff.currentSSID) and come online…"
-        default: return "Working…"
+        case .joiningHotspot: return 1
+        case .pushingCreds: return 2
+        case .waitingForDrone: return 3
+        case .diagnosing: return 4
+        default: return 0
+        }
+    }
+
+    private func checkRow(_ text: String, index: Int, current: Int) -> some View {
+        HStack(spacing: 10) {
+            Group {
+                if index < current {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(ConnectTheme.green)
+                } else if index == current {
+                    ProgressView().controlSize(.small)
+                } else {
+                    Image(systemName: "circle").foregroundStyle(ConnectTheme.faint)
+                }
+            }
+            .frame(width: 18)
+            Text(text).font(.system(size: 13.5, weight: index == current ? .semibold : .regular))
+                .foregroundStyle(index > current ? ConnectTheme.muted : ConnectTheme.text)
+        }
+    }
+
+    // Failure with the reason the drone reported, and what to do.
+    private func failureView(_ f: WifiHandoff.Failure) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 22))
+                    .foregroundStyle(ConnectTheme.orange)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(f.title).font(.system(size: 15, weight: .semibold))
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(f.detail).font(.system(size: 12.5))
+                        .foregroundStyle(ConnectTheme.muted2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            if f.kind == .wrongPassword {
+                wifiCard
+                    .onAppear { editingPassword = true; password = ""; passwordFocused = true }
+            }
+            HStack(spacing: 10) {
+                if let drone = lastDrone {
+                    primaryButton("Try again") { add(drone) }
+                    if f.offerDirect {
+                        secondaryButton("Connect directly to the drone") { direct(drone) }
+                    }
+                }
+                Spacer()
+                Button("Back") { handoff.reset(); Task { await handoff.scanHotspots() } }
+                    .buttonStyle(.plain).foregroundStyle(ConnectTheme.muted)
+            }
+            if f.offerDirect {
+                Text("Directly: the Mac joins the drone's own WiFi. Works anywhere, but the Mac has no internet while connected.")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(ConnectTheme.faint)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
     private var permissionView: some View {
         VStack(spacing: 14) {
             Spacer()
-            Image(systemName: "location.slash").font(.system(size: 34)).foregroundStyle(ConnectTheme.orange)
-            Text("Location access needed").font(.system(size: 15, weight: .semibold))
-            Text(handoff.locationBlocked
-                 ? "macOS blocked Location for this app, so it can't read nearby WiFi. Enable it in System Settings ▸ Privacy & Security ▸ Location Services, then Rescan."
-                 : "macOS needs Location permission to read nearby WiFi. Approve the prompt — if none appears, open System Settings.")
-                .font(.system(size: 12, design: .monospaced))
-                .foregroundStyle(ConnectTheme.muted)
+            Image(systemName: "location.circle").font(.system(size: 36)).foregroundStyle(ConnectTheme.orange)
+            Text("Allow WiFi access to find drones").font(.system(size: 15, weight: .semibold))
+            Text("macOS only lets apps see WiFi names when Location Services are on for them. Turn on Location Services and Bumblebee GCS, then come back.")
+                .font(.system(size: 12.5))
+                .foregroundStyle(ConnectTheme.muted2)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 10) {
-                Button("Open System Settings") { openLocationSettings() }
-                    .buttonStyle(.plain).foregroundStyle(ConnectTheme.orange)
-                Button("Rescan") { handoff.requestLocation(); Task { await handoff.scanHotspots() } }
-                    .buttonStyle(.plain).foregroundStyle(ConnectTheme.blueSoft)
+                primaryButton("Open Settings") { openLocationSettings() }
+                secondaryButton("I've allowed it") { handoff.requestLocation(); Task { await handoff.scanHotspots() } }
             }
-            .font(.system(size: 13, weight: .semibold)).padding(.top, 4)
             Spacer()
         }
         .frame(maxWidth: .infinity)
-        .onAppear { handoff.requestLocation() }   // fire the system prompt on entry
+        .onAppear { handoff.requestLocation() }
+    }
+
+    private var headerSubtitle: String {
+        if homeWifi.isEmpty {
+            return handoff.onDroneHotspot ? "This Mac is on a drone's WiFi — connect it to your WiFi first"
+                                          : "Connect this Mac to WiFi first"
+        }
+        return handoff.onDroneHotspot ? "It will join \(homeWifi); this Mac goes back to it afterwards"
+                                      : "It will join \(homeWifi), the same WiFi as this Mac"
+    }
+
+    private func loadPassword() {
+        password = AppKeychain.password(for: homeWifi) ?? ""
+        editingPassword = password.isEmpty
+    }
+
+    // MARK: - Actions
+
+    private func add(_ drone: String) {
+        guard !closed, !handoff.phase.isProvisioning, !homeWifi.isEmpty else { return }
+        guard !password.isEmpty else {
+            needPassword = true; editingPassword = true; passwordFocused = true
+            return
+        }
+        needPassword = false
+        editingPassword = false
+        lastDrone = drone
+        AppKeychain.setPassword(password, for: homeWifi)
+        let target = homeWifi, pass = password
+        Task {
+            await handoff.provision(hotspotSSID: drone, targetSSID: target,
+                                    targetPassword: pass, onDrone: { _ in })
+        }
+    }
+
+    private func direct(_ drone: String) {
+        Task { await handoff.connectDirect(hotspotSSID: drone, onDrone: { _ in }) }
     }
 
     private func openLocationSettings() {
@@ -146,96 +376,34 @@ struct ProvisioningView: View {
         }
     }
 
-    private var formView: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Target network (auto) + password (typed once).
-            VStack(alignment: .leading, spacing: 8) {
-                labeled("YOUR WIFI", handoff.currentSSID.isEmpty ? "— not connected —" : handoff.currentSSID)
-                HStack(spacing: 8) {
-                    Text("PWD").font(.system(size: 11, design: .monospaced)).tracking(1.3)
-                        .foregroundStyle(ConnectTheme.faint).frame(width: 42, alignment: .leading)
-                    SecureField("WiFi password", text: $targetPassword)
-                        .textFieldStyle(.plain).font(.system(size: 14, design: .monospaced))
-                }
-                .padding(.horizontal, 14).padding(.vertical, 10)
-                .background(ConnectTheme.rowBg)
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(ConnectTheme.hairline, lineWidth: 1))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                Text("The drone will join this network. Entered once, remembered on this Mac.")
-                    .font(.system(size: 10.5, design: .monospaced)).foregroundStyle(ConnectTheme.faint)
-            }
+    // MARK: - Bits
 
-            if let failedMsg {
-                Text(failedMsg).font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(ConnectTheme.orange)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            // Hotspot list.
-            HStack {
-                Text("DRONE HOTSPOTS").font(.system(size: 11, design: .monospaced)).tracking(1.2)
-                    .foregroundStyle(ConnectTheme.faint)
-                Spacer()
-                Button("Rescan") { Task { await handoff.scanHotspots() } }
-                    .buttonStyle(.plain).font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(ConnectTheme.blueSoft)
-            }
-
-            if handoff.hotspots.isEmpty {
-                Text("No drone hotspots nearby. Power on a drone with no known WiFi — it raises a Bumblebee-XXXX hotspot — then Rescan.")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundStyle(ConnectTheme.muted)
-                    .fixedSize(horizontal: false, vertical: true)
-            } else {
-                ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(handoff.hotspots) { h in hotspotRow(h) }
-                    }
-                }
-                .frame(maxHeight: 190)
-            }
-        }
+    private func signalWord(_ rssi: Int) -> String {
+        rssi >= -55 ? "strong" : rssi >= -70 ? "good" : "weak"
     }
 
-    private func hotspotRow(_ h: WifiHandoff.Hotspot) -> some View {
-        Button {
-            AppKeychain.setPassword(targetPassword, for: handoff.currentSSID)
-            Task {
-                await handoff.provision(hotspotSSID: h.ssid,
-                                        targetSSID: handoff.currentSSID,
-                                        targetPassword: targetPassword,
-                                        onDrone: { _ in })
-            }
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "wifi").foregroundStyle(ConnectTheme.orange)
-                Text(h.ssid).font(.system(size: 14, weight: .semibold))
-                Spacer()
-                Text("\(h.rssi) dBm").font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(ConnectTheme.muted2)
-                Text("Set up →").font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(canProvision ? ConnectTheme.orange : ConnectTheme.faint)
-            }
-            .padding(.vertical, 12).padding(.horizontal, 14)
-            .background(ConnectTheme.rowBg)
-            .overlay(RoundedRectangle(cornerRadius: 11).stroke(ConnectTheme.hairline, lineWidth: 1))
-            .clipShape(RoundedRectangle(cornerRadius: 11))
-            .contentShape(Rectangle())
+    private func sectionLabel(_ s: String) -> some View {
+        Text(s).font(.system(size: 11, design: .monospaced)).tracking(1.3)
+            .foregroundStyle(ConnectTheme.faint)
+    }
+
+    private func primaryButton(_ title: String, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title).font(.system(size: 13, weight: .semibold))
+                .padding(.vertical, 9).padding(.horizontal, 16)
+                .background(ConnectTheme.blue).foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
-        .disabled(!canProvision)
     }
 
-    private func labeled(_ label: String, _ value: String) -> some View {
-        HStack(spacing: 8) {
-            Text(label).font(.system(size: 11, design: .monospaced)).tracking(1.3)
-                .foregroundStyle(ConnectTheme.faint).frame(width: 72, alignment: .leading)
-            Text(value).font(.system(size: 14, weight: .semibold))
-            Spacer()
+    private func secondaryButton(_ title: String, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title).font(.system(size: 13, weight: .semibold))
+                .padding(.vertical, 9).padding(.horizontal, 14)
+                .foregroundStyle(ConnectTheme.blueSoft)
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(ConnectTheme.blue.opacity(0.5), lineWidth: 1))
         }
-        .padding(.horizontal, 14).padding(.vertical, 10)
-        .background(ConnectTheme.rowBg)
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(ConnectTheme.hairline, lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .buttonStyle(.plain)
     }
 }

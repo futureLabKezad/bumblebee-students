@@ -19,9 +19,17 @@ All tasks are completed **in the simulator first**, and only then on a real dron
 | What | Download | Size | Guide |
 | --- | --- | --- | --- |
 | 🖥️ Gazebo simulator for **Windows** (WSL2, pre-built image) | [📥 Download](https://futurelab-uae.technology/s/fz3gBzbM4ENPH59) | ~3.7 GB | [Gazebo Setup (Windows)](https://github.com/futureLabKezad/bumblebee-students/wiki/Gazebo‐Setup‐(Windows)) |
-| 🎛️ Ground Control Station for **Windows** | [📥 Download](https://futurelab-uae.technology/s/PNmQcA7yfLBAY3W) | ~291 MB | [Ground Control Station](https://github.com/futureLabKezad/bumblebee-students/wiki/Ground‐Control‐Station) |
-| 🎛️ Ground Control Station for **macOS** | [📥 Download](https://futurelab-uae.technology/s/4gsYow9JBNACqcG) | ~201 MB | [Ground Control Station](https://github.com/futureLabKezad/bumblebee-students/wiki/Ground‐Control‐Station) |
-| 💾 Drone SD card image (Raspberry Pi 5) | [📥 Download](https://futurelab-uae.technology/s/wXSZisHxTZE6zHg) | ~3.4 GB | [SD Card Image](https://github.com/futureLabKezad/bumblebee-students/wiki/SD‐Card‐Image) |
+| 🎛️ Ground Control Station 1.1.0 for **Windows** 10/11 x64 (`BumblebeeGCS-1.1.0-windows-x64.zip`: unzip, run `BumblebeeGcs.exe`) | [📥 Download](https://github.com/futureLabKezad/bumblebee-students/releases/tag/gcs-v1.1.0) | ~73 MB | [Ground Control Station](https://github.com/futureLabKezad/bumblebee-students/wiki/Ground‐Control‐Station) |
+| 🎛️ Ground Control Station 1.1.0 for **macOS** 14+, Apple Silicon and Intel (`BumblebeeGCS-1.1.0-mac.dmg`: drag to Applications) | [📥 Download](https://github.com/futureLabKezad/bumblebee-students/releases/tag/gcs-v1.1.0) | ~5.7 MB | [Ground Control Station](https://github.com/futureLabKezad/bumblebee-students/wiki/Ground‐Control‐Station) |
+| 💾 Drone SD card image 1.0.1 (Raspberry Pi 5, `bumblebee-1.0.1-rpi5.img.xz`, SD card ≥ 16 GB) | [📥 Download](https://github.com/futureLabKezad/bumblebee-students/releases/tag/v1.0.1) | ~2.0 GB | [SD Card Image](https://github.com/futureLabKezad/bumblebee-students/wiki/SD‐Card‐Image) |
+
+One SD image for every drone: flash it with Raspberry Pi Imager (Device *Raspberry Pi 5* → OS *Use custom* → your card, answer **No** to OS customisation). On first boot the drone names itself `Bumblebee-XXXX` (from its Wi-Fi MAC) and, with no known Wi-Fi around, raises the hotspot `Bumblebee-XXXX` (password `12345678`); press **Add drone** in the GCS to put it on your Wi-Fi. Drones on your Wi-Fi are listed in the GCS automatically by name.
+
+GCS first launch: on the Mac, System Settings → Privacy & Security → *Open Anyway*; on Mac and Windows, allow Location so the app can see Wi-Fi names (new drones are found by their hotspot name).
+
+Several drones can share one Wi-Fi: each drone has its own ROS domain, so before using rviz, rqt or the `ros2` CLI on a laptop, run `export ROS_DOMAIN_ID=<n>` with that drone's number (see [drone/README.md](drone/README.md)).
+
+Previous version V1.0.0-beta (July 2026), kept for rollback: [SD image](https://futurelab-uae.technology/s/wXSZisHxTZE6zHg) (~3.4 GB) · [GCS Windows](https://futurelab-uae.technology/s/PNmQcA7yfLBAY3W) (~291 MB) · [GCS macOS](https://futurelab-uae.technology/s/4gsYow9JBNACqcG) (~201 MB). What changed: [CHANGELOG.md](CHANGELOG.md).
 
 ## Full Documentation
 

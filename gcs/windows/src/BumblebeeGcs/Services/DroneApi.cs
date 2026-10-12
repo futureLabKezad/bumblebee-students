@@ -28,9 +28,23 @@ public sealed class DroneApi
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(6) };
 
-    public sealed class ApiException(string message) : Exception(message);
+    /// <summary>Transport = запрос не дошёл / связь оборвалась (а не ошибка от дрона).</summary>
+    public sealed class ApiException(string message, bool transport = false) : Exception(message)
+    {
+        public bool Transport { get; } = transport;
+    }
 
-    public readonly record struct WifiStatus(string Mode, string Ssid, string Ip, int Signal);
+    /// <summary>
+    /// Почему дрон не смог подключиться к сети, которую ему передали
+    /// (`last_error` в /api/wifi/status). Reason: wrong_password, not_found,
+    /// no_ip, timeout, failed.
+    /// </summary>
+    public sealed record JoinError(string Ssid, string Reason, string Message);
+
+    /// <summary>Id — последние 4 hex-цифры MAC дрона (как в SSID его хотспота и в TXT `id`);
+    /// null у дронов со старым ПО.</summary>
+    public readonly record struct WifiStatus(string Mode, string Ssid, string Ip, int Signal,
+                                             string? Id = null, JoinError? LastError = null);
     public readonly record struct ScanNet(string Ssid, int Signal, bool InUse, string Band, int Freq);
 
     private async Task<(byte[] Data, int Status)> RequestAsync(HttpMethod method, string path, object? json = null)
@@ -42,7 +56,7 @@ public sealed class DroneApi
             req.Content = new StringContent(JsonSerializer.Serialize(json), Encoding.UTF8, "application/json");
         HttpResponseMessage resp;
         try { resp = await Http.SendAsync(req); }
-        catch (Exception ex) { throw new ApiException(ex.Message); }
+        catch (Exception ex) { throw new ApiException(ex.Message, transport: true); }
         using (resp)
         {
             var data = await resp.Content.ReadAsByteArrayAsync();
@@ -116,11 +130,21 @@ public sealed class DroneApi
     {
         var (data, _) = await RequestAsync(HttpMethod.Get, "/api/wifi/status");
         var o = ObjectFrom(data);
+        JoinError? lastError = null;
+        if (o.TryGetValue("last_error", out var le) && le.ValueKind == JsonValueKind.Object)
+        {
+            static string Field(JsonElement e, string key) =>
+                e.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : "";
+            lastError = new JoinError(Field(le, "ssid"), Field(le, "reason"), Field(le, "message"));
+        }
+        var id = Str(o, "id");
         return new WifiStatus(
             Str(o, "mode") ?? "—",
             Str(o, "ssid") ?? "—",
             Str(o, "ip") ?? "—",
-            o.TryGetValue("signal", out var s) && s.ValueKind == JsonValueKind.Number ? (int)s.GetDouble() : 0);
+            o.TryGetValue("signal", out var s) && s.ValueKind == JsonValueKind.Number ? (int)s.GetDouble() : 0,
+            string.IsNullOrEmpty(id) ? null : id,
+            lastError);
     }
 
     public Task WifiSetModeAsync(string mode) => OkAsync(HttpMethod.Post, "/api/wifi/mode", new { mode });

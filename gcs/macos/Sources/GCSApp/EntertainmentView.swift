@@ -34,7 +34,28 @@ struct EntertainmentView: View {
 
     enum LEDState { case color(Int, Int, Int); case anim(String); case none }
 
-    private let animations = ["breathing", "rainbow", "police", "strobe", "fire", "theater"]
+    private let animations = ["breathing", "rainbow", "police", "strobe", "fire", "theater",
+                              "rainbow_theater"]
+    // Shows drive the LEDs and a looping PX4 buzzer melody from one process on
+    // the drone. Same /api/led/animation endpoint -- only one can run at a time,
+    // which is why they share `activeAnim` with the plain animations above.
+    private let shows = ["party", "siren", "alarm", "victory"]
+    /// Each glyph describes what the strips actually do, so the grid is scannable
+    /// without reading. Police and Siren share the beacon deliberately — outline
+    /// for the silent one, filled for the show that adds the wail.
+    private let icons: [String: String] = [
+        "breathing":       "lungs.fill",
+        "rainbow":         "rainbow",
+        "police":          "light.beacon.max",
+        "strobe":          "bolt.fill",
+        "fire":            "flame.fill",
+        "theater":         "sparkles",
+        "rainbow_theater": "wand.and.stars",
+        "party":           "party.popper.fill",
+        "siren":           "light.beacon.max.fill",
+        "alarm":           "bell.fill",
+        "victory":         "trophy.fill",
+    ]
     private let presets: [(String, String, String)] = [
         ("beep", "MFT100L16O5C", "QBASIC"),
         ("ok", "MFT180L8O5CEG", "QBASIC"),
@@ -52,6 +73,7 @@ struct EntertainmentView: View {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: Theme.s4)], spacing: Theme.s4) {
                 ledPanel
                 animPanel
+                showsPanel
                 soundsPanel
                 ttsPanel
             }
@@ -78,13 +100,27 @@ struct EntertainmentView: View {
 
     private var animPanel: some View {
         Panel(title: "Animations", icon: "sparkles") {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: Theme.s2)], spacing: Theme.s2) {
-                ForEach(animations, id: \.self) { name in
-                    ChipButton(label: name.capitalized, selected: activeAnim == name, fullWidth: true) {
-                        run {
-                            try await app.api.ledAnimation(name)
-                            activeAnim = name; lastState = .anim(name); isOn = true
-                        }
+            animGrid(animations)
+        }
+    }
+
+    private var showsPanel: some View {
+        Panel(title: "Shows (Light + Sound)", icon: "music.note.list") {
+            animGrid(shows, sound: true)
+        }
+    }
+
+    private func animGrid(_ names: [String], sound: Bool = false) -> some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: Theme.s2)], spacing: Theme.s2) {
+            ForEach(names, id: \.self) { name in
+                ChipButton(label: label(name),
+                           icon: icons[name] ?? "sparkles",
+                           selected: activeAnim == name,
+                           fullWidth: true,
+                           badge: sound ? "speaker.wave.2.fill" : nil) {
+                    run {
+                        try await app.api.ledAnimation(name)
+                        activeAnim = name; lastState = .anim(name); isOn = true
                     }
                 }
             }
@@ -131,6 +167,11 @@ struct EntertainmentView: View {
     }
 
     // MARK: - Helpers
+
+    /// Drone-side animation names are lowercase single tokens ("rainbow_theater").
+    private func label(_ name: String) -> String {
+        name.replacingOccurrences(of: "_", with: " ").capitalized
+    }
 
     private var rgb: (Int, Int, Int) {
         let ns = NSColor(color).usingColorSpace(.sRGB) ?? .white

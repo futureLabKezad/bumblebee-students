@@ -242,24 +242,59 @@ extension View {
 
 /// Toggle chip — blue when selected, faint when not. Shared by the camera tabs
 /// and the LED animation grid.
+///
+/// Two shapes: text-only (compact, the default — camera tabs, `SegmentedTabs`),
+/// or icon-over-label when `icon` is set. `badge` puts a small glyph in the
+/// corner, used to mark LED shows that also play a melody.
 struct ChipButton: View {
     let label: String
+    var icon: String? = nil
     var selected: Bool
     var fullWidth = false
+    var badge: String? = nil
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Text(label)
-                .font(Theme.chip)
-                .frame(maxWidth: fullWidth ? .infinity : nil)
-                .padding(.horizontal, Theme.s3).padding(.vertical, Theme.s1 + 1)
-                .background(selected ? Theme.selectionBg : Theme.fillFaint,
-                            in: RoundedRectangle(cornerRadius: Theme.rControl))
-                .foregroundStyle(selected ? Theme.primary : Theme.muted)
-                .contentShape(RoundedRectangle(cornerRadius: Theme.rControl))
+            Group {
+                if let icon {
+                    VStack(spacing: Theme.s1) {
+                        Image(systemName: icon)
+                            .font(.system(size: Theme.iconLg))
+                        Text(label)
+                            .font(Theme.chip)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Theme.s2)
+                    .padding(.horizontal, Theme.s1)
+                    .overlay(alignment: .topTrailing) { badgeGlyph }
+                } else {
+                    Text(label)
+                        .font(Theme.chip)
+                        .frame(maxWidth: fullWidth ? .infinity : nil)
+                        .padding(.horizontal, Theme.s3).padding(.vertical, Theme.s1 + 1)
+                }
+            }
+            .background(selected ? Theme.selectionBg : Theme.fillFaint,
+                        in: RoundedRectangle(cornerRadius: Theme.rControl))
+            .foregroundStyle(selected ? Theme.primary : Theme.muted)
+            .contentShape(RoundedRectangle(cornerRadius: Theme.rControl))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(badge == nil ? label : "\(label), with sound")
+    }
+
+    @ViewBuilder
+    private var badgeGlyph: some View {
+        if let badge {
+            Image(systemName: badge)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(selected ? Theme.primary.opacity(0.75)
+                                          : Theme.muted.opacity(0.55))
+                .padding(Theme.s1 + 1)
+        }
     }
 }
 

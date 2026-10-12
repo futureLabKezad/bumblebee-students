@@ -1,0 +1,52 @@
+# Files the GCS-connectivity update installs on a running drone.
+# <source in payload/>  <destination on the drone>  <owner>  <mode>
+# The source path is relative to drone/ in the repo.
+ros2_ws/src/bumblebee/scripts/wifi_manager.py              /home/lb/ros2_ws/src/bumblebee/scripts/wifi_manager.py              lb:lb 0644
+ros2_ws/src/bumblebee/scripts/wifi_watchdog.sh             /home/lb/ros2_ws/src/bumblebee/scripts/wifi_watchdog.sh             lb:lb 0755
+ros2_ws/src/bumblebee/scripts/set_identity.sh              /home/lb/ros2_ws/src/bumblebee/scripts/set_identity.sh              lb:lb 0755
+ros2_ws/src/bumblebee/scripts/sys_metrics.py               /home/lb/ros2_ws/src/bumblebee/scripts/sys_metrics.py               lb:lb 0644
+ros2_ws/src/bumblebee/examples/animations/_show.py           /home/lb/ros2_ws/src/bumblebee/examples/animations/_show.py           lb:lb 0644
+ros2_ws/src/bumblebee/examples/animations/rainbow_theater.py /home/lb/ros2_ws/src/bumblebee/examples/animations/rainbow_theater.py lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/party.py           /home/lb/ros2_ws/src/bumblebee/examples/animations/party.py           lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/siren.py           /home/lb/ros2_ws/src/bumblebee/examples/animations/siren.py           lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/alarm.py           /home/lb/ros2_ws/src/bumblebee/examples/animations/alarm.py           lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/victory.py         /home/lb/ros2_ws/src/bumblebee/examples/animations/victory.py         lb:lb 0755
+system/networkmanager/dispatcher.d/99-hotspot-fallback     /etc/NetworkManager/dispatcher.d/99-hotspot-fallback     root:root 0755
+system/networkmanager/dispatcher.d/90-bumblebee-identity   /etc/NetworkManager/dispatcher.d/90-bumblebee-identity   root:root 0755
+system/networkmanager/conf.d/zz-bumblebee-wifi-powersave.conf /etc/NetworkManager/conf.d/zz-bumblebee-wifi-powersave.conf root:root 0644
+# Flight-controller baud detection (takes effect when bumblebee.service starts).
+ros2_ws/src/bumblebee/scripts/fcu_detect.py                /home/lb/ros2_ws/src/bumblebee/scripts/fcu_detect.py                lb:lb 0755
+system/start_bumblebee.sh                                  /home/lb/start_bumblebee.sh                                         lb:lb 0755
+ros2_ws/src/bumblebee/launch/bumblebee.launch.py           /home/lb/ros2_ws/src/bumblebee/launch/bumblebee.launch.py           lb:lb 0644
+ros2_ws/src/bumblebee/launch/bumblebee.launch.py           /home/lb/ros2_ws/install/bumblebee/share/bumblebee/launch/bumblebee.launch.py lb:lb 0644
+# Identity from the MAC, set before avahi announces the host.
+system/systemd/bumblebee-identity.service                  /etc/systemd/system/bumblebee-identity.service                      root:root 0644
+# Per-drone ROS 2 domain (several drones on one Wi-Fi stay apart); ros.env
+# itself is written per drone by set_identity.sh.
+ros2_ws/src/bumblebee/scripts/ros_domain.py                /home/lb/ros2_ws/src/bumblebee/scripts/ros_domain.py                lb:lb 0755
+system/systemd/ros-env.conf                                /etc/systemd/system/bumblebee.service.d/ros-env.conf                root:root 0644
+system/systemd/bumblebee.service.d/stack-domain.conf       /etc/systemd/system/bumblebee.service.d/stack-domain.conf           root:root 0644
+system/systemd/ros-env.conf                                /etc/systemd/system/wifi-manager.service.d/ros-env.conf             root:root 0644
+system/systemd/ros-env.conf                                /etc/systemd/system/notify-manager.service.d/ros-env.conf           root:root 0644
+system/systemd/ros-env.conf                                /etc/systemd/system/led-default.service.d/ros-env.conf              root:root 0644
+system/profile.d/bumblebee-ros.sh                          /etc/profile.d/bumblebee-ros.sh                                     root:root 0644
+# Restart ROS 2 nodes after a system clock jump (first NTP sync; no RTC).
+ros2_ws/src/bumblebee/scripts/fcu_armed.py                 /home/lb/ros2_ws/src/bumblebee/scripts/fcu_armed.py                 lb:lb 0755
+ros2_ws/src/bumblebee/scripts/clock_jump.sh                /home/lb/ros2_ws/src/bumblebee/scripts/clock_jump.sh                lb:lb 0755
+system/systemd/bumblebee-clock-jump.service                /etc/systemd/system/bumblebee-clock-jump.service                    root:root 0644
+system/systemd/bumblebee-clock-jump.timer                  /etc/systemd/system/bumblebee-clock-jump.timer                      root:root 0644
+# RC helpers: no RC signal (0 us) means stop, not "knob fully reversed".
+ros2_ws/src/bumblebee/scripts/wheel_rc.py                  /home/lb/ros2_ws/src/bumblebee/scripts/wheel_rc.py                  lb:lb 0755
+ros2_ws/src/bumblebee/scripts/wheel_rc.py                  /home/lb/ros2_ws/install/bumblebee/lib/bumblebee/wheel_rc.py        lb:lb 0755
+ros2_ws/src/bumblebee/scripts/servo_rc.py                  /home/lb/ros2_ws/src/bumblebee/scripts/servo_rc.py                  lb:lb 0755
+ros2_ws/src/bumblebee/scripts/servo_rc.py                  /home/lb/ros2_ws/install/bumblebee/lib/bumblebee/servo_rc.py        lb:lb 0755
+# ROS graph watchdog (restart the stack if it stops delivering data; disarmed only)
+ros2_ws/src/bumblebee/scripts/ros_watchdog.py              /home/lb/ros2_ws/src/bumblebee/scripts/ros_watchdog.py              lb:lb 0755
+system/systemd/bumblebee-ros-watchdog.service              /etc/systemd/system/bumblebee-ros-watchdog.service                  root:root 0644
+# Bigger socket buffers for Fast DDS
+system/sysctl.d/60-bumblebee-dds.conf                      /etc/sysctl.d/60-bumblebee-dds.conf                                 root:root 0644
+# Per-minute ROS domain re-check (late clashes, deferred moves)
+system/systemd/bumblebee-identity-recheck.service          /etc/systemd/system/bumblebee-identity-recheck.service              root:root 0644
+system/systemd/bumblebee-identity-recheck.timer            /etc/systemd/system/bumblebee-identity-recheck.timer                root:root 0644
+# FCU/battery freshness on monotonic time (imported by wifi_manager, notify_manager)
+ros2_ws/src/bumblebee/examples/drone.py                    /home/lb/ros2_ws/src/bumblebee/examples/drone.py                    lb:lb 0644

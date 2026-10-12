@@ -13,19 +13,29 @@
 // limitations under the License.
 
 import SwiftUI
+import AppKit
 
 /// Connect screen — one unified panel. Drones auto-appear by name via Bonjour
 /// (no manual "scan" step); a single footer combines the two fallbacks —
 /// entering an IP by hand and setting up a brand-new drone over its hotspot.
 /// Copy is English and type is SF (system); the orange/blue palette lives in
 /// `ConnectTheme` and is scoped to this screen + the splash.
+/// One opening of the setup sheet; `drone` is the hotspot SSID tapped, if any.
+struct SetupRequest: Identifiable {
+    let id = UUID()
+    let drone: String?
+}
+
 struct LaunchView: View {
     @EnvironmentObject var app: AppState
     @EnvironmentObject var scanner: DroneScanner
     @EnvironmentObject var handoff: WifiHandoff
     @State private var manualIP = ""
     @State private var lastPingOK = false
-    @State private var showSetup = false
+    /// The open "Add a drone" sheet and the drone it was opened for. One value
+    /// for both, passed by `.sheet(item:)`: with a separate flag the sheet was
+    /// built from a stale copy and never saw the drone that was tapped.
+    @State private var setup: SetupRequest?
 
     var body: some View {
         ZStack {
@@ -49,7 +59,9 @@ struct LaunchView: View {
             .padding(.horizontal, 24)
         }
         .foregroundStyle(ConnectTheme.text)
-        .sheet(isPresented: $showSetup) { ProvisioningView() }
+        .sheet(item: $setup) { request in
+            ProvisioningView(preselected: request.drone)
+        }
         .task { await handoff.scanHotspots() }   // surface drone hotspots in the list
     }
 
@@ -92,6 +104,16 @@ struct LaunchView: View {
                     ProgressView().controlSize(.small).scaleEffect(0.7)
                 }
                 Spacer()
+                Button { setup = SetupRequest(drone: nil) } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "plus").font(.system(size: 11, weight: .bold))
+                        Text("Add drone").font(.system(size: 12, weight: .semibold))
+                    }
+                    .foregroundStyle(ConnectTheme.orange)
+                }
+                .buttonStyle(.plain)
+                .help("Set up a new drone so it joins this Mac's WiFi")
+                .padding(.trailing, 10)
                 Button { scanner.scan(); Task { await handoff.scanHotspots() } } label: {
                     Image(systemName: "arrow.clockwise")
                         .font(.system(size: 12, weight: .semibold))
@@ -103,6 +125,10 @@ struct LaunchView: View {
             }
             .padding(.bottom, 10)
 
+            if handoff.phase == .needLocationPermission {
+                locationBanner.padding(.bottom, 10)
+            }
+
             if !scanner.found.isEmpty || !handoff.hotspots.isEmpty {
                 VStack(spacing: 9) {
                     ForEach(scanner.found) { d in
@@ -111,15 +137,41 @@ struct LaunchView: View {
                     // Drones only reachable via their own setup hotspot (offline
                     // from this WiFi). Tapping opens the hand-off wizard.
                     ForEach(handoff.hotspots) { h in
-                        HotspotDroneRow(hotspot: h) { showSetup = true }
+                        HotspotDroneRow(hotspot: h) { setup = SetupRequest(drone: h.ssid) }
                     }
                 }
             } else {
                 emptyState(scanner.scanning || !scanner.hasScanned ? "Looking for drones…"
                                                                    : "No drones found",
-                           "Drones on this WiFi appear here automatically. Or use the options below.")
+                           scanner.discoveryError
+                               ?? "Drones on this WiFi appear here automatically. A new drone shows up about 30 s after power-on — then tap Add.")
             }
         }
+    }
+
+    /// macOS hides WiFi names (and so new drones) until Location is allowed.
+    private var locationBanner: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "location.circle").font(.system(size: 18)).foregroundStyle(ConnectTheme.orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Allow WiFi access to see new drones").font(.system(size: 13, weight: .semibold))
+                Text("macOS shows WiFi names only to apps with Location Services on.")
+                    .font(.system(size: 11, design: .monospaced)).foregroundStyle(ConnectTheme.muted2)
+            }
+            Spacer()
+            Button("Allow") {
+                handoff.requestLocation()
+                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
+                    NSWorkspace.shared.open(url)
+                }
+            }
+            .buttonStyle(.plain).font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(ConnectTheme.orange)
+        }
+        .padding(.vertical, 11).padding(.horizontal, 14)
+        .background(ConnectTheme.orange.opacity(0.07))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ConnectTheme.orange.opacity(0.4), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private func emptyState(_ title: String, _ subtitle: String) -> some View {
@@ -282,7 +334,7 @@ private struct HotspotDroneRow: View {
                     .frame(width: 12)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(hotspot.ssid).font(.system(size: 14.5, weight: .semibold))
-                    Text("new drone · set up over hotspot")
+                    Text("new drone · not on your WiFi yet")
                         .font(.system(size: 11.5, design: .monospaced))
                         .foregroundStyle(ConnectTheme.muted2)
                 }
@@ -291,7 +343,7 @@ private struct HotspotDroneRow: View {
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(ConnectTheme.faint)
                 HStack(spacing: 6) {
-                    Text("Set up").font(.system(size: 13, weight: .semibold))
+                    Text("Add").font(.system(size: 13, weight: .semibold))
                     Text("→").font(.system(size: 13, design: .monospaced))
                 }
                 .foregroundStyle(ConnectTheme.orange)

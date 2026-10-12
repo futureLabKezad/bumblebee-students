@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """Simple HTTP server returning system metrics as JSON on port 8888."""
-import json, os, time
+import json, os, re, socket, time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 def get_metrics():
@@ -70,6 +70,11 @@ def get_metrics():
     except:
         uptime_s = None
 
+    try:
+        hostname = socket.gethostname()
+    except Exception:
+        hostname = ''
+
     # CPU count
     try:
         cpu_count = os.cpu_count()
@@ -87,8 +92,19 @@ def get_metrics():
         'mem_used':  mem_used,
         'mem_pct':   mem_pct,
         'uptime_s':  uptime_s,
-        'ts':        time.time()
+        'ts':        time.time(),
+        # Lets the GCS label drones found by subnet scan (not via Bonjour).
+        'hostname':  hostname,
+        'name':      display_name(hostname),
     }
+
+def display_name(hostname):
+    """bumblebee-20ec -> Bumblebee-20EC (as in the Bonjour record and the
+    hotspot SSID); any other hostname just gets a capital first letter."""
+    if re.fullmatch(r'bumblebee-[0-9a-f]{4}', hostname):
+        return 'Bumblebee-' + hostname[-4:].upper()
+    return hostname[:1].upper() + hostname[1:]
+
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):

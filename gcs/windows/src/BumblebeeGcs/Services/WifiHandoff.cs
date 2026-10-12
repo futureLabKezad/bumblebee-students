@@ -20,11 +20,12 @@ using Windows.Devices.Geolocation;
 namespace BumblebeeGcs.Services;
 
 /// <summary>
-/// One-tap передача WiFi: найти setup-хотспот дрона в эфире, подключиться к нему,
-/// отправить дрону креды домашней сети, дождаться его возврата в общую сеть.
-/// Порт WifiHandoff.swift (CoreWLAN → wlanapi через ManagedNativeWifi,
-/// CoreLocation → Geolocator: Windows 11 требует геолокацию для скана WiFi).
-/// Все публичные члены — UI-поток.
+/// «Добавить дрон»: найти setup-хотспот дрона в эфире, подключиться к нему,
+/// передать дрону WiFi этого ПК, вернуть ПК в его сеть и найти там именно этот
+/// дрон (по его id). Если дрон не появился — спросить у него, почему, и
+/// объяснить понятными словами. Порт WifiHandoff.swift (CoreWLAN → wlanapi
+/// через ManagedNativeWifi, CoreLocation → Geolocator: Windows 11 требует
+/// геолокацию для скана WiFi). Все публичные члены — UI-поток.
 /// </summary>
 public sealed class WifiHandoff
 {
@@ -41,47 +42,92 @@ public sealed class WifiHandoff
         NeedLocationPermission,
         Scanning,
         Picking,           // хотспоты показаны, ждём выбора
-        JoiningHotspot,
-        PushingCreds,
-        WaitingForDrone,
+        // шаги настройки по порядку
+        JoiningHotspot,    // 1. говорим с новым дроном через его WiFi (Arg = SSID)
+        PushingCreds,      // 2. отдаём ему имя и пароль нашей WiFi
+        WaitingForDrone,   // 3. дрон уходит в нашу WiFi, ПК возвращается, ищем дрон
+        Diagnosing,        // не появился: спрашиваем дрон, почему
         Done,              // Arg = хост дрона
-        Failed,            // Arg = сообщение
+        Failed,            // см. LastFailure
+    }
+
+    public enum FailureKind { WrongPassword, NotFound, NoAddress, Isolated, DroneSilent, Other }
+
+    /// <summary>Неудачная настройка, объяснённая для пользователя.</summary>
+    public sealed record Failure(FailureKind Kind, string Title, string Detail)
+    {
+        /// <summary>Предлагать «подключиться к дрону напрямую» (без общей WiFi).</summary>
+        public bool OfferDirect => Kind != FailureKind.WrongPassword;
     }
 
     public PhaseKind Phase { get; private set; } = PhaseKind.Idle;
-    /// <summary>SSID для JoiningHotspot, хост для Done, сообщение для Failed.</summary>
+    /// <summary>SSID для JoiningHotspot, хост для Done.</summary>
     public string PhaseArg { get; private set; } = "";
+    /// <summary>Причина для Phase == Failed.</summary>
+    public Failure? LastFailure { get; private set; }
 
-    public bool IsBusy => Phase is PhaseKind.Scanning or PhaseKind.JoiningHotspot
-        or PhaseKind.PushingCreds or PhaseKind.WaitingForDrone;
+    /// <summary>Идёт настройка дрона (не фоновое сканирование: оно не мешает
+    /// ни кнопкам, ни закрытию окна).</summary>
+    public bool IsBusy => Phase is PhaseKind.JoiningHotspot
+        or PhaseKind.PushingCreds or PhaseKind.WaitingForDrone or PhaseKind.Diagnosing;
 
     public sealed record Hotspot(string Ssid, int Rssi);
 
     public List<Hotspot> Hotspots { get; private set; } = new();
-    /// <summary>Текущий SSID этого ПК — сеть, которую отдаём дрону.</summary>
+    /// <summary>Текущий SSID этого ПК. Может оказаться хотспотом дрона.</summary>
     public string CurrentSsid { get; private set; } = "";
+    /// <summary>ПК сейчас подключён к WiFi самого дрона.</summary>
+    public bool OnDroneHotspot => CurrentSsid.StartsWith(HotspotPrefix, StringComparison.Ordinal);
+    /// <summary>
+    /// Сеть, которую отдаём дрону: WiFi этого ПК, но никогда не хотспот дрона.
+    /// Пока ПК на хотспоте — сеть, где он был до этого (и куда вернётся);
+    /// пусто, если предложить нечего.
+    /// </summary>
+    public string HomeSsid => OnDroneHotspot ? (_settings.LastHomeSsid ?? "") : CurrentSsid;
     /// <summary>Система окончательно запретила геолокацию — шлём в Настройки.</summary>
     public bool LocationBlocked { get; private set; }
 
     public event Action? Changed;
 
     private readonly DispatcherQueue _dq;
+    private readonly AppSettings _settings;
 
-    public WifiHandoff(DispatcherQueue dq) => _dq = dq;
+    public WifiHandoff(DispatcherQueue dq, AppSettings settings)
+    {
+        _dq = dq;
+        _settings = settings;
+    }
 
     private void SetPhase(PhaseKind phase, string arg = "")
     {
         Phase = phase;
         PhaseArg = arg;
+        if (phase != PhaseKind.Failed) LastFailure = null;
         Changed?.Invoke();
     }
+
+    private void Fail(Failure failure)
+    {
+        LastFailure = failure;
+        SetPhase(PhaseKind.Failed);
+    }
+
+    private static Failure Explain(FailureKind kind, string title, string detail) => new(kind, title, detail);
 
     public void Reset() => SetPhase(PhaseKind.Idle);
 
     public void RefreshCurrentSsid()
     {
-        try { CurrentSsid = NativeWifi.EnumerateConnectedNetworkSsids().FirstOrDefault()?.ToString() ?? ""; }
-        catch { CurrentSsid = ""; }
+        string ssid;
+        try { ssid = NativeWifi.EnumerateConnectedNetworkSsids().FirstOrDefault()?.ToString() ?? ""; }
+        catch { ssid = ""; }
+        CurrentSsid = ssid;
+        if (ssid.Length > 0 && !ssid.StartsWith(HotspotPrefix, StringComparison.Ordinal)
+            && ssid != _settings.LastHomeSsid)
+        {
+            _settings.LastHomeSsid = ssid;
+            _settings.Save();
+        }
         Changed?.Invoke();
     }
 
@@ -112,9 +158,10 @@ public sealed class WifiHandoff
 
     public async Task ScanHotspotsAsync()
     {
+        if (IsBusy) return;                 // скан не должен перебить идущую настройку
         if (PrimaryInterfaceId() is null)
         {
-            SetPhase(PhaseKind.Failed, "No WiFi interface on this PC");
+            Fail(Explain(FailureKind.Other, "This PC has no WiFi", "Turn WiFi on and try again."));
             return;
         }
         try
@@ -123,12 +170,13 @@ public sealed class WifiHandoff
             LocationBlocked = access == GeolocationAccessStatus.Denied;
             if (access != GeolocationAccessStatus.Allowed)
             {
-                SetPhase(PhaseKind.NeedLocationPermission);
+                if (!IsBusy) SetPhase(PhaseKind.NeedLocationPermission);
                 return;
             }
         }
         catch { }
 
+        if (IsBusy) return;                 // настройку начали, пока ждали разрешения
         SetPhase(PhaseKind.Scanning);
         RefreshCurrentSsid();
         try
@@ -144,39 +192,200 @@ public sealed class WifiHandoff
                     .ToList();
             });
             Hotspots = list;
-            SetPhase(PhaseKind.Picking);
+            // Пока сканировали, могли нажать «Add»: не затираем начатую настройку.
+            if (Phase == PhaseKind.Scanning) SetPhase(PhaseKind.Picking);
+            else Changed?.Invoke();
         }
         catch (Exception ex)
         {
-            SetPhase(PhaseKind.Failed, $"WiFi scan failed: {ex.Message}");
+            if (Phase == PhaseKind.Scanning) Fail(Explain(FailureKind.Other, "WiFi scan failed", ex.Message));
         }
     }
 
     // MARK: - Full hand-off
 
     /// <summary>
-    /// Подключиться к hotspotSsid, отправить (targetSsid, targetPassword) дрону,
-    /// вернуть ПК в свою сеть и дождаться дрона. onDrone(host) при успехе.
+    /// Настроить новый дрон: войти в его WiFi (hotspotSsid), передать ему
+    /// targetSsid/targetPassword, вернуть ПК в targetSsid и найти там именно
+    /// этот дрон. Если не появился — узнать у дрона причину (после неудачи он
+    /// через ~45 с снова поднимает свой WiFi) и объяснить её.
     /// </summary>
     public async Task ProvisionAsync(string hotspotSsid, string targetSsid, string targetPassword,
                                      Action<string> onDrone)
     {
+        // Задача запускается без await (`_ =`): любое исключение должно стать
+        // понятной ошибкой, а не оставить окно «занятым» навсегда.
+        try { await ProvisionCoreAsync(hotspotSsid, targetSsid, targetPassword, onDrone); }
+        catch (Exception ex) { Fail(Explain(FailureKind.Other, "Setup stopped", ex.Message)); }
+    }
+
+    private async Task ProvisionCoreAsync(string hotspotSsid, string targetSsid, string targetPassword,
+                                          Action<string> onDrone)
+    {
         if (PrimaryInterfaceId() is not Guid iface)
         {
-            SetPhase(PhaseKind.Failed, "No WiFi interface on this PC");
+            Fail(Explain(FailureKind.Other, "This PC has no WiFi", "Turn WiFi on and try again."));
             return;
         }
 
-        // 1) Подключиться к setup-хотспоту дрона. Первая попытка может упасть,
-        //    пока адаптер переключается — ретраим до 4 раз со свежим сканом.
+        // 1) Войти в WiFi дрона.
         SetPhase(PhaseKind.JoiningHotspot, hotspotSsid);
-        var lastErr = "";
-        var joined = false;
-        for (var attempt = 1; attempt <= 4 && !joined; attempt++)
+        if (await JoinHotspotAsync(iface, hotspotSsid) is string joinErr)
+        {
+            Fail(Explain(FailureKind.DroneSilent, $"Couldn't reach {hotspotSsid}",
+                $"{joinErr}. Make sure the drone is on and glowing blue, then try again."));
+            await ReturnHomeAsync(iface, targetSsid);
+            return;
+        }
+
+        // 2) Поговорить с ним и передать нашу WiFi.
+        SetPhase(PhaseKind.PushingCreds);
+        var api = new DroneApi { Host = HotspotGatewayHost };
+        if (await WaitForBackendAsync(api) is not DroneApi.WifiStatus status)
+        {
+            Fail(Explain(FailureKind.DroneSilent, "The drone didn't answer",
+                $"The PC joined {hotspotSsid} but the drone's software didn't respond. Wait a minute after power-on and try again."));
+            await ReturnHomeAsync(iface, targetSsid);
+            return;
+        }
+        // Дрон сообщает свой id — по нему узнаем именно его в общей сети.
+        var expectedId = status.Id;
+        try
+        {
+            await api.SaveNetworkAsync(targetSsid, targetPassword);
+        }
+        catch (Exception ex)
+        {
+            Fail(Explain(FailureKind.Other, "Couldn't send the WiFi settings", ex.Message));
+            await ReturnHomeAsync(iface, targetSsid);
+            return;
+        }
+        try
+        {
+            await api.ApplyNowAsync(targetSsid);
+        }
+        catch (DroneApi.ApiException ex) when (ex.Transport)
+        {
+            // Старое ПО дрона переключает WiFi раньше, чем отвечает, — это ожидаемо.
+        }
+        catch (Exception ex)
+        {
+            Fail(Explain(FailureKind.Other, "Couldn't send the WiFi settings", ex.Message));
+            await ReturnHomeAsync(iface, targetSsid);
+            return;
+        }
+
+        // 3) Дрон уходит в нашу WiFi; возвращаем ПК и ищем дрон.
+        SetPhase(PhaseKind.WaitingForDrone);
+        await ReturnHomeAsync(iface, targetSsid);
+        if (await WaitForDroneAsync(expectedId) is string host)
+        {
+            SetPhase(PhaseKind.Done, host);
+            onDrone(host);
+            return;
+        }
+
+        // 4) Не появился — выясняем почему.
+        SetPhase(PhaseKind.Diagnosing);
+        Fail(await DiagnoseAsync(iface, hotspotSsid, targetSsid));
+    }
+
+    /// <summary>
+    /// Работать с дроном через его собственную WiFi (без общей сети; у ПК
+    /// в это время нет интернета).
+    /// </summary>
+    public async Task ConnectDirectAsync(string hotspotSsid, Action<string> onDrone)
+    {
+        try { await ConnectDirectCoreAsync(hotspotSsid, onDrone); }
+        catch (Exception ex) { Fail(Explain(FailureKind.Other, "Couldn't connect", ex.Message)); }
+    }
+
+    private async Task ConnectDirectCoreAsync(string hotspotSsid, Action<string> onDrone)
+    {
+        if (PrimaryInterfaceId() is not Guid iface) return;
+        SetPhase(PhaseKind.JoiningHotspot, hotspotSsid);
+        if (await JoinHotspotAsync(iface, hotspotSsid) is string err)
+        {
+            Fail(Explain(FailureKind.DroneSilent, $"Couldn't reach {hotspotSsid}", err));
+            return;
+        }
+        var api = new DroneApi { Host = HotspotGatewayHost };
+        if (await WaitForBackendAsync(api) is null)
+        {
+            Fail(Explain(FailureKind.DroneSilent, "The drone didn't answer", "Wait a minute after power-on and try again."));
+            return;
+        }
+        SetPhase(PhaseKind.Done, HotspotGatewayHost);
+        onDrone(HotspotGatewayHost);
+    }
+
+    /// <summary>
+    /// После неудачной настройки дрон снова поднимает свой WiFi: читаем
+    /// записанную им причину и возвращаем ПК в targetSsid.
+    /// </summary>
+    private async Task<Failure> DiagnoseAsync(Guid iface, string hotspotSsid, string targetSsid)
+    {
+        var visible = false;
+        var deadline = DateTime.UtcNow.AddSeconds(75);
+        while (DateTime.UtcNow < deadline)
+        {
+            visible = await Task.Run(async () =>
+            {
+                try
+                {
+                    try { await NativeWifi.ScanNetworksAsync(TimeSpan.FromSeconds(5)); } catch { }
+                    return NativeWifi.EnumerateBssNetworks().Any(n => n.Ssid.ToString() == hotspotSsid);
+                }
+                catch { return false; }
+            });
+            if (visible) break;
+            await Task.Delay(3000);
+        }
+        if (!visible)
+        {
+            // WiFi дрона не вернулся — скорее всего, дрон в targetSsid, но
+            // этот ПК его там не видит.
+            return Explain(FailureKind.Isolated, $"The drone joined {targetSsid}, but this PC can't see it",
+                "Some networks keep devices apart (guest WiFi, \"AP isolation\"). Use another network — for example a phone hotspot — or connect directly to the drone.");
+        }
+
+        DroneApi.JoinError? reason = null;
+        if (await JoinHotspotAsync(iface, hotspotSsid, maxAttempts: 2) is null)
+        {
+            var api = new DroneApi { Host = HotspotGatewayHost };
+            reason = (await WaitForBackendAsync(api, 20))?.LastError;
+        }
+        await ReturnHomeAsync(iface, targetSsid);
+
+        return reason?.Reason switch
+        {
+            "wrong_password" => Explain(FailureKind.WrongPassword, $"Wrong password for {targetSsid}",
+                $"The drone couldn't log in to {targetSsid}. Check the password and try again."),
+            "not_found" => Explain(FailureKind.NotFound, $"The drone can't see {targetSsid}",
+                $"Move the drone closer to the router. If {targetSsid} is a 5 GHz-only network, use one that also has 2.4 GHz."),
+            "no_ip" => Explain(FailureKind.NoAddress, $"{targetSsid} didn't give the drone an address",
+                "The router didn't respond (DHCP). Restart the router or use another network."),
+            _ => Explain(FailureKind.Other, $"The drone couldn't join {targetSsid}",
+                reason is null ? "Try again, or connect directly to the drone."
+                    : (reason.Message.Length == 0 ? "Try again." : reason.Message)),
+        };
+    }
+
+    // MARK: - Helpers
+
+    /// <summary>
+    /// Войти в setup-WiFi дрона; null при успехе, иначе короткая причина.
+    /// Первая попытка может упасть, пока адаптер переключается, — до 4 попыток
+    /// со свежим сканом.
+    /// </summary>
+    private static async Task<string?> JoinHotspotAsync(Guid iface, string hotspotSsid, int maxAttempts = 4)
+    {
+        var lastErr = "its WiFi is not in range";
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
             try
             {
-                joined = await Task.Run(async () =>
+                var joined = await Task.Run(async () =>
                 {
                     var inRange = NativeWifi.EnumerateBssNetworks().Any(n => n.Ssid.ToString() == hotspotSsid);
                     if (!inRange)
@@ -184,73 +393,35 @@ public sealed class WifiHandoff
                         try { await NativeWifi.ScanNetworksAsync(TimeSpan.FromSeconds(5)); } catch { }
                         inRange = NativeWifi.EnumerateBssNetworks().Any(n => n.Ssid.ToString() == hotspotSsid);
                     }
-                    if (!inRange) throw new InvalidOperationException("hotspot no longer in range");
+                    if (!inRange) throw new InvalidOperationException("its WiFi is not in range");
                     NativeWifi.SetProfile(iface, ProfileType.AllUser,
                         Wpa2PskProfileXml(hotspotSsid, HotspotPsk), null, overwrite: true);
                     return await NativeWifi.ConnectNetworkAsync(iface, hotspotSsid, BssType.Infrastructure,
                         TimeSpan.FromSeconds(15));
                 });
-                if (!joined) lastErr = "association failed";
+                if (joined) return null;
+                lastErr = "Windows couldn't connect to it";
             }
             catch (Exception ex)
             {
                 lastErr = ex.Message;
             }
-            if (!joined && attempt < 4) await Task.Delay(2000);
+            if (attempt < maxAttempts) await Task.Delay(2000);
         }
-        if (!joined)
-        {
-            SetPhase(PhaseKind.Failed, $"Couldn't join {hotspotSsid}: {lastErr}");
-            return;
-        }
-
-        // 2) Дождаться бэкенда дрона на шлюзе хотспота.
-        SetPhase(PhaseKind.PushingCreds);
-        var api = new DroneApi { Host = HotspotGatewayHost };
-        if (!await WaitForBackendAsync(api))
-        {
-            SetPhase(PhaseKind.Failed, $"Drone didn't respond on its hotspot ({HotspotGatewayHost})");
-            await RejoinAsync(iface, targetSsid);
-            return;
-        }
-
-        // 3) Отправить дрону WiFi этого ПК и применить (без авторизации).
-        try
-        {
-            await api.SaveNetworkAsync(targetSsid, targetPassword);
-            await api.ApplyNowAsync(targetSsid);
-        }
-        catch (Exception ex)
-        {
-            SetPhase(PhaseKind.Failed, $"Couldn't set WiFi on the drone: {ex.Message}");
-            await RejoinAsync(iface, targetSsid);
-            return;
-        }
-
-        // 4) Дрон гасит хотспот и уходит на targetSsid; возвращаем ПК в его сеть
-        //    (профиль уже сохранён в Windows, раз мы в ней сидели).
-        SetPhase(PhaseKind.WaitingForDrone);
-        await RejoinAsync(iface, targetSsid);
-
-        // 5) Ждём появления дрона в общей сети через DNS-SD.
-        if (await WaitForDroneAsync() is string host)
-        {
-            SetPhase(PhaseKind.Done, host);
-            onDrone(host);
-        }
-        else
-        {
-            SetPhase(PhaseKind.Failed, "Drone didn't come back online — check the WiFi password and retry");
-        }
+        return lastErr;
     }
 
-    // MARK: - Helpers
-
-    private static async Task RejoinAsync(Guid iface, string homeSsid)
+    /// <summary>
+    /// Вернуть ПК в его сеть (профиль уже есть в Windows — ПК в ней был;
+    /// Windows вернулась бы и сама, но медленнее).
+    /// </summary>
+    private static async Task ReturnHomeAsync(Guid iface, string homeSsid)
     {
         if (string.IsNullOrEmpty(homeSsid)) return;
         try
         {
+            var current = NativeWifi.EnumerateConnectedNetworkSsids().FirstOrDefault()?.ToString();
+            if (current == homeSsid) return;
             await Task.Run(() =>
                 NativeWifi.ConnectNetworkAsync(iface, homeSsid, BssType.Infrastructure, TimeSpan.FromSeconds(20)));
         }
@@ -258,27 +429,36 @@ public sealed class WifiHandoff
     }
 
     /// <summary>Поллим бэкенд дрона, пока не ответит (или таймаут).</summary>
-    private static async Task<bool> WaitForBackendAsync(DroneApi api, double timeoutSeconds = 25)
+    private static async Task<DroneApi.WifiStatus?> WaitForBackendAsync(DroneApi api, double timeoutSeconds = 25)
     {
         var deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
         while (DateTime.UtcNow < deadline)
         {
             try
             {
-                await api.WifiStatusAsync();
-                return true;
+                return await api.WifiStatusAsync();
             }
             catch { }
             await Task.Delay(1000);
         }
-        return false;
+        return null;
     }
 
-    /// <summary>Ждём любой дрон по DNS-SD, возвращаем его хост/IP.</summary>
-    private static async Task<string?> WaitForDroneAsync(double timeoutSeconds = 60)
+    /// <summary>
+    /// Ждём настроенный дрон по DNS-SD и возвращаем его IP. С id (текущее ПО
+    /// дрона) подходит только этот самый дрон — никогда не дрон соседней
+    /// команды. Без id (старое ПО: нет id ни в статусе, ни в TXT) берём первый
+    /// дрон без id, как раньше.
+    /// </summary>
+    private static async Task<string?> WaitForDroneAsync(string? expectedId, double timeoutSeconds = 60)
     {
         var tcs = new TaskCompletionSource<string?>(TaskCreationOptions.RunContinuationsAsynchronously);
-        using var browser = new DnssdBrowser((ip, _) => tcs.TrySetResult(ip));
+        using var browser = new DnssdBrowser((ip, _, id) =>
+        {
+            // Адрес хотспота — устаревшая запись дрона до переключения.
+            if (ip == HotspotGatewayHost) return;
+            if (id == expectedId) tcs.TrySetResult(ip);
+        });
         browser.Start();
         var done = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(timeoutSeconds)));
         return done == tcs.Task ? tcs.Task.Result : null;

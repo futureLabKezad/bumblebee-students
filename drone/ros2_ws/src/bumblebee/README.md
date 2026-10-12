@@ -2,54 +2,42 @@
 
 A bundle for autonomous navigation and drone control.
 
+This is the ROS 2 Jazzy package that runs on the Bumblebee drone (`/home/lb/ros2_ws/src/bumblebee`); the SD image (Ubuntu 24.04) ships it pre-built. Older versions of this file described the original ROS 1 Noetic package (catkin workspace, `roslaunch bumblebee bumblebee.launch`, cloned from `https://github.com/CopterExpress/bumblebee.git`, FCU on `/dev/px4fmu`); those instructions no longer apply.
+
 ## Manual installation
 
-Install ROS Noetic according to the [documentation](http://wiki.ros.org/noetic/Installation), then [create a Catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace).
-
-Clone this repo to directory `~/catkin_ws/src/bumblebee`:
+On the drone, rebuild after changing the package:
 
 ```bash
-cd ~/catkin_ws/src
-git clone https://github.com/CopterExpress/bumblebee.git bumblebee
+source /opt/ros/jazzy/setup.bash
+cd ~/ros2_ws
+colcon build --symlink-install --packages-select bumblebee
 ```
 
-All the required ROS packages (including `mavros` and `opencv`) can be installed using `rosdep`:
+On another ROS 2 Jazzy machine, the ROS packages listed in `package.xml` (`mavros_msgs`, `cv_bridge`, …) can be installed using `rosdep`:
 
 ```bash
-cd ~/catkin_ws/
+cd ~/ros2_ws/
 rosdep install -y --from-paths src --ignore-src
 ```
 
-Build ROS packages (on memory constrained platforms you might be going to need to use `-j1` key):
-
-```bash
-cd ~/catkin_ws
-catkin_make -j1
-```
-
-To complete `mavros` install you'll need to install `geographiclib` datasets:
-
-```bash
-curl https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh | sudo bash
-```
+The drone talks to the flight controller over the Raspberry Pi UART `/dev/ttyAMA0`. The MAVLink baud is detected at every start by `scripts/fcu_detect.py` (a read-only probe for CRC-valid MAVLink frames; the result is remembered in `/home/lb/.bumblebee/fcu_url`); a typical PX4 setting is 921600. The `fcu_url` in `/home/lb/mavros_params.yaml` (`/dev/ttyAMA0:115200`, repo copy `drone/system/mavros_params.yaml`) is only the fallback when nothing is detected.
 
 You may optionally install udev rules to provide `/dev/px4fmu` symlink to your PX4-based flight controller connected over USB. Copy `99-px4fmu.rules` to your `/lib/udev/rules.d` folder:
 
 ```bash
-cd ~/catkin_ws/src/bumblebee/bumblebee/udev
+cd ~/ros2_ws/src/bumblebee/udev
 sudo cp 99-px4fmu.rules /lib/udev/rules.d
 ```
 
-Alternatively you may change the `fcu_url` property in `mavros.launch` file to point to your flight controller device.
-
 ## Running
 
-To start connection to the flight controller, use:
+On the drone the stack starts at boot: `bumblebee.service` runs `/home/lb/start_bumblebee.sh` (waits up to 20 s for the first NTP sync, detects the flight-controller baud, reads the drone's ROS domain from `/etc/bumblebee/ros.env`), which starts:
 
 ```bash
-roslaunch bumblebee bumblebee.launch
+ros2 launch bumblebee bumblebee.launch.py
 ```
 
-For the simulation information see the [corresponding article](https://bumblebee.coex.tech/en/simulation.html).
+For the simulation see [`simulation/`](../../../../simulation/) in this repository.
 
-> Note that the package is configured to connect to `/dev/px4fmu` by default (see [previous section](#manual-installation)). Install udev rules or specify path to your FCU device in `mavros.launch`.
+> Each drone uses its own `ROS_DOMAIN_ID` (see [drone/README.md](../../../README.md)). To see the drone's topics from a laptop, `export ROS_DOMAIN_ID=<n>` of that drone first.

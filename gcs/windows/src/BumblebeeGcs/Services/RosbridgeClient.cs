@@ -35,15 +35,19 @@ public sealed class RosbridgeClient
     private bool _active;
     private int _generation;
 
-    private readonly record struct Sub(string Topic, string Type);
+    /// <summary>ThrottleMs: rosbridge шлёт не чаще раза за интервал (0 = всё),
+    /// оставляя самое свежее. Подключённый контроллер шлёт позу и скорость
+    /// 30 Гц, IMU 50 Гц; экрану нужно меньше, и rosbridge (Python) с WiFi
+    /// несут ~40 сообщений/с вместо ~115.</summary>
+    private readonly record struct Sub(string Topic, string Type, int ThrottleMs);
     private static readonly Sub[] Subs =
     {
-        new("/mavros/state",                "mavros_msgs/msg/State"),
-        new("/mavros/statustext/recv",      "mavros_msgs/msg/StatusText"),
-        new("/mavros/battery",              "sensor_msgs/msg/BatteryState"),
-        new("/mavros/mavros/pose",          "geometry_msgs/msg/PoseStamped"),
-        new("/mavros/mavros/velocity_local","geometry_msgs/msg/TwistStamped"),
-        new("/mavros/mavros/data",          "sensor_msgs/msg/Imu"),
+        new("/mavros/state",                "mavros_msgs/msg/State",          0),
+        new("/mavros/statustext/recv",      "mavros_msgs/msg/StatusText",     0),
+        new("/mavros/battery",              "sensor_msgs/msg/BatteryState",   1000),
+        new("/mavros/mavros/pose",          "geometry_msgs/msg/PoseStamped",  100),
+        new("/mavros/mavros/velocity_local","geometry_msgs/msg/TwistStamped", 100),
+        new("/mavros/mavros/data",          "sensor_msgs/msg/Imu",            50),
     };
 
     public RosbridgeClient(TelemetryStore store, DispatcherQueue dq)
@@ -90,7 +94,10 @@ public sealed class RosbridgeClient
 
         foreach (var s in Subs)
         {
-            var msg = JsonSerializer.Serialize(new { op = "subscribe", topic = s.Topic, type = s.Type });
+            var msg = s.ThrottleMs > 0
+                ? JsonSerializer.Serialize(new { op = "subscribe", topic = s.Topic, type = s.Type,
+                                                 throttle_rate = s.ThrottleMs, queue_length = 1 })
+                : JsonSerializer.Serialize(new { op = "subscribe", topic = s.Topic, type = s.Type });
             try
             {
                 await ws.SendAsync(Encoding.UTF8.GetBytes(msg), WebSocketMessageType.Text, true, CancellationToken.None);
