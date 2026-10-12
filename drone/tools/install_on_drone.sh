@@ -126,7 +126,8 @@ if [ "$RESET_NAME" -eq 1 ]; then
     say "custom drone name removed"
 fi
 if [ ${#MAC} -ge 17 ]; then
-    CUSTOM=$(tr -d '[:space:]' < "$NAME_FILE" 2>/dev/null || true)
+    CUSTOM=""
+    [ -s "$NAME_FILE" ] && CUSTOM=$(tr -d '[:space:]' < "$NAME_FILE")
     case "$CUSTOM" in
         ''|bumblebee-[0-9]|bumblebee-[0-9][0-9]|bumblebee-[0-9][0-9][0-9]) CUSTOM="" ;;  # IP-derived: retired
     esac
