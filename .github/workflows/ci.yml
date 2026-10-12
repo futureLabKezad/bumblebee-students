@@ -118,8 +118,6 @@ jobs:
           done
       - name: Run tests
         working-directory: drone/ros2_ws/src/bumblebee
-        run: >
-          python -m unittest -v
-          test/test_wifi_manager.py test/test_wifi_watchdog.py test/test_set_identity.py
-          test/test_fcu_detect.py test/test_ros_domain.py test/test_clock_jump.py
-          test/test_ros_watchdog.py
+        # discover, not "unittest test/x.py": that imports test.x, and on Linux
+        # "test" is Python's own stdlib test package, so nothing would load.
+        run: python -m unittest discover -v -s test -p 'test_*.py'
