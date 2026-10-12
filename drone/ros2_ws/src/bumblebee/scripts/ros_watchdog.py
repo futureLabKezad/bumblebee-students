@@ -58,6 +58,37 @@ UNITS = ['bumblebee', 'notify-manager', 'wifi-manager']
 log = logging.getLogger('ros_watchdog')
 
 
+def ws_messages(buf):
+    """Split complete server->client websocket text frames off buf (unmasked).
+    Returns (list of payload bytes, rest of buf)."""
+    out = []
+    while len(buf) >= 2:
+        n, off = buf[1] & 0x7F, 2
+        if n == 126:
+            if len(buf) < 4:
+                break
+            n, off = struct.unpack('>H', buf[2:4])[0], 4
+        elif n == 127:
+            if len(buf) < 10:
+                break
+            n, off = struct.unpack('>Q', buf[2:10])[0], 10
+        if len(buf) < off + n:
+            break
+        if buf[0] & 0x0F == 1:                         # text frame
+            out.append(buf[off:off + n])
+        buf = buf[off + n:]
+    return out, buf
+
+
+def is_state(payload):
+    # rosbridge escapes '/' in JSON ("\/mavros\/state"): decode, never grep.
+    try:
+        msg = json.loads(payload)
+    except ValueError:
+        return False
+    return isinstance(msg, dict) and msg.get('op') == 'publish' and msg.get('topic') == '/mavros/state'
+
+
 def state_arrives(host=HOST, port=PORT, timeout=4.0):
     """True if /mavros/state comes through rosbridge within `timeout`."""
     try:
@@ -82,18 +113,21 @@ def state_arrives(host=HOST, port=PORT, timeout=4.0):
         mask = os.urandom(4)
         hdr = bytes([0x81, 0x80 | len(p)]) if len(p) < 126 else bytes([0x81, 0xFE]) + struct.pack('>H', len(p))
         s.sendall(hdr + mask + bytes(b ^ mask[i % 4] for i, b in enumerate(p)))
-        while time.monotonic() < end:
-            if b'"/mavros/state"' in buf:
+        while True:
+            frames, buf = ws_messages(buf)
+            if any(is_state(f) for f in frames):
                 return True
-            s.settimeout(max(0.1, end - time.monotonic()))
+            left = end - time.monotonic()
+            if left <= 0:
+                return False
+            s.settimeout(left)
             try:
                 chunk = s.recv(65536)
             except socket.timeout:
-                break
+                return False
             if not chunk:
-                break
+                return False
             buf += chunk
-        return b'"/mavros/state"' in buf
     except OSError:
         return False
     finally:

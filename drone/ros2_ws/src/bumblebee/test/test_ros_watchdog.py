@@ -97,14 +97,26 @@ class FakeRosbridge:
                       b'Connection: Upgrade\r\nSec-WebSocket-Accept: x\r\n\r\n')
             c.recv(4096)                                   # the subscribe frame
             if self.deliver:
+                # like the real rosbridge: '/' escaped as '\/' in the JSON
                 p = json.dumps({'op': 'publish', 'topic': '/mavros/state',
-                                'msg': {'connected': True, 'armed': False}}).encode()
+                                'msg': {'connected': True, 'armed': False}}).replace('/', '\\/').encode()
                 c.sendall(bytes([0x81, 126]) + struct.pack('>H', len(p)) + p
                           if len(p) >= 126 else bytes([0x81, len(p)]) + p)
             threading.Event().wait(2)
             c.close()
         except OSError:
             pass
+
+
+class Frames(unittest.TestCase):
+    def test_escaped_topic_is_recognised(self):
+        payload = b'{"op":"publish","topic":"\\/mavros\\/state","msg":{}}'
+        frame = bytes([0x81, len(payload)]) + payload
+        frames, rest = wdm.ws_messages(frame + frame[:3])
+        self.assertEqual(len(frames), 1)
+        self.assertTrue(wdm.is_state(frames[0]))
+        self.assertEqual(rest, frame[:3])
+        self.assertFalse(wdm.is_state(b'{"op":"publish","topic":"\\/mavros\\/battery"}'))
 
 
 class Probe(unittest.TestCase):
