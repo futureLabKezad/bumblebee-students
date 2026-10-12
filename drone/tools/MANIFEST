@@ -29,3 +29,8 @@ system/systemd/ros-env.conf                                /etc/systemd/system/w
 system/systemd/ros-env.conf                                /etc/systemd/system/notify-manager.service.d/ros-env.conf           root:root 0644
 system/systemd/ros-env.conf                                /etc/systemd/system/led-default.service.d/ros-env.conf              root:root 0644
 system/profile.d/bumblebee-ros.sh                          /etc/profile.d/bumblebee-ros.sh                                     root:root 0644
+# Restart ROS 2 nodes after a system clock jump (first NTP sync; no RTC).
+ros2_ws/src/bumblebee/scripts/fcu_armed.py                 /home/lb/ros2_ws/src/bumblebee/scripts/fcu_armed.py                 lb:lb 0755
+ros2_ws/src/bumblebee/scripts/clock_jump.sh                /home/lb/ros2_ws/src/bumblebee/scripts/clock_jump.sh                lb:lb 0755
+system/systemd/bumblebee-clock-jump.service                /etc/systemd/system/bumblebee-clock-jump.service                    root:root 0644
+system/systemd/bumblebee-clock-jump.timer                  /etc/systemd/system/bumblebee-clock-jump.timer                      root:root 0644

@@ -26,6 +26,15 @@ source /home/lb/ros2_ws/install/setup.bash
 # diagnostic: flush ROS/DDS logs immediately so the last lines before a freeze land on disk
 export RCUTILS_LOGGING_BUFFERED_STREAM=0
 export RCUTILS_CONSOLE_OUTPUT_FORMAT='[{severity} {time}] [{name}]: {message}'
+# Start after the first NTP sync when one is coming: the Raspberry Pi has no RTC
+# and steps its clock at that sync, and ROS 2 nodes running across such a jump
+# stop delivering data to each other (bumblebee-clock-jump.timer restarts them
+# if it happens later anyway). On a hotspot or without internet nothing syncs:
+# go ahead after 20 s.
+for _ in $(seq 1 20); do
+    [ -e /run/systemd/timesync/synchronized ] && break
+    sleep 1
+done
 # The flight controller's MAVLink baud differs between drones (PX4 SER_TEL1_BAUD):
 # find it before MAVROS opens the UART. Read-only; always prints a URL (the
 # remembered/configured one if the flight controller is silent).

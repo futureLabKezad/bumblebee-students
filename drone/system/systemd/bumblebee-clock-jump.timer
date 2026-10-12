@@ -1,0 +1,10 @@
+[Unit]
+Description=Bumblebee: react to system clock jumps (first NTP sync, no RTC)
+
+[Timer]
+# Fires when CLOCK_REALTIME jumps relative to the monotonic clock.
+OnClockChange=yes
+Unit=bumblebee-clock-jump.service
+
+[Install]
+WantedBy=timers.target

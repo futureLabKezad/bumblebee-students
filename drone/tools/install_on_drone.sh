@@ -106,6 +106,16 @@ while read -r src dst owner mode; do
     say "installed $dst"
 done < "$HERE/MANIFEST"
 
+# Enable the clock-jump reaction. A symlink rather than `systemctl enable`, so
+# it works the same on a running drone and on a mounted image (BB_ROOT).
+WANTS="$ROOT/etc/systemd/system/timers.target.wants"
+if [ ! -e "$WANTS/bumblebee-clock-jump.timer" ]; then
+    $SUDO mkdir -p "$WANTS"
+    $SUDO ln -sf /etc/systemd/system/bumblebee-clock-jump.timer "$WANTS/bumblebee-clock-jump.timer"
+    echo "$SUDO rm -f '$WANTS/bumblebee-clock-jump.timer'" >> "$ROLLBACK"
+    say "enabled bumblebee-clock-jump.timer"
+fi
+
 # ---- 3. drone identity -----------------------------------------------------
 NAME_FILE="$ROOT/home/lb/drone_name"
 MAC_FILE="$ROOT/home/lb/drone_name.mac"
@@ -135,6 +145,7 @@ if [ ${#MAC} -ge 17 ]; then
 fi
 
 {
+    echo "systemctl stop bumblebee-clock-jump.timer || true"
     echo "systemctl daemon-reload || true"
     echo "systemctl restart wifi-manager wifi-watchdog sys_metrics bumblebee-identity || true"
     echo "echo 'rolled back to the state before $TS'"
@@ -157,6 +168,7 @@ fi
 
 # ---- 5. restart only the non-flight services that changed ------------------
 $SUDO systemctl daemon-reload            # unit files and drop-ins may have changed
+$SUDO systemctl start bumblebee-clock-jump.timer || true
 $SUDO systemctl restart wifi-manager wifi-watchdog sys_metrics
 $SUDO systemctl restart bumblebee-identity
 

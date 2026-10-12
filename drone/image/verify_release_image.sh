@@ -92,6 +92,7 @@ check "hotspot profile kept" bash -c "grep -lq 'name: \"bumblebee-hotspot\"' '$M
 check "no Wi-Fi password in boot network-config" bash -c "! grep -qiE 'wifis|password' '$MNT/boot/firmware/network-config'"
 check "no drone_name" test ! -e "$MNT/home/lb/drone_name"
 check "no remembered flight-controller rate" test ! -e "$MNT/home/lb/.bumblebee/fcu_url"
+check "clock-jump timer enabled" test -L "$MNT/etc/systemd/system/timers.target.wants/bumblebee-clock-jump.timer"
 check "no ROS domain baked in (chosen per drone)" bash -c "! ls '$MNT'/etc/bumblebee/ros.env '$MNT'/etc/bumblebee/ros_domain >/dev/null 2>&1"
 check "no ROS discovery range forced" bash -c "! grep -rqs ROS_AUTOMATIC_DISCOVERY_RANGE '$MNT'/etc/bumblebee '$MNT'/etc/systemd/system '$MNT'/etc/profile.d '$MNT'/home/lb/start_bumblebee.sh"
 check "launch file: src and install copies match" cmp -s "$MNT/home/lb/ros2_ws/src/bumblebee/launch/bumblebee.launch.py" "$MNT/home/lb/ros2_ws/install/bumblebee/share/bumblebee/launch/bumblebee.launch.py"

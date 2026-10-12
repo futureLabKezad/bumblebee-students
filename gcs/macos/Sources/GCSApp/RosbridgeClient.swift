@@ -27,14 +27,18 @@ final class RosbridgeClient: NSObject {
     private var active = false
     private var generation = 0
 
-    private struct Sub { let topic: String; let type: String }
+    /// `throttleMs`: rosbridge sends at most one message per interval (0 = all),
+    /// keeping only the newest. A linked flight controller streams pose and
+    /// velocity at 30 Hz and the IMU at 50 Hz; the screen needs far less, and
+    /// rosbridge (Python) plus the Wi-Fi carry ~40 msg/s instead of ~115.
+    private struct Sub { let topic: String; let type: String; let throttleMs: Int }
     private let subs: [Sub] = [
-        .init(topic: "/mavros/state",                    type: "mavros_msgs/msg/State"),
-        .init(topic: "/mavros/statustext/recv",          type: "mavros_msgs/msg/StatusText"),
-        .init(topic: "/mavros/battery",                   type: "sensor_msgs/msg/BatteryState"),
-        .init(topic: "/mavros/mavros/pose",               type: "geometry_msgs/msg/PoseStamped"),
-        .init(topic: "/mavros/mavros/velocity_local",     type: "geometry_msgs/msg/TwistStamped"),
-        .init(topic: "/mavros/mavros/data",               type: "sensor_msgs/msg/Imu"),
+        .init(topic: "/mavros/state",                    type: "mavros_msgs/msg/State",          throttleMs: 0),
+        .init(topic: "/mavros/statustext/recv",          type: "mavros_msgs/msg/StatusText",     throttleMs: 0),
+        .init(topic: "/mavros/battery",                   type: "sensor_msgs/msg/BatteryState",   throttleMs: 1000),
+        .init(topic: "/mavros/mavros/pose",               type: "geometry_msgs/msg/PoseStamped",  throttleMs: 100),
+        .init(topic: "/mavros/mavros/velocity_local",     type: "geometry_msgs/msg/TwistStamped", throttleMs: 100),
+        .init(topic: "/mavros/mavros/data",               type: "sensor_msgs/msg/Imu",            throttleMs: 50),
     ]
 
     init(store: TelemetryStore) {
@@ -78,7 +82,11 @@ final class RosbridgeClient: NSObject {
     }
 
     private func send(subscribe s: Sub) {
-        let msg: [String: Any] = ["op": "subscribe", "topic": s.topic, "type": s.type]
+        var msg: [String: Any] = ["op": "subscribe", "topic": s.topic, "type": s.type]
+        if s.throttleMs > 0 {
+            msg["throttle_rate"] = s.throttleMs
+            msg["queue_length"] = 1
+        }
         guard let data = try? JSONSerialization.data(withJSONObject: msg),
               let str = String(data: data, encoding: .utf8) else { return }
         task?.send(.string(str)) { _ in }

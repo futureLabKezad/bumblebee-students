@@ -1,0 +1,7 @@
+[Unit]
+Description=Bumblebee: restart ROS 2 nodes after a system clock jump
+Documentation=file:/home/lb/ros2_ws/src/bumblebee/scripts/clock_jump.sh
+
+[Service]
+Type=oneshot
+ExecStart=/home/lb/ros2_ws/src/bumblebee/scripts/clock_jump.sh
