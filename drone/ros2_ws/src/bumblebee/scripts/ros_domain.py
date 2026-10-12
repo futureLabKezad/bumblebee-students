@@ -22,8 +22,12 @@ its own domain (1-101; 0 stays the ROS default for laptops):
   * the one remembered for this drone (state file, bound to its wlan0 MAC), else
   * one derived from the MAC, and with --browse
   * a free one if another drone on the Wi-Fi already advertises the same domain
-    in its Bonjour record (_bumblebee._tcp TXT ros_domain=..). Of two drones
-    with the same domain the one with the larger id moves, so exactly one does.
+    in its Bonjour record (_bumblebee._tcp TXT ros_domain=..). The drone that
+    notices the clash moves -- usually the one that just joined (a drone that
+    has been running all along may be flying); set_identity.sh re-runs this
+    every minute, so a clash missed once is found on the next pass. Free
+    domains are probed in a MAC-seeded order, so two drones moving at the same
+    moment do not land on the same new domain.
 
 The choice is remembered, so a drone keeps its domain from boot to boot.
 Called by set_identity.sh (root): without --browse at boot, with --browse from
@@ -80,17 +84,24 @@ def write_state(path, domain, mac):
     os.replace(tmp, path)
 
 
-def choose(current, my_id, others):
-    """Keep `current` unless another drone has it and we are the one to move
-    (larger id); then the next domain nobody advertises. `others` maps drone
+def probe_step(mac):
+    """Per-drone step through the domains. The span (101) is prime, so every
+    step 1..100 visits all of them, and different drones visit them in
+    different orders."""
+    digits = mac.replace(':', '').lower()
+    return 1 + int(digits or '0', 16) % (LAST - FIRST)
+
+
+def choose(current, my_id, others, mac=''):
+    """Keep `current` unless another drone advertises it; then the first domain
+    nobody advertises, in this drone's own probe order. `others` maps drone
     id -> advertised domain (our own id is ignored)."""
     taken = {d for i, d in others.items() if i != my_id}
-    rivals = [i for i, d in others.items() if i != my_id and d == current]
-    if not rivals or all(my_id < i for i in rivals):
+    if current not in taken:
         return current
-    span = LAST - FIRST + 1
+    span, step = LAST - FIRST + 1, probe_step(mac)
     for k in range(1, span):
-        d = FIRST + (current - FIRST + k) % span
+        d = FIRST + (current - FIRST + k * step) % span
         if d not in taken:
             return d
     return current
@@ -162,20 +173,30 @@ def txt_dict(msg, off, rdlen):
 
 
 def mdns_ask(sock, names, qtype, seconds):
-    """Send one legacy-unicast mDNS query; collect PTR targets and TXT dicts."""
+    """Send a legacy-unicast mDNS query (three times: multicast over Wi-Fi gets
+    lost); collect PTR targets and TXT dicts."""
     qid = random.randrange(1, 0xFFFF)
-    sock.sendto(build_query(qid, names, qtype), MDNS_ADDR)
+    query = build_query(qid, names, qtype)
+    start = time.monotonic()
+    resend = [start + seconds * f for f in (0.0, 0.3, 0.6)]
     ptrs, txts = set(), {}
-    end = time.monotonic() + seconds
+    end = start + seconds
     while True:
-        left = end - time.monotonic()
+        now = time.monotonic()
+        while resend and resend[0] <= now:
+            resend.pop(0)
+            try:
+                sock.sendto(query, MDNS_ADDR)
+            except OSError:
+                pass
+        left = end - now
         if left <= 0:
             break
-        sock.settimeout(left)
+        sock.settimeout(min(left, resend[0] - now) if resend else left)
         try:
             msg, _ = sock.recvfrom(9000)
         except socket.timeout:
-            break
+            continue
         except OSError:
             break
         try:
@@ -229,7 +250,7 @@ def main(argv=None):
         except OSError as e:
             log('browse failed (%s), keeping %d' % (e, domain))
             others = {}
-        new = choose(domain, my_id, others)
+        new = choose(domain, my_id, others, mac)
         if new != domain:
             rivals = sorted(i for i, d in others.items() if d == domain and i != my_id)
             log('domain %d is also used by %s; this drone moves to %d' % (domain, ', '.join(rivals), new))

@@ -103,15 +103,30 @@ class Choice(unittest.TestCase):
         self.assertNotEqual(d, 0)          # 0 stays the ROS default for laptops
 
     def test_no_rival_keeps_domain(self):
-        self.assertEqual(rd.choose(37, '20EC', {'20EC': 37, '3009': 12}), 37)
+        self.assertEqual(rd.choose(37, '20EC', {'20EC': 37, '3009': 12}, MAC), 37)
 
-    def test_larger_id_moves_smaller_keeps(self):
-        self.assertEqual(rd.choose(37, '20EC', {'3009': 37}), 37)        # 3009 moves
-        self.assertEqual(rd.choose(37, '3009', {'20EC': 37}), 38)        # we move
+    def test_the_drone_that_sees_the_clash_moves(self):
+        # whatever the ids: the other drone may have been running (or flying) for ages
+        self.assertNotEqual(rd.choose(37, '20EC', {'3009': 37}, MAC), 37)
+        self.assertNotEqual(rd.choose(37, '3009', {'20EC': 37}, MAC), 37)
 
-    def test_move_skips_taken_domains_and_wraps(self):
-        self.assertEqual(rd.choose(37, 'FFFF', {'0001': 37, '0002': 38, '0003': 39}), 40)
-        self.assertEqual(rd.choose(rd.LAST, 'FFFF', {'0001': rd.LAST}), rd.FIRST)
+    def test_move_skips_taken_domains(self):
+        taken = {'%04X' % i: d for i, d in enumerate(range(rd.FIRST, rd.LAST))}   # all but LAST
+        self.assertEqual(rd.choose(rd.FIRST, 'FFFF', taken, MAC), rd.LAST)
+
+    def test_simultaneous_movers_diverge(self):
+        others = {'AAAA': 37}
+        a = rd.choose(37, '1111', others, '88:a2:9e:57:20:ec')
+        b = rd.choose(37, '2222', others, 'd8:3a:dd:12:ab:cd')
+        self.assertNotEqual(a, 37)
+        self.assertNotEqual(b, 37)
+        self.assertNotEqual(a, b)
+
+    def test_probe_order_visits_every_domain(self):
+        for mac in (MAC, 'd8:3a:dd:12:ab:cd', '00:00:00:00:00:00'):
+            step, span = rd.probe_step(mac), rd.LAST - rd.FIRST + 1
+            seen = {rd.FIRST + (k * step) % span for k in range(span)}
+            self.assertEqual(len(seen), span, mac)
 
     def test_state_is_bound_to_the_mac(self):
         with tempfile.TemporaryDirectory() as d:
@@ -154,7 +169,7 @@ class Browse(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             state = os.path.join(d, 'ros_domain')
             mine = rd.preferred(MAC)
-            fake = FakeDrones({'0001': mine})          # smaller id: we move
+            fake = FakeDrones({'0001': mine})          # a drone already uses our domain
             rd.MDNS_ADDR = fake.addr
             out = io.StringIO()
             try:

@@ -1,0 +1,10 @@
+[Unit]
+Description=Bumblebee: re-check the ROS domain every minute (clashes found late, deferred moves)
+
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=60s
+Unit=bumblebee-identity-recheck.service
+
+[Install]
+WantedBy=timers.target

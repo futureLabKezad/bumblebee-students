@@ -34,7 +34,7 @@ if pgrep -f 'mavros/mavros_node' >/dev/null 2>&1; then
     STATE=$(python3 "$HERE/fcu_armed.py" 2>/dev/null || true)
     if [ "$STATE" = "disarmed" ]; then
         log "flight controller disarmed: restarting the ROS stack"
-        systemctl --no-block restart bumblebee 2>/dev/null || true
+        systemctl --no-block try-restart bumblebee 2>/dev/null || true
     else
         log "flight controller ${STATE:-unknown}: ROS stack NOT restarted; land and restart the drone"
     fi

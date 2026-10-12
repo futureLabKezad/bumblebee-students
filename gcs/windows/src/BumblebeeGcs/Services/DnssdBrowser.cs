@@ -40,6 +40,10 @@ public sealed class DnssdBrowser : IDisposable
     private readonly DeviceWatcher _watcher;
     private readonly Action<string, string, string?> _onFound; // (ip, name, id) — на фоновом потоке
     private bool _started;
+    // Updated-события несут только изменившиеся свойства (часто без TXT):
+    // храним полную запись и накатываем на неё обновление.
+    private readonly Dictionary<string, DeviceInformation> _known = new();
+    private readonly object _lock = new();
 
     public DnssdBrowser(Action<string, string> onFound) : this((ip, name, _) => onFound(ip, name)) { }
 
@@ -48,10 +52,22 @@ public sealed class DnssdBrowser : IDisposable
     {
         _onFound = onFound;
         _watcher = DeviceInformation.CreateWatcher(Aqs, Props, DeviceInformationKind.AssociationEndpointService);
-        _watcher.Added += (_, info) => Handle(info.Properties);
+        _watcher.Added += (_, info) =>
+        {
+            lock (_lock) _known[info.Id] = info;
+            Handle(info.Properties);
+        };
+        _watcher.Updated += (_, update) =>
+        {
+            DeviceInformation? info;
+            lock (_lock)
+            {
+                if (_known.TryGetValue(update.Id, out info)) info.Update(update);
+            }
+            Handle(info?.Properties ?? update.Properties);
+        };
         // Пустые обработчики обязательны — иначе AEP-watcher бросает исключение.
-        _watcher.Updated += (_, update) => Handle(update.Properties);
-        _watcher.Removed += (_, _) => { };
+        _watcher.Removed += (_, update) => { lock (_lock) _known.Remove(update.Id); };
         _watcher.EnumerationCompleted += (_, _) => { };
         _watcher.Stopped += (_, _) => { };
     }

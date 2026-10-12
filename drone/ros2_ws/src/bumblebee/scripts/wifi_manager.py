@@ -306,7 +306,7 @@ def _fcu_safe_for_tune():
     armed: a show's melody must never cover PX4's own warnings in flight."""
     try:
         st = _drone.get_fcu_status()
-        return bool(st.get('ok')) and not st.get('armed')
+        return bool(st.get('connected')) and not st.get('armed')
     except Exception:
         return False
 
@@ -793,8 +793,10 @@ class FcuStatusHandler(BaseHandler):
             return
         try:
             st = _drone.get_fcu_status()
+            # ok only with a fresh state from a *linked* flight controller:
+            # MAVROS publishes connected=false, armed=false when the link drops
             self.finish(json.dumps({
-                'ok': bool(st.get('ok')),
+                'ok': bool(st.get('connected')),
                 'connected': bool(st.get('connected')),
                 'armed': bool(st.get('armed')),
                 'mode': str(st.get('mode') or ''),

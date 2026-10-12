@@ -60,6 +60,7 @@ public sealed class ProvisioningDialog : ContentDialog
     private bool _needPassword;
     private string? _passwordFor;          // сеть, для которой загружен пароль
     private WifiHandoff.Failure? _failureShown;
+    private bool _closed;                  // window gone: never start a setup
 
     public ProvisioningDialog(AppState app, string? preselected = null)
     {
@@ -139,6 +140,7 @@ public sealed class ProvisioningDialog : ContentDialog
         _handoff.Changed += _onChanged;
         Closed += (_, _) =>
         {
+            _closed = true;
             _handoff.Changed -= _onChanged;
             _rescan.Stop();
         };
@@ -150,6 +152,7 @@ public sealed class ProvisioningDialog : ContentDialog
             SyncPassword(force: true);
             _rescan.Start();
             await _handoff.ScanHotspotsAsync();
+            if (_closed) return;           // closed during the first scan
             if (_preselected is string drone && _handoff.HomeSsid.Length > 0)
             {
                 if (_password.Password.Length == 0)
@@ -370,7 +373,7 @@ public sealed class ProvisioningDialog : ContentDialog
             CheckRow($"Sending your WiFi {home}", 2, step),
             CheckRow($"Drone joins {home}, PC comes back", 3, step),
             CheckRow(step == 4 ? "Checking what went wrong…" : $"Finding the drone on {home}", 4, step));
-        var note = Ui.Text($"This takes up to a minute. The PC briefly leaves {home} and comes back on its own — keep this window open.",
+        var note = Ui.Text($"Usually under a minute; if something goes wrong, up to about 3 minutes while the app finds out why. The PC briefly leaves {home} and comes back on its own — keep this window open.",
             new FontSpec(11.5, new Windows.UI.Text.FontWeight(400), Mono: true), ConnectPalette.Muted);
         note.TextWrapping = TextWrapping.Wrap;
         return Ui.VStack(14,
@@ -497,6 +500,7 @@ public sealed class ProvisioningDialog : ContentDialog
 
     private void Add(string drone)
     {
+        if (_closed) return;
         var home = _handoff.HomeSsid;
         if (home.Length == 0 || _handoff.IsBusy) return;
         if (_password.Password.Length == 0)

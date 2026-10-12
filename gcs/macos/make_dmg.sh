@@ -16,13 +16,16 @@
 # Package the app as a ready-to-run disk image: open it, drag "Bumblebee GCS"
 # onto Applications, done -- nothing to build on the user's Mac.
 #
-#   ./make_dmg.sh          # builds the universal app first if needed
+#   ./make_dmg.sh          # always rebuilds the universal app first
 # Output: build/BumblebeeGCS-<version>-mac.dmg (+ .sha256)
 set -euo pipefail
 cd "$(dirname "$0")"
 
 APP="build/Bumblebee GCS.app"
-[ -d "$APP" ] || ./build_app.sh
+# Always a fresh universal build: never package a leftover single-arch dev build.
+./build_app.sh
+lipo "$APP/Contents/MacOS/GCSApp" -verify_arch arm64 x86_64 \
+    || { echo "not a universal (arm64 + x86_64) build" >&2; exit 1; }
 VER=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Contents/Info.plist")
 OUT="build/BumblebeeGCS-$VER-mac.dmg"
 

@@ -54,12 +54,15 @@ struct ProvisioningView: View {
             handoff.reset()
             handoff.refreshCurrentSSID()
             loadPassword()
-            Task {
-                await handoff.scanHotspots()
-                if let drone = preselected, !homeWifi.isEmpty {
-                    if password.isEmpty { needPassword = true; passwordFocused = true; lastDrone = drone }
-                    else { add(drone) }
-                }
+        }
+        .task {
+            // `.task` is cancelled when the window closes: closing it during the
+            // first scan must not start a setup with no window left.
+            await handoff.scanHotspots()
+            guard !Task.isCancelled else { return }
+            if let drone = preselected, !homeWifi.isEmpty {
+                if password.isEmpty { needPassword = true; passwordFocused = true; lastDrone = drone }
+                else { add(drone) }
             }
         }
         .onReceive(rescan) { _ in
@@ -73,8 +76,9 @@ struct ProvisioningView: View {
             if let host { app.connect(to: host); dismiss() }
         }
         .onChange(of: homeWifi) { _, _ in
-            // The Mac moved to another network while the window was open.
-            if !handoff.phase.isBusy { loadPassword() }
+            // The Mac moved to another network while the window was open (seen
+            // during a rescan, so not gated on isBusy, which includes scanning).
+            if !handoff.phase.isProvisioning { needPassword = false; loadPassword() }
         }
     }
 

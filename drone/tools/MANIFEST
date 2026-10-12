@@ -44,3 +44,6 @@ ros2_ws/src/bumblebee/scripts/ros_watchdog.py              /home/lb/ros2_ws/src/
 system/systemd/bumblebee-ros-watchdog.service              /etc/systemd/system/bumblebee-ros-watchdog.service                  root:root 0644
 # Bigger socket buffers for Fast DDS
 system/sysctl.d/60-bumblebee-dds.conf                      /etc/sysctl.d/60-bumblebee-dds.conf                                 root:root 0644
+# Per-minute ROS domain re-check (late clashes, deferred moves)
+system/systemd/bumblebee-identity-recheck.service          /etc/systemd/system/bumblebee-identity-recheck.service              root:root 0644
+system/systemd/bumblebee-identity-recheck.timer            /etc/systemd/system/bumblebee-identity-recheck.timer                root:root 0644

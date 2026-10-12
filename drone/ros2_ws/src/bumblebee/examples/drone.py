@@ -572,9 +572,9 @@ _aruco_yaw_locked_last_true_time = None  # rclpy Time of last True observation
 # does TF lookups and stalls under CPU load -- a stall there used to surface as
 # a false "FCU lost" -> red ERROR strobe on the LEDs.
 _fcu_state_msg   = None   # latest mavros_msgs/State
-_fcu_state_time  = None   # rclpy Time of last State msg
+_fcu_state_time  = None   # time.monotonic() of last State msg (immune to clock steps)
 _battery_msg     = None   # latest sensor_msgs/BatteryState
-_battery_time    = None   # rclpy Time of last BatteryState msg
+_battery_time    = None   # time.monotonic() of last BatteryState msg
 
 # Set to True when Ctrl+C is pressed -- navigate_wait checks this each loop
 should_land = False
@@ -653,12 +653,12 @@ def _init():
     def _on_state(msg):
         global _fcu_state_msg, _fcu_state_time
         _fcu_state_msg = msg
-        _fcu_state_time = _node.get_clock().now()
+        _fcu_state_time = time.monotonic()
 
     def _on_battery(msg):
         global _battery_msg, _battery_time
         _battery_msg = msg
-        _battery_time = _node.get_clock().now()
+        _battery_time = time.monotonic()
 
     _state_qos = QoSProfile(
         depth=1,
@@ -756,22 +756,22 @@ def get_fcu_status(max_age=3.0):
       ok        -- bool, a fresh State message is available
     """
     _init()
-    now = _node.get_clock().now()
+    now = time.monotonic()
     connected = False
     armed = False
     mode = ''
     ok = False
     if _fcu_state_msg is not None and _fcu_state_time is not None:
-        age = (now - _fcu_state_time).nanoseconds / 1e9
-        ok = age < max_age
+        age = now - _fcu_state_time
+        ok = 0.0 <= age < max_age
         connected = bool(_fcu_state_msg.connected) and ok
         armed = bool(_fcu_state_msg.armed)
         mode = str(_fcu_state_msg.mode)
 
     cell = float('nan')
     if _battery_msg is not None and _battery_time is not None:
-        bage = (now - _battery_time).nanoseconds / 1e9
-        if bage < max_age:
+        bage = now - _battery_time
+        if 0.0 <= bage < max_age:
             cells = list(_battery_msg.cell_voltage)
             if cells:
                 c0 = float(cells[0])

@@ -243,7 +243,8 @@ class FakeDrone:
         self.tunes.append(tune)
 
     def get_fcu_status(self, max_age=3.0):
-        return {'ok': self.fresh, 'armed': self.armed, 'connected': self.fresh,
+        return {'ok': self.fresh, 'armed': self.armed,
+                'connected': self.fresh and getattr(self, 'linked', True),
                 'mode': 'AUTO.LOITER', 'cell': float('nan')}
 
     def set_led(self, *a):
@@ -292,6 +293,8 @@ class ShowsTest(AsyncHTTPTestCase):
         d = json.loads(self.fetch('/api/fcu/status').body)   # NaN cell must not leak into JSON
         self.assertEqual(d, {'ok': True, 'connected': True, 'armed': True, 'mode': 'AUTO.LOITER'})
         self.drone.fresh = False
+        self.assertFalse(json.loads(self.fetch('/api/fcu/status').body)['ok'])
+        self.drone.fresh, self.drone.linked = True, False     # MAVROS lost the FCU link
         self.assertFalse(json.loads(self.fetch('/api/fcu/status').body)['ok'])
 
     def test_show_is_silent_while_armed(self):

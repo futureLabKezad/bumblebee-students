@@ -13,14 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This drone's ROS 2 domain (set_identity.sh may pick it after the unit started,
-# when Wi-Fi comes up during the start delay -- so read it here, not only via
-# the unit's EnvironmentFile).
-if [ -r /etc/bumblebee/ros.env ]; then
-    set -a
-    . /etc/bumblebee/ros.env
-    set +a
-fi
 source /opt/ros/jazzy/setup.bash
 source /home/lb/ros2_ws/install/setup.bash
 # diagnostic: flush ROS/DDS logs immediately so the last lines before a freeze land on disk
@@ -40,4 +32,11 @@ done
 # remembered/configured one if the flight controller is silent).
 BB_FCU_URL=$(python3 /home/lb/ros2_ws/src/bumblebee/scripts/fcu_detect.py) || true
 export BB_FCU_URL
+# This drone's ROS 2 domain, read at the last moment: set_identity.sh may pick
+# or change it after the unit started (Wi-Fi coming up during the waits above).
+if [ -r /etc/bumblebee/ros.env ]; then
+    set -a
+    . /etc/bumblebee/ros.env
+    set +a
+fi
 exec ros2 launch bumblebee bumblebee.launch.py

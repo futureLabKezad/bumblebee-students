@@ -142,12 +142,12 @@ class ClockJump(unittest.TestCase):
     def test_disarmed_restarts_everything(self):
         out, calls = self.run_jump(FAKE_MAVROS='1', FAKE_FCU='disarmed')
         self.assertIn('--no-block try-restart notify-manager wifi-manager', calls)
-        self.assertIn('--no-block restart bumblebee', calls)
+        self.assertIn('--no-block try-restart bumblebee', calls)
 
     def test_armed_or_unknown_leaves_the_flight_stack_alone(self):
         for fcu in ('armed', 'unknown', ''):
             out, calls = self.run_jump(FAKE_MAVROS='1', FAKE_FCU=fcu)
-            self.assertNotIn('--no-block restart bumblebee', calls, fcu)
+            self.assertNotIn('--no-block try-restart bumblebee', calls, fcu)
             self.assertIn('NOT restarted', out)
             os.remove(os.path.join(self.tmp.name, 'systemctl.log'))
 

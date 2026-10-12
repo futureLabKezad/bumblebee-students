@@ -1,0 +1,10 @@
+[Unit]
+Description=Bumblebee: re-check the drone's ROS domain against the other drones on the Wi-Fi
+Documentation=file:/home/lb/ros2_ws/src/bumblebee/scripts/set_identity.sh
+After=bumblebee-identity.service
+
+[Service]
+Type=oneshot
+# Timer runs: no announce delay (that is for the moment Wi-Fi comes up).
+Environment=BB_BROWSE_DELAY=0
+ExecStart=/home/lb/ros2_ws/src/bumblebee/scripts/set_identity.sh

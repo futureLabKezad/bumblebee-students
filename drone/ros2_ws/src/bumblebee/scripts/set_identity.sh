@@ -31,11 +31,20 @@ NAME_FILE=${BB_NAME_FILE:-/home/lb/drone_name}
 MAC_FILE=${BB_MAC_FILE:-/home/lb/drone_name.mac}
 SERVICE_FILE=${BB_SERVICE_FILE:-/etc/avahi/services/bumblebee.service}
 # Per-drone ROS 2 domain (see ros_domain.py): decision + the env file every
-# ROS service, start_bumblebee.sh and login shells read.
+# ROS service, start_bumblebee.sh and login shells read (/etc/environment
+# carries the domain to non-login sessions such as `ssh drone 'cmd'`).
 ROS_STATE=${BB_ROS_STATE:-/etc/bumblebee/ros_domain}
 ROS_ENV=${BB_ROS_ENV:-/etc/bumblebee/ros.env}
-ROS_DOMAIN_PY=${BB_ROS_DOMAIN_PY:-$(dirname "$(readlink -f "$0")")/ros_domain.py}
-FCU_STATUS_URL=${BB_FCU_STATUS_URL:-http://127.0.0.1:8765/api/fcu/status}
+ETC_ENVIRONMENT=${BB_ETC_ENVIRONMENT:-/etc/environment}
+SCRIPTS=$(dirname "$(readlink -f "$0")")
+ROS_DOMAIN_PY=${BB_ROS_DOMAIN_PY:-$SCRIPTS/ros_domain.py}
+FCU_ARMED_PY=${BB_FCU_ARMED_PY:-$SCRIPTS/fcu_armed.py}
+PROC=${BB_PROC:-/proc}
+
+# Runs at boot, from the NetworkManager hook and every minute from a timer:
+# never two at once.
+exec 9>"${BB_IDENTITY_LOCK:-/run/bumblebee-identity.lock}"
+command -v flock >/dev/null 2>&1 && flock -w 60 9 || true
 
 MAC=$(cat "${BB_WLAN_ADDRESS:-/sys/class/net/wlan0/address}" 2>/dev/null | tr -d '[:space:]')
 # Short hardware id, also used in the hotspot SSID (Bumblebee-<ID>).
@@ -86,16 +95,30 @@ fi
 echo "set_identity: name=$NAME display=$DISP"
 
 # 0) ROS 2 domain. On a client Wi-Fi (not at early boot, not on our own
-#    hotspot) look at the domains other drones advertise and avoid them. A
-#    change while the flight stack runs is applied by restarting it -- only when
-#    the flight controller confirms it is disarmed; otherwise at the next start.
+#    hotspot) look at the domains other drones advertise and avoid them. What
+#    counts is the domain the services actually run with (their environment),
+#    not what ros.env says. The flight stack is restarted onto a new domain
+#    only when PX4's own heartbeat says disarmed -- read straight from the
+#    flight controller (fcu_armed.py), never through ROS, where during a clash
+#    the other drone's state could answer. Otherwise everything stays on the
+#    running domain and the next pass (timer, every minute) tries again.
 client_ip() {
     ip -4 -o addr show wlan0 2>/dev/null | awk '{print $4}' | cut -d/ -f1 \
         | grep -v -E '^(10\.42\.|169\.254\.)' | head -n1
 }
 fcu_disarmed() {
-    curl -fsS -m 3 "$FCU_STATUS_URL" 2>/dev/null \
-        | python3 -c 'import sys, json; d = json.load(sys.stdin); sys.exit(0 if d.get("ok") and not d.get("armed") else 1)' 2>/dev/null
+    [ "$(python3 "$FCU_ARMED_PY" 2>/dev/null)" = "disarmed" ]
+}
+unit_domain() {
+    # ROS_DOMAIN_ID the unit's main process runs with; '' if not running
+    local pid
+    systemctl is-active --quiet "$1" 2>/dev/null || return 0
+    pid=$(systemctl show -p MainPID --value "$1" 2>/dev/null)
+    [ -n "$pid" ] && [ "$pid" != "0" ] || return 0
+    tr '\0' '\n' < "$PROC/$pid/environ" 2>/dev/null | sed -n 's/^ROS_DOMAIN_ID=//p' | tail -n1
+}
+mavros_running() {
+    pgrep -f '^/opt/ros/jazzy/lib/mavros/mavros_node' >/dev/null 2>&1
 }
 CUR_DOMAIN=$(sed -n 's/^ROS_DOMAIN_ID=//p' "$ROS_ENV" 2>/dev/null | tail -n1)
 BROWSE=""
@@ -105,14 +128,19 @@ if [ -n "$(client_ip)" ]; then
 fi
 DOMAIN=$(python3 "$ROS_DOMAIN_PY" --mac "$MAC" --id "$HWID" --state "$ROS_STATE" $BROWSE || true)
 case "$DOMAIN" in ''|*[!0-9]*) DOMAIN="$CUR_DOMAIN" ;; esac
-RESTART_ROS=0
-if [ -n "$DOMAIN" ] && [ "$DOMAIN" != "${CUR_DOMAIN:-0}" ] && systemctl is-active --quiet bumblebee 2>/dev/null; then
+STACK_DOMAIN=""
+if systemctl is-active --quiet bumblebee 2>/dev/null && mavros_running; then
+    STACK_DOMAIN=$(unit_domain bumblebee)
+    STACK_DOMAIN=${STACK_DOMAIN:-0}           # started before domains existed
+fi
+RESTART_STACK=0
+if [ -n "$DOMAIN" ] && [ -n "$STACK_DOMAIN" ] && [ "$DOMAIN" != "$STACK_DOMAIN" ]; then
     if fcu_disarmed; then
-        echo "set_identity: ROS domain ${CUR_DOMAIN:-0} -> $DOMAIN, restarting the ROS services (disarmed)"
-        RESTART_ROS=1
+        echo "set_identity: ROS domain $STACK_DOMAIN -> $DOMAIN, restarting the ROS services (PX4 disarmed)"
+        RESTART_STACK=1
     else
-        echo "set_identity: ROS domain ${CUR_DOMAIN:-0} -> $DOMAIN at the next start (flight controller not confirmed disarmed)" >&2
-        DOMAIN="$CUR_DOMAIN"
+        echo "set_identity: ROS domain $STACK_DOMAIN -> $DOMAIN deferred (PX4 not confirmed disarmed)" >&2
+        DOMAIN="$STACK_DOMAIN"
     fi
 fi
 NEW_ENV=$(mktemp)
@@ -139,6 +167,23 @@ if ! cmp -s "$NEW_ENV" "$ROS_ENV"; then
     install -m 0644 "$NEW_ENV" "$ROS_ENV"
 fi
 rm -f "$NEW_ENV"
+# exactly one ROS_DOMAIN_ID line in /etc/environment (PAM: every login,
+# including non-interactive `ssh drone 'cmd'`)
+if [ -n "$DOMAIN" ] || grep -q '^ROS_DOMAIN_ID=' "$ETC_ENVIRONMENT" 2>/dev/null; then
+    NEW_ETC=$(mktemp)
+    grep -v '^ROS_DOMAIN_ID=' "$ETC_ENVIRONMENT" 2>/dev/null > "$NEW_ETC" || true
+    [ -n "$DOMAIN" ] && echo "ROS_DOMAIN_ID=$DOMAIN" >> "$NEW_ETC"
+    cmp -s "$NEW_ETC" "$ETC_ENVIRONMENT" || install -m 0644 "$NEW_ETC" "$ETC_ENVIRONMENT"
+    rm -f "$NEW_ETC"
+fi
+# Helpers not on this domain (not flight-critical: always safe to restart).
+AUX=""
+for u in wifi-manager notify-manager; do
+    d=$(unit_domain "$u")
+    if systemctl is-active --quiet "$u" 2>/dev/null && [ "${d:-0}" != "${DOMAIN:-0}" ]; then
+        AUX="$AUX $u"
+    fi
+done
 
 # 1) Hostname -> avahi auto-advertises <name>.local
 HOSTNAME_CHANGED=0
@@ -191,7 +236,14 @@ if systemctl is-active --quiet avahi-daemon 2>/dev/null; then
     fi
 fi
 
-# 4) A new ROS domain: restart everything that runs ROS nodes so they meet again.
-if [ "$RESTART_ROS" = "1" ]; then
-    systemctl --no-block restart bumblebee wifi-manager notify-manager led-default 2>/dev/null || true
+# 4) A new ROS domain: restart what runs ROS nodes so they meet again. The
+#    flight stack only after a fresh disarmed check.
+if [ "$RESTART_STACK" = "1" ]; then
+    if fcu_disarmed; then
+        systemctl --no-block try-restart bumblebee wifi-manager notify-manager 2>/dev/null || true
+    else
+        echo "set_identity: PX4 no longer reports disarmed: flight stack not restarted" >&2
+    fi
+elif [ -n "$AUX" ]; then
+    systemctl --no-block try-restart $AUX 2>/dev/null || true
 fi

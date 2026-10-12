@@ -89,6 +89,7 @@ say "stripping per-drone state"
 # per-drone runtime state (remembered flight-controller rate, ROS domain, ...)
 rm -rf "$MNT/home/lb/.bumblebee"
 rm -f "$MNT/etc/bumblebee/ros.env" "$MNT/etc/bumblebee/ros_domain"
+sed -i '/^ROS_DOMAIN_ID=/d' "$MNT/etc/environment"
 # identity: derived again on each drone (set_identity.sh)
 rm -f "$MNT/home/lb/drone_name" "$MNT/home/lb/drone_name.mac" \
       "$MNT/etc/avahi/services/bumblebee.service"

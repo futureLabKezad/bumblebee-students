@@ -350,7 +350,7 @@ public sealed class WifiHandoff
         }
 
         DroneApi.JoinError? reason = null;
-        if (await JoinHotspotAsync(iface, hotspotSsid) is null)
+        if (await JoinHotspotAsync(iface, hotspotSsid, maxAttempts: 2) is null)
         {
             var api = new DroneApi { Host = HotspotGatewayHost };
             reason = (await WaitForBackendAsync(api, 20))?.LastError;
@@ -378,10 +378,10 @@ public sealed class WifiHandoff
     /// Первая попытка может упасть, пока адаптер переключается, — до 4 попыток
     /// со свежим сканом.
     /// </summary>
-    private static async Task<string?> JoinHotspotAsync(Guid iface, string hotspotSsid)
+    private static async Task<string?> JoinHotspotAsync(Guid iface, string hotspotSsid, int maxAttempts = 4)
     {
         var lastErr = "its WiFi is not in range";
-        for (var attempt = 1; attempt <= 4; attempt++)
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
             try
             {
@@ -406,7 +406,7 @@ public sealed class WifiHandoff
             {
                 lastErr = ex.Message;
             }
-            if (attempt < 4) await Task.Delay(2000);
+            if (attempt < maxAttempts) await Task.Delay(2000);
         }
         return lastErr;
     }

@@ -53,23 +53,16 @@ say() { echo "[bumblebee-update] $*"; }
 
 # ---- 1. safety: never while armed -------------------------------------------
 if [ -z "$ROOT" ] && [ "$FORCE" -eq 0 ]; then
-    if [ -f /opt/ros/jazzy/setup.bash ]; then
-        set +u
-        # shellcheck disable=SC1091
-        # this drone's ROS domain, or /mavros/state is not visible
-        [ -r /etc/bumblebee/ros.env ] && { set -a; . /etc/bumblebee/ros.env; set +a; }
-        source /opt/ros/jazzy/setup.bash
-        [ -f /home/lb/ros2_ws/install/setup.bash ] && source /home/lb/ros2_ws/install/setup.bash
-        set -u
-        STATE=$(timeout 8 ros2 topic echo --once /mavros/state 2>/dev/null || true)
-        if echo "$STATE" | grep -q '^armed: true'; then
-            say "drone is ARMED - refusing to update. Land and disarm first."
-            exit 1
-        fi
-        if [ -z "$STATE" ]; then
-            say "could not read /mavros/state (stack not running?). Re-run with --force if the drone is on the ground."
-            exit 1
-        fi
+    # PX4's own heartbeat, read from MAVROS's GCS port -- not /mavros/state,
+    # which on a shared ROS domain can be another drone's.
+    FCU=$(python3 "$HERE/payload/ros2_ws/src/bumblebee/scripts/fcu_armed.py" 2>/dev/null || true)
+    if [ "$FCU" = "armed" ]; then
+        say "drone is ARMED - refusing to update. Land and disarm first."
+        exit 1
+    fi
+    if [ "$FCU" != "disarmed" ]; then
+        say "could not read the flight controller's state (MAVROS not running?). Re-run with --force if the drone is on the ground."
+        exit 1
     fi
 fi
 
@@ -106,15 +99,18 @@ while read -r src dst owner mode; do
     say "installed $dst"
 done < "$HERE/MANIFEST"
 
-# Enable the clock-jump reaction. A symlink rather than `systemctl enable`, so
-# it works the same on a running drone and on a mounted image (BB_ROOT).
+# Enable the clock-jump reaction and the per-minute domain re-check. Symlinks
+# rather than `systemctl enable`, so it works the same on a running drone and
+# on a mounted image (BB_ROOT).
 WANTS="$ROOT/etc/systemd/system/timers.target.wants"
-if [ ! -e "$WANTS/bumblebee-clock-jump.timer" ]; then
-    $SUDO mkdir -p "$WANTS"
-    $SUDO ln -sf /etc/systemd/system/bumblebee-clock-jump.timer "$WANTS/bumblebee-clock-jump.timer"
-    echo "$SUDO rm -f '$WANTS/bumblebee-clock-jump.timer'" >> "$ROLLBACK"
-    say "enabled bumblebee-clock-jump.timer"
-fi
+for t in bumblebee-clock-jump.timer bumblebee-identity-recheck.timer; do
+    if [ ! -e "$WANTS/$t" ]; then
+        $SUDO mkdir -p "$WANTS"
+        $SUDO ln -sf "/etc/systemd/system/$t" "$WANTS/$t"
+        echo "$SUDO rm -f '$WANTS/$t'" >> "$ROLLBACK"
+        say "enabled $t"
+    fi
+done
 
 MU_WANTS="$ROOT/etc/systemd/system/multi-user.target.wants"
 if [ ! -e "$MU_WANTS/bumblebee-ros-watchdog.service" ]; then
@@ -153,7 +149,7 @@ if [ ${#MAC} -ge 17 ]; then
 fi
 
 {
-    echo "systemctl stop bumblebee-clock-jump.timer bumblebee-ros-watchdog || true"
+    echo "systemctl stop bumblebee-clock-jump.timer bumblebee-identity-recheck.timer bumblebee-ros-watchdog || true"
     echo "systemctl daemon-reload || true"
     echo "systemctl restart wifi-manager wifi-watchdog sys_metrics bumblebee-identity || true"
     echo "echo 'rolled back to the state before $TS'"
@@ -176,7 +172,7 @@ fi
 
 # ---- 5. restart only the non-flight services that changed ------------------
 $SUDO systemctl daemon-reload            # unit files and drop-ins may have changed
-$SUDO systemctl start bumblebee-clock-jump.timer || true
+$SUDO systemctl start bumblebee-clock-jump.timer bumblebee-identity-recheck.timer || true
 $SUDO systemctl restart bumblebee-ros-watchdog || true
 [ -z "$ROOT" ] && $SUDO sysctl --system >/dev/null 2>&1 || true   # bigger DDS socket buffers
 $SUDO systemctl restart wifi-manager wifi-watchdog sys_metrics
