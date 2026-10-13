@@ -576,6 +576,30 @@ _fcu_state_time  = None   # time.monotonic() of last State msg (immune to clock 
 _battery_msg     = None   # latest sensor_msgs/BatteryState
 _battery_time    = None   # time.monotonic() of last BatteryState msg
 
+# Pilot wins (A4, 2026-10-13): the Pi never overrides a mode the pilot (RC)
+# or a PX4 failsafe chose. Flight calls first wait up to this long for a
+# fresh FCU state (the latched /mavros/state arrives shortly after _init());
+# without one they refuse instead of guessing.
+_FCU_STATE_WAIT = 2.0
+
+# Map z of base_link recorded right before the Pi arms the drone through
+# navigate(auto_arm=True), i.e. the floor of this flight (A7). Reference for
+# the below-floor guard in navigate_wait and the landed check in arming(False);
+# None until this script arms (then 0.0 is used: map z=0 is the resting
+# base_link height, see DRONE_REST_Z_OFFSET). Cleared on the disarm edge.
+_arm_ref_z = None
+
+# True once drone.py itself switched the armed vehicle from OFFBOARD to
+# AUTO.LAND (a navigate_wait guard or safe_land's fallback); cleared on the
+# disarm edge or when the mode leaves AUTO.LAND. Only the wording depends on
+# it: that landing is this script's, so messages do not blame the pilot.
+_own_auto_land = False
+
+# arming(False) counts the drone as landed within these limits (the same
+# band safe_land uses to confirm touchdown).
+_LANDED_DZ = 0.20   # m, |z - height at arm|
+_LANDED_VZ = 0.10   # m/s, |vz|
+
 # Set to True when Ctrl+C is pressed -- navigate_wait checks this each loop
 should_land = False
 
@@ -626,7 +650,11 @@ def _init():
     _get_telemetry_client = _node.create_client(srv.GetTelemetry, '/get_telemetry')
     _navigate_client      = _node.create_client(srv.Navigate,     '/navigate')
     _land_client          = _node.create_client(Trigger,          '/land')
-    _arming_client        = _node.create_client(CommandBool,      '/mavros/cmd/arming')
+    # MAVROS 2.14 (the drone) with launch name='mavros': the __node remap also
+    # renames every plugin node, so plugin services live under /mavros/mavros/
+    # (same target as simple_offboard's arming remap). /mavros/cmd/arming only
+    # exists on MAVROS >= 2.15, and launch remaps do not reach this node.
+    _arming_client        = _node.create_client(CommandBool,      '/mavros/mavros/arming')
     _set_mode_client      = _node.create_client(SetMode,          '/mavros/set_mode')
     _gate_param_client    = _node.create_client(srv.SetParam,     '/vpe_fix/set_param')
     _param_pull_client    = _node.create_client(ParamPull,       '/mavros/mavros/pull')
@@ -650,11 +678,6 @@ def _init():
 
     # Cheap FCU status subscriptions (see get_fcu_status). /mavros/state is
     # RELIABLE + TRANSIENT_LOCAL; /mavros/battery is BEST_EFFORT.
-    def _on_state(msg):
-        global _fcu_state_msg, _fcu_state_time
-        _fcu_state_msg = msg
-        _fcu_state_time = time.monotonic()
-
     def _on_battery(msg):
         global _battery_msg, _battery_time
         _battery_msg = msg
@@ -664,7 +687,7 @@ def _init():
         depth=1,
         reliability=ReliabilityPolicy.RELIABLE,
         durability=DurabilityPolicy.TRANSIENT_LOCAL)
-    _node.create_subscription(State, '/mavros/state', _on_state, _state_qos)
+    _node.create_subscription(State, '/mavros/state', _on_fcu_state, _state_qos)
 
     _batt_qos = QoSProfile(
         depth=1,
@@ -782,6 +805,120 @@ def get_fcu_status(max_age=3.0):
             'cell': cell, 'ok': ok}
 
 
+def _on_fcu_state(msg):
+    """/mavros/state callback: cache for get_fcu_status; end of flight on disarm."""
+    global _fcu_state_msg, _fcu_state_time, _arm_ref_z, _own_auto_land
+    prev = _fcu_state_msg
+    # Armed -> disarmed with the link up: this flight is over, so its floor
+    # reference must not leak into the next one (a link-loss State has
+    # connected=False and armed=False and is not a disarm).
+    if prev is not None and prev.armed and msg.connected and not msg.armed:
+        _arm_ref_z = None
+        _own_auto_land = False
+    # Out of AUTO.LAND (e.g. the pilot took over): a later one is not ours
+    if prev is not None and prev.mode == 'AUTO.LAND' and msg.connected \
+            and msg.mode != 'AUTO.LAND':
+        _own_auto_land = False
+    _fcu_state_msg = msg
+    _fcu_state_time = time.monotonic()
+
+
+# ---------------------------------------------------------------------------
+# Pilot wins (A4, 2026-10-13)
+# ---------------------------------------------------------------------------
+#
+# If the vehicle is armed and not in OFFBOARD, the pilot (RC mode switch) or a
+# PX4 failsafe chose that mode: no drone.py code path may change it or start
+# OFFBOARD control. With the FCU state unknown, nothing is commanded either --
+# a stale state looks like "disarmed" and would let a flying drone be armed /
+# switched. Limit: PX4 reports its mode at the HEARTBEAT rate (~1 Hz), so a
+# takeover is seen up to ~1 s late.
+
+def _fcu_mode_state(wait=0.0):
+    """(known, armed, mode) of the FCU for the pilot-wins checks.
+
+    First source: the cached /mavros/state (get_fcu_status -- monotonic age,
+    no service call). Only when that is not fresh: simple_offboard's
+    /get_telemetry, which blanks connected/armed/mode after its own state
+    timeout. known=False when neither has a fresh state with the FCU link up;
+    armed/mode must not be trusted then. wait > 0 keeps polling that long.
+    """
+    deadline = time.monotonic() + wait
+    while True:
+        s = get_fcu_status()
+        if s['ok'] and s['connected']:
+            return True, s['armed'], s['mode']
+        try:
+            t = get_telemetry()
+            if t.connected:
+                return True, bool(t.armed), str(t.mode)
+        except Exception:
+            pass
+        if time.monotonic() >= deadline:
+            return False, False, ''
+        time.sleep(0.1)
+
+
+def _no_control_reason(known, armed, mode):
+    """Why the Pi must not command the FCU now, or None when it may.
+
+    Allowed: disarmed (any mode -- the ground takeoff path) and armed in
+    OFFBOARD (the Pi's own flight).
+    """
+    if not known:
+        return 'FCU state unknown (no fresh /mavros/state or FCU link down)'
+    if armed and mode == 'AUTO.LAND' and _own_auto_land:
+        return 'landing in progress (this script switched to AUTO.LAND)'
+    if armed and mode != 'OFFBOARD':
+        return 'pilot/failsafe has control (armed, mode=%s)' % (mode or '?')
+    return None
+
+
+def _land_if_offboard():
+    """Guard action: AUTO.LAND, only while the Pi holds the armed vehicle in OFFBOARD."""
+    known, armed, mode = _fcu_mode_state()
+    if not (known and armed and mode == 'OFFBOARD'):
+        _node.get_logger().warn('Not switching to AUTO.LAND: %s' % (
+            _no_control_reason(known, armed, mode) or 'not armed'))
+        return
+    _own_auto_land_switch()
+
+
+def _own_auto_land_switch():
+    """set_mode('AUTO.LAND') from OFFBOARD, remembered as this script's landing."""
+    global _own_auto_land
+    try:
+        if set_mode('AUTO.LAND').mode_sent:
+            _own_auto_land = True
+    except Exception as e:
+        _node.get_logger().error('AUTO.LAND fallback failed: %s' % e)
+
+
+def _record_arm_height():
+    """Remember the map z of base_link right before the Pi arms (A7)."""
+    global _arm_ref_z
+    try:
+        t = get_telemetry(frame_id='map')
+        _arm_ref_z = float(t.z) if t.z == t.z else None
+    except Exception:
+        _arm_ref_z = None
+
+
+def _landed_now():
+    """(landed, detail) for arming(False): fresh map z near the height at arm, slow vz."""
+    ref = _arm_ref_z if _arm_ref_z is not None else 0.0
+    try:
+        t = get_telemetry(frame_id='map')   # fresh sample, never the cached one
+    except Exception as e:
+        return False, 'no telemetry: %s' % e
+    z, vz = t.z, t.vz
+    if not (z == z and vz == vz):
+        return False, 'position unknown (NaN)'
+    if abs(z - ref) > _LANDED_DZ or abs(vz) > _LANDED_VZ:
+        return False, 'z=%.2f (height at arm %.2f) vz=%.2f' % (z, ref, vz)
+    return True, ''
+
+
 # Cache last-known-valid telemetry per frame_id; robust wrapper falls back to it.
 _last_valid_telem = {}    # frame_id -> (telem, monotonic_time)
 _last_stale_warn_t = {}   # frame_id -> last warn monotonic_time
@@ -822,6 +959,20 @@ def navigate(**kwargs):
     req = srv.Navigate.Request()
     for k, v in kwargs.items():
         setattr(req, k, v)
+    # Pilot wins (A4): never start or retarget OFFBOARD control while the
+    # pilot / a PX4 failsafe owns the armed vehicle or the state is unknown.
+    # simple_offboard's serve() refuses the same; checking here as well gives
+    # the script the reason and covers an older binary. (Keep the word
+    # "position" out of the message: navigate_wait retries on it.)
+    known, armed, mode = _fcu_mode_state(wait=_FCU_STATE_WAIT)
+    reason = _no_control_reason(known, armed, mode)
+    if reason is not None:
+        res = srv.Navigate.Response()
+        res.success = False
+        res.message = 'navigate refused: ' + reason
+        return res
+    if req.auto_arm and not armed:
+        _record_arm_height()   # on the ground: the floor of this flight
     # auto_arm can take up to ~10s (set_mode + arming loops); use longer timeout
     timeout = 30.0 if req.auto_arm else 5.0
     return _call(_navigate_client, req, timeout=timeout)
@@ -832,15 +983,57 @@ def land():
     return _call(_land_client, Trigger.Request(), timeout=15.0)
 
 
+def _arming_refused(reason):
+    print('arming refused: ' + reason)
+    res = CommandBool.Response()
+    res.success = False
+    res.result = 2   # MAV_RESULT_DENIED; nothing was sent to the FCU
+    return res
+
+
 def arming(value):
+    """Disarm on the ground only (A7, 2026-10-13); never arms.
+
+    arming(True) is refused: the motors start only through takeoff() /
+    navigate(auto_arm=True), which check the FCU state first.
+    arming(False) is sent only when the drone is landed: z within 0.20 m of
+    the height recorded at arm time and |vz| < 0.10 m/s (PX4 also denies a
+    non-forced disarm in the air). In flight use safe_land(); the hard stop
+    is the RC kill switch.
+
+    Returns the CommandBool response (success=False when refused).
+    """
     _init()
+    if value:
+        return _arming_refused(
+            'motors start only through drone.takeoff() / navigate(auto_arm=True)')
+    known, armed, mode = _fcu_mode_state(wait=_FCU_STATE_WAIT)
+    if not known:
+        return _arming_refused(_no_control_reason(known, armed, mode))
+    if armed:
+        landed, detail = _landed_now()
+        if not landed:
+            return _arming_refused(
+                'not landed (%s) -- use safe_land(); hard stop = RC kill switch' % detail)
     req = CommandBool.Request()
-    req.value = value
+    req.value = False
     return _call(_arming_client, req)
 
 
 def set_mode(custom_mode):
+    """Switch the PX4 flight mode via /mavros/set_mode.
+
+    Pilot wins (A4): refused (mode_sent=False, nothing sent) while the FCU
+    state is unknown or the vehicle is armed and not in OFFBOARD -- the
+    pilot or a PX4 failsafe chose that mode.
+    """
     _init()
+    reason = _no_control_reason(*_fcu_mode_state(wait=_FCU_STATE_WAIT))
+    if reason is not None:
+        print('set_mode(%s) refused: %s' % (custom_mode, reason))
+        res = SetMode.Response()
+        res.mode_sent = False
+        return res
     req = SetMode.Request()
     req.custom_mode = custom_mode
     return _call(_set_mode_client, req)
@@ -1413,7 +1606,9 @@ def navigate_wait(x=0.0, y=0.0, z=0.0, yaw=float('nan'), speed=0.5, frame_id='bo
                   tolerance_adaptive=False, vision_timeout=6.0):
     """
     Send a navigation command and block until the drone reaches the target.
-    Returns True if reached within tolerance, False on timeout/disarm/interrupt.
+    Returns True if reached within tolerance, False on timeout/disarm/interrupt,
+    or when the pilot / a PX4 failsafe has control (then the guards below never
+    switch the mode: pilot wins, A4).
 
     If tolerance_adaptive=True, override `tolerance` based on the current
     /aruco_detect/markers_used: >=2 markers -> 0.15 m, ==1 marker -> 0.25 m,
@@ -1466,6 +1661,15 @@ def navigate_wait(x=0.0, y=0.0, z=0.0, yaw=float('nan'), speed=0.5, frame_id='bo
         if not t.armed:
             _node.get_logger().warn('Drone disarmed unexpectedly -- stopping.')
             return False
+        # Pilot wins (A4, 2026-10-13): the pilot (RC mode switch) or a PX4
+        # failsafe took the armed vehicle out of OFFBOARD. Stop before the
+        # guards below, so none of them switches its mode to AUTO.LAND.
+        known, f_armed, f_mode = _fcu_mode_state()
+        if known and f_armed and f_mode != 'OFFBOARD':
+            _node.get_logger().warn(
+                'pilot/failsafe has control (armed, mode=%s) -- %s stopped, '
+                'mode left as is' % (f_mode, phase))
+            return False
         # Vision watchdog (drift fix 2026-06-10): once vision has been seen,
         # >vision_timeout without a usable (>=1 marker) frame means the vpe
         # gate has closed (its freshness windows are 1.0/1.5 s + 0.5 s
@@ -1481,9 +1685,7 @@ def navigate_wait(x=0.0, y=0.0, z=0.0, yaw=float('nan'), speed=0.5, frame_id='bo
                 'Vision lost for %.1fs (markers_used=0, limit %.1fs) -- EKF '
                 'is coasting, switching to AUTO.LAND'
                 % (_markers_pos_age(), vision_timeout))
-            try: set_mode('AUTO.LAND')
-            except Exception as e:
-                _node.get_logger().error('AUTO.LAND fallback failed: %s' % e)
+            _land_if_offboard()
             return False
         # Stale-telemetry watchdog: _get_telemetry_robust(allow_stale=True)
         # keeps returning a frozen cached position on NaN, so prolonged NaN
@@ -1494,20 +1696,26 @@ def navigate_wait(x=0.0, y=0.0, z=0.0, yaw=float('nan'), speed=0.5, frame_id='bo
             _node.get_logger().error(
                 'Telemetry stale for %.1fs (NaN position) -- '
                 'switching to AUTO.LAND' % telem_stale)
-            try: set_mode('AUTO.LAND')
-            except Exception as e:
-                _node.get_logger().error('AUTO.LAND fallback failed: %s' % e)
+            _land_if_offboard()
             return False
         # Safety: detect EKF divergence (single-marker IPPE flip cascades).
         # Skip when telemetry is NaN — that is a transient TF gap, not a glitch.
         # Also skip cached (stale) samples: comparing a frozen position to
         # itself yields jump=0 and silently disables this guard.
         if telem_stale < 0.2 and not (math.isnan(t.x) or math.isnan(t.y) or math.isnan(t.z)):
-            if t.z < -0.5:
+            # Below-floor guard (A7, 2026-10-13): measured from the height
+            # recorded at arm time (0.0 if this script did not arm). An EKF z
+            # this far under the floor is a diverged estimate, so land like
+            # the other guards; a mid-air disarm (the old action) would drop
+            # a drone that may really be 1-2 m up, and PX4 denies it anyway.
+            floor_z = _arm_ref_z if _arm_ref_z is not None else 0.0
+            if t.z < floor_z - 0.5:
+                _vision_abort = True
                 _node.get_logger().error(
-                    'EKF z=%.2f is below ground — emergency disarm' % t.z)
-                try: arming(False)
-                except Exception: pass
+                    'EKF z=%.2f is %.2f m below the height at arm (%.2f) -- '
+                    'EKF diverged, switching to AUTO.LAND'
+                    % (t.z, floor_z - t.z, floor_z))
+                _land_if_offboard()
                 return False
             # Upper-altitude runaway guard (symmetric to the below-ground check
             # above): a slow upward EKF drift never trips the 3 m/s jump guard.
@@ -1516,9 +1724,7 @@ def navigate_wait(x=0.0, y=0.0, z=0.0, yaw=float('nan'), speed=0.5, frame_id='bo
                 _node.get_logger().error(
                     'Altitude overshoot: z=%.2f > target %.2f +0.6 -- runaway '
                     'climb, switching to AUTO.LAND' % (t.z, z))
-                try: set_mode('AUTO.LAND')
-                except Exception as e:
-                    _node.get_logger().error('AUTO.LAND fallback failed: %s' % e)
+                _land_if_offboard()
                 return False
             now = time.time()
             if last_pos is not None and last_t is not None:
@@ -1532,9 +1738,7 @@ def navigate_wait(x=0.0, y=0.0, z=0.0, yaw=float('nan'), speed=0.5, frame_id='bo
                         'EKF likely diverged, switching to AUTO.LAND' % (jump, dt, jump / dt))
                     # PX4 rejects arming(False) while airborne; AUTO.LAND is
                     # the only way for the script to force the FCU down.
-                    try: set_mode('AUTO.LAND')
-                    except Exception as e:
-                        _node.get_logger().error('AUTO.LAND fallback failed: %s' % e)
+                    _land_if_offboard()
                     return False
             last_pos = (t.x, t.y, t.z)
             last_t = now
@@ -1559,25 +1763,37 @@ def takeoff(height=1.0, speed=0.4, vision_timeout=25.0):
     routinely blank detection for several seconds; 25 s covers arming +
     a slow climb to re-acquisition altitude while still bounding an
     IMU/baro-only coast.
+
+    Pilot wins (A4, 2026-10-13): refused -- prints why, returns False --
+    when the FCU state is unknown or the vehicle is armed and not in
+    OFFBOARD (the pilot or a PX4 failsafe has control). The mode of an armed
+    vehicle is never switched: a retry after an AUTO.LAND abort used to put
+    the airborne drone in STABILIZED, which with the throttle stick low
+    drops it. Returns True when the target height was reached.
     """
     _init()
+    known, armed, mode = _fcu_mode_state(wait=_FCU_STATE_WAIT)
+    reason = _no_control_reason(known, armed, mode)
+    if reason is not None:
+        print('takeoff refused: ' + reason)
+        return False
+    non_arm_modes = ('AUTO.LAND', 'AUTO.RTL', 'AUTO.LOITER',
+                     'AUTO.MISSION', 'AUTO.TAKEOFF')
+    # Disarmed on the ground only: leave an AUTO.* mode (e.g. AUTO.LAND
+    # after the last landing) before auto_arm asks for OFFBOARD.
+    if not armed and mode in non_arm_modes:
+        print('Mode is %s -- switching to STABILIZED' % mode)
+        try:
+            set_mode('STABILIZED')
+        except Exception as e:
+            _node.get_logger().warn('set_mode STABILIZED failed: %s' % e)
+        # set_mode is async on PX4 -- poll until mode actually changed.
+        deadline = time.time() + 3.0
+        while time.time() < deadline:
+            if _fcu_mode_state()[2] not in non_arm_modes:
+                break
+            time.sleep(0.1)
     t = _get_telemetry_robust(frame_id='map')
-    if t.mode != 'OFFBOARD':
-        non_arm_modes = ('AUTO.LAND', 'AUTO.RTL', 'AUTO.LOITER',
-                         'AUTO.MISSION', 'AUTO.TAKEOFF')
-        if t.mode in non_arm_modes:
-            print('Mode is %s -- switching to STABILIZED' % t.mode)
-            try:
-                set_mode('STABILIZED')
-            except Exception as e:
-                _node.get_logger().warn('set_mode STABILIZED failed: %s' % e)
-            # set_mode is async on PX4 -- poll until mode actually changed.
-            deadline = time.time() + 3.0
-            while time.time() < deadline:
-                t = _get_telemetry_robust(frame_id='map')
-                if t.mode not in non_arm_modes:
-                    break
-                time.sleep(0.1)
     # After mode switch the FCU briefly publishes NaN local position
     # (TF gap between LP and map frame). simple_offboard rejects navigate
     # with "No local position" for the first 1-2 attempts. Wait up to 1 s
@@ -1591,9 +1807,9 @@ def takeoff(height=1.0, speed=0.4, vision_timeout=25.0):
     # Lock X/Y in map frame using current position so arming/setpoint timing
     # cannot shift the horizontal target (body→map transform race).
     print('=== TAKEOFF to %.1fm ===' % height)
-    navigate_wait(x=t.x, y=t.y, z=t.z + height, speed=speed, frame_id='map',
-                  auto_arm=True, phase='TAKEOFF', tolerance=0.15, timeout=30.0,
-                  vision_timeout=vision_timeout)
+    return navigate_wait(x=t.x, y=t.y, z=t.z + height, speed=speed, frame_id='map',
+                         auto_arm=True, phase='TAKEOFF', tolerance=0.15, timeout=30.0,
+                         vision_timeout=vision_timeout)
 
 
 def fly_to(x, y, z=1.0, speed=0.5, tolerance=0.2, tolerance_adaptive=False):
@@ -1605,25 +1821,42 @@ def fly_to(x, y, z=1.0, speed=0.5, tolerance=0.2, tolerance_adaptive=False):
 
 
 def move(x=0, y=0, z=0, speed=0.5):
-    """Move relative to the drone current position and heading."""
+    """Move relative to the drone current position and heading. True on arrival."""
     _init()
     print('=== MOVE by (%.2f, %.2f, %.2f) ===' % (x, y, z))
-    navigate_wait(x=x, y=y, z=z, speed=speed, frame_id='body', phase='MOVE')
+    return navigate_wait(x=x, y=y, z=z, speed=speed, frame_id='body', phase='MOVE')
 
 
 def hover(seconds=3.0):
-    """Hold current position for the given number of seconds."""
+    """Hold current position for the given number of seconds.
+
+    Returns True after the full hold. Pilot wins (A4): when the pilot or a
+    PX4 failsafe has control (or the FCU state is unknown) nothing is sent
+    and it returns False at once -- a navigate here would restart the
+    setpoint stream and could pull PX4 back into OFFBOARD out of a failsafe.
+    """
     global should_land
     if should_land:
-        return
+        return False
     _init()
+    reason = _no_control_reason(*_fcu_mode_state(wait=_FCU_STATE_WAIT))
+    if reason is not None:
+        print('hover: %s -- not hovering' % reason)
+        return False
     t = _get_telemetry_robust(frame_id='map')
-    navigate(x=t.x, y=t.y, z=t.z, yaw=math.nan,
-             speed=0.3, frame_id='map', auto_arm=False)
+    res = navigate(x=t.x, y=t.y, z=t.z, yaw=math.nan,
+                   speed=0.3, frame_id='map', auto_arm=False)
+    if not res.success:
+        print('hover: navigate rejected: ' + res.message)
     print('Hovering %.1fs...' % seconds)
     deadline = time.time() + seconds
     while time.time() < deadline and not should_land:
+        known, armed, mode = _fcu_mode_state()
+        if known and armed and mode != 'OFFBOARD':
+            print('hover: pilot/failsafe has control (armed, mode=%s) -- stopped' % mode)
+            return False
         time.sleep(0.1)
+    return bool(res.success) and not should_land
 
 
 def safe_land(x=None, y=None, precision_speed=0.2, precision_tolerance=0.07,
@@ -1639,8 +1872,31 @@ def safe_land(x=None, y=None, precision_speed=0.2, precision_tolerance=0.07,
     success. Now we require both armed=False AND z<0.20 m AND |vz|<0.10 m/s
     for 0.5 s. If armed flips False while z>0.50 m we treat it as a fall
     (sys.exit(2)). On timeout we exit(3).
+
+    Pilot wins (A4, 2026-10-13): if the vehicle is armed and not in OFFBOARD
+    (the pilot took over with the RC, or PX4 entered a failsafe mode), or
+    they take over during the descent, nothing is sent -- no approach, no
+    /land, no AUTO.LAND switch -- and it returns False. Armed in AUTO.LAND
+    is a landing already in progress (usually a navigate_wait guard of this
+    script switched to it after an abort): nothing is sent either, but the
+    descent is watched as below, so the script still ends only after
+    touchdown. Returns True once landed and disarmed.
     """
     _init()
+
+    known, armed, mode = _fcu_mode_state(wait=_FCU_STATE_WAIT)
+    if known and armed and mode == 'AUTO.LAND':
+        print('safe_land: landing already in progress (AUTO.LAND) -- no commands '
+              'sent, watching the descent')
+        return _watch_descent(timeout)
+    if known and armed and mode != 'OFFBOARD':
+        print('safe_land: pilot/failsafe has control (armed, mode=%s) -- '
+              'no commands sent' % mode)
+        return False
+    if not known:
+        # Only /land below: simple_offboard lands only from OFFBOARD and
+        # checks the state itself.
+        print('safe_land: FCU state unknown -> straight /land (no approach/hover)')
 
     # Fix #3B (2026-05-27): defend against NaN XY propagating from a stale START telem.
     if x is None or y is None or \
@@ -1659,14 +1915,15 @@ def safe_land(x=None, y=None, precision_speed=0.2, precision_tolerance=0.07,
         print('safe_land: vision unhealthy -> straight land (no precision approach)')
         x, y = None, None
 
-    if x is not None and y is not None:
+    if known and x is not None and y is not None:
         t = _get_telemetry_robust(frame_id='map')
         print('Precision approach to (%.2f, %.2f)...' % (x, y))
         navigate_wait(x=x, y=y, z=t.z, speed=precision_speed,
                       frame_id='map', tolerance=precision_tolerance,
                       phase='APPROACH')
 
-    hover(seconds=1.5)
+    if known:
+        hover(seconds=1.5)
 
     print('=== LANDING ===')
     landing_ok = False
@@ -1679,18 +1936,30 @@ def safe_land(x=None, y=None, precision_speed=0.2, precision_tolerance=0.07,
     except Exception as e:
         _node.get_logger().error('Land service error: ' + str(e))
 
-    # Fallback: simple_offboard's /land only works in OFFBOARD. If the drone
-    # disarmed unexpectedly mid-flight (or got booted to STABILIZED), switch
-    # the FCU directly into AUTO.LAND so it can still recover safely.
+    # Fallback: /land failed (simple_offboard down, busy or timed out) while
+    # the Pi still holds the vehicle in OFFBOARD -> switch to AUTO.LAND
+    # directly. Pilot wins: an armed vehicle in any other mode (the pilot or a
+    # PX4 failsafe moved it out of OFFBOARD) is never switched from here;
+    # AUTO.LAND (e.g. a /land that timed out but switched late) is watched.
     if not landing_ok:
-        try:
-            t = _get_telemetry_robust(frame_id='map')
-            if t.armed:
-                _node.get_logger().warn('Falling back to AUTO.LAND')
-                set_mode('AUTO.LAND')
-        except Exception as e:
-            _node.get_logger().error('AUTO.LAND fallback failed: ' + str(e))
+        known, armed, mode = _fcu_mode_state()
+        if known and armed and mode == 'OFFBOARD':
+            _node.get_logger().warn('Falling back to AUTO.LAND')
+            _own_auto_land_switch()
+        elif known and armed and mode != 'AUTO.LAND':
+            print('safe_land: pilot/failsafe has control (armed, mode=%s) -- '
+                  'no AUTO.LAND fallback' % mode)
+            return False
+    return _watch_descent(timeout)
 
+
+def _watch_descent(timeout):
+    """safe_land's read-only descent check: True once landed and disarmed.
+
+    Sends nothing. Returns False when the pilot or a PX4 failsafe takes the
+    armed vehicle out of AUTO.LAND/OFFBOARD; exits the script on a fall
+    (sys.exit(2)) or when it does not land within timeout s (sys.exit(3)).
+    """
     descent_ok_since = None
     t0 = time.monotonic()
     last_print = 0.0
@@ -1706,6 +1975,16 @@ def safe_land(x=None, y=None, precision_speed=0.2, precision_tolerance=0.07,
             print('[LAND] z=%s vz=%s armed=%s' % (z_str, vz_str, armed))
             last_print = now
 
+        # Pilot wins: AUTO.LAND (ours, or one already in progress) or OFFBOARD
+        # (switch still pending) are the only armed modes expected here. Any
+        # other one means the pilot or a PX4 failsafe took over: stop
+        # supervising, change nothing.
+        known, f_armed, f_mode = _fcu_mode_state()
+        if known and f_armed and f_mode not in ('AUTO.LAND', 'OFFBOARD'):
+            print('safe_land: pilot/failsafe has control (armed, mode=%s) -- '
+                  'stopped watching the descent' % f_mode)
+            return False
+
         # NaN guard via self-equality (NaN != NaN). Require ALL of:
         # disarmed, low altitude, slow vertical velocity, for >=0.5s.
         if (not armed) and (z == z) and z < 0.20 and (vz == vz) and abs(vz) < 0.10:
@@ -1713,7 +1992,7 @@ def safe_land(x=None, y=None, precision_speed=0.2, precision_tolerance=0.07,
                 descent_ok_since = now
             elif now - descent_ok_since >= 0.5:
                 print('Landed and disarmed.')
-                return
+                return True
         else:
             descent_ok_since = None
 

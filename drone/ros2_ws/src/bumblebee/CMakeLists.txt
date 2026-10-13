@@ -154,5 +154,41 @@ install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY camera_info DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY www DESTINATION share/${PROJECT_NAME})
 
+#############
+## Testing ##
+#############
+
+# colcon build --packages-select bumblebee && colcon test --packages-select bumblebee
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_pytest REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
+  find_package(launch_testing_ament_cmake REQUIRED)
+
+  # drone.py flight guards (D1-D3); ROS is faked, no rclpy needed
+  ament_add_pytest_test(test_drone_flight_guards test/test_drone_flight_guards.py TIMEOUT 120)
+
+  # Navigate segment math (S1): compiles simple_offboard.cpp itself without main()
+  ament_add_gtest(test_simple_offboard test/test_simple_offboard.cpp)
+  target_include_directories(test_simple_offboard PRIVATE src/cpp)
+  ament_target_dependencies(test_simple_offboard
+    rclcpp tf2 tf2_ros tf2_geometry_msgs
+    std_srvs geometry_msgs sensor_msgs mavros_msgs)
+  target_link_libraries(test_simple_offboard ${GeographicLib_LIBRARIES} ${cpp_typesupport_target})
+
+  # The real simple_offboard binary against a fake MAVROS (S1-S5). Runs in its
+  # own ROS_DOMAIN_ID so parallel test runs on one machine cannot cross-talk.
+  add_launch_test(test/test_simple_offboard_launch.py
+    TARGET test_simple_offboard_launch
+    TIMEOUT 240
+    RUNNER "${ament_cmake_ros_DIR}/run_test_isolated.py")
+  # The same binary under use_sim_time with a fake /clock at 25% real time (the
+  # Gazebo sim); its own ROS_DOMAIN_ID keeps that /clock away from other tests
+  add_launch_test(test/test_simple_offboard_simtime_launch.py
+    TARGET test_simple_offboard_simtime_launch
+    TIMEOUT 180
+    RUNNER "${ament_cmake_ros_DIR}/run_test_isolated.py")
+endif()
+
 ament_export_dependencies(rosidl_default_runtime)
 ament_package()

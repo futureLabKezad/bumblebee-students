@@ -121,3 +121,44 @@ jobs:
         # discover, not "unittest test/x.py": that imports test.x, and on Linux
         # "test" is Python's own stdlib test package, so nothing would load.
         run: python -m unittest discover -v -s test -p 'test_*.py'
+
+  drone-ros:
+    name: Drone ROS package (colcon build + test, ROS 2 Jazzy)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ROS 2 Jazzy from packages.ros.org
+        env:
+          # ros-infrastructure/ros-apt-source: the packages.ros.org apt source and key
+          ROS_APT_SOURCE_VERSION: '1.3.0'
+          ROS_APT_SOURCE_SHA256: f31d84adf5054c7d60ded0e82c0f776a77ea33af53d08f40b9ad7c94cca55296
+        run: |
+          deb="ros2-apt-source_${ROS_APT_SOURCE_VERSION}.noble_all.deb"
+          curl -fsSL -o "/tmp/$deb" \
+            "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/$deb"
+          echo "${ROS_APT_SOURCE_SHA256}  /tmp/$deb" | sha256sum -c -
+          sudo dpkg -i "/tmp/$deb"
+          sudo apt-get update -q
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
+            ros-jazzy-ros-base ros-dev-tools python3-colcon-common-extensions \
+            ros-jazzy-mavros-msgs ros-jazzy-tf2-geometry-msgs ros-jazzy-cv-bridge \
+            ros-jazzy-image-transport ros-jazzy-image-proc ros-jazzy-image-geometry \
+            ros-jazzy-rclcpp-components ros-jazzy-visualization-msgs \
+            libgeographiclib-dev geographiclib-tools libopencv-dev python3-lxml python3-pytest \
+            ros-jazzy-ament-cmake-gtest ros-jazzy-ament-cmake-pytest ros-jazzy-ament-cmake-ros \
+            ros-jazzy-launch-testing-ament-cmake ros-jazzy-launch-testing-ros
+      - name: colcon build
+        working-directory: drone/ros2_ws
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --packages-select bumblebee --event-handlers console_direct+
+      - name: colcon test
+        working-directory: drone/ros2_ws
+        # simple_offboard gtest + launch tests against a fake MAVROS, on the wall
+        # clock and under a fake sim /clock (no FCU, nothing can arm), drone.py
+        # flight guards with ROS faked
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon test --packages-select bumblebee --event-handlers console_direct+
+          colcon test-result --verbose

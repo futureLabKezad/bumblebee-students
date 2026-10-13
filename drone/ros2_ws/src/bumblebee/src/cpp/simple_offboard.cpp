@@ -9,11 +9,17 @@
  */
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <cstdint>
+#include <cstdio>
 #include <string>
 #include <cmath>
 #include <stdexcept>
 #include <memory>
 #include <map>
+#include <mutex>
+#include <thread>
 
 #include <GeographicLib/Geodesic.hpp>
 
@@ -82,6 +88,46 @@ inline bool stampIsZero(const builtin_interfaces::msg::Time& stamp) {
     return stamp.sec == 0 && stamp.nanosec == 0;
 }
 
+// Monotonic time for navigate segment progress on the drone. The ROS clock follows
+// the Pi's wall clock, which NTP steps by seconds (or by months on the first sync
+// after boot); the steady clock never jumps. Under use_sim_time the node uses the
+// simulation clock instead (SimpleOffboard::monotonicNs()).
+inline int64_t steadyNs() {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
+// Fraction of a navigate segment of `distance` m covered at `speed` m/s between
+// start_ns and now_ns, clamped to [0, 1]: it never extrapolates past either end.
+// A start in the future holds the start, a long wait stops at the target.
+// A zero-length segment is complete; without a positive speed the start is held.
+// Pure function, unit-tested in test/test_simple_offboard.cpp.
+inline double navigateProgress(double distance, double speed, int64_t start_ns, int64_t now_ns) {
+    if (!(distance > 0)) return 1.0;
+    if (!(speed > 0) || !std::isfinite(speed)) return 0.0;
+    // Subtract as integers first: epoch-sized nanosecond values lose precision
+    // as doubles, their difference does not
+    double elapsed = static_cast<double>(now_ns - start_ns) * 1e-9;
+    double progress = elapsed * speed / distance;
+    if (std::isnan(progress)) return 0.0;
+    return std::clamp(progress, 0.0, 1.0);
+}
+
+// Navigate setpoint: the point on the segment start -> target at navigateProgress().
+// It only clips onto the segment and always returns a point, so the setpoint
+// stream never stops because of it.
+inline Point navigateSetpoint(const Point& start, const Point& target, double speed,
+                              int64_t start_ns, int64_t now_ns) {
+    double dx = target.x - start.x, dy = target.y - start.y, dz = target.z - start.z;
+    double progress = navigateProgress(std::sqrt(dx*dx + dy*dy + dz*dz), speed, start_ns, now_ns);
+    if (progress >= 1.0) return target;
+    Point p;
+    p.x = start.x + dx * progress;
+    p.y = start.y + dy * progress;
+    p.z = start.z + dz * progress;
+    return p;
+}
+
 enum setpoint_type_t {
     NONE,
     NAVIGATE,
@@ -118,6 +164,9 @@ public:
         terrain_frame_mode_ = declare_parameter("terrain_frame_mode", string("altitude"));
 
         state_timeout_ = rclcpp::Duration::from_seconds(declare_parameter("state_timeout", 3.0));
+        // Stream watchdog in publishSetpoint(): longer than state_timeout, MAVROS
+        // reports State once per 1 Hz heartbeat and a false stop in the air is a failsafe
+        state_watchdog_timeout_ = rclcpp::Duration::from_seconds(declare_parameter("state_watchdog_timeout", 4.5));
         local_position_timeout_ = rclcpp::Duration::from_seconds(declare_parameter("local_position_timeout", 2.0));
         velocity_timeout_ = rclcpp::Duration::from_seconds(declare_parameter("velocity_timeout", 2.0));
         global_position_timeout_ = rclcpp::Duration::from_seconds(declare_parameter("global_position_timeout", 10.0));
@@ -129,6 +178,8 @@ public:
         land_timeout_ = rclcpp::Duration::from_seconds(declare_parameter("land_timeout", 3.0));
         arming_timeout_ = rclcpp::Duration::from_seconds(declare_parameter("arming_timeout", 4.0));
         arm_settle_time_ = rclcpp::Duration::from_seconds(declare_parameter("arm_settle_time", 1.5));
+        // auto_arm stays refused this long after a /land (see checkArmCancel())
+        arm_hold_after_land_ = rclcpp::Duration::from_seconds(declare_parameter("arm_hold_after_land", 3.0));
         setpoint_rate_ = declare_parameter("setpoint_rate", 30.0);
         setpoint_smooth_alpha_ = declare_parameter("setpoint_smooth_alpha", 0.3);
 
@@ -154,8 +205,10 @@ public:
         transform_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
         static_transform_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(this);
 
-        // Callback groups: srvs may block; concurrent runs alongside them
+        // Callback groups: srvs may block; concurrent runs alongside them; land has
+        // its own group so /land is answered (and can cancel auto_arm) while serve() blocks
         cb_grp_srvs_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+        cb_grp_land_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
         cb_grp_concurrent_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
         // Service clients (in cb_grp_concurrent_ so responses are processed while srvs block)
@@ -182,7 +235,9 @@ public:
             [this](const BatteryState::SharedPtr msg) { battery_ = *msg; }, sub_opts);
         statustext_sub_ = create_subscription<mavros_msgs::msg::StatusText>(
             mavros_ + "/statustext/recv", sub_qos,
-            [this](const mavros_msgs::msg::StatusText::SharedPtr msg) { statustext_ = *msg; }, sub_opts);
+            [this](const mavros_msgs::msg::StatusText::SharedPtr msg) {
+                std::lock_guard<std::mutex> lock(mutex_);
+                statustext_ = *msg; }, sub_opts);
         manual_control_sub_ = create_subscription<mavros_msgs::msg::ManualControl>(
             mavros_ + "/manual_control/control", 1,
             [this](const mavros_msgs::msg::ManualControl::SharedPtr msg) { manual_control_ = *msg; }, sub_opts);
@@ -288,7 +343,7 @@ public:
         ld_srv_ = create_service<std_srvs::srv::Trigger>("land",
             [this](const std_srvs::srv::Trigger::Request::SharedPtr req,
                    std_srvs::srv::Trigger::Response::SharedPtr res) { land(req, res); },
-            srv_qos, cb_grp_srvs_);
+            srv_qos, cb_grp_land_);
         rl_srv_ = create_service<std_srvs::srv::Trigger>("release",
             [this](const std_srvs::srv::Trigger::Request::SharedPtr req,
                    std_srvs::srv::Trigger::Response::SharedPtr res) { release(req, res); },
@@ -318,8 +373,10 @@ private:
     rclcpp::Duration land_timeout_{0, 0};
     rclcpp::Duration arming_timeout_{0, 0};
     rclcpp::Duration arm_settle_time_{0, 0};
+    rclcpp::Duration arm_hold_after_land_{0, 0};
     rclcpp::Duration local_position_timeout_{0, 0};
     rclcpp::Duration state_timeout_{0, 0};
+    rclcpp::Duration state_watchdog_timeout_{0, 0};
     rclcpp::Duration velocity_timeout_{0, 0};
     rclcpp::Duration global_position_timeout_{0, 0};
     rclcpp::Duration battery_timeout_{0, 0};
@@ -382,9 +439,16 @@ private:
     // Timer
     rclcpp::TimerBase::SharedPtr setpoint_timer_;
 
-    // Callback groups: srvs can block; concurrent runs alongside them
+    // Callback groups: srvs and land can block; concurrent runs alongside them
     rclcpp::CallbackGroup::SharedPtr cb_grp_srvs_;
+    rclcpp::CallbackGroup::SharedPtr cb_grp_land_;
     rclcpp::CallbackGroup::SharedPtr cb_grp_concurrent_;
+
+    // Guards the setpoint state and state_, local_position_, statustext_ shared
+    // between serve()/release() (srvs group), land() (land group) and
+    // handleState()/the setpoint timer (concurrent group). Never held while
+    // waiting for the FCU, so the setpoint stream keeps flowing.
+    std::mutex mutex_;
 
     // Setpoint state
     TransformStamped target_, setpoint_;
@@ -400,13 +464,27 @@ private:
     float setpoint_thrust_ = 0;
     float nav_speed_ = 0;
     float setpoint_lat_ = NAN, setpoint_lon_ = NAN;
-    bool busy_ = false;
+    // serve() and land() run in different callback groups: only one may command at a time
+    std::atomic<bool> busy_{false};
+    // Set by /land for its whole run: cancels an auto_arm in progress (checked in
+    // offboardAndArm()'s wait loops), so Ctrl+C during takeoff never starts the motors
+    std::atomic<bool> arm_cancel_{false};
+    // monotonicNs() when the last /land finished, 0 = none: auto_arm stays
+    // cancelled for arm_hold_after_land_ after it (checkArmCancel())
+    std::atomic<int64_t> land_done_ns_{0};
+    // Set while land() switches to AUTO.LAND: that exit from OFFBOARD is our own
+    std::atomic<bool> landing_{false};
     bool wait_armed_ = false;
-    // Time when offboardAndArm() last completed. While (now - this) < arm_settle_time_,
-    // nav interpolation is held at nav_start_ so motor spin-up vibration and the
-    // resulting noisy single-marker ArUco pose don't trick the controller into
-    // thinking the drone is already climbing while it's still on the ground.
-    rclcpp::Time arm_complete_time_{0, 0, RCL_ROS_TIME};
+    // monotonicNs() when the current navigate segment started (when nav_start_ was set)
+    int64_t nav_start_ns_ = 0;
+    // monotonicNs() when the last FCU state arrived (the state watchdog in publishSetpoint())
+    int64_t state_rx_ns_ = 0;
+    // monotonicNs() when offboardAndArm() last completed, 0 = none. While
+    // (now - this) < arm_settle_time_, nav interpolation is held at nav_start_ so
+    // motor spin-up vibration and the resulting noisy single-marker ArUco pose
+    // don't trick the controller into thinking the drone is already climbing
+    // while it's still on the ground.
+    int64_t arm_complete_ns_ = 0;
     bool nav_from_sp_flag_ = false;
     enum setpoint_type_t setpoint_type_ = NONE;
     enum yaw_type_t setpoint_yaw_type_ = YAW;
@@ -433,8 +511,62 @@ private:
         return (now() - rclcpp::Time(stamp, RCL_ROS_TIME)) > dur;
     }
 
+    // Clock for navigate segment progress, arm settle and the FCU state watchdog:
+    // the steady clock on the drone (immune to NTP steps), the simulation clock
+    // under use_sim_time. Gazebo runs at ~25% of real time and PX4 SITL in lockstep
+    // with it, so wall seconds would fly 4x the requested speed there; the
+    // simulation clock never steps.
+    int64_t monotonicNs() {
+        return get_clock()->ros_time_is_active() ? now().nanoseconds() : steadyNs();
+    }
+
+    // Copy of the latest FCU state, safe to read from any callback group
+    mavros_msgs::msg::State fcuState() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return state_;
+    }
+
+    // Latest FCU status text received after start, or "" (explains a timeout)
+    string statusTextSince(const rclcpp::Time& start) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (stampIsZero(statustext_.header.stamp) ||
+            rclcpp::Time(statustext_.header.stamp, RCL_ROS_TIME) <= start) return "";
+        return statustext_.text;
+    }
+
+    // Stop the setpoint stream and forget the target. Caller holds mutex_.
+    void resetSetpoint() {
+        if (setpoint_timer_) setpoint_timer_->cancel();
+        setpoint_type_ = NONE;
+        setpoint_position_.header.frame_id = "";
+        setpoint_altitude_.header.frame_id = "";
+        yaw_frame_id_ = "";
+    }
+
+    // The pilot or the failsafe has control now, or PX4 lost our stream: stop
+    // streaming, so that a returning stream (e.g. after a MAVROS restart) cannot
+    // pull the vehicle back into OFFBOARD in the middle of a landing or a pilot
+    // takeover (S4). Caller holds mutex_.
+    void stopStream(const string& reason) {
+        bool streaming = setpoint_timer_ && !setpoint_timer_->is_canceled();
+        resetSetpoint();
+        nav_from_sp_flag_ = false;
+        arm_complete_ns_ = 0;
+        publishState();
+        if (streaming) {
+            RCLCPP_WARN(get_logger(), "%s: setpoint stream stopped", reason.c_str());
+        }
+    }
+
     void handleState(const mavros_msgs::msg::State& s) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        state_rx_ns_ = monotonicNs();
         bool armed_edge_off = prev_armed_ && !s.armed;
+        // PX4 left OFFBOARD by itself in the air: the pilot switched mode or moved
+        // the sticks, or a failsafe fired (or a script's guard called set_mode
+        // AUTO.LAND directly). Our own /land (AUTO.LAND) is the only exit we ask for.
+        bool left_offboard = state_.mode == "OFFBOARD" && s.mode != "OFFBOARD" && s.armed &&
+                             !(landing_ && s.mode == "AUTO.LAND");
         prev_armed_ = s.armed;
         state_ = s;
         if (s.mode != "OFFBOARD") {
@@ -446,15 +578,13 @@ private:
         // PX4 glued to OFFBOARD and re-arming the next flight on a phantom
         // target. Reset internal state to the post-boot baseline.
         if (armed_edge_off) {
-            if (setpoint_timer_ && !setpoint_timer_->is_canceled()) {
-                setpoint_timer_->cancel();
-            }
-            setpoint_type_ = NONE;
-            setpoint_position_.header.frame_id = "";
-            setpoint_altitude_.header.frame_id = "";
-            yaw_frame_id_ = "";
+            resetSetpoint();
             nav_from_sp_flag_ = false;
-            arm_complete_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
+            arm_complete_ns_ = 0;
+        }
+        if (left_offboard) {
+            stopStream("PX4 left OFFBOARD for " + s.mode + " while armed, not through /land "
+                       "(the pilot, a failsafe or a direct set_mode)");
         }
     }
 
@@ -477,12 +607,15 @@ private:
     }
 
     void handleLocalPosition(const PoseStamped& pose) {
-        local_position_ = pose;
-        publishBodyFrame();
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            local_position_ = pose;
+        }
+        publishBodyFrame(); // reads local_position_ on the only thread that writes it
     }
 
     bool waitTransform(const string& target, const string& source,
-                       const rclcpp::Time& stamp, const rclcpp::Duration& dur) {
+                       const rclcpp::Time& /*stamp*/, const rclcpp::Duration& dur) {
         // Use tf2::TimePointZero (t=0) to check for the latest available transform.
         // Checking against the exact stamp fails when TF data lags behind ROS clock
         // by even a few milliseconds, as tf2 does not extrapolate.
@@ -503,6 +636,7 @@ private:
         auto t = tf_buffer_.lookupTransform(local_frame_, body_.child_frame_id, stamp);
         t.child_frame_id = terrain_.child_frame_id;
         t.transform.translation.z -= distance;
+        std::lock_guard<std::mutex> lock(mutex_); // the static broadcaster is shared with publishTarget()
         static_transform_broadcaster_->sendTransform(t);
     }
 
@@ -529,10 +663,11 @@ private:
         res->roll_rate = res->pitch_rate = res->yaw_rate = NAN;
         res->voltage = res->cell_voltage = NAN;
 
-        if (!timeout(state_.header.stamp, state_timeout_)) {
-            res->connected = state_.connected;
-            res->armed = state_.armed;
-            res->mode = state_.mode;
+        auto state = fcuState();
+        if (!timeout(state.header.stamp, state_timeout_)) {
+            res->connected = state.connected;
+            res->armed = state.armed;
+            res->mode = state.mode;
         }
 
         try {
@@ -581,34 +716,70 @@ private:
         }
     }
 
+    // Throws while /land is running and for arm_hold_after_land_ after it: auto_arm
+    // must not start the motors then. The hold covers a navigate(auto_arm) sent
+    // before /land that still waited in the srvs queue (e.g. behind a get_telemetry
+    // blocked on TF) while /land ran in its own group, failed on the ground ("not
+    // in OFFBOARD") and returned: it would arm right after the land request.
+    void checkArmCancel() {
+        if (arm_cancel_) throw std::runtime_error("Auto-arm cancelled: land requested");
+        int64_t done = land_done_ns_;
+        if (done == 0) return;
+        int64_t ago = monotonicNs() - done;
+        if (ago >= 0 && ago < arm_hold_after_land_.nanoseconds()) { // < 0: simulation restarted
+            char msg[96];
+            std::snprintf(msg, sizeof(msg), "Auto-arm cancelled: land requested %.1f s ago, not arming",
+                          ago * 1e-9);
+            throw std::runtime_error(msg);
+        }
+    }
+
+    // Wait for a service response, giving up early when auto_arm is cancelled
+    template <typename FutureT>
+    bool waitFuture(FutureT& future, std::chrono::milliseconds timeout) {
+        auto deadline = std::chrono::steady_clock::now() + timeout;
+        while (future.wait_for(std::chrono::milliseconds(50)) != std::future_status::ready) {
+            checkArmCancel();
+            if (std::chrono::steady_clock::now() > deadline) return false;
+        }
+        return true;
+    }
+
     void offboardAndArm() {
         rclcpp::Rate r(10);
 
-        if (state_.mode != "OFFBOARD") {
+        auto state = fcuState();
+        if (state.armed && state.mode == "OFFBOARD") return; // flying already, nothing to switch
+        // The pilot may have armed with the RC since serve() checked: never take over
+        checkPilot(state);
+        checkArmCancel();
+
+        if (state.mode != "OFFBOARD") {
             auto start = now();
             RCLCPP_INFO(get_logger(), "switch to OFFBOARD");
             auto sm_req = std::make_shared<mavros_msgs::srv::SetMode::Request>();
             sm_req->custom_mode = "OFFBOARD";
             auto future = set_mode_->async_send_request(sm_req);
-            if (future.wait_for(std::chrono::seconds(10)) != std::future_status::ready) {
+            if (!waitFuture(future, std::chrono::seconds(10))) {
                 throw std::runtime_error("Error calling set_mode service");
             }
 
             while (rclcpp::ok()) {
-                if (state_.mode == "OFFBOARD") break;
+                state = fcuState();
+                if (state.mode == "OFFBOARD") break;
+                checkArmCancel();
+                checkPilot(state);
                 if (now() - start > offboard_timeout_) {
                     string report = "OFFBOARD timed out";
-                    if (!stampIsZero(statustext_.header.stamp) &&
-                        rclcpp::Time(statustext_.header.stamp, RCL_ROS_TIME) > start) {
-                        report += ": " + statustext_.text;
-                    }
+                    string text = statusTextSince(start);
+                    if (!text.empty()) report += ": " + text;
                     throw std::runtime_error(report);
                 }
                 r.sleep();
             }
         }
 
-        if (!state_.armed) {
+        if (!state.armed) {
             auto start = now();
             auto last_arm_attempt = start - rclcpp::Duration::from_seconds(10); // force immediate first attempt
             RCLCPP_INFO(get_logger(), "arming");
@@ -616,26 +787,34 @@ private:
             arm_req->value = true;
 
             while (rclcpp::ok()) {
-                if (state_.armed) break;
+                state = fcuState();
+                if (state.armed) {
+                    checkPilot(state); // armed, but in the pilot's mode: not ours to fly
+                    break;
+                }
+                checkArmCancel();
+                // The pilot switched mode (or PX4 dropped OFFBOARD) before the motors
+                // started: arming now would start them in a mode the script does not fly
+                if (state.mode != "OFFBOARD")
+                    throw std::runtime_error("Copter left OFFBOARD for " + state.mode + " before arming, not arming");
                 if (now() - start > arming_timeout_) {
                     string report = "Arming timed out";
-                    if (!stampIsZero(statustext_.header.stamp) &&
-                        rclcpp::Time(statustext_.header.stamp, RCL_ROS_TIME) > start) {
-                        report += ": " + statustext_.text;
-                    }
+                    string text = statusTextSince(start);
+                    if (!text.empty()) report += ": " + text;
                     throw std::runtime_error(report);
                 }
                 // Retry arm command every 2s (handles "temporarily rejected" from PX4)
                 if ((now() - last_arm_attempt).seconds() >= 2.0) {
                     last_arm_attempt = now();
                     auto future = arming_->async_send_request(arm_req);
-                    if (future.wait_for(std::chrono::seconds(3)) != std::future_status::ready) {
+                    if (!waitFuture(future, std::chrono::seconds(3))) {
                         RCLCPP_WARN(get_logger(), "arming service call timed out, retrying");
                     } else {
                         auto res = future.get();
+                        string text = statusTextSince(rclcpp::Time(0, 0, RCL_ROS_TIME));
                         RCLCPP_INFO(get_logger(), "arm response: success=%d result=%d | statustext: %s",
                                     res->success, res->result,
-                                    statustext_.text.empty() ? "(none)" : statustext_.text.c_str());
+                                    text.empty() ? "(none)" : text.c_str());
                     }
                 }
                 r.sleep();
@@ -643,38 +822,19 @@ private:
         }
     }
 
-    inline double hypot3(double x, double y, double z) {
-        return std::sqrt(x*x + y*y + z*z);
-    }
-
-    inline float getDistance(const Point& from, const Point& to) {
-        return hypot3(from.x - to.x, from.y - to.y, from.z - to.z);
-    }
-
-    void getNavigateSetpoint(const rclcpp::Time& stamp, float speed, Point& nav_setpoint) {
-        // The arm-settle pin must only fire when stamp is a real timestamp
-        // AFTER arm completed. serve() calls publish(stamp=Time(0)) for TF
-        // lookups; without the stamp > arm_complete_time_ guard, that Time(0)
-        // would (a) make stamp-arm_complete_time_ a large negative duration,
-        // which compares < arm_settle_time_, falsely triggering settle for
-        // any subsequent navigate (e.g. fly_to), (b) overwrite nav_start_.
-        // header.stamp with Time(0), making passed_sec on the next timer
-        // tick = now()-0 ≈ 1.7e9 s → passed clamps to 1.0 → setpoint jumps
-        // to the target instantly and the drone overshoots at full speed.
-        bool in_arm_settle = arm_complete_time_.nanoseconds() > 0 &&
-                             stamp > arm_complete_time_ &&
-                             (stamp - arm_complete_time_) < arm_settle_time_;
+    // Caller holds mutex_ (runs inside publish())
+    void getNavigateSetpoint(float speed, Point& nav_setpoint) {
+        // Segment progress runs on monotonicNs(), not on the stamp: serve()
+        // publishes with Time(0) (latest TF), which put the first setpoint ~1e8 m
+        // behind the start (A1), and the ROS clock follows NTP steps.
+        int64_t now_ns = monotonicNs();
+        bool in_arm_settle = arm_complete_ns_ != 0 &&
+                             now_ns - arm_complete_ns_ < arm_settle_time_.nanoseconds();
         if (wait_armed_ || in_arm_settle) {
-            nav_start_.header.stamp = stamp;
+            nav_start_ns_ = now_ns; // hold the start until the motors have spun up
         }
-        float distance = getDistance(nav_start_.pose.position, setpoint_pose_local_.pose.position);
-        float time = distance / speed;
-        double passed_sec = (stamp - rclcpp::Time(nav_start_.header.stamp, RCL_ROS_TIME)).seconds();
-        float passed = std::min(time > 0 ? (float)(passed_sec / time) : 1.0f, 1.0f);
-
-        nav_setpoint.x = nav_start_.pose.position.x + (setpoint_pose_local_.pose.position.x - nav_start_.pose.position.x) * passed;
-        nav_setpoint.y = nav_start_.pose.position.y + (setpoint_pose_local_.pose.position.y - nav_start_.pose.position.y) * passed;
-        nav_setpoint.z = nav_start_.pose.position.z + (setpoint_pose_local_.pose.position.z - nav_start_.pose.position.z) * passed;
+        nav_setpoint = navigateSetpoint(nav_start_.pose.position, setpoint_pose_local_.pose.position,
+                                        speed, nav_start_ns_, now_ns);
     }
 
     PoseStamped globalToLocal(double lat, double lon) {
@@ -730,6 +890,7 @@ private:
         static_transform_broadcaster_->sendTransform(target_);
     }
 
+    // Caller holds mutex_
     void publish(const rclcpp::Time stamp) {
         if (setpoint_type_ == NONE) return;
 
@@ -769,7 +930,7 @@ private:
         }
 
         if (setpoint_type_ == NAVIGATE || setpoint_type_ == NAVIGATE_GLOBAL) {
-            getNavigateSetpoint(stamp, nav_speed_, position_msg_.pose.position);
+            getNavigateSetpoint(nav_speed_, position_msg_.pose.position);
             if (setpoint_yaw_type_ == TOWARDS) {
                 yaw_local_ = atan2(position_msg_.pose.position.y - nav_start_.pose.position.y,
                                    position_msg_.pose.position.x - nav_start_.pose.position.x);
@@ -875,6 +1036,25 @@ private:
     }
 
     void publishSetpoint() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        // No FCU state for state_watchdog_timeout while armed: MAVROS restarted or
+        // the FCU link dropped, so PX4 got no setpoints either and left OFFBOARD
+        // (COM_OF_LOSS_T). It returns to OFFBOARD by itself as soon as the stream
+        // reaches it again, usually before MAVROS reports a State, so handleState()
+        // never sees the exit: stop here as for a seen one (S4). MAVROS reports
+        // State once per FCU heartbeat (1 Hz), so state_timeout (3 s) would fire on
+        // two lost heartbeats and a late third, and stopping in the air is a
+        // failsafe. The 4.5 s default rides out three lost ones plus jitter and
+        // still fires before a respawned MAVROS (respawn_delay 5 s plus startup)
+        // passes the stream on.
+        int64_t silent_ns = monotonicNs() - state_rx_ns_;
+        if (state_.armed && silent_ns > state_watchdog_timeout_.nanoseconds()) {
+            char reason[160];
+            std::snprintf(reason, sizeof(reason), "No FCU state for %.1f s while armed (MAVROS restart "
+                          "or FCU link loss, PX4 has left OFFBOARD)", silent_ns * 1e-9);
+            stopStream(reason);
+            return;
+        }
         publish(now());
     }
 
@@ -892,11 +1072,19 @@ private:
         }
     }
 
-    void checkState() {
-        if (timeout(state_.header.stamp, state_timeout_))
+    void checkState(const mavros_msgs::msg::State& state) {
+        if (timeout(state.header.stamp, state_timeout_))
             throw std::runtime_error("State timeout, check mavros settings");
-        if (!state_.connected)
+        if (!state.connected)
             throw std::runtime_error("No connection to FCU, https://bumblebee.coex.tech/connection");
+    }
+
+    // The pilot (or a PX4 failsafe) wins: a vehicle armed in any mode but OFFBOARD
+    // is flown by the pilot's RC or by PX4 itself, never switch it to OFFBOARD
+    void checkPilot(const mavros_msgs::msg::State& state) {
+        if (state.armed && state.mode != "OFFBOARD")
+            throw std::runtime_error("Copter is armed in " + state.mode + " mode: the pilot or "
+                                     "a PX4 failsafe has control, not taking over");
     }
 
     void publishState() {
@@ -950,15 +1138,45 @@ private:
 
         const rclcpp::Time stamp(0, 0, RCL_ROS_TIME); // use latest available transform
 
-        try {
-            if (busy_) throw std::runtime_error("Busy");
-            busy_ = true;
+        // Velocity, attitude, rates and yaw rate setpoints make PX4 leave OFFBOARD
+        // after ~1 s (A8): refuse them before touching any state
+        if (sp_type == VELOCITY || sp_type == ATTITUDE || sp_type == RATES || sp_type == _YAW_RATE) {
+            const char* name = sp_type == VELOCITY ? "set_velocity" : sp_type == ATTITUDE ? "set_attitude" :
+                               sp_type == RATES ? "set_rates" : "set_yaw_rate";
+            message = string(name) + " is disabled until its MAVROS path works "
+                      "(PX4 leaves OFFBOARD after ~1 s); use navigate or set_position";
+            RCLCPP_WARN(get_logger(), "%s", message.c_str());
+            return;
+        }
 
-            if (sp_type == NAVIGATE || sp_type == NAVIGATE_GLOBAL || sp_type == POSITION) {
-                smooth_initialized_ = false;
+        // Never start OFFBOARD control while the pilot or a PX4 failsafe flies the
+        // vehicle, nor while its state is unknown (a stale state looks disarmed) (A4).
+        // Checked before touching any state.
+        if (sp_type == NAVIGATE || sp_type == NAVIGATE_GLOBAL || sp_type == POSITION) {
+            try {
+                auto state = fcuState();
+                checkState(state);
+                checkPilot(state);
+                if (auto_arm) checkArmCancel(); // a /land since: also one this request queued behind (S5)
+            } catch (const std::exception& e) {
+                message = e.what();
+                RCLCPP_WARN(get_logger(), "%s", message.c_str());
+                return;
             }
+        }
 
-            checkState();
+        // Acquire busy_ outside the try: the catch below releases it, and a failed
+        // acquire must not release the busy_ that land() holds
+        bool idle = false;
+        if (!busy_.compare_exchange_strong(idle, true)) {
+            message = "Busy";
+            RCLCPP_INFO(get_logger(), "%s", message.c_str());
+            return;
+        }
+
+        bool arming = false; // inside offboardAndArm(): a failure there stops the stream
+        try {
+            checkState(fcuState());
             if (auto_arm) checkManualControl();
 
             if (frame_id.empty()) frame_id = local_frame_;
@@ -979,16 +1197,21 @@ private:
             if (isfinite(x) != isfinite(y))
                 throw std::runtime_error("x and y can be set only together");
 
-            if (isfinite(yaw_rate) && sp_type > RATES && setpoint_type_ == ATTITUDE)
-                throw std::runtime_error("Yaw rate cannot be set in attitude mode.");
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                if (isfinite(yaw_rate) && sp_type > RATES && setpoint_type_ == ATTITUDE)
+                    throw std::runtime_error("Yaw rate cannot be set in attitude mode.");
 
-            if (sp_type == _ALTITUDE &&
-                (setpoint_type_ == VELOCITY || setpoint_type_ == ATTITUDE || setpoint_type_ == RATES))
-                throw std::runtime_error("Altitude cannot be set in velocity, attitude or rates mode.");
+                if (sp_type == _ALTITUDE &&
+                    (setpoint_type_ == VELOCITY || setpoint_type_ == ATTITUDE || setpoint_type_ == RATES))
+                    throw std::runtime_error("Altitude cannot be set in velocity, attitude or rates mode.");
+
+                if ((sp_type == NAVIGATE || sp_type == NAVIGATE_GLOBAL) &&
+                    timeout(local_position_.header.stamp, local_position_timeout_))
+                    throw std::runtime_error("No local position, check settings");
+            }
 
             if (sp_type == NAVIGATE || sp_type == NAVIGATE_GLOBAL) {
-                if (timeout(local_position_.header.stamp, local_position_timeout_))
-                    throw std::runtime_error("No local position, check settings");
                 if (speed < 0)
                     throw std::runtime_error("Navigate speed must be positive, " + std::to_string(speed) + " passed");
                 if (speed == 0) speed = default_speed_;
@@ -1010,6 +1233,17 @@ private:
                 auto xy_in_req_frame = tf_buffer_.transform(pose_local, frame_id);
                 x = xy_in_req_frame.pose.position.x;
                 y = xy_in_req_frame.pose.position.y;
+            }
+
+            // From here on the setpoint state changes: hold the lock that handleState()
+            // and the setpoint timer take (never while waiting for the FCU)
+            std::unique_lock<std::mutex> lock(mutex_);
+            if (sp_type == NAVIGATE || sp_type == NAVIGATE_GLOBAL || sp_type == POSITION) {
+                checkPilot(state_); // the pilot may have taken over since the check above
+                smooth_initialized_ = false;
+            }
+
+            if (sp_type == NAVIGATE_GLOBAL) {
                 setpoint_lat_ = lat;
                 setpoint_lon_ = lon;
             }
@@ -1031,6 +1265,7 @@ private:
                 } else {
                     nav_start_ = local_position_;
                 }
+                nav_start_ns_ = monotonicNs();
                 if (!isnan(speed)) nav_speed_ = speed;
                 nav_from_sp_flag_ = true;
             }
@@ -1112,9 +1347,17 @@ private:
             publishState();
 
             if (auto_arm) {
+                lock.unlock(); // offboardAndArm() waits for state updates from handleState()
+                arming = true;
                 offboardAndArm();
+                arming = false;
+                lock.lock();
                 wait_armed_ = false;
-                arm_complete_time_ = now();
+                // PX4 left OFFBOARD or the FCU state was lost right as the motors
+                // started: handleState() or the state watchdog stopped the stream
+                if (setpoint_type_ == NONE)
+                    throw std::runtime_error("Setpoint stream stopped while arming, not flying");
+                arm_complete_ns_ = monotonicNs();
             } else if (state_.mode != "OFFBOARD") {
                 setpoint_timer_->cancel();
                 throw std::runtime_error("Copter is not in OFFBOARD mode, use auto_arm?");
@@ -1124,6 +1367,15 @@ private:
             }
 
         } catch (const std::exception& e) {
+            if (arming) {
+                // auto_arm failed or was cancelled before we got control: stop the
+                // stream, so PX4 does not sit in OFFBOARD with a target that an
+                // RC arm would then fly to
+                std::lock_guard<std::mutex> lock(mutex_);
+                wait_armed_ = false;
+                resetSetpoint();
+                publishState();
+            }
             message = e.what();
             RCLCPP_INFO(get_logger(), "%s", message.c_str());
             busy_ = false;
@@ -1139,14 +1391,28 @@ private:
 
     void land(const std_srvs::srv::Trigger::Request::SharedPtr,
               std_srvs::srv::Trigger::Response::SharedPtr res) {
+        // /land has its own callback group, so it runs even while serve() is busy.
+        // If serve() is in auto_arm (Ctrl+C during takeoff), cancel it first: the
+        // motors must not start after the script asked to land. Wait (bounded) for
+        // serve() to give up, then land as usual.
+        arm_cancel_ = true;
+        bool acquired = false;
         try {
-            if (busy_) throw std::runtime_error("Busy");
-            busy_ = true;
-            checkState();
+            auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+            bool idle = false;
+            while (!busy_.compare_exchange_strong(idle, true)) {
+                idle = false;
+                if (std::chrono::steady_clock::now() > deadline) throw std::runtime_error("Busy");
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            acquired = true;
+            auto state = fcuState();
+            checkState(state);
 
-            if (land_only_in_offboard_ && state_.mode != "OFFBOARD")
+            if (land_only_in_offboard_ && state.mode != "OFFBOARD")
                 throw std::runtime_error("Copter is not in OFFBOARD mode");
 
+            landing_ = true; // OFFBOARD -> AUTO.LAND is ours, not a pilot takeover
             auto sm_req = std::make_shared<mavros_msgs::srv::SetMode::Request>();
             sm_req->custom_mode = "AUTO.LAND";
             auto future = set_mode_->async_send_request(sm_req);
@@ -1158,49 +1424,50 @@ private:
             rclcpp::Rate r(10);
             auto start = now();
             while (rclcpp::ok()) {
-                if (state_.mode == "AUTO.LAND") break;
+                if (fcuState().mode == "AUTO.LAND") break;
                 if (now() - start > land_timeout_)
                     throw std::runtime_error("Land request timed out");
                 r.sleep();
             }
 
-            setpoint_timer_->cancel();
-            setpoint_type_ = NONE;
-            setpoint_position_.header.frame_id = "";
-            setpoint_altitude_.header.frame_id = "";
-            yaw_frame_id_ = "";
+            std::lock_guard<std::mutex> lock(mutex_);
+            resetSetpoint();
             publishState();
 
             res->success = true;
-            busy_ = false;
         } catch (const std::exception& e) {
             res->message = e.what();
             RCLCPP_INFO(get_logger(), "%s", e.what());
-            busy_ = false;
         }
+        landing_ = false;
+        land_done_ns_ = monotonicNs(); // before arm_cancel_ clears: the cancel never lapses
+        arm_cancel_ = false;
+        if (acquired) busy_ = false;
     }
 
     void release(const std_srvs::srv::Trigger::Request::SharedPtr,
                  std_srvs::srv::Trigger::Response::SharedPtr res) {
-        setpoint_timer_->cancel();
-        setpoint_type_ = NONE;
-        setpoint_position_.header.frame_id = "";
-        setpoint_altitude_.header.frame_id = "";
-        yaw_frame_id_ = "";
+        std::lock_guard<std::mutex> lock(mutex_);
+        resetSetpoint();
         publishState();
         res->success = true;
     }
 };
 
+// SIMPLE_OFFBOARD_NO_MAIN: test/test_simple_offboard.cpp includes this file to
+// unit-test the pure helpers above
+#ifndef SIMPLE_OFFBOARD_NO_MAIN
 int main(int argc, char** argv)
 {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<SimpleOffboard>();
-    // MultiThreadedExecutor: service callbacks (srvs group) can block while
-    // subscriptions and the setpoint timer (concurrent group) still fire.
-    rclcpp::executors::MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), 2);
+    // MultiThreadedExecutor: service callbacks (srvs and land groups) can block
+    // while subscriptions and the setpoint timer (concurrent group) still fire.
+    // One thread per group, so /land runs while serve() waits in auto_arm.
+    rclcpp::executors::MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), 3);
     executor.add_node(node);
     executor.spin();
     rclcpp::shutdown();
     return 0;
 }
+#endif
