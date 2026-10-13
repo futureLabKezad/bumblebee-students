@@ -276,6 +276,8 @@ class Vehicle:
             try:
                 self.wait(lambda: self.acks.get(cmd, RESULT_IN_PROGRESS) != RESULT_IN_PROGRESS,
                           sim_timeout, f"COMMAND_ACK for {cmd}")
+            except SimStalled:
+                raise
             except FlightError:
                 continue
             return self.acks[cmd]
@@ -309,6 +311,8 @@ class Vehicle:
             try:
                 self.wait(lambda: name in self.params, sim_timeout, f"PARAM_VALUE {name}")
                 return self.params[name]
+            except SimStalled:
+                raise
             except FlightError:
                 continue
         return None
@@ -355,16 +359,21 @@ def connect(args, log):
     except FlightError as e:
         raise SetupError(str(e))
     sw = v.version.flight_sw_version
-    raw = bytes(v.version.flight_custom_version)
+    # PX4 v1.16.1 reports only the first 10 hex digits of its git hash in both
+    # middleware_custom_version and flight_custom_version (the rest reads as
+    # zeros: SITL here and the real FMU-v6C both report 94cb201279000000), so
+    # compare those 10 digits (40 bits, enough to tell commits apart).
+    git16 = bytes(v.version.middleware_custom_version)[::-1].hex()
+    git10 = bytes(v.version.flight_custom_version)[::-1].hex()[:10]
     info = {"system_id": v.sys,
             "flight_sw_version": f"{(sw >> 24) & 0xFF}.{(sw >> 16) & 0xFF}.{(sw >> 8) & 0xFF} "
                                  f"(type {sw & 0xFF})",
-            "git_hash_16": raw[::-1].hex(),       # PX4 stores the uint64 little-endian
+            "git_hash_16": git16, "flight_custom_git_10": git10,
             "sim_gz_en": int_param(*p)}
     if args.expect_commit:
-        want = args.expect_commit.lower()[:16]
-        if want not in (raw.hex(), raw[::-1].hex()):
-            raise SetupError(f"PX4 reports git {info['git_hash_16']}, expected {want}")
+        want = args.expect_commit.lower()
+        if not (git16[:10] == want[:10] and git10[:10] == want[:10]):
+            raise SetupError(f"PX4 reports git {git16} (flight_custom {git10}), expected {want[:16]}")
         info["commit_check"] = "match"
     log(f"PX4 {info['flight_sw_version']} git {info['git_hash_16']} - SITL interlock OK")
 
@@ -415,6 +424,8 @@ def fly(v, n, args, log):
             try:
                 v.set_mode(PX4_MAIN_OFFBOARD)
                 break
+            except SimStalled:
+                raise
             except FlightError:
                 if attempt == 3:
                     raise
@@ -424,6 +435,8 @@ def fly(v, n, args, log):
             try:
                 v.arm(True)
                 break
+            except SimStalled:
+                raise
             except FlightError:
                 if attempt == 3:
                     raise
