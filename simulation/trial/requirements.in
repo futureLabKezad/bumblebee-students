@@ -1,0 +1,36 @@
+# PX4 v1.16.1 Tools/setup/requirements.txt, unchanged (commit 94cb2012).
+# Resolved with exact versions + hashes into requirements.txt by:
+#   uv pip compile requirements.in --python-version 3.12 \
+#     --python-platform x86_64-manylinux_2_39 --exclude-newer 2026-09-28T00:00:00Z \
+#     --generate-hashes --no-annotate -o requirements.txt
+# (aarch64 resolves to the same versions; --exclude-newer = nothing newer than
+# two weeks before the trial.) pymavlink, used by smoke_flights.py, is part of it.
+argcomplete
+cerberus
+coverage
+empy>=3.3,<4
+future
+jinja2>=2.8
+jsonschema
+kconfiglib
+lxml
+matplotlib>=3.0
+numpy>=1.13
+nunavut>=1.1.0
+packaging
+pandas>=0.21
+pkgconfig
+psutil
+pygments
+wheel>=0.31.1
+pymavlink
+pyros-genmsg
+pyserial
+pyulog>=0.5.0
+pyyaml
+requests
+setuptools>=39.2.0
+six>=1.12.0
+toml>=0.9
+sympy>=1.10.1
+pycryptodome

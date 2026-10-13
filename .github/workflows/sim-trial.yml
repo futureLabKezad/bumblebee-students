@@ -1,0 +1,194 @@
+# Copyright 2026 FutureLab
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Simulator trial (1-2 days): can a free GitHub runner (ubuntu-24.04, 4 vCPU,
+# no GPU) run PX4 v1.16.1 SITL + Gazebo Harmonic with a camera rendering on
+# the CPU at RTF >= 0.3, and fly 10 automated smoke flights in a row without
+# a random failure? Both stock PX4 models closest to the drone are measured:
+#   x500_flow          - no GPS, optical flow + rangefinder (flow camera 100x100)
+#   x500_mono_cam_down - downward camera 1280x960 (4x our 640x480: upper bound)
+# The scripts in simulation/trial/ run unchanged in the Lima VM (README.md).
+#
+# Pinning: container base image by digest; every Ubuntu package from one dated
+# snapshot.ubuntu.com snapshot; Gazebo packages at exact versions; PX4 tag +
+# commit verified; Python packages by version + sha256; actions by commit SHA.
+
+name: Simulator trial
+
+on:
+  push:
+    branches: [feat/sim-trial]
+  workflow_dispatch:
+    inputs:
+      flights:
+        description: Smoke flights per model
+        type: string
+        default: '10'
+      rtf_seconds:
+        description: Length of the RTF measurement, seconds
+        type: string
+        default: '120'
+      render:
+        description: CPU rendering path (Mesa llvmpipe)
+        type: choice
+        options: [xvfb, egl]
+        default: xvfb
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sim-trial-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  trial:
+    name: SITL trial (${{ matrix.model }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    container:
+      # ubuntu:noble-20260911 (pushed 2026-09-18); bump together with the
+      # cache key below and UBUNTU_SNAPSHOT (snapshot date >= image date).
+      image: ubuntu:noble-20260911@sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3
+      options: --shm-size=2g
+    strategy:
+      fail-fast: false
+      matrix:
+        model: [x500_flow, x500_mono_cam_down]
+    defaults:
+      run:
+        shell: bash
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      TZ: Etc/UTC
+      UBUNTU_SNAPSHOT: 20260928T000000Z
+      PX4_DIR: /opt/px4/PX4-Autopilot
+      CCACHE_DIR: /opt/px4/ccache
+      VENV: /opt/px4/venv
+      MODEL: ${{ matrix.model }}
+      FLIGHTS: ${{ inputs.flights || '10' }}
+      RTF_SECONDS: ${{ inputs.rtf_seconds || '120' }}
+      RENDER: ${{ inputs.render || 'xvfb' }}
+    steps:
+      - name: Pin apt to the Ubuntu snapshot, install git
+        run: |
+          set -euxo pipefail
+          . /etc/os-release
+          test "$VERSION_CODENAME" = noble
+          rm -f /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources
+          cat > /etc/apt/sources.list.d/ubuntu-snapshot.sources <<EOF
+          Types: deb
+          URIs: https://snapshot.ubuntu.com/ubuntu/${UBUNTU_SNAPSHOT}
+          Suites: noble noble-updates noble-security
+          Components: main universe
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          EOF
+          printf 'Acquire::Retries "5";\nAcquire::http::Timeout "60";\nAcquire::https::Timeout "60";\n' \
+            > /etc/apt/apt.conf.d/80-ci-retries
+          # The base image has no CA bundle yet. apt verifies every index and
+          # package against the Ubuntu archive key (Signed-By above), so this
+          # one bootstrap fetch stays tamper-evident without TLS peer checks;
+          # from the next command on TLS is verified as usual.
+          noverify=(-o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false)
+          apt-get "${noverify[@]}" update
+          apt-get "${noverify[@]}" install -y --no-install-recommends ca-certificates
+          apt-get update
+          apt-get install -y --no-install-recommends git
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Ubuntu packages and pinned Gazebo Harmonic
+        run: simulation/trial/install_deps.sh
+
+      - name: Python venv (PX4 build deps + pymavlink, hash-pinned)
+        run: simulation/trial/setup_venv.sh "$VENV"
+
+      - name: Cache keys
+        id: keys
+        env:
+          PINS_HASH: ${{ hashFiles('simulation/trial/versions.env', 'simulation/trial/apt-*.txt', 'simulation/trial/requirements*.txt', 'simulation/trial/build_px4.sh') }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          . simulation/trial/versions.env
+          base="px4-sitl-${PX4_TAG}-${PX4_COMMIT:0:12}-noble-20260911-${UBUNTU_SNAPSHOT}"
+          {
+            echo "tree=${base}-${PINS_HASH:0:16}"
+            echo "ccache=ccache-${base}-${PINS_HASH:0:16}-${RUN_ID}-${MODEL}"
+            echo "ccache_prefix=ccache-${base}-"
+          } | tee -a "$GITHUB_OUTPUT"
+
+      - name: Restore PX4 source + build
+        id: px4-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /opt/px4/PX4-Autopilot
+          key: ${{ steps.keys.outputs.tree }}
+
+      - name: Restore ccache
+        if: steps.px4-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /opt/px4/ccache
+          key: ${{ steps.keys.outputs.ccache }}
+          restore-keys: ${{ steps.keys.outputs.ccache_prefix }}
+
+      - name: Build PX4 SITL at the pinned tag (verifies commit, submodules, plugins)
+        env:
+          BUILD_REPORT: sim-trial-out/build.txt
+        run: |
+          mkdir -p sim-trial-out
+          simulation/trial/build_px4.sh "$PX4_DIR"
+          cat "$BUILD_REPORT"
+
+      - name: Save PX4 source + build
+        if: steps.px4-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /opt/px4/PX4-Autopilot
+          key: ${{ steps.keys.outputs.tree }}
+
+      - name: Save ccache
+        if: steps.px4-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /opt/px4/ccache
+          key: ${{ steps.keys.outputs.ccache }}
+
+      - name: Trial - RTF with camera rendering, then smoke flights
+        env:
+          BUILD_REPORT: sim-trial-out/build.txt
+        run: |
+          simulation/trial/run_trial.sh --model "$MODEL" --flights "$FLIGHTS" \
+            --rtf-seconds "$RTF_SECONDS" --min-rtf 0.3 --render "$RENDER" \
+            --out "sim-trial-out/$MODEL"
+
+      - name: Job summary
+        if: always()
+        run: |
+          if [ -f "sim-trial-out/$MODEL/summary.md" ]; then
+            cat "sim-trial-out/$MODEL/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Simulator trial: $MODEL - no summary (run did not get that far, see the logs)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload logs and results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sim-trial-${{ matrix.model }}-attempt${{ github.run_attempt }}
+          path: sim-trial-out
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,60 @@
+# Ubuntu 24.04 (noble) packages for the simulator trial, installed with
+# --no-install-recommends by install_deps.sh.
+#
+# Versions: in CI every Ubuntu package (these and all their dependencies)
+# comes from one dated archive snapshot (UBUNTU_SNAPSHOT in
+# .github/workflows/sim-trial.yml), so the whole set is fixed by that date.
+# The Lima VM (arm64) uses its normal archive; the trial records the exact
+# installed versions (packages.tsv) on both.
+#
+# Based on PX4 v1.16.1 Tools/setup/ubuntu.sh (general + simulation sections)
+# minus tools the SITL build does not use (astyle, cppcheck, gdb, lcov,
+# shellcheck, NuttX toolchain) and minus the GStreamer dev packages: with them
+# PX4 builds GstCameraSystem, which H.264-encodes a camera with x264 on the
+# CPU. Our drone software never does that, so it would only skew the RTF.
+
+# basics
+ca-certificates
+curl
+git
+zstd
+xz-utils
+file
+rsync
+unzip
+zip
+bc
+procps
+iproute2
+time
+
+# PX4 SITL build
+build-essential
+cmake
+ninja-build
+ccache
+make
+gcc
+g++
+pkg-config
+python3
+python3-venv
+libssl-dev
+libxml2-dev
+libxml2-utils
+protobuf-compiler
+libeigen3-dev
+# OpenCV: the PX4 OpticalFlowSystem gz plugin (needed by x500_flow)
+libopencv-dev
+# PX4 ubuntu.sh adds these next to gz-harmonic on 24.04
+libunwind-dev
+cppzmq-dev
+
+# CPU rendering for the Gazebo cameras (Mesa llvmpipe; no GPU on the runners)
+xvfb
+mesa-utils
+libgl1
+libgl1-mesa-dri
+libglx-mesa0
+libegl1
+libegl-mesa0
