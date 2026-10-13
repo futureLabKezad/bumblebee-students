@@ -64,6 +64,7 @@ MODE_NAMES = {(PX4_MAIN_OFFBOARD, 0): "OFFBOARD", (PX4_MAIN_AUTO, PX4_SUB_AUTO_L
 EST_POS_HORIZ_REL = 8
 EST_POS_VERT_ABS = 32
 EST_CONST_POS_MODE = 128
+PREARM_CHECK_BIT = 0x10000000   # MAV_SYS_STATUS_PREARM_CHECK
 
 LANDED_ON_GROUND = 1      # MAV_LANDED_STATE_ON_GROUND
 LANDED_IN_AIR = 2         # MAV_LANDED_STATE_IN_AIR
@@ -106,6 +107,10 @@ def parse_args():
                    help="fail a flight if the hover height error exceeds this, m")
     p.add_argument("--climb-timeout", type=float, default=30.0, help="sim s to reach the hover height")
     p.add_argument("--land-timeout", type=float, default=60.0, help="sim s to touch down")
+    p.add_argument("--allow-const-pos", action="store_true",
+                   help="DEMO ONLY: accept EKF constant-position mode on the ground (flow-only "
+                        "estimators report it while the flow camera sees no motion); PX4's own "
+                        "pre-arm and OFFBOARD checks still apply. Never use for verification runs.")
     p.add_argument("--ready-timeout", type=float, default=180.0,
                    help="sim s to wait for the vehicle to be ready before each flight")
     p.add_argument("--settle", type=float, default=3.0, help="sim s on the ground between flights")
@@ -146,6 +151,8 @@ class Vehicle:
         self.pos_sim_ms = 0
         self.yaw = 0.0
         self.est_flags = None
+        self.allow_const_pos = False
+        self.prearm_ok = None
         self.acks = {}
         self.params = {}
         self.version = None
@@ -236,6 +243,9 @@ class Vehicle:
             self.yaw = msg.yaw
         elif t == "EXTENDED_SYS_STATE":
             self.landed = msg.landed_state
+        elif t == "SYS_STATUS":
+            # PX4 sets this health bit when all its pre-arm checks pass
+            self.prearm_ok = bool(msg.onboard_control_sensors_health & PREARM_CHECK_BIT)
         elif t == "ESTIMATOR_STATUS":
             self.est_flags = msg.flags
         elif t == "COMMAND_ACK":
@@ -322,12 +332,21 @@ class Vehicle:
         if self.est_flags is None:
             return None
         f = self.est_flags
-        return bool(f & EST_POS_HORIZ_REL) and bool(f & EST_POS_VERT_ABS) and not (f & EST_CONST_POS_MODE)
+        const_ok = self.allow_const_pos or not (f & EST_CONST_POS_MODE)
+        return bool(f & EST_POS_HORIZ_REL) and bool(f & EST_POS_VERT_ABS) and const_ok
 
     def ready(self):
+        # PX4 itself decides whether it may arm (SYS_STATUS pre-arm bit). On the
+        # ground PX4's EKF often reports constant-position mode while it is ready
+        # (flow sees no motion, GPS models before the first fix of a session), so
+        # that flag alone must not block a flight; it is still required when PX4
+        # does not send the pre-arm bit.
         fresh = self.pos is not None and self.sim_ms - self.pos_sim_ms < 500
-        return (fresh and not self.armed and self.landed == LANDED_ON_GROUND
-                and self.estimator_ok() is not False)
+        if not (fresh and not self.armed and self.landed == LANDED_ON_GROUND):
+            return False
+        if self.prearm_ok is not None:
+            return self.prearm_ok and bool((self.est_flags or 0) & EST_POS_HORIZ_REL)
+        return self.estimator_ok() is not False
 
 
 def int_param(value, ptype):
@@ -339,6 +358,7 @@ def int_param(value, ptype):
 
 def connect(args, log):
     v = Vehicle(args.url, args.guard_rtf, log)
+    v.allow_const_pos = args.allow_const_pos
     v._sender.start()
     t0 = time.monotonic()
     while v.sys is None:
