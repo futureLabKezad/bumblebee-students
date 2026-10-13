@@ -160,5 +160,8 @@ jobs:
         # flight guards with ROS faked
         run: |
           source /opt/ros/jazzy/setup.bash
+          # the launch tests look the package up in the ament index: put the
+          # freshly built bumblebee on AMENT_PREFIX_PATH
+          source install/setup.bash
           colcon test --packages-select bumblebee --event-handlers console_direct+
           colcon test-result --verbose
