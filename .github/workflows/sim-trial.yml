@@ -76,6 +76,7 @@ jobs:
     env:
       DEBIAN_FRONTEND: noninteractive
       TZ: Etc/UTC
+      LANG: C.UTF-8
       UBUNTU_SNAPSHOT: 20260928T000000Z
       PX4_DIR: /opt/px4/PX4-Autopilot
       CCACHE_DIR: /opt/px4/ccache
@@ -85,7 +86,7 @@ jobs:
       RTF_SECONDS: ${{ inputs.rtf_seconds || '120' }}
       RENDER: ${{ inputs.render || 'xvfb' }}
     steps:
-      - name: Pin apt to the Ubuntu snapshot, install git
+      - name: Pin apt to the Ubuntu snapshot, install git and zstd
         timeout-minutes: 20
         run: |
           set -euxo pipefail
@@ -101,6 +102,11 @@ jobs:
           EOF
           printf 'Acquire::Retries "10";\nAcquire::http::Timeout "60";\nAcquire::https::Timeout "60";\n' \
             > /etc/apt/apt.conf.d/80-ci-retries
+          # Keep downloaded .debs: they are cached between runs below
+          # (snapshot.ubuntu.com is slow). apt does NOT re-hash a cached .deb of the right
+          # size; apt_prefetch.sh (install step) re-checks each against the signed index.
+          rm -f /etc/apt/apt.conf.d/docker-clean
+          echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/80-ci-keep-debs
           # The base image has no CA bundle yet. apt verifies every index and
           # package against the Ubuntu archive key (Signed-By above), so this
           # one bootstrap fetch stays tamper-evident without TLS peer checks;
@@ -109,11 +115,19 @@ jobs:
           apt-get "${noverify[@]}" update
           apt-get "${noverify[@]}" install -y --no-install-recommends ca-certificates
           apt-get update
-          apt-get install -y --no-install-recommends git
+          # zstd before any cache step: actions/cache keys entries by compression
+          apt-get install -y --no-install-recommends git zstd
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: Restore downloaded .deb packages
+        id: apt-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /var/cache/apt/archives/*.deb
+          key: apt-debs-noble-20260911-${{ env.UBUNTU_SNAPSHOT }}-${{ hashFiles('simulation/trial/apt-*.txt') }}
 
       - name: Install Ubuntu packages and pinned Gazebo Harmonic
         # Normally ~5-15 min; a stalled server must fail in minutes, not hours.
@@ -123,6 +137,13 @@ jobs:
           # matches the snapshot index is used); then the snapshot itself.
           UBUNTU_POOL_MIRRORS: http://azure.archive.ubuntu.com/ubuntu https://archive.ubuntu.com/ubuntu
         run: simulation/trial/install_deps.sh
+
+      - name: Save downloaded .deb packages
+        if: steps.apt-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /var/cache/apt/archives/*.deb
+          key: apt-debs-noble-20260911-${{ env.UBUNTU_SNAPSHOT }}-${{ hashFiles('simulation/trial/apt-*.txt') }}
 
       - name: Python venv (PX4 build deps + pymavlink, hash-pinned)
         run: simulation/trial/setup_venv.sh "$VENV"

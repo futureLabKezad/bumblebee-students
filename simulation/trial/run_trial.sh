@@ -118,15 +118,17 @@ XVFB_PID="" GZ_PID="" PX4_PID="" MON_PID=""
 # stop_child PID SIGNAL TARGET: signal TARGET (a PID, or -PGID for a group),
 # reap PID, SIGKILL TARGET if it is still there after 20 s. (wait, not
 # kill -0: an exited child stays visible as a zombie until it is reaped.)
+# Safe under set -e: it is also called outside stop_all, and wait returns the
+# child's own (often non-zero) exit status.
 stop_child() {
     local pid=$1 sig=$2 target=$3 guard
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || return 0
-    kill "-$sig" -- "$target" 2>/dev/null
+    kill "-$sig" -- "$target" 2>/dev/null || true
     ( sleep 20; kill -KILL -- "$target" 2>/dev/null ) &
     guard=$!
-    wait "$pid" 2>/dev/null
-    kill "$guard" 2>/dev/null
-    wait "$guard" 2>/dev/null
+    wait "$pid" 2>/dev/null || true
+    kill "$guard" 2>/dev/null || true
+    wait "$guard" 2>/dev/null || true
     return 0
 }
 stop_all() {
