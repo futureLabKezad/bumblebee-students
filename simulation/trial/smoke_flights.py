@@ -336,17 +336,24 @@ class Vehicle:
         return bool(f & EST_POS_HORIZ_REL) and bool(f & EST_POS_VERT_ABS) and const_ok
 
     def ready(self):
-        # PX4 itself decides whether it may arm (SYS_STATUS pre-arm bit). On the
-        # ground PX4's EKF often reports constant-position mode while it is ready
-        # (flow sees no motion, GPS models before the first fix of a session), so
-        # that flag alone must not block a flight; it is still required when PX4
-        # does not send the pre-arm bit.
+        # On the ground, before switching to OFFBOARD: landed, disarmed and a
+        # fresh, valid local position. PX4's EKF often reports constant-position
+        # mode here while it is fine to fly (flow sees no motion, GPS models before
+        # the first fix), so that flag alone must not block a flight; it is still
+        # required when PX4 does not send the pre-arm bit. The pre-arm bit itself
+        # is checked later, in OFFBOARD (prearm_ok_now): PX4 evaluates it for the
+        # CURRENT mode, and the boot mode Hold needs a global position, which a
+        # vehicle without GPS never has.
         fresh = self.pos is not None and self.sim_ms - self.pos_sim_ms < 500
         if not (fresh and not self.armed and self.landed == LANDED_ON_GROUND):
             return False
         if self.prearm_ok is not None:
-            return self.prearm_ok and bool((self.est_flags or 0) & EST_POS_HORIZ_REL)
+            return bool((self.est_flags or 0) & EST_POS_HORIZ_REL)
         return self.estimator_ok() is not False
+
+    def prearm_ok_now(self):
+        # PX4's own verdict (SYS_STATUS pre-arm bit) for the mode we are in now.
+        return self.prearm_ok is None or self.prearm_ok
 
 
 def int_param(value, ptype):
@@ -451,6 +458,8 @@ def fly(v, n, args, log):
                     raise
                 v.hold(2.0)
         mark("offboard")
+        v.wait(v.prearm_ok_now, args.ready_timeout, "PX4 pre-arm checks pass in OFFBOARD")
+        mark("prearm_ok")
         for attempt in range(1, 4):
             try:
                 v.arm(True)
