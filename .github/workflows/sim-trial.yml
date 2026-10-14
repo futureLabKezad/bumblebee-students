@@ -23,6 +23,10 @@
 # Pinning: container base image by digest; every Ubuntu package from one dated
 # snapshot.ubuntu.com snapshot; Gazebo packages at exact versions; PX4 tag +
 # commit verified; Python packages by version + sha256; actions by commit SHA.
+# The snapshot fixes the versions and SHA256 of every Ubuntu .deb; the files
+# themselves are fetched by apt_prefetch.sh mostly from the Azure Ubuntu
+# mirror (same pool file, hash-checked against the snapshot index): the
+# snapshot alone took 16-120 min for ~400 MB and failed with HTTP 503s.
 
 name: Simulator trial
 
@@ -82,6 +86,7 @@ jobs:
       RENDER: ${{ inputs.render || 'xvfb' }}
     steps:
       - name: Pin apt to the Ubuntu snapshot, install git
+        timeout-minutes: 20
         run: |
           set -euxo pipefail
           . /etc/os-release
@@ -94,7 +99,7 @@ jobs:
           Components: main universe
           Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
           EOF
-          printf 'Acquire::Retries "5";\nAcquire::http::Timeout "60";\nAcquire::https::Timeout "60";\n' \
+          printf 'Acquire::Retries "10";\nAcquire::http::Timeout "60";\nAcquire::https::Timeout "60";\n' \
             > /etc/apt/apt.conf.d/80-ci-retries
           # The base image has no CA bundle yet. apt verifies every index and
           # package against the Ubuntu archive key (Signed-By above), so this
@@ -111,6 +116,12 @@ jobs:
           persist-credentials: false
 
       - name: Install Ubuntu packages and pinned Gazebo Harmonic
+        # Normally ~5-15 min; a stalled server must fail in minutes, not hours.
+        timeout-minutes: 45
+        env:
+          # Tried first for snapshot pool files (only a file whose SHA256
+          # matches the snapshot index is used); then the snapshot itself.
+          UBUNTU_POOL_MIRRORS: http://azure.archive.ubuntu.com/ubuntu https://archive.ubuntu.com/ubuntu
         run: simulation/trial/install_deps.sh
 
       - name: Python venv (PX4 build deps + pymavlink, hash-pinned)

@@ -17,7 +17,10 @@
 # (amd64 in CI, arm64 in the Lima VM). Needs root: sudo ./install_deps.sh
 #
 #   1. Ubuntu packages listed in apt-ubuntu.txt (from whatever archive apt
-#      points at; CI points it at a dated snapshot first).
+#      points at; CI points it at a dated snapshot first). The .deb files are
+#      downloaded beforehand by apt_prefetch.sh: in parallel, each checked
+#      against the hash in apt's signed index, in CI mostly from the Azure
+#      Ubuntu mirror (identical files; the snapshot is slow).
 #   2. Gazebo Harmonic from packages.osrfoundation.org at the exact versions
 #      in apt-gz-harmonic.txt (apt key checked by sha256), then a check that
 #      every installed OSRF package is in that list at that version.
@@ -42,9 +45,17 @@ pkgs() { sed -e 's/#.*//' -e 's/[[:space:]]*$//' -e '/^[[:space:]]*$/d' "$1"; }
 
 export DEBIAN_FRONTEND=noninteractive LC_ALL=C   # C collation for sort/comm below
 APT_INSTALL=(apt-get install -y --no-install-recommends -o Dpkg::Use-Pty=0)
+# Download what the next install needs first: in parallel, from
+# UBUNTU_POOL_MIRRORS where possible, every file checked against the index apt
+# already verified (apt_prefetch.sh). Whatever it misses, apt-get fetches itself.
+prefetch() {
+    xargs "$HERE/apt_prefetch.sh" \
+        || log "prefetch failed (exit $?); apt-get downloads the packages itself"
+}
 
 log "Ubuntu packages ($(pkgs "$HERE/apt-ubuntu.txt" | wc -l) from apt-ubuntu.txt)"
 apt-get update
+pkgs "$HERE/apt-ubuntu.txt" | prefetch
 pkgs "$HERE/apt-ubuntu.txt" | xargs "${APT_INSTALL[@]}"
 
 log "Gazebo Harmonic apt repository (key sha256 $OSRF_KEY_SHA256)"
@@ -60,6 +71,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=$keyring] $OSRF_APT_URL n
 apt-get update
 
 log "Gazebo Harmonic packages ($(pkgs "$HERE/apt-gz-harmonic.txt" | wc -l) pinned in apt-gz-harmonic.txt)"
+pkgs "$HERE/apt-gz-harmonic.txt" | prefetch
 if ! pkgs "$HERE/apt-gz-harmonic.txt" | xargs "${APT_INSTALL[@]}"; then
     echo "::error::Pinned Gazebo Harmonic versions are not installable. packages.osrfoundation.org" \
          "keeps only the newest build of each package; if Harmonic was updated, regenerate" \

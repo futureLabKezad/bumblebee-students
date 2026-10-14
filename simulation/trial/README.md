@@ -39,7 +39,7 @@ cameras really rendered and at what rate.
 | PX4 Gazebo models | submodule `e05f4312` (recorded in the tag) | `versions.env` |
 | PX4-OpticalFlow | `5d60b9e` - PX4 v1.16.1 itself clones `master` (moved on 2026-09-21); we pin what master was on the tag date via a local git mirror | `versions.env`, `build_px4.sh` |
 | Gazebo Harmonic | 124 packages at exact versions (gz-sim 8.15.0), same list for amd64 and arm64; apt key by sha256 | `apt-gz-harmonic.txt`, `install_deps.sh` |
-| Ubuntu packages (CI) | container `ubuntu:noble-20260911@sha256:...` + one dated archive snapshot `20260928T000000Z` for every Ubuntu package | `.github/workflows/sim-trial.yml`, `apt-ubuntu.txt` |
+| Ubuntu packages (CI) | container `ubuntu:noble-20260911@sha256:...` + one dated archive snapshot `20260928T000000Z` for every Ubuntu package (versions and SHA256 from the snapshot index; the identical `.deb` files mostly come from the Azure Ubuntu mirror, see below) | `.github/workflows/sim-trial.yml`, `apt-ubuntu.txt`, `apt_prefetch.sh` |
 | Python | PX4's `requirements.txt` resolved to exact versions + sha256 (pymavlink 2.4.50 included) | `requirements*.txt`, `setup_venv.sh` |
 | GitHub actions | commit SHAs | workflow |
 
@@ -68,6 +68,15 @@ to a drone (no ssh, nothing to 10.255.254.x).
 `egl` rendering). One job per model, in parallel. Results: the job summary
 table, and the artifact `sim-trial-<model>-attempt<N>` (summary, RTF/CPU/RAM
 time series, flights, px4/gz logs, ulog files).
+
+Downloads: `install_deps.sh` lets `apt_prefetch.sh` fetch every `.deb` first,
+6 at a time, and accepts a file only if its size and SHA256 match apt's signed
+index. In CI it takes snapshot pool files from `UBUNTU_POOL_MIRRORS` (Azure
+Ubuntu mirror, then archive.ubuntu.com) and only falls back to
+snapshot.ubuntu.com for versions the mirror no longer has (~3%). The
+snapshot alone was the bottleneck: ~400 MB took 16 min on a good day and on
+2026-10-13 ran at ~50 kB/s with HTTP 503s until the job failed after 2 hours.
+The install step has a 45 min limit.
 
 Expected time per job: first run ~30-45 min (Ubuntu + Gazebo install ~5-7 min,
 PX4 build ~10-15 min, trial 10-25 min depending on RTF); later runs reuse the
