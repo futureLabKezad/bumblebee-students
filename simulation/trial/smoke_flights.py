@@ -153,6 +153,7 @@ class Vehicle:
         self.est_flags = None
         self.allow_const_pos = False
         self.prearm_ok = None
+        self.sys_status_n = 0   # SYS_STATUS messages received (freshness of prearm_ok)
         self.acks = {}
         self.params = {}
         self.version = None
@@ -246,6 +247,7 @@ class Vehicle:
         elif t == "SYS_STATUS":
             # PX4 sets this health bit when all its pre-arm checks pass
             self.prearm_ok = bool(msg.onboard_control_sensors_health & PREARM_CHECK_BIT)
+            self.sys_status_n += 1
         elif t == "ESTIMATOR_STATUS":
             self.est_flags = msg.flags
         elif t == "COMMAND_ACK":
@@ -351,9 +353,14 @@ class Vehicle:
             return bool((self.est_flags or 0) & EST_POS_HORIZ_REL)
         return self.estimator_ok() is not False
 
-    def prearm_ok_now(self):
-        # PX4's own verdict (SYS_STATUS pre-arm bit) for the mode we are in now.
-        return self.prearm_ok is None or self.prearm_ok
+    def prearm_in_offboard(self, n0):
+        """PX4's own verdict (SYS_STATUS pre-arm bit) for OFFBOARD: true once two
+        SYS_STATUS newer than counter n0 (taken after OFFBOARD was confirmed, so
+        not a verdict for Hold or from a previous flight) carry the bit. Leaving
+        OFFBOARD while waiting is an error, not "not ready yet"."""
+        if self.main_mode != PX4_MAIN_OFFBOARD:
+            raise FlightError(f"PX4 left OFFBOARD ({self.mode_name()}) before arming")
+        return self.sys_status_n >= n0 + 2 and bool(self.prearm_ok)
 
 
 def int_param(value, ptype):
@@ -458,10 +465,14 @@ def fly(v, n, args, log):
                     raise
                 v.hold(2.0)
         mark("offboard")
-        v.wait(v.prearm_ok_now, args.ready_timeout, "PX4 pre-arm checks pass in OFFBOARD")
+        n0 = v.sys_status_n
+        v.wait(lambda: v.prearm_in_offboard(n0), args.ready_timeout,
+               "PX4 pre-arm checks pass in OFFBOARD")
         mark("prearm_ok")
         for attempt in range(1, 4):
             try:
+                if v.main_mode != PX4_MAIN_OFFBOARD:
+                    raise FlightError(f"PX4 left OFFBOARD ({v.mode_name()}) before arming")
                 v.arm(True)
                 break
             except SimStalled:
@@ -527,6 +538,8 @@ def fly(v, n, args, log):
         rec["ok"] = True
     except FlightError as e:
         rec["error"] = str(e)
+        # "not_ready": PX4 never armed (not ready, or refused); "flight": after arming
+        rec["failed_phase"] = "flight" if "armed" in rec["phases"] else "not_ready"
         rec["mode_at_error"] = v.mode_name()
         rec["armed_at_error"] = v.armed
         rec["sim_stalled"] = isinstance(e, SimStalled)
@@ -587,6 +600,7 @@ def main():
     hov = [f["hover"]["xy_drift_max_m"] for f in fl if "hover" in f]
     result["summary"] = {
         "requested": args.flights, "flown": len(fl), "passed": len(ok), "failed": len(fl) - len(ok),
+        "failed_not_ready": sum(1 for f in fl if f.get("failed_phase") == "not_ready"),
         "all_ok": len(ok) == args.flights,
         "first_failure": next((f["flight"] for f in fl if not f["ok"]), None),
         "wall_s_per_flight_mean": round(sum(f["wall_s"] for f in fl) / len(fl), 1) if fl else None,

@@ -68,8 +68,8 @@ ARCHIVES=""
 eval "$(apt-config shell ARCHIVES Dir::Cache::Archives/d)"
 ARCHIVES="${ARCHIVES%/}"
 if [ ! -x "$HELPER" ] || [ -z "$ARCHIVES" ] || [ ! -w "$ARCHIVES" ]; then
-    log "skipped: needs $HELPER and a writable archive cache (${ARCHIVES:-none})"
-    exit 0
+    log "skipped: needs $HELPER and a writable archive cache (${ARCHIVES:-none}); cached files unchecked (exit 3)"
+    exit 3
 fi
 mkdir -p "$ARCHIVES/partial"
 work="$(mktemp -d "$ARCHIVES/partial/prefetch.XXXXXX")"
@@ -87,21 +87,25 @@ fi
 if ! apt-get install --print-uris -qq -y --no-install-recommends \
         -o Acquire::ForceHash=SHA256 -o Dir::Cache::Archives="$work/empty/" "$@" \
         > "$work/uris" 2> "$work/uris.err"; then
-    log "apt-get --print-uris failed, nothing prefetched (the install will report it):"
+    log "apt-get --print-uris failed: cached files cannot be checked (exit 3, the caller purges them):"
     sed 's/^/    /' "$work/uris.err"
-    exit 0
+    exit 3
 fi
 # Lines: 'URI' FILE SIZE SHA256:HEX
-uri=() name=() size=() sha=() ok=()
+uri=() name=() size=() sha=() ok=() unexpected=0
 while read -r u n s h; do
     u="${u#\'}"
     u="${u%\'}"
     if [[ $n =~ $NAME_RE && $s =~ ^[0-9]+$ && $h =~ $SHA_RE ]]; then
         uri+=("$u") name+=("$n") size+=("$s") sha+=("${h#SHA256:}")
     else
-        log "left to apt (unexpected line): $u $n $s $h"
+        log "unexpected --print-uris line: $u $n $s $h"
+        unexpected=1
     fi
 done < <(grep "^'" "$work/uris" || true)
+# A file this script cannot name cannot be hash-checked either, and apt would
+# take a cached copy of the right size unchecked: fail, the caller purges.
+[ "$unexpected" = 0 ] || exit 3
 total=${#name[@]}
 if [ "$total" -eq 0 ]; then
     log "nothing to download"

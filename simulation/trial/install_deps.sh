@@ -48,9 +48,14 @@ APT_INSTALL=(apt-get install -y --no-install-recommends -o Dpkg::Use-Pty=0)
 # Download what the next install needs first: in parallel, from
 # UBUNTU_POOL_MIRRORS where possible, every file checked against the index apt
 # already verified (apt_prefetch.sh). Whatever it misses, apt-get fetches itself.
+# If the prefetch fails, cached .debs (e.g. restored by actions/cache) may be
+# unchecked, and apt accepts a cached file of the right size without hashing
+# it: drop them all, apt-get then downloads and verifies everything itself.
 prefetch() {
-    xargs "$HERE/apt_prefetch.sh" \
-        || log "prefetch failed (exit $?); apt-get downloads the packages itself"
+    xargs "$HERE/apt_prefetch.sh" || {
+        log "prefetch failed (exit $?); removing cached .debs, apt-get downloads the packages itself"
+        find /var/cache/apt/archives -maxdepth 1 -type f -name '*.deb' -delete
+    }
 }
 
 log "Ubuntu packages ($(pkgs "$HERE/apt-ubuntu.txt" | wc -l) from apt-ubuntu.txt)"
