@@ -1,0 +1,15 @@
+{"files_archived": 0, "total_files": 66791, "compressed_bytes": 10}
+{"files_archived": 5000, "total_files": 66791, "compressed_bytes": 190847421}
+{"files_archived": 10000, "total_files": 66791, "compressed_bytes": 326703045}
+{"files_archived": 15000, "total_files": 66791, "compressed_bytes": 497690412}
+{"files_archived": 20000, "total_files": 66791, "compressed_bytes": 568580854}
+{"files_archived": 25000, "total_files": 66791, "compressed_bytes": 645824762}
+{"files_archived": 30000, "total_files": 66791, "compressed_bytes": 825178438}
+{"files_archived": 35000, "total_files": 66791, "compressed_bytes": 835875107}
+{"files_archived": 40000, "total_files": 66791, "compressed_bytes": 906059654}
+{"files_archived": 45000, "total_files": 66791, "compressed_bytes": 968101327}
+{"files_archived": 50000, "total_files": 66791, "compressed_bytes": 1045690813}
+{"files_archived": 55000, "total_files": 66791, "compressed_bytes": 1163337857}
+{"files_archived": 60000, "total_files": 66791, "compressed_bytes": 1248101566}
+{"files_archived": 65000, "total_files": 66791, "compressed_bytes": 1324033514}
+{"done": true, "files": 66791, "original_bytes": 8733315873, "compressed_bytes": 1353101213, "parts": 21}
