@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Bumblebee GCS</title>
+  <script src="js/roslib.js"></script>
+  <script src="/vendor/iro.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0c10;--panel:#111318;--border:#1e2330;
+      --accent:#f5c842;--accent2:#3b82f6;
+      --ok:#22c55e;--warn:#f97316;--danger:#ef4444;
+      --text:#e2e8f0;--muted:#64748b;--radius:10px;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;font-size:13px;min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden}
+    #topview{height:100dvh;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+    header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:.1em;color:var(--accent)}
+    .hright{display:flex;align-items:center;gap:14px}
+    .conn-badge{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+    .conn-dot{width:8px;height:8px;border-radius:50%;background:var(--danger);transition:background .3s}
+    .conn-dot.ok{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+    .armed-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.08em;border:1px solid;transition:all .3s}
+    .armed{color:var(--danger);border-color:var(--danger);background:rgba(239,68,68,.1)}
+    .disarmed{color:var(--muted);border-color:var(--border);background:transparent}
+    .mode-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(59,130,246,.15);color:var(--accent2);border:1px solid rgba(59,130,246,.3)}
+    .settings-btn{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.08em;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:5px}
+    .settings-btn:hover{border-color:var(--accent);color:var(--accent)}
+    main{flex:1;display:grid;grid-template-columns:1fr 340px;gap:12px;padding:12px;min-height:0}
+    .camera-panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden}
+    .plabel{padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .camview{flex:1;display:flex;align-items:center;justify-content:center;background:#000;position:relative;min-height:0}
+    #camimg{width:100%;height:100%;object-fit:contain;display:block}
+    .crosshair{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center}
+    .crosshair::before{content:'';position:absolute;width:30px;height:1px;background:rgba(245,200,66,.5);box-shadow:-17px 0 0 rgba(245,200,66,.5),17px 0 0 rgba(245,200,66,.5)}
+    .crosshair::after{content:'';position:absolute;width:1px;height:30px;background:rgba(245,200,66,.5)}
+    .nosig{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:12px}
+    .camviews{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0;gap:0}
+    .camview{position:relative;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .camview+.camview{border-left:2px solid var(--border)}
+    .camlbl{position:absolute;top:8px;left:10px;font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(245,200,66,.8);text-transform:uppercase;pointer-events:none;z-index:2;background:rgba(0,0,0,.4);padding:2px 6px;border-radius:3px}
+    .flipbtn{position:absolute;top:8px;right:8px;z-index:11;background:rgba(0,0,0,.55);border:1px solid rgba(245,200,66,.4);color:rgba(245,200,66,.8);font-size:9px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:inherit;transition:all .2s}
+    .flipbtn:hover{background:rgba(245,200,66,.2);border-color:var(--accent)}
+    .flipped{transform:rotate(180deg)}
+    .camimg{width:100%;height:100%;object-fit:contain;display:block}
+    .pip{position:absolute;top:8px;right:8px;width:160px;height:120px;border:2px solid var(--accent);border-radius:6px;overflow:hidden;z-index:10;background:#000;cursor:pointer;transition:all .2s;box-shadow:0 2px 12px rgba(0,0,0,.7)}
+    .pip:hover{width:220px;height:165px}
+    .pip img{width:100%;height:100%;object-fit:cover;display:block}
+    .pip-lbl{position:absolute;bottom:4px;left:6px;font-size:8px;font-weight:700;letter-spacing:.1em;color:rgba(245,200,66,.9);text-transform:uppercase;pointer-events:none;text-shadow:0 1px 3px #000}
+    .camtabs{display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+    .ctab{padding:3px 10px;border-radius:4px;font-size:10px;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:transparent;white-space:nowrap;transition:all .2s;font-family:inherit}
+    .ctab.active{background:rgba(245,200,66,.15);color:var(--accent);border-color:var(--accent)}
+    .rcol{display:flex;flex-direction:column;gap:12px;min-height:0;overflow-y:auto}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;flex-shrink:0}
+    .abody{padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px}
+    #aicvs{border-radius:50%;border:2px solid var(--border);display:block}
+    .avals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%}
+    .aval{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:6px 4px}
+    .aval .l{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+    .aval .v{font-size:14px;font-weight:700;color:var(--accent)}
+    .tbody{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+    .trow{display:flex;align-items:center;justify-content:space-between}
+    .tk{color:var(--muted);font-size:11px}
+    .tv{font-size:12px;font-weight:600}
+    .tdiv{height:1px;background:var(--border);margin:2px 0}
+    .tsect{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+    .tbox{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:5px 7px;display:flex;flex-direction:column;gap:2px}
+    .tbox .l{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+    .tbox .v{font-size:12px;font-weight:700}
+    .rx{color:#ef4444}.ry{color:#22c55e}.rz{color:#3b82f6}
+    .batrow{display:flex;align-items:center;gap:8px}
+    .battrack{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+    .batfill{height:100%;border-radius:3px;transition:width .5s,background .5s}
+    .lbody{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+    .grow{display:flex;flex-direction:column;gap:4px}
+    .ghdr{display:flex;justify-content:space-between;font-size:11px}
+    .gl{color:var(--muted)}.gv{font-weight:700}
+    .gtrack{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+    .gfill{height:100%;border-radius:3px;transition:width .35s}
+    .logbody{padding:10px 14px;font-size:11px;max-height:85px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+    .logrow{display:flex;gap:8px}
+    .logt{color:var(--border);flex-shrink:0;font-size:10px}
+    .logm{color:var(--text)}
+    footer{padding:6px 20px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;font-size:10px;color:var(--muted)}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+    .ledpanel{padding:12px;display:flex;flex-direction:column;align-items:center}
+    #ledwheel{width:160px;height:160px}
+    .ledbtn{padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.08em;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;font-family:inherit;transition:all .2s;text-transform:none}
+    .ledbtn:hover{border-color:var(--accent);color:var(--accent)}
+    #alertbar{display:none;padding:5px 20px;font-size:11px;font-weight:700;letter-spacing:.05em;align-items:center;gap:12px;flex-shrink:0;border-bottom:1px solid}
+    #alertbar.low-bat{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.5);color:#ef4444}
+    #alertbar.no-conn{background:rgba(249,115,22,.15);border-color:rgba(249,115,22,.5);color:#f97316}
+    #scrollhint{text-align:center;font-size:9px;letter-spacing:.12em;color:rgba(245,200,66,.35);border-top:1px dashed rgba(245,200,66,.2);padding:3px 20px;flex-shrink:0}
+    #bottompanel{display:flex;gap:12px;padding:12px;flex-shrink:0}
+  </style>
+</head>
+<body>
+<div id="topview">
+<header>
+  <div class="brand">
+    BUMBLEBEE
+  </div>
+  <div class="hright">
+    <div class="conn-badge"><div class="conn-dot" id="cdot"></div><span id="clbl">No connection</span></div>
+    <div class="mode-badge" id="mbadge">—</div>
+    <div class="armed-badge disarmed" id="abadge">DISARMED</div>
+    <a href="led.html" class="settings-btn">&#9835; Entertainment</a>
+    <a href="wifi.html" class="settings-btn">&#9881; Settings</a>
+  </div>
+</header>
+
+<div id="alertbar">
+  <span id="alerticon">⚠</span>
+  <span id="alertmsg"></span>
+  <span id="alerttime" style="margin-left:auto;opacity:.6;font-weight:400"></span>
+</div>
+
+<main>
+  <div class="camera-panel">
+    <div class="plabel">
+      <span>Cameras</span>
+      <span id="ctoplbl" style="color:var(--accent2);font-size:9px">/second_camera/image_raw</span>
+    </div>
+    <div class="camviews">
+      <!-- Front camera -->
+      <div class="camview">
+        <span class="camlbl">Front</span>
+        <button class="flipbtn" onclick="toggleFlip('camimg2')">&#x21BA; Flip</button>
+        <img id="camimg2" class="camimg" alt=""/>
+        <div class="crosshair"></div>
+        <div class="nosig" id="nosig2" style="display:none">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="7" width="15" height="10" rx="2" stroke="#64748b" stroke-width="1.5"/>
+            <path d="M17 10l4-3v10l-4-3" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"/>
+            <line x1="3" y1="3" x2="21" y2="21" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span style="font-size:11px">Camera not connected</span>
+          <span style="font-size:9px">second_camera (id=1)</span>
+        </div>
+      </div>
+      <!-- Main / bottom camera -->
+      <div class="camview">
+        <span class="camlbl">Bottom</span>
+        <button class="flipbtn" onclick="toggleFlip('camimg')">&#x21BA; Flip</button>
+        <img id="camimg" class="camimg" alt=""/>
+        <div class="crosshair"></div>
+        <!-- ArUco map PiP -->
+        <div class="pip" id="pip" title="ArUco map (click to enlarge)">
+          <img id="pip-img" alt=""/>
+          <span class="pip-lbl">MAP</span>
+        </div>
+        <div class="nosig" id="nosig" style="display:none">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="7" width="15" height="10" rx="2" stroke="#64748b" stroke-width="1.5"/>
+            <path d="M17 10l4-3v10l-4-3" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"/>
+            <line x1="3" y1="3" x2="21" y2="21" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span style="font-size:11px">No signal</span>
+          <span style="font-size:9px">/second_camera</span>
+        </div>
+      </div>
+    </div>
+    <div class="camtabs">
+      <button class="ctab active" data-topic="/main_camera/image_raw">Bottom</button>
+      <button class="ctab" data-topic="/aruco_detect/debug">ArUco</button>
+      <button class="ctab" data-topic="/optical_flow/debug">Opt. Flow</button>
+    </div>
+  </div>
+
+  <div class="rcol">
+    <div class="panel">
+      <div class="plabel">Attitude</div>
+      <div class="abody">
+        <canvas id="aicvs" width="186" height="186"></canvas>
+        <div class="avals">
+          <div class="aval"><span class="l">Roll</span><span class="v" id="vroll">0.0°</span></div>
+          <div class="aval"><span class="l">Pitch</span><span class="v" id="vpitch">0.0°</span></div>
+          <div class="aval"><span class="l">Yaw</span><span class="v" id="vyaw">0.0°</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="plabel">Telemetry</div>
+      <div class="tbody">
+        <div class="trow">
+          <span class="tk">Battery</span>
+          <span class="tv"><span id="batv">—</span> V &nbsp;·&nbsp; <span id="batpct">—</span>%</span>
+        </div>
+        <div class="batrow">
+          <div class="battrack"><div class="batfill" id="batbar" style="width:0%"></div></div>
+        </div>
+        <div class="tdiv"></div>
+        <span class="tsect">Position (m)</span>
+        <div class="triple">
+          <div class="tbox"><span class="l">X</span><span class="v rx" id="px">—</span></div>
+          <div class="tbox"><span class="l">Y</span><span class="v ry" id="py">—</span></div>
+          <div class="tbox"><span class="l">Z</span><span class="v rz" id="pz">—</span></div>
+        </div>
+        <span class="tsect" style="margin-top:4px">Velocity (m/s)</span>
+        <div class="triple">
+          <div class="tbox"><span class="l">Vx</span><span class="v rx" id="vx">—</span></div>
+          <div class="tbox"><span class="l">Vy</span><span class="v ry" id="vy">—</span></div>
+          <div class="tbox"><span class="l">Vz</span><span class="v rz" id="vz">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="plabel">Flight Data</div>
+      <div class="lbody">
+        <div class="grow">
+          <div class="ghdr"><span class="gl">Horiz. Speed</span><span class="gv" id="sph">0.00 m/s</span></div>
+          <div class="gtrack"><div class="gfill" id="sphb" style="width:0%;background:#f5c842"></div></div>
+        </div>
+        <div class="grow">
+          <div class="ghdr"><span class="gl">Vert. Speed</span><span class="gv" id="spv">0.00 m/s</span></div>
+          <div class="gtrack"><div class="gfill" id="spvb" style="width:0%;background:#3b82f6"></div></div>
+        </div>
+        <div class="grow">
+          <div class="ghdr"><span class="gl">Angular Rate</span><span class="gv" id="gyr">0.0 °/s</span></div>
+          <div class="gtrack"><div class="gfill" id="gyrb" style="width:0%;background:#22c55e"></div></div>
+        </div>
+        <div class="grow">
+          <div class="ghdr"><span class="gl">IMU Accel</span><span class="gv" id="acc">— m/s²</span></div>
+          <div class="gtrack"><div class="gfill" id="accb" style="width:0%;background:#f97316"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="plabel">System (Raspberry Pi)</div>
+      <div class="lbody">
+        <div class="grow"><div class="ghdr"><span class="gl">CPU Temp</span><span class="gv" id="scpuT">— °C</span></div><div class="gtrack"><div class="gfill" id="scpuTb" style="width:0%;background:#ef4444"></div></div></div>
+        <div class="grow"><div class="ghdr"><span class="gl">CPU Load</span><span class="gv" id="scpuP">— %</span></div><div class="gtrack"><div class="gfill" id="scpuPb" style="width:0%;background:#f5c842"></div></div></div>
+        <div class="grow"><div class="ghdr"><span class="gl">Load Avg 1/5/15</span><span class="gv" id="sload">—</span></div><div class="gtrack"><div class="gfill" id="sloadb" style="width:0%;background:#f97316"></div></div></div>
+        <div class="grow"><div class="ghdr"><span class="gl">RAM</span><span class="gv" id="smem">— MB</span></div><div class="gtrack"><div class="gfill" id="smemb" style="width:0%;background:#3b82f6"></div></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="plabel">
+        <span>LED Color</span>
+        <button class="ledbtn" id="ledreset">Reset to Default</button>
+      </div>
+      <div class="ledpanel">
+        <div id="ledwheel"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="plabel">Messages</div>
+      <div class="logbody" id="logbody"></div>
+    </div>
+  </div>
+</main>
+
+</div>
+
+<div id="bottompanel">
+  <div id="posmap-wrap" style="width:300px;flex-shrink:0;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    <div class="plabel">Position Map</div>
+    <canvas id="posmap" width="300" height="280" style="display:block"></canvas>
+  </div>
+  <div id="chartspanel" style="flex:1;display:flex;flex-direction:column;gap:8px">
+    <div class="panel" style="flex:1;padding:8px 12px">
+      <div style="font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Altitude (m)</div>
+      <canvas id="chartalt" height="60" style="width:100%;display:block"></canvas>
+    </div>
+    <div class="panel" style="flex:1;padding:8px 12px">
+      <div style="font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Speed (m/s)</div>
+      <canvas id="chartspd" height="60" style="width:100%;display:block"></canvas>
+    </div>
+    <div class="panel" style="flex:1;padding:8px 12px">
+      <div style="font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Battery (%)</div>
+      <canvas id="chartbat" height="60" style="width:100%;display:block"></canvas>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span id="fip"></span>
+  <span>Uptime: <span id="upt">00:00:00</span></span>
+  <span id="lupd" style="color:var(--muted)">No data</span>
+</footer>
+
+<script>
+// ── Camera ──────────────────────────────────────────────────────
+var host    = location.hostname;
+var camBase = 'http://' + host + ':8080/stream?topic=';
+var camImg  = document.getElementById('camimg');
+var camImg2 = document.getElementById('camimg2');
+
+document.getElementById('fip').textContent = host + ' · rosbridge :9090 · video :8080';
+
+var CAM_PARAMS = '&type=mjpeg&quality=60&fps=5&width=320&height=240';
+var PIP_PARAMS = '&type=mjpeg&quality=50&fps=3&width=160&height=120';
+
+function makeCamSrc(topic, params) {
+  return camBase + topic + (params || CAM_PARAMS);
+}
+
+// Soft reconnect: avoid the old 3 s black-out loop. Reconnect only while the
+// tab is visible, after a short jittered delay, and never stack reconnects on
+// the same <img>. A cache-bust counter forces the browser to drop the stalled
+// multipart connection instead of reusing it.
+var _streams = [];
+var _reconnSeq = 0;
+function bustSrc(url) {
+  var clean = url.replace(/[?&]_=\d+/g, '');
+  return clean + (clean.indexOf('?') >= 0 ? '&' : '?') + '_=' + (++_reconnSeq);
+}
+function scheduleReconnect(img, getSrc) {
+  if (img._reconnecting) return;
+  img._reconnecting = true;
+  var delay = 1000 + Math.floor(Math.random() * 600); // 1.0–1.6 s, jittered
+  setTimeout(function() {
+    img._reconnecting = false;
+    if (document.visibilityState === 'visible') img.src = bustSrc(getSrc());
+  }, delay);
+}
+function attachReconnect(img, getSrc) {
+  _streams.push({ img: img, getSrc: getSrc });
+  img.onerror = function() { scheduleReconnect(this, getSrc); };
+}
+// When the tab comes back to the foreground, re-kick every stream once so a
+// connection the browser stalled while hidden recovers immediately.
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState !== 'visible') return;
+  for (var i = 0; i < _streams.length; i++) {
+    _streams[i].img.src = bustSrc(_streams[i].getSrc());
+  }
+});
+
+// Coalesce attitude/map/altitude canvas redraws to ~15 Hz. The pose topic
+// arrives ~30 Hz and redrawing three canvases on every message janks the main
+// thread; gating with a trailing timer keeps the data fresh without the jank.
+var _poseLastDraw = 0, _poseTimer = null;
+function doPoseDraw() {
+  drawAI();
+  drawPosMap();
+  drawChart('chartalt', chartAlt, '#3b82f6', undefined, undefined);
+}
+function schedulePoseDraw() {
+  var now = Date.now();
+  var since = now - _poseLastDraw;
+  var MIN = 66; // ~15 Hz
+  if (since >= MIN) {
+    _poseLastDraw = now;
+    doPoseDraw();
+  } else if (!_poseTimer) {
+    _poseTimer = setTimeout(function() {
+      _poseTimer = null;
+      _poseLastDraw = Date.now();
+      doPoseDraw();
+    }, MIN - since);
+  }
+}
+
+function setCamera(topic) {
+  document.getElementById('ctoplbl').textContent = topic;
+  var newSrc = makeCamSrc(topic);
+  if (camImg.src !== newSrc) {
+    camImg.src = newSrc;
+  }
+}
+
+// Front camera: second_camera (id=0, physically front)
+camImg2.src = makeCamSrc('/second_camera/image_raw');
+attachReconnect(camImg2, function() { return makeCamSrc('/second_camera/image_raw'); });
+
+// Bottom camera: main_camera (id=1, physically bottom)
+setCamera('/main_camera/image_raw');
+attachReconnect(camImg, function() { return camImg.src; });
+
+// ArUco map PiP
+var pipImg = document.getElementById('pip-img');
+pipImg.src = makeCamSrc('/aruco_map/image', PIP_PARAMS);
+attachReconnect(pipImg, function() { return makeCamSrc('/aruco_map/image', PIP_PARAMS); });
+var pipBig = false;
+document.getElementById('pip').addEventListener('click', function() {
+  pipBig = !pipBig;
+  this.style.width  = pipBig ? '320px' : '';
+  this.style.height = pipBig ? '240px' : '';
+});
+
+// Camera tabs
+var tabs = document.querySelectorAll('.ctab');
+for (var i = 0; i < tabs.length; i++) {
+  (function(btn) {
+    btn.addEventListener('click', function() {
+      for (var j = 0; j < tabs.length; j++) tabs[j].classList.remove('active');
+      btn.classList.add('active');
+      setCamera(btn.getAttribute('data-topic'));
+    });
+  })(tabs[i]);
+}
+
+// ── Attitude canvas ──────────────────────────────────────────────
+var cvs = document.getElementById('aicvs');
+var ctx = cvs.getContext('2d');
+var CX = cvs.width/2, CY = cvs.height/2, CR = cvs.width/2 - 2;
+var attRoll = 0, attPitch = 0, attYaw = 0;
+
+function drawAI() {
+  var rollR   = attRoll  * Math.PI / 180;
+  var pitchPx = attPitch * (CY / 45);
+  ctx.clearRect(0, 0, cvs.width, cvs.height);
+  ctx.save();
+  ctx.beginPath(); ctx.arc(CX, CY, CR, 0, Math.PI*2); ctx.clip();
+  ctx.save();
+  ctx.translate(CX, CY); ctx.rotate(rollR);
+  ctx.fillStyle = '#1a4cc0';
+  ctx.fillRect(-CR*2, -CR*2, CR*4, CR*2 + pitchPx);
+  ctx.fillStyle = '#7c4820';
+  ctx.fillRect(-CR*2, pitchPx, CR*4, CR*2);
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(-CR*2, pitchPx); ctx.lineTo(CR*2, pitchPx); ctx.stroke();
+  var degs = [10, 20, 30];
+  for (var di = 0; di < degs.length; di++) {
+    var d = degs[di];
+    var len = d===10?14:d===20?20:28;
+    var yU = pitchPx - d*(CY/45), yD = pitchPx + d*(CY/45);
+    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1;
+    ctx.font = '8px monospace'; ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.textAlign = 'right';
+    ctx.beginPath(); ctx.moveTo(-len,yU); ctx.lineTo(len,yU); ctx.stroke(); ctx.fillText('+'+d,-len-3,yU+3);
+    ctx.beginPath(); ctx.moveTo(-len,yD); ctx.lineTo(len,yD); ctx.stroke(); ctx.fillText('-'+d,-len-3,yD+3);
+  }
+  ctx.restore();
+  ctx.save(); ctx.translate(CX, CY);
+  var rollTicks = [-60,-45,-30,-20,-10,0,10,20,30,45,60];
+  for (var ti = 0; ti < rollTicks.length; ti++) {
+    var deg = rollTicks[ti];
+    var a = (deg-90)*Math.PI/180, r1=CR-7, r2=deg%30===0?CR-16:CR-11;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a)*r1, Math.sin(a)*r1);
+    ctx.lineTo(Math.cos(a)*r2, Math.sin(a)*r2);
+    ctx.strokeStyle = deg===0 ? '#f5c842' : 'rgba(255,255,255,.4)';
+    ctx.lineWidth   = deg===0 ? 2 : 1;
+    ctx.stroke();
+  }
+  ctx.rotate(-rollR);
+  ctx.fillStyle = '#f5c842';
+  ctx.beginPath(); ctx.moveTo(0,-(CR-7)); ctx.lineTo(-5,-(CR-17)); ctx.lineTo(5,-(CR-17)); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  ctx.restore();
+  ctx.strokeStyle = '#f5c842'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(CX-32,CY); ctx.lineTo(CX-12,CY);
+  ctx.moveTo(CX-12,CY); ctx.lineTo(CX-12,CY-7);
+  ctx.moveTo(CX+12,CY); ctx.lineTo(CX+32,CY);
+  ctx.moveTo(CX+12,CY); ctx.lineTo(CX+12,CY-7);
+  ctx.stroke();
+  ctx.fillStyle = '#f5c842';
+  ctx.beginPath(); ctx.arc(CX,CY,4,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#1e2330'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(CX,CY,CR,0,Math.PI*2); ctx.stroke();
+}
+drawAI();
+
+// ── Helpers ──────────────────────────────────────────────────────
+function quatToEuler(x, y, z, w) {
+  var roll  = Math.atan2(2*(w*x+y*z), 1-2*(x*x+y*y)) * 180/Math.PI;
+  var sinp  = 2*(w*y-z*x);
+  sinp = sinp >  1 ?  1 : sinp;
+  sinp = sinp < -1 ? -1 : sinp;
+  var pitch = Math.asin(sinp) * 180/Math.PI;
+  var yaw   = Math.atan2(2*(w*z+x*y), 1-2*(y*y+z*z)) * 180/Math.PI;
+  return {roll: roll, pitch: pitch, yaw: yaw};
+}
+
+function pct(v, max) {
+  v = Math.abs(v);
+  var p = v / max * 100;
+  return p > 100 ? '100' : p.toFixed(1);
+}
+
+function fs(v) { return (v >= 0 ? '+' : '') + v.toFixed(3); }
+
+function batColor(p) { return p > 55 ? '#22c55e' : p > 25 ? '#f97316' : '#ef4444'; }
+
+function addLog(msg) {
+  var el  = document.getElementById('logbody');
+  var t   = new Date().toLocaleTimeString('en-GB');
+  var row = document.createElement('div');
+  row.className = 'logrow';
+  row.innerHTML = '<span class="logt">'+t+'</span><span class="logm">'+msg+'</span>';
+  el.insertBefore(row, el.firstChild);
+  if (el.children.length > 20) el.removeChild(el.lastChild);
+}
+
+function touched() {
+  document.getElementById('lupd').textContent =
+    'Updated: ' + new Date().toLocaleTimeString('en-GB');
+}
+
+// ── Alert bar ────────────────────────────────────────────────────
+var activeAlerts = {};
+
+function updateAlertBar() {
+  var bar = document.getElementById('alertbar');
+  var msgs = [];
+  if (activeAlerts.battery) msgs.push(activeAlerts.battery);
+  if (activeAlerts.conn)    msgs.push(activeAlerts.conn);
+  if (msgs.length === 0) {
+    bar.style.display = 'none';
+    return;
+  }
+  document.getElementById('alertmsg').textContent = msgs.join(' · ');
+  document.getElementById('alerttime').textContent = new Date().toLocaleTimeString('en-GB');
+  bar.className = activeAlerts.battery ? 'low-bat' : 'no-conn';
+  bar.style.display = 'flex';
+}
+
+function setAlert(key, msg) {
+  activeAlerts[key] = msg;
+  updateAlertBar();
+}
+
+function clearAlert(key) {
+  delete activeAlerts[key];
+  updateAlertBar();
+}
+
+// ── ROS ──────────────────────────────────────────────────────────
+var prevMode = null;
+
+function connectROS() {
+  var ros = new ROSLIB.Ros({ url: 'ws://' + host + ':9090' });
+
+  ros.on('connection', function() {
+    clearAlert('conn');
+    document.getElementById('cdot').className = 'conn-dot ok';
+    document.getElementById('clbl').textContent = 'Connected';
+    addLog('Rosbridge: connection established');
+
+    new ROSLIB.Topic({
+      ros: ros, name: '/mavros/state', messageType: 'mavros_msgs/msg/State'
+    }).subscribe(function(msg) {
+      document.getElementById('mbadge').textContent = msg.mode || '—';
+      var armed = msg.armed;
+      var ab = document.getElementById('abadge');
+      ab.textContent = armed ? 'ARMED' : 'DISARMED';
+      ab.className = 'armed-badge ' + (armed ? 'armed' : 'disarmed');
+      if (prevMode !== null && prevMode !== msg.mode) addLog('Mode: ' + msg.mode);
+      prevMode = msg.mode;
+      touched();
+    });
+
+    new ROSLIB.Topic({
+      ros: ros, name: '/mavros/statustext/recv', messageType: 'mavros_msgs/msg/StatusText'
+    }).subscribe(function(msg) {
+      if (msg.severity <= 4) addLog('[FCU] ' + msg.text);
+    });
+
+    new ROSLIB.Topic({
+      ros: ros, name: '/mavros/battery', messageType: 'sensor_msgs/msg/BatteryState'
+    }).subscribe(function(msg) {
+      var v  = msg.voltage || 0;
+      var pc = msg.percentage;
+      var vValid = v > 0 && v < 60;
+      var pValid = pc !== null && pc !== undefined && pc >= 0 && pc <= 1.05;
+      document.getElementById('batv').textContent = vValid ? v.toFixed(2) : '—';
+      if (pValid) {
+        var pp  = Math.round(pc * 100);
+        document.getElementById('batpct').textContent = pp;
+        var bar = document.getElementById('batbar');
+        bar.style.width      = pp + '%';
+        bar.style.background = batColor(pp);
+        chartBat.push(pp);
+        if (chartBat.length > CHART_MAX) chartBat.shift();
+        drawChart('chartbat', chartBat, '#22c55e', 0, 100);
+        if (pp < 15 && vValid) {
+          addLog('WARNING LOW BATTERY: ' + v.toFixed(2) + ' V');
+          setAlert('battery', 'LOW BATTERY: ' + v.toFixed(2) + ' V · ' + pp + '%');
+        } else {
+          clearAlert('battery');
+        }
+      } else if (vValid) {
+        var cells = 6;
+        pp = Math.round(Math.min(100, Math.max(0, (v / cells - 3.3) / (4.2 - 3.3) * 100)));
+        document.getElementById('batpct').textContent = pp;
+        var bar = document.getElementById('batbar');
+        bar.style.width      = pp + '%';
+        bar.style.background = batColor(pp);
+        chartBat.push(pp);
+        if (chartBat.length > CHART_MAX) chartBat.shift();
+        drawChart('chartbat', chartBat, '#22c55e', 0, 100);
+        if (pp < 15) {
+          addLog('WARNING LOW BATTERY: ' + v.toFixed(2) + ' V');
+          setAlert('battery', 'LOW BATTERY: ' + v.toFixed(2) + ' V · ' + pp + '%');
+        } else {
+          clearAlert('battery');
+        }
+      } else {
+        document.getElementById('batpct').textContent = '—';
+      }
+      touched();
+    });
+
+    new ROSLIB.Topic({
+      ros: ros, name: '/mavros/mavros/pose', messageType: 'geometry_msgs/msg/PoseStamped'
+    }).subscribe(function(msg) {
+      var p = msg.pose.position, o = msg.pose.orientation;
+      document.getElementById('px').textContent = fs(p.x);
+      document.getElementById('py').textContent = fs(p.y);
+      document.getElementById('pz').textContent = fs(p.z);
+      var eu = quatToEuler(o.x, o.y, o.z, o.w);
+      attRoll = eu.roll; attPitch = eu.pitch; attYaw = eu.yaw;
+      document.getElementById('vroll').textContent  = eu.roll.toFixed(1)  + '°';
+      document.getElementById('vpitch').textContent = eu.pitch.toFixed(1) + '°';
+      document.getElementById('vyaw').textContent   = eu.yaw.toFixed(1)   + '°';
+      touched();
+      posTrail.push({x: p.x, y: p.y});
+      if (posTrail.length > POS_MAX) posTrail.shift();
+      chartAlt.push(p.z);
+      if (chartAlt.length > CHART_MAX) chartAlt.shift();
+      schedulePoseDraw();   // coalesced ~15 Hz redraw of AI + map + altitude
+    });
+
+    new ROSLIB.Topic({
+      ros: ros, name: '/mavros/mavros/velocity_local', messageType: 'geometry_msgs/msg/TwistStamped'
+    }).subscribe(function(msg) {
+      var l = msg.twist.linear;
+      document.getElementById('vx').textContent = fs(l.x);
+      document.getElementById('vy').textContent = fs(l.y);
+      document.getElementById('vz').textContent = fs(l.z);
+      var sH = Math.sqrt(l.x*l.x + l.y*l.y), sV = Math.abs(l.z);
+      document.getElementById('sph').textContent = sH.toFixed(2) + ' m/s';
+      document.getElementById('spv').textContent = sV.toFixed(2) + ' m/s';
+      document.getElementById('sphb').style.width = pct(sH, 5) + '%';
+      document.getElementById('spvb').style.width = pct(sV, 3) + '%';
+      chartSpd.push(sH);
+      if (chartSpd.length > CHART_MAX) chartSpd.shift();
+      drawChart('chartspd', chartSpd, '#f5c842', 0, 5);
+      touched();
+    });
+
+    new ROSLIB.Topic({
+      ros: ros, name: '/mavros/mavros/data', messageType: 'sensor_msgs/msg/Imu'
+    }).subscribe(function(msg) {
+      var av = msg.angular_velocity, la = msg.linear_acceleration;
+      var gyr = Math.sqrt(av.x*av.x + av.y*av.y + av.z*av.z) * 180/Math.PI;
+      var acc = Math.sqrt(la.x*la.x + la.y*la.y + la.z*la.z);
+      document.getElementById('gyr').textContent = gyr.toFixed(1) + ' °/s';
+      document.getElementById('acc').textContent = acc.toFixed(2) + ' m/s²';
+      document.getElementById('gyrb').style.width = pct(gyr, 360) + '%';
+      document.getElementById('accb').style.width = pct(acc, 30)  + '%';
+    });
+  });
+
+  ros.on('error', function(err) {
+    document.getElementById('cdot').className = 'conn-dot';
+    document.getElementById('clbl').textContent = 'Error';
+    console.error('ROS error', err);
+  });
+
+  ros.on('close', function() {
+    document.getElementById('cdot').className = 'conn-dot';
+    document.getElementById('clbl').textContent = 'Reconnecting...';
+    setAlert('conn', 'CONNECTION LOST — reconnecting...');
+    setTimeout(function() { connectROS(); }, 3000);
+  });
+}
+
+// ── Uptime ───────────────────────────────────────────────────────
+var t0 = Date.now();
+setInterval(function() {
+  var s  = Math.floor((Date.now()-t0)/1000);
+  var h  = Math.floor(s/3600), m = Math.floor(s%3600/60), sc = s%60;
+  document.getElementById('upt').textContent =
+    (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(sc<10?'0':'')+sc;
+}, 1000);
+
+// ── System metrics ───────────────────────────────────────────────
+function fetchMetrics() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'http://' + host + ':8888/', true);
+  xhr.timeout = 2000;
+  xhr.onload = function() {
+    if (xhr.status !== 200) return;
+    try {
+      var m  = JSON.parse(xhr.responseText);
+      var t  = m.cpu_temp;
+      if (t !== null && t !== undefined) {
+        document.getElementById('scpuT').textContent = t.toFixed(1) + ' °C';
+        document.getElementById('scpuTb').style.width      = Math.min(100, t).toFixed(1) + '%';
+        document.getElementById('scpuTb').style.background = t < 60 ? '#22c55e' : t < 75 ? '#f97316' : '#ef4444';
+      }
+      var cp = m.cpu_pct;
+      if (cp !== null && cp !== undefined) {
+        document.getElementById('scpuP').textContent       = cp.toFixed(1) + '%';
+        document.getElementById('scpuPb').style.width      = cp.toFixed(1) + '%';
+        document.getElementById('scpuPb').style.background = cp < 60 ? '#22c55e' : cp < 85 ? '#f97316' : '#ef4444';
+      }
+      if (m.load1 !== null && m.load1 !== undefined) {
+        document.getElementById('sload').textContent  = m.load1.toFixed(2) + ' / ' + m.load5.toFixed(2) + ' / ' + m.load15.toFixed(2);
+        document.getElementById('sloadb').style.width = Math.min(100, m.load1 / (m.cpu_count || 4) * 100).toFixed(1) + '%';
+      }
+      if (m.mem_used !== null && m.mem_used !== undefined) {
+        document.getElementById('smem').textContent  = m.mem_used + ' / ' + m.mem_total + ' MB (' + m.mem_pct + '%)';
+        document.getElementById('smemb').style.width = m.mem_pct.toFixed(1) + '%';
+      }
+    } catch(e) {}
+  };
+  xhr.send();
+}
+fetchMetrics();
+setInterval(fetchMetrics, 2000);
+
+// Camera flip toggle
+function toggleFlip(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('flipped');
+}
+
+// ── Position Map ─────────────────────────────────────────────────
+var posTrail = [];
+var POS_MAX = 200;
+
+var chartAlt = [], chartSpd = [], chartBat = [];
+var CHART_FILL_COLORS = {'#3b82f6':'rgba(59,130,246,0.15)','#f5c842':'rgba(245,200,66,0.15)','#22c55e':'rgba(34,197,94,0.15)'};
+var CHART_MAX = 120;
+
+function drawPosMap() {
+  var cvs = document.getElementById('posmap');
+  if (!cvs) return;
+  var ctx = cvs.getContext('2d');
+  var W = cvs.width, H = cvs.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Find bounds
+  var xMin, xMax, yMin, yMax;
+  if (posTrail.length === 0) {
+    xMin = -2; xMax = 2; yMin = -2; yMax = 2;
+  } else {
+    xMin = Infinity; xMax = -Infinity; yMin = Infinity; yMax = -Infinity;
+    for (var i = 0; i < posTrail.length; i++) {
+      if (posTrail[i].x < xMin) xMin = posTrail[i].x;
+      if (posTrail[i].x > xMax) xMax = posTrail[i].x;
+      if (posTrail[i].y < yMin) yMin = posTrail[i].y;
+      if (posTrail[i].y > yMax) yMax = posTrail[i].y;
+    }
+  }
+  var pad = Math.max(2, (Math.max(xMax - xMin, yMax - yMin)) * 0.2);
+  xMin -= pad; xMax += pad; yMin -= pad; yMax += pad;
+
+  var scaleX = W / (xMax - xMin);
+  var scaleY = H / (yMax - yMin);
+
+  function toX(v) { return (v - xMin) * scaleX; }
+  function toY(v) { return H - (v - yMin) * scaleY; }
+
+  // Grid
+  ctx.strokeStyle = '#1e2330';
+  ctx.lineWidth = 1;
+  var gridStep = 1;
+  for (var gx = Math.ceil(xMin); gx <= Math.floor(xMax); gx += gridStep) {
+    ctx.beginPath(); ctx.moveTo(toX(gx), 0); ctx.lineTo(toX(gx), H); ctx.stroke();
+  }
+  for (var gy = Math.ceil(yMin); gy <= Math.floor(yMax); gy += gridStep) {
+    ctx.beginPath(); ctx.moveTo(0, toY(gy)); ctx.lineTo(W, toY(gy)); ctx.stroke();
+  }
+
+  // Axes through origin
+  ctx.strokeStyle = '#2e3548';
+  ctx.lineWidth = 1.5;
+  if (xMin < 0 && xMax > 0) {
+    ctx.beginPath(); ctx.moveTo(toX(0), 0); ctx.lineTo(toX(0), H); ctx.stroke();
+  }
+  if (yMin < 0 && yMax > 0) {
+    ctx.beginPath(); ctx.moveTo(0, toY(0)); ctx.lineTo(W, toY(0)); ctx.stroke();
+  }
+
+  // Axis labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = '9px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('X', W - 14, toY(0) > 12 ? toY(0) - 4 : 12);
+  ctx.textAlign = 'right';
+  ctx.fillText('Y', toX(0) > 14 ? toX(0) - 4 : 14, 10);
+
+  // Trail
+  for (var ti = 0; ti < posTrail.length; ti++) {
+    var alpha = (ti / posTrail.length) * 0.6;
+    ctx.fillStyle = 'rgba(245,200,66,' + alpha + ')';
+    ctx.beginPath();
+    ctx.arc(toX(posTrail[ti].x), toY(posTrail[ti].y), 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Current position
+  if (posTrail.length > 0) {
+    var last = posTrail[posTrail.length - 1];
+    ctx.fillStyle = '#f5c842';
+    ctx.beginPath();
+    ctx.arc(toX(last.x), toY(last.y), 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+drawPosMap();
+
+function drawChart(canvasId, data, color, yMin, yMax) {
+  var cvs = document.getElementById(canvasId);
+  if (!cvs) return;
+  // Sync canvas pixel width to CSS display width
+  if (cvs.offsetWidth > 0 && cvs.width !== cvs.offsetWidth) {
+    cvs.width = cvs.offsetWidth;
+  }
+  var ctx = cvs.getContext('2d');
+  var W = cvs.width, H = cvs.height;
+  ctx.clearRect(0, 0, W, H);
+
+  if (data.length < 2) return;
+
+  var lo = yMin !== undefined ? yMin : Math.min.apply(null, data);
+  var hi = yMax !== undefined ? yMax : Math.max.apply(null, data);
+  if (hi === lo) { hi = lo + 1; }
+
+  var stepX = W / (CHART_MAX - 1);
+
+  // Fill
+  ctx.beginPath();
+  var startIdx = Math.max(0, CHART_MAX - data.length);
+  for (var i = 0; i < data.length; i++) {
+    var x = (startIdx + i) * stepX;
+    var y = H - ((data[i] - lo) / (hi - lo)) * H;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.lineTo((startIdx + data.length - 1) * stepX, H);
+  ctx.lineTo(startIdx * stepX, H);
+  ctx.closePath();
+  ctx.fillStyle = CHART_FILL_COLORS[color] || 'rgba(255,255,255,0.05)';
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  for (var j = 0; j < data.length; j++) {
+    var xj = (startIdx + j) * stepX;
+    var yj = H - ((data[j] - lo) / (hi - lo)) * H;
+    if (j === 0) ctx.moveTo(xj, yj); else ctx.lineTo(xj, yj);
+  }
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Latest value label
+  if (data.length > 0) {
+    ctx.fillStyle = color;
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(data[data.length - 1].toFixed(2), W - 4, 12);
+  }
+}
+
+connectROS();
+
+// LED color picker
+(function(){
+  if (typeof iro === 'undefined') {
+    console.warn('iro.js not loaded, LED picker disabled');
+    return;
+  }
+  var picker = new iro.ColorPicker('#ledwheel', {
+    width: 180,
+    layout: [
+      {component: iro.ui.Wheel},
+      {component: iro.ui.Slider, options: {sliderType: 'value'}}
+    ]
+  });
+  var last = 0;
+  var tail = null;
+  function send(rgb) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/led/color', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({r: rgb.r, g: rgb.g, b: rgb.b}));
+  }
+  picker.on('color:change', function(c) {
+    var now = new Date().getTime();
+    var rgb = c.rgb;
+    if (tail) { clearTimeout(tail); tail = null; }
+    if (now - last < 100) {
+      tail = setTimeout(function(){ last = new Date().getTime(); send(rgb); }, 120);
+      return;
+    }
+    last = now;
+    send(rgb);
+  });
+  document.getElementById('ledreset').addEventListener('click', function(){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/led/reset', true);
+    xhr.send();
+  });
+})();
+</script>
+</body>
+</html>

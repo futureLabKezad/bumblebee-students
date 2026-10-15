@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/arsenij/Documents/Bumbl code/bbsim-work/parallel_work/20261015/vision/vpe_freshness_01/tests/test_freshness.py", line 50, in <module>
+    exec(compile(ast.Module(body=body,type_ignores=[]),str(PIN),'exec'),ENV);Base=ENV['VpeFix'];Fresh=candidate.make_node_class(Base,enabled=True)
+  File "/Users/arsenij/Documents/Bumbl code/bbsim-work/parallel_work/20261015/vision/vpe_freshness_01/candidate/vpe_freshness_optin.py", line 269, in make_node_class
+    _check_methods(base, original, selected)
+  File "/Users/arsenij/Documents/Bumbl code/bbsim-work/parallel_work/20261015/vision/vpe_freshness_01/candidate/vpe_freshness_optin.py", line 246, in _check_methods
+    raise ValueError('loaded c33 method was modified: ' + name)
+ValueError: loaded c33 method was modified: _maybe_reseed

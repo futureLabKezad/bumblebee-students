@@ -1,0 +1,101 @@
+PASS: archive parts
+[backup/bbsim-complete-2026-10-15 (root-commit) cebe4e6] docs: preserve complete Bumblebee work state and unfinished flight qualification [skip ci]
+ 11 files changed, 392283 insertions(+)
+ create mode 100644 FILES.json
+ create mode 100644 README.md
+ create mode 100644 SHA256SUMS.json
+ create mode 100644 STATUS.md
+ create mode 100644 archive_verification.json
+ create mode 100644 creation.log
+ create mode 100644 make_snapshot.py
+ create mode 100644 publication.json
+ create mode 100644 publish.sh
+ create mode 100644 verify_archive.py
+ create mode 100644 verify_snapshot.py
+remote: 
+remote: Create a pull request for 'backup/bbsim-complete-2026-10-15' on GitHub by visiting:        
+remote:      https://github.com/futureLabKezad/bumblebee-students/pull/new/backup/bbsim-complete-2026-10-15        
+remote: 
+To https://github.com/futureLabKezad/bumblebee-students.git
+ * [new branch]      HEAD -> backup/bbsim-complete-2026-10-15
+[backup/bbsim-complete-2026-10-15 51e20ed] backup: add workspace archive parts through 4 [skip ci]
+ 4 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 workspace.tar.gz.part0001
+ create mode 100644 workspace.tar.gz.part0002
+ create mode 100644 workspace.tar.gz.part0003
+ create mode 100644 workspace.tar.gz.part0004
+remote: warning: See https://gh.io/lfs for more information.        
+remote: warning: File workspace.tar.gz.part0003 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0004 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0001 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0002 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.        
+To https://github.com/futureLabKezad/bumblebee-students.git
+   cebe4e6..51e20ed  HEAD -> backup/bbsim-complete-2026-10-15
+[backup/bbsim-complete-2026-10-15 3fe9cd4] backup: add workspace archive parts through 8 [skip ci]
+ 4 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 workspace.tar.gz.part0005
+ create mode 100644 workspace.tar.gz.part0006
+ create mode 100644 workspace.tar.gz.part0007
+ create mode 100644 workspace.tar.gz.part0008
+remote: warning: See https://gh.io/lfs for more information.        
+remote: warning: File workspace.tar.gz.part0005 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0006 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0007 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0008 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.        
+To https://github.com/futureLabKezad/bumblebee-students.git
+   51e20ed..3fe9cd4  HEAD -> backup/bbsim-complete-2026-10-15
+[backup/bbsim-complete-2026-10-15 f2a9153] backup: add workspace archive parts through 12 [skip ci]
+ 4 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 workspace.tar.gz.part0009
+ create mode 100644 workspace.tar.gz.part0010
+ create mode 100644 workspace.tar.gz.part0011
+ create mode 100644 workspace.tar.gz.part0012
+remote: warning: See https://gh.io/lfs for more information.        
+remote: warning: File workspace.tar.gz.part0010 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0011 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0012 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0009 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.        
+To https://github.com/futureLabKezad/bumblebee-students.git
+   3fe9cd4..f2a9153  HEAD -> backup/bbsim-complete-2026-10-15
+[backup/bbsim-complete-2026-10-15 d241ec4] backup: add workspace archive parts through 16 [skip ci]
+ 4 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 workspace.tar.gz.part0013
+ create mode 100644 workspace.tar.gz.part0014
+ create mode 100644 workspace.tar.gz.part0015
+ create mode 100644 workspace.tar.gz.part0016
+remote: warning: See https://gh.io/lfs for more information.        
+remote: warning: File workspace.tar.gz.part0013 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0014 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0015 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0016 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.        
+To https://github.com/futureLabKezad/bumblebee-students.git
+   f2a9153..d241ec4  HEAD -> backup/bbsim-complete-2026-10-15
+[backup/bbsim-complete-2026-10-15 677fea7] backup: add workspace archive parts through 20 [skip ci]
+ 4 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 workspace.tar.gz.part0017
+ create mode 100644 workspace.tar.gz.part0018
+ create mode 100644 workspace.tar.gz.part0019
+ create mode 100644 workspace.tar.gz.part0020
+remote: warning: See https://gh.io/lfs for more information.        
+remote: warning: File workspace.tar.gz.part0017 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0018 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0019 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File workspace.tar.gz.part0020 is 64.00 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.        
+To https://github.com/futureLabKezad/bumblebee-students.git
+   d241ec4..677fea7  HEAD -> backup/bbsim-complete-2026-10-15
+[backup/bbsim-complete-2026-10-15 1522d92] backup: finish complete workspace archive [skip ci]
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 workspace.tar.gz.part0021
+To https://github.com/futureLabKezad/bumblebee-students.git
+   677fea7..1522d92  HEAD -> backup/bbsim-complete-2026-10-15
+VERIFIED_REMOTE_HEAD=1522d92dc84df066c15000ea3d64bbb2f15b7e97
+ M README.md
+?? CURRENT_SHA256.json
+?? current/
+?? inputs/
+?? publish.log

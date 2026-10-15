@@ -1,0 +1,166 @@
+{
+  "tests_run": 21,
+  "failures": 0,
+  "errors": 0,
+  "success": true,
+  "scope": "Exact c33 class/method AST compiled against deterministic in-memory Node/messages; no ROS transport. Parameter factory extracted unchanged, dependencies stubbed only for composition tests.",
+  "parameter_factory_sha256": "8833bd94d7ecf0447f59f5d899252291986faaaa551cb9044630332abadd9d3b",
+  "test_script_sha256": "72f61191ed85c5f36033a4aacd411d7ec984619e4f6dc397020d9f7a3ee2fcf1",
+  "pinned_source_sha256": "c33a52bf1b10bc064ca102bdc720ed03afaa08c691d9c5c34b1d7fadf859b8b9",
+  "candidate_sha256": "2f0915907b70e539669dc7de5f9f9f0494f05bcf3ec21778573078b35fd78335",
+  "paired_results": {
+    "replayed_reseed_inputs": {
+      "before": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 10000000000,
+        "rejects": 2,
+        "candidates": 2,
+        "published": 1,
+        "output_stamps": [
+          10410000000
+        ]
+      },
+      "after": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 9900000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      }
+    },
+    "medoid_time": {
+      "before": {
+        "pose": [
+          1.03,
+          0.2
+        ],
+        "time": 10550000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 1,
+        "output_stamps": [
+          10910000000
+        ]
+      },
+      "after": {
+        "pose": [
+          1.03,
+          0.2
+        ],
+        "time": 10400000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      }
+    },
+    "fresh_stamp": {
+      "before": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 10000000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 1,
+        "output_stamps": [
+          10100000000
+        ]
+      },
+      "after": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 9900000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 1,
+        "output_stamps": [
+          9900000000
+        ]
+      }
+    },
+    "speed_same_threshold_source_dt": {
+      "before": {
+        "pose": [
+          0.1,
+          0.2
+        ],
+        "time": 10200000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      },
+      "after": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 9950000000,
+        "rejects": 1,
+        "candidates": 1,
+        "published": 0,
+        "output_stamps": []
+      }
+    },
+    "stale_first": {
+      "before": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 10000000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 1,
+        "output_stamps": [
+          10000000000
+        ]
+      },
+      "after": {
+        "pose": null,
+        "time": null,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      }
+    },
+    "stale_forced_reseed": {
+      "before": {
+        "pose": [
+          6.2,
+          0.2
+        ],
+        "time": 12000000000,
+        "rejects": 5,
+        "candidates": 3,
+        "published": 1,
+        "output_stamps": [
+          12500000000
+        ]
+      },
+      "after": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 9900000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      }
+    }
+  }
+}

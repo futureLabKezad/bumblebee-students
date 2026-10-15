@@ -1,0 +1,12 @@
+{
+  "RESULT.md": "9eaa3248a2404a5798f0422a6e3c3951f2618cd668d4bbff510373d562ea3b8d",
+  "candidate/vpe_freshness_optin.py": "2f0915907b70e539669dc7de5f9f9f0494f05bcf3ec21778573078b35fd78335",
+  "logs/final_verification.log": "a424799515ef60e09d3471ad04c5dd392bb4dad630b515ca606393577621346c",
+  "logs/method_pin_attempt1_qualname.log": "124aea150c75bd4b4dfbba8ab239fe53d9f43e0884ec4c45c7bf552fe0824294",
+  "logs/test_results.json": "a7c1f0bf0867fe6d65c556d33eb34033eb0fef530c7c4e84569b618754ab2fee",
+  "logs/tests.log": "2f7b5c3d1ce724d47aa9b7f2003276dad43391715d8aa258b793b94b482bff4a",
+  "logs/tests_final.log": "24c3944ffbe5d157c2377a5be927c317d8cdf939cfe399716251778fa47a8429",
+  "logs/tests_frozen.log": "f284d359d91c715c5d0eb4ae0a41457124cc4415284dc8eb9f53c847997e1a7c",
+  "result.json": "f80e612bae60d87ea9b58f55d411ca351ce4b3beffd3af34678c1b483fa8731b",
+  "tests/test_freshness.py": "0f935bc6b7acca8c25a48682f7d7e5ef301b55dfdc4b7a169b7dee1db23ec43c"
+}

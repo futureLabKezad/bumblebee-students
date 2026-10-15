@@ -1,0 +1,20 @@
+# Apply a PX4 parameter through the vpe_fix gate.
+#
+# This is the ONLY supported channel for writing PX4 params.
+# The gate reads the original value first, saves it, then writes the new
+# value. It restores the original on DISARMED transition, on shutdown,
+# or when ttl_sec expires (whichever comes first), unless persistent=true.
+#
+# ptype: 0 = integer, 1 = double
+# ttl_sec: 0 = revert on next DISARMED/shutdown; >0 = also revert after timer
+# persistent: true = do not auto-revert (caller takes ownership)
+
+string param_id
+float64 value
+uint8 ptype
+float32 ttl_sec
+bool persistent
+---
+bool success
+string message
+float64 original_value

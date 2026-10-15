@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Entertainment — Bumblebee</title>
+  <script src="/vendor/iro.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0c10;--panel:#111318;--border:#1e2330;
+      --accent:#f5c842;--accent2:#3b82f6;
+      --ok:#22c55e;--warn:#f97316;--danger:#ef4444;
+      --text:#e2e8f0;--muted:#64748b;--radius:10px;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;font-size:13px;min-height:100dvh;display:flex;flex-direction:column}
+    header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:.1em;color:var(--accent)}
+    .hright{display:flex;align-items:center;gap:14px}
+    .back-btn{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.08em;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:6px}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+    main{flex:1;max-width:720px;margin:0 auto;width:100%;padding:20px 16px;display:flex;flex-direction:column;gap:16px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+    .card-header{padding:10px 16px;font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+    .card-body{padding:18px}
+    .wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+    #ledwheel{width:260px;height:260px}
+    .hex{font-size:11px;color:var(--muted);letter-spacing:.1em}
+    .hex span{color:var(--accent);font-weight:700}
+    .anim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .anim-btn{padding:14px 8px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);color:var(--muted);background:rgba(255,255,255,.02);cursor:pointer;font-family:inherit;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:6px}
+    .anim-btn .ico{font-size:20px;line-height:1}
+    .anim-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+    .anim-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(245,200,66,.12);box-shadow:0 0 0 1px var(--accent) inset}
+    .reset-row{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    .btn-reset{padding:10px 22px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--danger);color:var(--danger);background:rgba(239,68,68,.08);cursor:pointer;font-family:inherit;transition:all .15s}
+    .btn-reset:hover{background:rgba(239,68,68,.2)}
+    .btn-off{padding:10px 22px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--muted);color:var(--text);background:rgba(255,255,255,.04);cursor:pointer;font-family:inherit;transition:all .15s}
+    .btn-off:hover{border-color:var(--text);background:rgba(255,255,255,.1)}
+    .msg{font-size:11px;padding:8px 12px;border-radius:6px;border:1px solid var(--border);color:var(--muted);text-align:center}
+    @media (max-width:520px){
+      .anim-grid{grid-template-columns:repeat(2,1fr)}
+      #ledwheel{width:220px;height:220px}
+      .snd-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    .page-subtitle{font-size:14px;letter-spacing:.2em;color:var(--accent);padding:4px 16px 12px;text-transform:uppercase;opacity:.85;text-align:center;font-weight:700}
+    .snd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .snd-grid .anim-btn{padding:10px 6px;font-size:10px;letter-spacing:.06em}
+    .snd-custom{margin-top:14px;display:flex;flex-direction:column;gap:8px;border-top:1px dashed var(--border);padding-top:12px}
+    .snd-row{display:flex;gap:8px;align-items:center}
+    .snd-input{background:#0a0c10;color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;outline:none;width:100%}
+    .snd-input:focus{border-color:var(--accent)}
+    .snd-row select.snd-input{width:110px;flex-shrink:0}
+    .snd-row .anim-btn{flex-shrink:0;padding:8px 18px}
+    .tune-preview{font-family:'SF Mono','Fira Code',monospace;font-size:10px;white-space:pre-wrap;word-break:break-all;background:#0a0c10;padding:10px 12px;border:1px solid var(--border);border-radius:6px;color:var(--accent2);line-height:1.5;max-height:140px;overflow:auto}
+    .tune-preview.err{color:var(--danger);border-color:var(--danger)}
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">BUMBLEBEE</div>
+  <div class="hright">
+    <a href="gcs.html" class="back-btn">&#8592; GCS</a>
+  </div>
+</header>
+<div class="page-subtitle">&#9835; Entertainment</div>
+
+<main>
+  <div class="card">
+    <div class="card-header">Color</div>
+    <div class="card-body">
+      <div class="wheel-wrap">
+        <div id="ledwheel"></div>
+        <div class="hex">RGB: <span id="hexval">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Animation</div>
+    <div class="card-body">
+      <div class="anim-grid">
+        <button class="anim-btn" data-anim="breathing"><span class="ico">&#9786;</span>Breathing</button>
+        <button class="anim-btn" data-anim="rainbow"><span class="ico">&#127752;</span>Rainbow</button>
+        <button class="anim-btn" data-anim="police"><span class="ico">&#128680;</span>Police</button>
+        <button class="anim-btn" data-anim="strobe"><span class="ico">&#9889;</span>Strobe</button>
+        <button class="anim-btn" data-anim="fire"><span class="ico">&#128293;</span>Fire</button>
+        <button class="anim-btn" data-anim="theater"><span class="ico">&#10024;</span>Theater</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="reset-row">
+    <button class="btn-off" id="offbtn">Off</button>
+    <button class="btn-reset" id="resetbtn">Reset to Default</button>
+  </div>
+
+  <div class="msg" id="msg">Pick a color or tap an animation.</div>
+
+  <div class="card">
+    <div class="card-header">Sounds (Buzzer)</div>
+    <div class="card-body">
+      <div class="snd-grid">
+        <button class="anim-btn" data-snd="beep">Beep</button>
+        <button class="anim-btn" data-snd="ok">OK</button>
+        <button class="anim-btn" data-snd="error">Error</button>
+        <button class="anim-btn" data-snd="notify">Notify</button>
+        <button class="anim-btn" data-snd="arming">Arming</button>
+        <button class="anim-btn" data-snd="imperial">Imperial</button>
+        <button class="anim-btn" data-snd="mario">Mario</button>
+        <button class="anim-btn" data-snd="tetris">Tetris</button>
+      </div>
+      <div class="snd-custom">
+        <textarea class="snd-input" id="snd-custom" rows="2" placeholder="MFT200L8CEG (QBASIC) or T120O4L8CDEFGAB (MML)"></textarea>
+        <div class="snd-row">
+          <select class="snd-input" id="snd-fmt">
+            <option value="QBASIC">QBASIC</option>
+            <option value="MML">MML</option>
+          </select>
+          <button class="anim-btn" id="snd-play">Play Tune</button>
+        </div>
+        <div class="msg" id="snd-msg">Tap a preset or type a tune.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Speech (TTS via Buzzer)</div>
+    <div class="card-body">
+      <div class="snd-custom" style="margin-top:0;border-top:none;padding-top:0">
+        <textarea class="snd-input" id="tts-text" rows="2" placeholder="hello world"></textarea>
+        <div class="snd-row">
+          <select class="snd-input" id="tts-lang">
+            <option value="en">English</option>
+            <option value="ru">Russian</option>
+            <option value="de">Deutsch</option>
+            <option value="fr">Francais</option>
+            <option value="es">Espanol</option>
+          </select>
+          <button class="anim-btn" id="tts-speak">Speak</button>
+        </div>
+        <pre class="tune-preview" id="tts-out">Type some text and tap Speak — buzzer will sing it.</pre>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var msg = document.getElementById('msg');
+  function showMsg(text){ msg.textContent = text; }
+
+  function clearActive(){
+    var btns = document.querySelectorAll('.anim-btn[data-anim]');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  }
+  function markActive(name){
+    clearActive();
+    var b = document.querySelector('.anim-btn[data-anim="' + name + '"]');
+    if (b) b.classList.add('active');
+  }
+
+  // Track the last on-state so Off→On can restore it.
+  // lastState: null | {type:'color', rgb:{r,g,b}} | {type:'anim', name:string}
+  var lastState = null;
+  var isOff = false;
+  var offBtn = document.getElementById('offbtn');
+  function setOffLabel(off){
+    isOff = off;
+    offBtn.textContent = off ? 'On' : 'Off';
+  }
+  function fmtHex(n){ var s = n.toString(16); return s.length === 1 ? '0' + s : s; }
+  function setHex(rgb){
+    document.getElementById('hexval').textContent =
+      '#' + (fmtHex(rgb.r) + fmtHex(rgb.g) + fmtHex(rgb.b)).toUpperCase();
+  }
+
+  // Color wheel
+  var picker = null;
+  if (typeof iro !== 'undefined') {
+    picker = new iro.ColorPicker('#ledwheel', {
+      width: 260,
+      layout: [
+        {component: iro.ui.Wheel},
+        {component: iro.ui.Slider, options: {sliderType: 'value'}}
+      ]
+    });
+    var last = 0, tail = null;
+    function sendColor(rgb){
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/led/color', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function(){
+        if (xhr.status === 200) {
+          clearActive();
+          lastState = {type: 'color', rgb: {r: rgb.r, g: rgb.g, b: rgb.b}};
+          setOffLabel(false);
+          showMsg('Color set');
+        } else {
+          showMsg('Color error: HTTP ' + xhr.status);
+        }
+      };
+      xhr.send(JSON.stringify({r: rgb.r, g: rgb.g, b: rgb.b}));
+    }
+    picker.on('color:change', function(c){
+      var now = new Date().getTime();
+      var rgb = c.rgb;
+      setHex(rgb);
+      if (tail) { clearTimeout(tail); tail = null; }
+      if (now - last < 100) {
+        tail = setTimeout(function(){ last = new Date().getTime(); sendColor(rgb); }, 120);
+        return;
+      }
+      last = now;
+      sendColor(rgb);
+    });
+  } else {
+    showMsg('iro.js not loaded — color picker disabled.');
+  }
+
+  // Animation buttons (LED only — scope by data-anim so Sounds buttons aren't captured)
+  var btns = document.querySelectorAll('.anim-btn[data-anim]');
+  for (var i = 0; i < btns.length; i++) {
+    (function(btn){
+      btn.addEventListener('click', function(){
+        var name = btn.getAttribute('data-anim');
+        markActive(name);
+        showMsg('Starting ' + name + '...');
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/led/animation', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function(){
+          if (xhr.status === 200) {
+            lastState = {type: 'anim', name: name};
+            setOffLabel(false);
+            showMsg('Animation: ' + name);
+          } else {
+            clearActive();
+            showMsg('Animation error: HTTP ' + xhr.status);
+          }
+        };
+        xhr.onerror = function(){
+          clearActive();
+          showMsg('Network error');
+        };
+        xhr.send(JSON.stringify({name: name}));
+      });
+    })(btns[i]);
+  }
+
+  // Off / On toggle — Off blacks out LEDs (and stops any animation server-side).
+  // On restores the previously active state (color or animation); if there is
+  // none yet, falls back to /api/led/reset (default).
+  function turnOff(){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/led/color', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function(){
+      if (xhr.status === 200) {
+        clearActive();
+        document.getElementById('hexval').textContent = '#000000';
+        setOffLabel(true);
+        showMsg('LEDs off');
+      } else {
+        showMsg('Off error: HTTP ' + xhr.status);
+      }
+    };
+    xhr.onerror = function(){ showMsg('Network error'); };
+    xhr.send(JSON.stringify({r: 0, g: 0, b: 0}));
+  }
+  function restoreColor(rgb){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/led/color', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function(){
+      if (xhr.status === 200) {
+        clearActive();
+        setHex(rgb);
+        setOffLabel(false);
+        showMsg('Color restored');
+      } else {
+        showMsg('On error: HTTP ' + xhr.status);
+      }
+    };
+    xhr.onerror = function(){ showMsg('Network error'); };
+    xhr.send(JSON.stringify({r: rgb.r, g: rgb.g, b: rgb.b}));
+  }
+  function restoreAnim(name){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/led/animation', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function(){
+      if (xhr.status === 200) {
+        markActive(name);
+        setOffLabel(false);
+        showMsg('Animation: ' + name);
+      } else {
+        showMsg('On error: HTTP ' + xhr.status);
+      }
+    };
+    xhr.onerror = function(){ showMsg('Network error'); };
+    xhr.send(JSON.stringify({name: name}));
+  }
+  function restoreDefault(){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/led/reset', true);
+    xhr.onload = function(){
+      if (xhr.status === 200) {
+        clearActive();
+        setOffLabel(false);
+        showMsg('Restored to default');
+      } else {
+        showMsg('On error: HTTP ' + xhr.status);
+      }
+    };
+    xhr.onerror = function(){ showMsg('Network error'); };
+    xhr.send();
+  }
+  offBtn.addEventListener('click', function(){
+    if (!isOff) {
+      turnOff();
+    } else if (lastState && lastState.type === 'anim') {
+      restoreAnim(lastState.name);
+    } else if (lastState && lastState.type === 'color') {
+      restoreColor(lastState.rgb);
+    } else {
+      restoreDefault();
+    }
+  });
+
+  // Reset
+  document.getElementById('resetbtn').addEventListener('click', function(){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/led/reset', true);
+    xhr.onload = function(){
+      clearActive();
+      showMsg(xhr.status === 200 ? 'Restored to default' : 'Reset error: HTTP ' + xhr.status);
+    };
+    xhr.send();
+  });
+
+  // ── Sounds (PX4 Buzzer) ──────────────────────────────────────────────
+  var SOUND_PRESETS = {
+    beep:     {tune: 'MFT100L16O5C',                         format: 'QBASIC'},
+    ok:       {tune: 'MFT180L8O5CEG',                        format: 'QBASIC'},
+    error:    {tune: 'MFT180L8O5GEC<G',                      format: 'QBASIC'},
+    notify:   {tune: 'MFT180L8O5E4C4',                       format: 'QBASIC'},
+    arming:   {tune: 'MFT180L8O4G4O5C4',                     format: 'QBASIC'},
+    imperial: {tune: 'MFT120L4O4GGGL8E<L16B>L4GL8E<L16B>L2G',format: 'QBASIC'},
+    mario:    {tune: 'MFT200L8O5EEP8EP8CEP8GP8P4<GP4',       format: 'QBASIC'},
+    tetris:   {tune: 'MFT160L4O5EL8BL8>CL4DL8>CL8<BL4AL8AL8>CL4EL8DL8>C', format: 'QBASIC'}
+  };
+  var sndMsg = document.getElementById('snd-msg');
+  function setSndMsg(text){ if (sndMsg) sndMsg.textContent = text; }
+  function postJSON(url, body, ok, fail){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function(){
+      if (xhr.readyState !== 4) return;
+      if (xhr.status === 200) { try { ok(JSON.parse(xhr.responseText)); } catch (e) { ok({}); } }
+      else { try { fail(JSON.parse(xhr.responseText), xhr.status); } catch (e) { fail({error: 'HTTP ' + xhr.status}, xhr.status); } }
+    };
+    xhr.onerror = function(){ fail({error: 'network error'}, 0); };
+    xhr.send(JSON.stringify(body));
+  }
+  function playTune(tune, fmt, label){
+    if (!tune) { setSndMsg('Empty tune'); return; }
+    setSndMsg('Playing ' + (label || (fmt + ', ' + tune.length + ' chars')) + '…');
+    postJSON('/api/sounds/play', {tune: tune, format: fmt || 'QBASIC'},
+      function(){ setSndMsg('Played: ' + (label || tune)); },
+      function(r){ setSndMsg('Error: ' + (r.error || 'unknown')); });
+  }
+  var sndBtns = document.querySelectorAll('[data-snd]');
+  for (var k = 0; k < sndBtns.length; k++) {
+    (function(btn){
+      btn.addEventListener('click', function(){
+        var name = btn.getAttribute('data-snd');
+        var p = SOUND_PRESETS[name];
+        if (!p) return;
+        playTune(p.tune, p.format, name);
+      });
+    })(sndBtns[k]);
+  }
+  document.getElementById('snd-play').addEventListener('click', function(){
+    var t = document.getElementById('snd-custom').value.trim();
+    var f = document.getElementById('snd-fmt').value;
+    playTune(t, f, null);
+  });
+
+  // ── TTS via buzzer ───────────────────────────────────────────────────
+  var ttsOut = document.getElementById('tts-out');
+  function setTtsOut(text, isErr){
+    ttsOut.textContent = text;
+    if (isErr) ttsOut.classList.add('err'); else ttsOut.classList.remove('err');
+  }
+  document.getElementById('tts-speak').addEventListener('click', function(){
+    var text = document.getElementById('tts-text').value.trim();
+    var lang = document.getElementById('tts-lang').value;
+    if (!text) { setTtsOut('Type something first.', true); return; }
+    setTtsOut('Generating tune…', false);
+    postJSON('/api/sounds/tts', {text: text, lang: lang},
+      function(r){
+        var lines = ['tune    : ' + (r.tune || ''),
+                     'phonemes: ' + (r.phonemes || '(fallback)'),
+                     'length  : ' + ((r.tune || '').length) + ' / 230 chars'];
+        setTtsOut(lines.join('\n'), false);
+      },
+      function(r){ setTtsOut('Error: ' + (r.error || 'unknown'), true); });
+  });
+})();
+</script>
+</body>
+</html>

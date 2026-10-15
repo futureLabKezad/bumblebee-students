@@ -1,0 +1,22 @@
+test_after_before_disarm (test_verifier.ProfileEvidenceTests) ... ok
+test_complete_distinct_exact19 (test_verifier.ProfileEvidenceTests) ... ok
+test_missing_nineteenth_is_not_fourteen_success (test_verifier.ProfileEvidenceTests) ... ok
+test_missing_scan_is_unknown (test_verifier.ProfileEvidenceTests) ... ok
+test_nonfinite_is_failed (test_verifier.ProfileEvidenceTests) ... ok
+test_pending_journal_cannot_be_restored (test_verifier.ProfileEvidenceTests) ... ok
+test_rearmed_or_disconnected_stability_cannot_pass (test_verifier.ProfileEvidenceTests) ... ok
+test_single_hidden_dependent_mismatch (test_verifier.ProfileEvidenceTests) ... ok
+test_stability_requires_three_fcu_heartbeats (test_verifier.ProfileEvidenceTests) ... ok
+test_wrong_source_and_type (test_verifier.ProfileEvidenceTests) ... ok
+test_missing_pin_does_not_pass (test_verifier.ProvenanceTests) ... ok
+test_mutated_run_copy_and_changed_accepted_manifest (test_verifier.ProvenanceTests) ... ok
+test_cleanup_and_core_cannot_promote_failed_flight (test_verifier.ScenarioTests) ... ok
+test_heartbeat_never_becomes_s9_pass (test_verifier.ScenarioTests) ... ok
+test_late_target_in_posctl_is_failure (test_verifier.ScenarioTests) ... ok
+test_legacy_long_freeze_cannot_count_as_exact_two (test_verifier.ScenarioTests) ... ok
+test_uncovered_s8_stays_unknown (test_verifier.ScenarioTests) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.040s
+
+OK

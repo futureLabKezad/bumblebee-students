@@ -1,0 +1,209 @@
+{
+  "status": "ready_for_review",
+  "candidate_frozen": true,
+  "candidate_accepted": false,
+  "flight_accepted": false,
+  "tests_run": 21,
+  "tests_passed": 21,
+  "scope": "Exact c33 class/method AST compiled against deterministic in-memory Node/messages; no ROS transport. Parameter factory extracted unchanged, dependencies stubbed only for composition tests.",
+  "pinned_vpe_sha256": "c33a52bf1b10bc064ca102bdc720ed03afaa08c691d9c5c34b1d7fadf859b8b9",
+  "candidate_sha256": "2f0915907b70e539669dc7de5f9f9f0494f05bcf3ec21778573078b35fd78335",
+  "input_sha256": {
+    "parallel_work/20261015/vision/baseline/vpe_fix.py": "c33a52bf1b10bc064ca102bdc720ed03afaa08c691d9c5c34b1d7fadf859b8b9",
+    "ws_package1b/src/bumblebee/src/python/vpe_fix.py": "c33a52bf1b10bc064ca102bdc720ed03afaa08c691d9c5c34b1d7fadf859b8b9",
+    "parallel_work/20261015/vision/candidate/aruco_detect.py": "3cb617f93f9e02e014da0f1036aa24e032457f51e2096a18cc76c8155b3cd954",
+    "parallel_work/20261015/parameters/candidate/vpe_profile_optin.py": "8833bd94d7ecf0447f59f5d899252291986faaaa551cb9044630332abadd9d3b"
+  },
+  "detector_rev03_unchanged": true,
+  "vpe_source_unchanged": true,
+  "parameter_lifecycle_modified": false,
+  "vm_used": false,
+  "ros_transport_used": false,
+  "hardware_touched": false,
+  "first_armed_quality_policy_modified": false,
+  "interface": {
+    "factory": "make_node_class(base, *, enabled=False, source_path=None)",
+    "installer": "install(module, *, enabled=False)",
+    "explicit_opt_in": "enabled=True",
+    "parameter_factory_orders_tested": [
+      "parameters(freshness(VpeFix))",
+      "freshness(parameters(VpeFix))"
+    ]
+  },
+  "paired_results": {
+    "replayed_reseed_inputs": {
+      "before": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 10000000000,
+        "rejects": 2,
+        "candidates": 2,
+        "published": 1,
+        "output_stamps": [
+          10410000000
+        ]
+      },
+      "after": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 9900000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      }
+    },
+    "medoid_time": {
+      "before": {
+        "pose": [
+          1.03,
+          0.2
+        ],
+        "time": 10550000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 1,
+        "output_stamps": [
+          10910000000
+        ]
+      },
+      "after": {
+        "pose": [
+          1.03,
+          0.2
+        ],
+        "time": 10400000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      }
+    },
+    "fresh_stamp": {
+      "before": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 10000000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 1,
+        "output_stamps": [
+          10100000000
+        ]
+      },
+      "after": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 9900000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 1,
+        "output_stamps": [
+          9900000000
+        ]
+      }
+    },
+    "speed_same_threshold_source_dt": {
+      "before": {
+        "pose": [
+          0.1,
+          0.2
+        ],
+        "time": 10200000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      },
+      "after": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 9950000000,
+        "rejects": 1,
+        "candidates": 1,
+        "published": 0,
+        "output_stamps": []
+      }
+    },
+    "stale_first": {
+      "before": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 10000000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 1,
+        "output_stamps": [
+          10000000000
+        ]
+      },
+      "after": {
+        "pose": null,
+        "time": null,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      }
+    },
+    "stale_forced_reseed": {
+      "before": {
+        "pose": [
+          6.2,
+          0.2
+        ],
+        "time": 12000000000,
+        "rejects": 5,
+        "candidates": 3,
+        "published": 1,
+        "output_stamps": [
+          12500000000
+        ]
+      },
+      "after": {
+        "pose": [
+          0.0,
+          0.2
+        ],
+        "time": 9900000000,
+        "rejects": 0,
+        "candidates": 0,
+        "published": 0,
+        "output_stamps": []
+      }
+    }
+  },
+  "limits": [
+    "No real rclpy/MAVROS/PX4 or full executor test.",
+    "Strict same-clock source stamps, positive and monotonically increasing; future stamps rejected without tolerance.",
+    "Observed ROS clock rollback latches publication closed until new node instance.",
+    "Republished estimates retain source stamp; actual MAVROS/PX4 duplicate-stamp behavior unverified.",
+    "Receipt-time yaw/multi-marker policy unchanged, including first armed gate behavior.",
+    "Composition test uses actual parameter factory and stubbed transaction/adapter/control only."
+  ],
+  "files": [
+    "RESULT.md",
+    "candidate/vpe_freshness_optin.py",
+    "logs/final_verification.log",
+    "logs/method_pin_attempt1_qualname.log",
+    "logs/test_results.json",
+    "logs/tests.log",
+    "logs/tests_final.log",
+    "logs/tests_frozen.log",
+    "tests/test_freshness.py"
+  ],
+  "report": "RESULT.md",
+  "reproduce": "PYTHONDONTWRITEBYTECODE=1 ../.venv/bin/python tests/test_freshness.py"
+}

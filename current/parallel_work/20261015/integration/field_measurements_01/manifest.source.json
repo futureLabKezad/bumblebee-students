@@ -1,0 +1,472 @@
+{
+  "dictionary": "DICT_4X4_100",
+  "dictionary_id": 1,
+  "source_map": "/Users/arsenij/Documents/Bumbl code/bumblebee-students/drone/ros2_ws/src/aruco_pose/map/map.txt",
+  "source_sha256": "528b5adb467dc91e819e0c4cb9a5ff44439319fff23c3293799b8ee3fe43e611",
+  "z_offset": 0.32,
+  "thickness": 0.001,
+  "print_gap": 0.0002,
+  "margin_cells": 1,
+  "markers": [
+    {
+      "id": 0,
+      "length": 0.19,
+      "map_pose": [
+        0.0,
+        0.0,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.25333333333333335,
+      "world_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_0/materials/textures/marker_0.png",
+      "texture_sha256": "ee50e6f4167f64d9805dda50191d10c5ec688e2ea86a1f67a8165faf64500212"
+    },
+    {
+      "id": 1,
+      "length": 0.29,
+      "map_pose": [
+        0.0,
+        0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        0.0,
+        0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_1/materials/textures/marker_1.png",
+      "texture_sha256": "9971eabd565ef6176d670b8892ba4e6efb4c8b7d7c13b569de1b3a6886fa68dc"
+    },
+    {
+      "id": 2,
+      "length": 0.29,
+      "map_pose": [
+        0.0,
+        1.42,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        0.0,
+        1.42,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_2/materials/textures/marker_2.png",
+      "texture_sha256": "8b815e1c468da1cac6231cb7d05f2b421b1d01492c11bc37861f6c125b5c69a9"
+    },
+    {
+      "id": 3,
+      "length": 0.29,
+      "map_pose": [
+        0.0,
+        2.11,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        0.0,
+        2.11,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_3/materials/textures/marker_3.png",
+      "texture_sha256": "9721d57368ad36bdf079fa6e13773078bc3da7db2af97322c47a2fcb3699edf8"
+    },
+    {
+      "id": 4,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        -0.73,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.72,
+        -0.73,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_4/materials/textures/marker_4.png",
+      "texture_sha256": "f3284718b5ed525cf6f33d6a338d47547118a1d28684dea105af5ec8f7a03786"
+    },
+    {
+      "id": 5,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        0.73,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.36,
+        0.73,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_5/materials/textures/marker_5.png",
+      "texture_sha256": "d0c4094372f730561794a31f50a61d7927bdd7905c40cf634e897f3fe870a94f"
+    },
+    {
+      "id": 6,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        1.42,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.36,
+        1.42,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_6/materials/textures/marker_6.png",
+      "texture_sha256": "6307bfaae5b34bdb088d53872b20c658cba4e483c2eb29cbc5c53b8d9f58dd7c"
+    },
+    {
+      "id": 7,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        2.11,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.36,
+        2.11,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_7/materials/textures/marker_7.png",
+      "texture_sha256": "6ef49d267ca062a867ec6651699b7dd8c81547d7a5a8503d0130174bf96c8cc6"
+    },
+    {
+      "id": 8,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        0.0,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.36,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_8/materials/textures/marker_8.png",
+      "texture_sha256": "19105556a9723bd321a2e626f45f048d02dd9c2eb9a3daaca27bb0ae4c2d31ad"
+    },
+    {
+      "id": 9,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        0.0,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        0.48,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_9/materials/textures/marker_9.png",
+      "texture_sha256": "d89aebbc4a91d7fd645ec5c058505694605036706af2a68fd6f87e76aafac22e"
+    },
+    {
+      "id": 10,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        0.73,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        0.48,
+        0.73,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_10/materials/textures/marker_10.png",
+      "texture_sha256": "34e62f50e759c7cdfe7eaf255c511230429c37e3397a56d4389d14b42dee7e75"
+    },
+    {
+      "id": 11,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.72,
+        0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_11/materials/textures/marker_11.png",
+      "texture_sha256": "2c41ed2d123d34919710f3bd874a03e752e3b4bafbe6f920b7c640cc67de13b9"
+    },
+    {
+      "id": 12,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        1.42,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.72,
+        1.42,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_12/materials/textures/marker_12.png",
+      "texture_sha256": "66a90c35b74304b25fc656c46e7aa549806049ae4eda052f3002a8b1f88b8317"
+    },
+    {
+      "id": 13,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        2.11,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.72,
+        2.11,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_13/materials/textures/marker_13.png",
+      "texture_sha256": "764df1283789af0df2b59df69e6de7960205bd29f2f0d2e64544d237d81064a2"
+    },
+    {
+      "id": 14,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        1.42,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        0.48,
+        1.42,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_14/materials/textures/marker_14.png",
+      "texture_sha256": "aae0486518c85c5b33da989c7cd30b63b1a0c66c3a14877c9fb6a352e20a5daa"
+    },
+    {
+      "id": 15,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        0.0,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.72,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_15/materials/textures/marker_15.png",
+      "texture_sha256": "e6c5e8db5b5160ec848d4edb34367ef01c3f873e89baff1871d1290f74260871"
+    },
+    {
+      "id": 16,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        -0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        -0.36,
+        -0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_16/materials/textures/marker_16.png",
+      "texture_sha256": "6f12543f553cf9794b909d9cadd87908c0e9e2d4e24254e6bfd83661fdab2784"
+    },
+    {
+      "id": 20,
+      "length": 0.29,
+      "map_pose": [
+        0.0,
+        -0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        0.0,
+        -0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_20/materials/textures/marker_20.png",
+      "texture_sha256": "76ceae96378fc3d4c4368401cd36d1cd81d71b88247d0c274ba4f0871a45a13b"
+    },
+    {
+      "id": 18,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        -0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        0.48,
+        -0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_18/materials/textures/marker_18.png",
+      "texture_sha256": "29184b59fc4173fd430c5881c1846e0ada32f39a49d0018b93286f189d696bc7"
+    },
+    {
+      "id": 19,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        2.11,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "tile_side": 0.38666666666666666,
+      "world_pose": [
+        0.48,
+        2.11,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_19/materials/textures/marker_19.png",
+      "texture_sha256": "44b045c3e680b438750efd48a8cb65226986c61562a31eef1ea9d2073b8e9b14"
+    }
+  ]
+}

@@ -1,0 +1,798 @@
+{
+  "dictionary": "DICT_4X4_100",
+  "dictionary_id": 1,
+  "source_map": "/Users/arsenij/Documents/Bumbl code/bbsim-work/parallel_work/20261015/integration/field_measurements_01/map.source.txt",
+  "source_sha256": "528b5adb467dc91e819e0c4cb9a5ff44439319fff23c3293799b8ee3fe43e611",
+  "z_offset": 0.32,
+  "thickness": 0.001,
+  "print_gap": 0.0002,
+  "margin_cells": 1,
+  "candidate": true,
+  "installed": false,
+  "simulator_executed": false,
+  "paper_measurement": {
+    "black_square_m": 0.29,
+    "paper_width_local_marker_x_m": 0.3,
+    "paper_height_local_marker_y_m": 0.42,
+    "orientation_confirmed": true,
+    "orientation_source": "Owner photo and decoded ID corner order; see photo_analysis.json",
+    "reference_photo_sha256": "99f29423aebcad73c012f1193df54ff3cdc37a9b31aadc2294cd6e4ab99daf47",
+    "paper_center_assumed": true,
+    "id0_paper_size_known": false,
+    "pixels_per_meter": 2400
+  },
+  "field_measurement": {
+    "side_lengths_m": [
+      4.15,
+      2.4
+    ],
+    "axis_assignment": {
+      "map_x": "depth_2.40_m",
+      "map_y": "yellow_tape_4.15_m"
+    },
+    "edge_anchor": null,
+    "boundary_rendered": false
+  },
+  "markers": [
+    {
+      "id": 0,
+      "length": 0.19,
+      "map_pose": [
+        0.0,
+        0.0,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.25333333333333335,
+        "height": 0.25333333333333335,
+        "pixels": [
+          800,
+          800
+        ],
+        "black_pixels": 600,
+        "left": 100,
+        "top": 100,
+        "policy": "legacy_unmeasured_id0"
+      },
+      "paper_size_m": [
+        0.25333333333333335,
+        0.25333333333333335
+      ],
+      "world_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_0/materials/textures/marker_0.png",
+      "texture_sha256": "ee50e6f4167f64d9805dda50191d10c5ec688e2ea86a1f67a8165faf64500212"
+    },
+    {
+      "id": 1,
+      "length": 0.29,
+      "map_pose": [
+        0.0,
+        0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        0.0,
+        0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_1/materials/textures/marker_1.png",
+      "texture_sha256": "20647cc0531df0f9d20b282d81d3ba6392641a1adc16275d13d8d746fba723af"
+    },
+    {
+      "id": 2,
+      "length": 0.29,
+      "map_pose": [
+        0.0,
+        1.42,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        0.0,
+        1.42,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_2/materials/textures/marker_2.png",
+      "texture_sha256": "65170e7eac54dd21d58061d80b918bee6e8f1de86659d8a9230ea529e136772b"
+    },
+    {
+      "id": 3,
+      "length": 0.29,
+      "map_pose": [
+        0.0,
+        2.11,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        0.0,
+        2.11,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_3/materials/textures/marker_3.png",
+      "texture_sha256": "c78f8cea112aecc1f362cd0efde576a593be6b86f04124f592bfc0c199d4b031"
+    },
+    {
+      "id": 4,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        -0.73,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.72,
+        -0.73,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_4/materials/textures/marker_4.png",
+      "texture_sha256": "6a82044e3dde893681816dcfff8949979e0ddce75d8629807cc80979dd6ad815"
+    },
+    {
+      "id": 5,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        0.73,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.36,
+        0.73,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_5/materials/textures/marker_5.png",
+      "texture_sha256": "4538d23315ebf021e0b54e058ee9631a60a371330b74a84d24bfec79e96da862"
+    },
+    {
+      "id": 6,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        1.42,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.36,
+        1.42,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_6/materials/textures/marker_6.png",
+      "texture_sha256": "0eaf7661f2b9dde617e2584c9abc37dbc1da9c62a2442d803121afc028f6d6ca"
+    },
+    {
+      "id": 7,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        2.11,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.36,
+        2.11,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_7/materials/textures/marker_7.png",
+      "texture_sha256": "a5065f7b829b8aaeeb3903a80b39e6fe854fb54d053e1cfd21f3e99f069e6f0a"
+    },
+    {
+      "id": 8,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        0.0,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.36,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_8/materials/textures/marker_8.png",
+      "texture_sha256": "fb956578cab03085c9f08aebe17be187ea078117630c6bf1a2945401bc6f86ad"
+    },
+    {
+      "id": 9,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        0.0,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        0.48,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_9/materials/textures/marker_9.png",
+      "texture_sha256": "d14518dbdaf35b02d9addde51c7c4a17c3908dea9d35fd0bf380e12995173012"
+    },
+    {
+      "id": 10,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        0.73,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        0.48,
+        0.73,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_10/materials/textures/marker_10.png",
+      "texture_sha256": "87d8b11a3a53770bd2b877a4a3593d5dcfb098ac55d35e203cfc2277f1898652"
+    },
+    {
+      "id": 11,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.72,
+        0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_11/materials/textures/marker_11.png",
+      "texture_sha256": "ba4b5b160cca06a1acd58db2e821d0c103be4fccd41e01460ff3c6473adc219e"
+    },
+    {
+      "id": 12,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        1.42,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.72,
+        1.42,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_12/materials/textures/marker_12.png",
+      "texture_sha256": "c41d3516c53a903a585526360e819fcb72c658a20bb3cd05c3ce2fb6a7153938"
+    },
+    {
+      "id": 13,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        2.11,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.72,
+        2.11,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_13/materials/textures/marker_13.png",
+      "texture_sha256": "7e057a289cff1214285adc97deee34d9eedebaab677faafd3768c24ce8dee99e"
+    },
+    {
+      "id": 14,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        1.42,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        0.48,
+        1.42,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_14/materials/textures/marker_14.png",
+      "texture_sha256": "3222e0ccb52820507d25cdd0a14b871ce461e89bf0d38063599bd5ccedaaafc9"
+    },
+    {
+      "id": 15,
+      "length": 0.29,
+      "map_pose": [
+        -0.72,
+        0.0,
+        -0.32,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.72,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.571
+      ],
+      "texture": "models/aruco_15/materials/textures/marker_15.png",
+      "texture_sha256": "2ad603f26db359ce21ab9567316d18ff42be69d2f0af6a56536b2db4c6ff07a0"
+    },
+    {
+      "id": 16,
+      "length": 0.29,
+      "map_pose": [
+        -0.36,
+        -0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        -0.36,
+        -0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_16/materials/textures/marker_16.png",
+      "texture_sha256": "27bde64e153d60a978b76e33da1c94356f3a4b25ce22a69da87e075b7818485d"
+    },
+    {
+      "id": 20,
+      "length": 0.29,
+      "map_pose": [
+        0.0,
+        -0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        0.0,
+        -0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_20/materials/textures/marker_20.png",
+      "texture_sha256": "48b0ea525edadfad62716f1d542a17c0f6c6e5613e80c38199759b54d02ae307"
+    },
+    {
+      "id": 18,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        -0.73,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        0.48,
+        -0.73,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_18/materials/textures/marker_18.png",
+      "texture_sha256": "9af588f4a73146f0183e7757ed1985f9fbdab79b68909e47f45a49a8e6ecfa5d"
+    },
+    {
+      "id": 19,
+      "length": 0.29,
+      "map_pose": [
+        0.48,
+        2.11,
+        -0.32,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "paper_layout": {
+        "width": 0.3,
+        "height": 0.42,
+        "pixels": [
+          720,
+          1008
+        ],
+        "black_pixels": 696,
+        "left": 12,
+        "top": 156,
+        "policy": "owner_measured_ordinary_paper_conditional_orientation"
+      },
+      "paper_size_m": [
+        0.3,
+        0.42
+      ],
+      "world_pose": [
+        0.48,
+        2.11,
+        0.0,
+        0.0,
+        0.0,
+        1.571
+      ],
+      "texture": "models/aruco_19/materials/textures/marker_19.png",
+      "texture_sha256": "cfd19a84353728a021ce11232fc98e1bc067e516d3b22610c23073ed0786659f"
+    }
+  ]
+}

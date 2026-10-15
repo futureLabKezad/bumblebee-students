@@ -4,5 +4,11 @@
   "kind": "complete workspace snapshot including unfinished work",
   "flight_accepted": false,
   "archive_verified": true,
-  "original_source_branches_modified": false
+  "original_source_branches_modified": false,
+  "archive_commit": "1522d92dc84df066c15000ea3d64bbb2f15b7e97",
+  "archive_parts": 21,
+  "archive_bytes": 1353101213,
+  "source_entries": 66791,
+  "readable_files": 337,
+  "archive_remote_head_verified": true
 }

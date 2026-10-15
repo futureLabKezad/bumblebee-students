@@ -1,0 +1,303 @@
+#!/bin/bash
+# Copyright 2026 FutureLab
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+HOTSPOT_CONN="bumblebee-hotspot"
+CHECK_INTERVAL=${BB_CHECK_INTERVAL:-5}
+RECONNECT_INTERVAL=${BB_RECONNECT_INTERVAL:-60}   # min hotspot uptime between probes for known wifi
+RECONNECT_DEADLINE=${BB_RECONNECT_DEADLINE:-90}   # hard cap on the reconnect loop before the hotspot comes up
+SCAN_WAIT=${BB_SCAN_WAIT:-4}                      # seconds for a Wi-Fi scan to fill the list
+SCAN_ROUNDS=${BB_SCAN_ROUNDS:-2}                  # scans before deciding "no known network in range"
+JOIN_TIMEOUT=${BB_JOIN_TIMEOUT:-40}               # max seconds a probe join from the hotspot may take
+TRY_TIMEOUT=${BB_TRY_TIMEOUT:-20}                 # max seconds one reconnect attempt may block
+PROBE_BACKOFF=${BB_PROBE_BACKOFF:-600}            # don't re-probe a network that just failed to join
+
+# wifi_manager.py (user lb) touches this before a GCS-requested switch; hands
+# off while it is fresh. Our own probes use a separate root-owned marker,
+# because lb could not rewrite a root-owned file in sticky /tmp.
+API_SWITCH_MARKER=${BB_API_SWITCH_MARKER:-/tmp/bumblebee-wifi-switch}
+PROBE_MARKER=${BB_PROBE_MARKER:-/run/bumblebee-wifi-probe}   # read by the NM dispatcher
+SWITCH_GRACE=${BB_SWITCH_GRACE:-45}
+# Networks whose GCS-requested join failed ("uuid epoch"), see wifi_manager.py.
+API_FAILED_LOG=${BB_API_FAILED_LOG:-/tmp/bumblebee-wifi-failed}
+# Present while the GCS asked for hotspot mode: don't switch back to client.
+HOTSPOT_PIN_MARKER=${BB_HOTSPOT_PIN_MARKER:-/tmp/bumblebee-hotspot-pinned}
+WLAN_ADDRESS=${BB_WLAN_ADDRESS:-/sys/class/net/wlan0/address}
+LOG=${BB_LOG:-/tmp/wifi-manager.log}
+
+log() { echo "$(date): $1" >> "$LOG" 2>/dev/null || true; }
+
+# Stable hotspot SSID: Bumblebee-<last 4 hex digits of the wlan0 MAC>, so the
+# GCS keeps seeing the same network across fallbacks. Random only if no MAC.
+hotspot_ssid() {
+    local mac
+    mac=$(tr -d ':\n' < "$WLAN_ADDRESS" 2>/dev/null)
+    if [ ${#mac} -ge 4 ]; then
+        echo "Bumblebee-$(echo "${mac: -4}" | tr '[:lower:]' '[:upper:]')"
+    else
+        echo "Bumblebee-$((RANDOM % 9000 + 1000))"
+    fi
+}
+
+# Seconds since wifi_manager.py last started a switch (large if never).
+since_api_switch() {
+    local t
+    t=$(cat "$API_SWITCH_MARKER" 2>/dev/null)
+    case "$t" in ''|*[!0-9]*) echo 999999; return ;; esac
+    echo $(( $(date +%s) - t ))
+}
+
+wlan0_field() {   # CONNECTION or STATE of wlan0
+    nmcli -t -f DEVICE,"$1" device status 2>/dev/null | grep "^wlan0:" | cut -d: -f2-
+}
+
+# A GCS (or SSH) session is open over the hotspot right now: an established
+# TCP connection from a hotspot client to one of our service ports.
+clients_on_hotspot() {
+    ss -Htn state established \
+        '( sport = :8765 or sport = :9090 or sport = :8080 or sport = :8888 or sport = :22 )' 2>/dev/null \
+        | awk '{print $4}' | grep -q '^10\.42\.'
+}
+
+hotspot_uuid() {
+    nmcli -t -f UUID,NAME con show 2>/dev/null | awk -F: -v hs="$HOTSPOT_CONN" '$2 == hs {print $1; exit}'
+}
+
+# Saved client Wi-Fi profiles as "visible:priority:timestamp:uuid", best first:
+# networks in range, then autoconnect-priority, then most recently used.
+# UUIDs never contain ':' (names may), so they are safe in nmcli -t output.
+ranked_client_conns() {
+    local hs visible uuid kind prio ts ssid vis
+    hs=$(hotspot_uuid)
+    visible=$(nmcli -t -f SSID dev wifi list --rescan no 2>/dev/null)
+    nmcli -t -f UUID,TYPE,AUTOCONNECT-PRIORITY,TIMESTAMP con show 2>/dev/null |
+    while IFS=: read -r uuid kind prio ts; do
+        [ "$kind" = "802-11-wireless" ] || continue
+        [ "$uuid" = "$hs" ] && continue
+        # -g escapes ':' and '\' like `dev wifi list -t`, so compare escaped forms
+        ssid=$(nmcli -g 802-11-wireless.ssid con show "$uuid" 2>/dev/null)
+        vis=0
+        [ -n "$ssid" ] && grep -qxF -- "$ssid" <<< "$visible" && vis=1
+        echo "$vis:${prio:-0}:${ts:-0}:$uuid"
+    done | sort -t: -k1,1nr -k2,2nr -k3,3nr
+}
+
+con_label() {
+    nmcli -g connection.id con show "$1" 2>/dev/null || echo "$1"
+}
+
+# Wait while wlan0 is "connecting" (up to $1 s); true once connected.
+wait_connected() {
+    local end=$(( $(date +%s) + $1 ))
+    while [ "$(date +%s)" -lt "$end" ]; do
+        case "$(wlan0_field STATE)" in
+            connected) return 0 ;;
+            connecting*) sleep 1 ;;
+            *) return 1 ;;
+        esac
+    done
+    [ "$(wlan0_field STATE)" = "connected" ]
+}
+
+# Saved client profiles worth trying now, not just failed: the ones seen in
+# the scan first, then hidden networks (they never show up in a scan).
+candidates() {
+    local vis uuid hidden=""
+    while IFS=: read -r vis _ _ uuid; do
+        in_backoff "$uuid" && continue
+        if [ "$vis" = "1" ]; then
+            echo "$uuid"
+        elif [ "$(nmcli -g 802-11-wireless.hidden con show "$uuid" 2>/dev/null)" = "yes" ]; then
+            hidden="$hidden $uuid"
+        fi
+    done < <(ranked_client_conns)
+    for uuid in $hidden; do echo "$uuid"; done
+}
+
+# NetworkManager may connect (or start connecting) on its own at any moment,
+# e.g. its boot autoconnect. Re-read wlan0 before acting. Returns 0 when the
+# watchdog must not start a join: connected (reconnected=1), joined after
+# waiting for a join already in progress, or already on the hotspot.
+nm_busy_or_done() {
+    local st cn
+    st=$(wlan0_field STATE); cn=$(wlan0_field CONNECTION)
+    [ "$cn" = "$HOTSPOT_CONN" ] && { on_hotspot=1; return 0; }
+    [ "$st" = "connected" ] && { reconnected=1; return 0; }
+    case "$st" in
+        connecting*)
+            if wait_connected "$TRY_TIMEOUT"; then reconnected=1; return 0; fi
+            [ "$(wlan0_field CONNECTION)" = "$HOTSPOT_CONN" ] && { on_hotspot=1; return 0; }
+            ;;
+    esac
+    return 1
+}
+
+# One join attempt by the watchdog itself. Marked like a probe, so the NM
+# dispatcher does not raise the hotspot over it. Returns 0 once connected;
+# a wrong password puts the profile in back-off (no point retrying).
+try_join() {
+    local uuid=$1 out
+    date +%s > "$PROBE_MARKER" 2>/dev/null
+    out=$(nmcli -w "$TRY_TIMEOUT" connection up "$uuid" 2>&1)
+    if wait_connected "$TRY_TIMEOUT"; then rm -f "$PROBE_MARKER"; return 0; fi
+    rm -f "$PROBE_MARKER"
+    case "$out" in
+        *[Ss]ecrets*|*802-1[xX]*|*psk*) mark_failed "$uuid"; return 2 ;;   # wrong password
+    esac
+    return 1
+}
+
+has_client_profiles() {
+    local hs
+    hs=$(hotspot_uuid)
+    nmcli -t -f UUID,TYPE con show 2>/dev/null |
+        awk -F: -v hs="$hs" '$2 == "802-11-wireless" && $1 != hs {found = 1} END {exit !found}'
+}
+
+raise_hotspot() {
+    local ssid
+    ssid=$(hotspot_ssid)
+    log "$1, activating hotspot $ssid"
+    nmcli connection modify "$HOTSPOT_CONN" wifi.ssid "$ssid" 2>/dev/null
+    hotspot_starting=1
+    if nmcli connection up "$HOTSPOT_CONN" 2>/dev/null; then
+        log "hotspot up: $ssid"
+        last_reconnect=$(date +%s)   # keep it up >= RECONNECT_INTERVAL before probing
+    else
+        log "ERROR: hotspot failed"
+        hotspot_starting=0
+    fi
+}
+
+# Failed probe joins as "uuid epoch" lines (plain variable: no bash-4 features,
+# so the script also runs under the test harness on macOS bash 3.2).
+FAILED=""
+failed_at() {   # latest failure of a profile, from our probes or from the GCS
+    { echo "$FAILED"; cat "$API_FAILED_LOG" 2>/dev/null; } |
+        awk -v u="$1" '$1 == u && $2 > t {t = $2} END {print t + 0}'
+}
+in_backoff() { [ $(( $(date +%s) - $(failed_at "$1") )) -lt "$PROBE_BACKOFF" ]; }
+mark_failed() { FAILED="$(awk -v u="$1" '$1 != u' <<< "$FAILED")"$'\n'"$1 $(date +%s)"; }
+
+log "wifi_watchdog started"
+
+last_reconnect=0
+hotspot_starting=0
+api_grace=0
+
+while true; do
+    CONN=$(wlan0_field CONNECTION)
+    STATE=$(wlan0_field STATE)
+
+    # The GCS just asked for a switch: let NetworkManager finish it.
+    if [ "$(since_api_switch)" -lt "$SWITCH_GRACE" ]; then
+        api_grace=1
+        sleep "$CHECK_INTERVAL"
+        continue
+    fi
+    # ...and it did not end up connected: bring the hotspot straight back so the
+    # GCS can reach the drone, instead of a long reconnect loop.
+    if [ "$api_grace" = 1 ]; then
+        api_grace=0
+        if [ "$STATE" != "connected" ]; then
+            raise_hotspot "GCS-requested switch did not connect"
+            sleep "$CHECK_INTERVAL"
+            continue
+        fi
+    fi
+
+    if [ "$CONN" = "$HOTSPOT_CONN" ]; then
+        hotspot_starting=0
+        now=$(date +%s)
+        if [ -e "$HOTSPOT_PIN_MARKER" ] || clients_on_hotspot; then
+            :   # GCS asked for hotspot mode, or is using the hotspot right now
+        elif [ $((now - last_reconnect)) -ge "$RECONNECT_INTERVAL" ]; then
+            last_reconnect=$now
+            nmcli dev wifi rescan 2>/dev/null
+            sleep 3
+            while IFS=: read -r vis _ _ uuid; do
+                [ "$vis" = "1" ] || break   # ranked: visible ones come first
+                in_backoff "$uuid" && continue
+                name=$(con_label "$uuid")
+                log "known network '$name' visible, switching from hotspot"
+                date +%s > "$PROBE_MARKER" 2>/dev/null
+                nmcli connection down "$HOTSPOT_CONN" 2>/dev/null
+                nmcli connection modify "$uuid" connection.autoconnect yes 2>/dev/null
+                if nmcli -w "$JOIN_TIMEOUT" connection up "$uuid" 2>/dev/null; then
+                    log "connected to $name"
+                else
+                    mark_failed "$uuid"
+                    raise_hotspot "failed to connect to $name"
+                fi
+                rm -f "$PROBE_MARKER"
+                break
+            done < <(ranked_client_conns)
+        fi
+        sleep "$CHECK_INTERVAL"
+        continue
+    fi
+
+    # Re-enable autoconnect on known wifi connections that lost it. Only touch
+    # profiles that need it: every modify rewrites a netplan file and reloads NM.
+    hs=$(hotspot_uuid)
+    nmcli -t -f UUID,TYPE,AUTOCONNECT con show 2>/dev/null | while IFS=: read -r uuid kind auto; do
+        [ "$kind" = "802-11-wireless" ] && [ "$uuid" != "$hs" ] && [ "$auto" = "no" ] || continue
+        nmcli connection modify "$uuid" connection.autoconnect yes 2>/dev/null
+    done
+
+    # wlan0 not connected and not already on the hotspot: rejoin a known
+    # network that is in range, otherwise raise the hotspot right away (a fresh
+    # drone, or one taken away from its saved network, shows its hotspot within
+    # seconds instead of after a long retry loop). Never reboots - this is the
+    # sole path on wifi loss (boot-time AND in-flight).
+    if [ "$STATE" != "connected" ] && [ "$hotspot_starting" -eq 0 ]; then
+        reconnected=0
+        on_hotspot=0
+        deadline=$(( $(date +%s) + RECONNECT_DEADLINE ))
+        TRIED=""
+        if ! nm_busy_or_done && has_client_profiles; then
+            for _round in $(seq 1 "$SCAN_ROUNDS"); do
+                nmcli dev wifi rescan 2>/dev/null
+                sleep "$SCAN_WAIT"
+                nm_busy_or_done && break        # NM got there on its own meanwhile
+                for uuid in $(candidates); do
+                    [ "$(date +%s)" -lt "$deadline" ] || break 2
+                    case " $TRIED " in *" $uuid "*) continue ;; esac
+                    nm_busy_or_done && break 2
+                    TRIED="$TRIED $uuid"
+                    log "wlan0 not connected, trying '$(con_label "$uuid")'"
+                    try_join "$uuid"; rc=$?
+                    [ $rc -eq 0 ] && { reconnected=1; break 2; }
+                    if [ $rc -eq 1 ] && [ "$(date +%s)" -lt "$deadline" ]; then
+                        nm_busy_or_done && break 2
+                        log "retrying '$(con_label "$uuid")' once"      # transient failure
+                        try_join "$uuid" && { reconnected=1; break 2; }
+                    fi
+                done
+                [ -n "$TRIED" ] && break        # tried what was in range: don't rescan
+            done
+        fi
+        if [ "$reconnected" -eq 1 ]; then
+            log "connected"
+        elif [ "$on_hotspot" -eq 1 ] || nm_busy_or_done; then
+            [ "$reconnected" -eq 1 ] && log "connected"   # already settled, nothing to do
+        elif [ -n "$TRIED" ]; then
+            raise_hotspot "could not join a known network"
+        else
+            raise_hotspot "no known network in range"
+        fi
+    fi
+
+    sleep "$CHECK_INTERVAL"
+done

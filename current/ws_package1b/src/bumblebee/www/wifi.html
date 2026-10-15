@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>WiFi Settings — Bumblebee</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0c10;--panel:#111318;--border:#1e2330;
+      --accent:#f5c842;--accent2:#3b82f6;
+      --ok:#22c55e;--warn:#f97316;--danger:#ef4444;
+      --text:#e2e8f0;--muted:#64748b;--radius:10px;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;font-size:13px;min-height:100dvh;display:flex;flex-direction:column}
+    header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:.1em;color:var(--accent)}
+    .hright{display:flex;align-items:center;gap:14px}
+    .back-btn{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.08em;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:6px}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+    main{flex:1;max-width:680px;margin:0 auto;width:100%;padding:20px 16px;display:flex;flex-direction:column;gap:16px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+    .card-header{padding:10px 16px;font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:space-between}
+    .card-body{padding:16px}
+    .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stat-box{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+    .stat-label{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+    .stat-value{font-size:14px;font-weight:700;color:var(--accent)}
+    .mode-client{color:var(--ok)}
+    .mode-hotspot{color:var(--warn)}
+    .signal-bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:4px}
+    .signal-fill{height:100%;border-radius:3px;background:var(--ok);transition:width .5s}
+    .pin-row{display:flex;gap:10px;align-items:center}
+    input{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:13px;padding:7px 12px;border-radius:6px;outline:none;transition:border .2s}
+    input:focus{border-color:var(--accent)}
+    .btn{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.08em;border:1px solid;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+    .btn-primary{background:rgba(245,200,66,.15);color:var(--accent);border-color:var(--accent)}
+    .btn-primary:hover{background:rgba(245,200,66,.3)}
+    .btn-secondary{background:transparent;color:var(--muted);border-color:var(--border)}
+    .btn-secondary:hover{border-color:var(--accent2);color:var(--accent2)}
+    .btn-danger{background:rgba(239,68,68,.1);color:var(--danger);border-color:var(--danger)}
+    .btn-danger:hover{background:rgba(239,68,68,.25)}
+    .btn-sm{padding:3px 10px;font-size:10px}
+    .net-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+    .net-row:last-child{border-bottom:none}
+    .net-name{font-size:12px;font-weight:600;flex:1}
+    .net-meta{font-size:10px;color:var(--muted);margin-right:10px;display:flex;align-items:center;gap:6px}
+    .band-badge{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:.04em}
+    .band-2-4{background:rgba(249,115,22,.15);color:var(--warn);border:1px solid rgba(249,115,22,.4)}
+    .band-5{background:rgba(34,197,94,.15);color:var(--ok);border:1px solid rgba(34,197,94,.4)}
+    .band-6{background:rgba(59,130,246,.15);color:var(--accent2);border:1px solid rgba(59,130,246,.4)}
+    .net-actions{display:flex;gap:6px}
+    .add-form{display:flex;flex-direction:column;gap:10px}
+    .add-form-row{display:flex;gap:10px;flex-wrap:wrap}
+    .add-form-row input{flex:1;min-width:160px}
+    .add-btns{display:flex;gap:10px;flex-wrap:wrap}
+    .msg{font-size:11px;padding:8px 12px;border-radius:6px;border:1px solid}
+    .msg-ok{color:var(--ok);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.08)}
+    .msg-err{color:var(--danger);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08)}
+    .hidden{display:none!important}
+    .spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    BUMBLEBEE
+  </div>
+  <div class="hright">
+    <a href="gcs.html" class="back-btn">&#8592; GCS</a>
+  </div>
+</header>
+<main>
+  <div id="msg-global" class="hidden"></div>
+
+  <!-- Status -->
+  <div class="card">
+    <div class="card-header">
+      WiFi Status
+      <span style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm hidden" id="mode-btn">Switch</button>
+        <button class="btn btn-secondary btn-sm" id="refresh-btn">&#8635; Refresh</button>
+      </span>
+    </div>
+    <div class="card-body">
+      <div class="status-grid">
+        <div class="stat-box">
+          <div class="stat-label">Mode</div>
+          <div class="stat-value" id="s-mode">&#8212;</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Network</div>
+          <div class="stat-value" id="s-ssid" style="color:var(--text);font-size:12px">&#8212;</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">IP Address</div>
+          <div class="stat-value" id="s-ip" style="font-size:12px">&#8212;</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Signal</div>
+          <div class="stat-value" id="s-signal">&#8212;</div>
+          <div class="signal-bar"><div class="signal-fill" id="s-sigbar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIN unlock -->
+  <div class="card hidden" id="pin-card">
+    <div class="card-header">Unlock Settings</div>
+    <div class="card-body">
+      <div class="pin-row">
+        <input type="password" id="pin-input" placeholder="Enter PIN" maxlength="8" style="width:140px"/>
+        <button class="btn btn-primary" id="unlock-btn">Unlock</button>
+        <span id="pin-msg" style="font-size:11px;color:var(--danger)"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unlocked sections -->
+  <div id="unlocked-sections">
+
+    <!-- Available networks -->
+    <div class="card">
+      <div class="card-header">
+        Available Networks
+        <button class="btn btn-secondary btn-sm" id="scan-btn">&#8635; Scan</button>
+      </div>
+      <div class="card-body" id="scan-list">
+        <div style="color:var(--muted);font-size:11px">Click Scan to search for networks</div>
+      </div>
+    </div>
+
+    <!-- Saved networks -->
+    <div class="card">
+      <div class="card-header">Saved Networks</div>
+      <div class="card-body" id="saved-list">
+        <div style="color:var(--muted);font-size:11px">Loading&#8230;</div>
+      </div>
+    </div>
+
+    <!-- Add network -->
+    <div class="card">
+      <div class="card-header">Add / Update Network</div>
+      <div class="card-body">
+        <div class="add-form">
+          <div class="add-form-row">
+            <input type="text" id="add-ssid" placeholder="SSID (network name)"/>
+            <input type="password" id="add-pass" placeholder="Password (leave blank if open)"/>
+          </div>
+          <div class="add-btns">
+            <button class="btn btn-primary" id="btn-apply-now">Save + Apply Now</button>
+            <button class="btn btn-secondary" id="btn-apply-boot">Save for next boot</button>
+          </div>
+          <div id="add-msg" class="hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <div style="text-align:right">
+      <button class="btn btn-secondary btn-sm" id="logout-btn">Lock settings</button>
+    </div>
+
+  </div>
+</main>
+<script>
+(function() {
+  'use strict';
+
+  function showMsg(el, text, isErr) {
+    el.textContent = text;
+    el.className = 'msg ' + (isErr ? 'msg-err' : 'msg-ok');
+    el.classList.remove('hidden');
+    setTimeout(function() { el.classList.add('hidden'); }, 4000);
+  }
+
+  var currentMode = '';
+
+  function updateModeButton() {
+    var btn = document.getElementById('mode-btn');
+    if (currentMode === 'client') {
+      btn.textContent = 'Switch to Hotspot';
+      btn.classList.remove('hidden');
+    } else if (currentMode === 'hotspot') {
+      btn.textContent = 'Switch to Client';
+      btn.classList.remove('hidden');
+    } else {
+      btn.classList.add('hidden');
+    }
+  }
+
+  function loadStatus() {
+    fetch('/api/wifi/status')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var modeEl = document.getElementById('s-mode');
+        var mode = d.mode || '';
+        currentMode = mode;
+        modeEl.textContent = mode.toUpperCase() || '\u2014';
+        modeEl.className = 'stat-value ' +
+          (mode === 'hotspot' ? 'mode-hotspot' : (mode === 'client' ? 'mode-client' : ''));
+        document.getElementById('s-ssid').textContent = d.ssid || '\u2014';
+        document.getElementById('s-ip').textContent = d.ip || '\u2014';
+        var sig = d.signal || 0;
+        document.getElementById('s-signal').textContent = sig + '%';
+        var bar = document.getElementById('s-sigbar');
+        bar.style.width = sig + '%';
+        bar.style.background = sig > 60 ? 'var(--ok)' : (sig > 30 ? 'var(--warn)' : 'var(--danger)');
+        updateModeButton();
+      })
+      .catch(function() {});
+  }
+
+  document.getElementById('refresh-btn').addEventListener('click', loadStatus);
+
+  document.getElementById('mode-btn').addEventListener('click', function() {
+    if (currentMode !== 'client' && currentMode !== 'hotspot') return;
+    var target = currentMode === 'client' ? 'hotspot' : 'client';
+    var warn = target === 'hotspot'
+      ? 'Switching to hotspot will disconnect this browser from the drone. The drone will broadcast a Bumblebee-XXXX network. Continue?'
+      : 'Switching to client mode will drop the hotspot. The drone will try to reconnect to a known WiFi (this can take ~60s). Continue?';
+    if (!confirm(warn)) return;
+    var btn = document.getElementById('mode-btn');
+    btn.disabled = true;
+    btn.textContent = 'Switching\u2026';
+    fetch('/api/wifi/mode', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({mode: target}),
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      btn.disabled = false;
+      if (!d.ok) {
+        showMsg(document.getElementById('msg-global'),
+          'Mode switch failed: ' + (d.error || ''), true);
+        updateModeButton();
+        return;
+      }
+      showMsg(document.getElementById('msg-global'),
+        'Switching to ' + target + '\u2026 status will update shortly', false);
+      setTimeout(loadStatus, 4000);
+    }).catch(function() {
+      btn.disabled = false;
+      showMsg(document.getElementById('msg-global'),
+        'Mode switch request lost (likely network change)', true);
+    });
+  });
+
+  document.getElementById('unlock-btn').addEventListener('click', function() {
+    var pin = document.getElementById('pin-input').value;
+    fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({pin: pin}),
+    }).then(function(r) {
+      if (r.ok) {
+        document.getElementById('pin-card').classList.add('hidden');
+        document.getElementById('unlocked-sections').classList.remove('hidden');
+        loadSaved();
+      } else {
+        var msg = document.getElementById('pin-msg');
+        msg.textContent = 'Wrong PIN';
+        setTimeout(function() { msg.textContent = ''; }, 2000);
+      }
+    });
+  });
+
+  document.getElementById('pin-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('unlock-btn').click();
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', function() {
+    fetch('/api/auth/logout', {method: 'POST'}).then(function() {
+      document.getElementById('pin-card').classList.remove('hidden');
+      document.getElementById('unlocked-sections').classList.add('hidden');
+      document.getElementById('pin-input').value = '';
+    });
+  });
+
+  document.getElementById('scan-btn').addEventListener('click', function() {
+    var btn = document.getElementById('scan-btn');
+    var list = document.getElementById('scan-list');
+    btn.disabled = true;
+    list.textContent = '';
+    var spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    var label = document.createElement('span');
+    label.style.cssText = 'color:var(--muted);font-size:11px';
+    label.textContent = 'Scanning\u2026';
+    list.appendChild(spinner);
+    list.appendChild(label);
+
+    fetch('/api/wifi/scan')
+      .then(function(r) { return r.json(); })
+      .then(function(networks) {
+        btn.disabled = false;
+        list.textContent = '';
+        if (!networks.length) {
+          var empty = document.createElement('div');
+          empty.style.cssText = 'color:var(--muted);font-size:11px';
+          empty.textContent = 'No networks found';
+          list.appendChild(empty);
+          return;
+        }
+        networks.forEach(function(n) {
+          var row = document.createElement('div');
+          row.className = 'net-row';
+
+          var name = document.createElement('div');
+          name.className = 'net-name';
+          name.textContent = n.ssid;
+          if (n.in_use) {
+            var dot = document.createElement('span');
+            dot.style.cssText = 'font-size:9px;color:var(--ok);margin-left:4px';
+            dot.textContent = '\u25cf';
+            name.appendChild(dot);
+          }
+
+          var meta = document.createElement('div');
+          meta.className = 'net-meta';
+          var sig = n.signal || 0;
+          var sigSpan = document.createElement('span');
+          sigSpan.style.color = sig > 60 ? 'var(--ok)' : (sig > 30 ? 'var(--warn)' : 'var(--danger)');
+          sigSpan.textContent = sig + '%';
+          meta.appendChild(sigSpan);
+          if (n.band) {
+            var badge = document.createElement('span');
+            var bandClass = n.band === '2.4' ? 'band-2-4'
+              : (n.band === '5' ? 'band-5'
+              : (n.band === '6' ? 'band-6' : ''));
+            badge.className = 'band-badge ' + bandClass;
+            badge.textContent = n.band + 'G';
+            if (n.freq) badge.title = n.freq + ' MHz';
+            meta.appendChild(badge);
+          }
+
+          var actions = document.createElement('div');
+          actions.className = 'net-actions';
+          var connectBtn = document.createElement('button');
+          connectBtn.className = 'btn btn-primary btn-sm';
+          connectBtn.textContent = 'Connect';
+          (function(ssid) {
+            connectBtn.addEventListener('click', function() {
+              document.getElementById('add-ssid').value = ssid;
+              document.getElementById('add-pass').focus();
+              document.getElementById('add-ssid').scrollIntoView({behavior: 'smooth'});
+            });
+          }(n.ssid));
+          actions.appendChild(connectBtn);
+
+          row.appendChild(name);
+          row.appendChild(meta);
+          row.appendChild(actions);
+          list.appendChild(row);
+        });
+      })
+      .catch(function() {
+        btn.disabled = false;
+        list.textContent = '';
+        var err = document.createElement('div');
+        err.style.cssText = 'color:var(--danger);font-size:11px';
+        err.textContent = 'Scan failed';
+        list.appendChild(err);
+      });
+  });
+
+  function loadSaved() {
+    var list = document.getElementById('saved-list');
+    list.textContent = '';
+    var loading = document.createElement('div');
+    loading.style.cssText = 'color:var(--muted);font-size:11px';
+    loading.textContent = 'Loading\u2026';
+    list.appendChild(loading);
+
+    fetch('/api/wifi/networks')
+      .then(function(r) { return r.json(); })
+      .then(function(networks) {
+        list.textContent = '';
+        if (!networks.length) {
+          var empty = document.createElement('div');
+          empty.style.cssText = 'color:var(--muted);font-size:11px';
+          empty.textContent = 'No saved networks';
+          list.appendChild(empty);
+          return;
+        }
+        networks.forEach(function(n) {
+          var row = document.createElement('div');
+          row.className = 'net-row';
+
+          var name = document.createElement('div');
+          name.className = 'net-name';
+          name.textContent = n.name;
+
+          var actions = document.createElement('div');
+          actions.className = 'net-actions';
+          var delBtn = document.createElement('button');
+          delBtn.className = 'btn btn-danger btn-sm';
+          delBtn.textContent = 'Remove';
+          (function(ssid) {
+            delBtn.addEventListener('click', function() {
+              if (!confirm('Remove network "' + ssid + '"?')) return;
+              fetch('/api/wifi/network', {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ssid: ssid}),
+              }).then(function(r) { return r.json(); }).then(function(d) {
+                if (d.ok) {
+                  loadSaved();
+                } else {
+                  showMsg(document.getElementById('msg-global'), 'Delete failed: ' + (d.error || ''), true);
+                }
+              }).catch(function() {
+                showMsg(document.getElementById('msg-global'), 'Delete request failed', true);
+              });
+            });
+          }(n.name));
+          actions.appendChild(delBtn);
+
+          row.appendChild(name);
+          row.appendChild(actions);
+          list.appendChild(row);
+        });
+      })
+      .catch(function() {
+        list.textContent = '';
+        var err = document.createElement('div');
+        err.style.cssText = 'color:var(--danger);font-size:11px';
+        err.textContent = 'Failed to load saved networks';
+        list.appendChild(err);
+      });
+  }
+
+  document.getElementById('btn-apply-now').addEventListener('click', function() {
+    var ssid = document.getElementById('add-ssid').value.trim();
+    var pass = document.getElementById('add-pass').value;
+    var msgEl = document.getElementById('add-msg');
+    if (!ssid) { showMsg(msgEl, 'SSID is required', true); return; }
+    fetch('/api/wifi/save', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ssid: ssid, password: pass}),
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (!d.ok) { showMsg(msgEl, 'Save failed: ' + (d.error || ''), true); return; }
+      return fetch('/api/wifi/apply-now', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ssid: ssid}),
+      }).then(function(r) { return r.json(); }).then(function(d2) {
+        if (d2.ok) {
+          showMsg(msgEl, 'Saved and connecting\u2026 (status updates in ~5s)', false);
+          setTimeout(loadStatus, 5000);
+          loadSaved();
+        } else {
+          showMsg(msgEl, 'Saved but connect failed: ' + (d2.error || ''), true);
+        }
+      });
+    }).catch(function() { showMsg(msgEl, 'Request failed', true); });
+  });
+
+  document.getElementById('btn-apply-boot').addEventListener('click', function() {
+    var ssid = document.getElementById('add-ssid').value.trim();
+    var pass = document.getElementById('add-pass').value;
+    var msgEl = document.getElementById('add-msg');
+    if (!ssid) { showMsg(msgEl, 'SSID is required', true); return; }
+    fetch('/api/wifi/save', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ssid: ssid, password: pass}),
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (!d.ok) { showMsg(msgEl, 'Save failed: ' + (d.error || ''), true); return; }
+      return fetch('/api/wifi/apply-boot', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ssid: ssid}),
+      }).then(function(r) { return r.json(); }).then(function(d2) {
+        showMsg(msgEl,
+          d2.ok ? 'Saved \u2014 will connect on next boot' : ('Error: ' + (d2.error || '')),
+          !d2.ok);
+        if (d2.ok) loadSaved();
+      });
+    }).catch(function() { showMsg(msgEl, 'Request failed', true); });
+  });
+
+  loadStatus();
+  setInterval(loadStatus, 15000);
+}());
+</script>
+</body>
+</html>

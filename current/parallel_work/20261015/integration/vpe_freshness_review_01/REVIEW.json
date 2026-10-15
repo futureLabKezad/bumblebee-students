@@ -1,0 +1,9 @@
+{
+  "independent_tests": 21,
+  "read_only_review_agent": "c7_harness",
+  "accepted_for_ground_freshness_trial": true,
+  "flight_accepted": false,
+  "module_sha256": "2f0915907b70e539669dc7de5f9f9f0494f05bcf3ec21778573078b35fd78335",
+  "integration_order": "Install freshness on pinned clean VPE before applying diagnostic wrapper. Preserve parameter entrypoint.",
+  "remaining": "Real ROS timestamps and messages, same-stamp MAVROS/PX4 delivery, then flight"
+}

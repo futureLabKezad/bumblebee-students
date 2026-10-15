@@ -1,0 +1,26 @@
+test_clock_context_is_thread_local_and_reset (__main__.Tests) ... ok
+test_clock_rewind_latches_closed (__main__.Tests) ... ok
+test_composition_with_actual_parameter_factory (__main__.Tests) ... ok
+test_duplicate_and_reorder_do_not_refresh_or_reseed (__main__.Tests) ... ok
+test_expiry_during_publication_never_increments_count (__main__.Tests) ... ok
+test_factory_pin_and_opt_in (__main__.Tests) ... ok
+test_floor_ceiling_jump_and_consistency_thresholds_unchanged (__main__.Tests) ... ok
+test_forced_reseed_preserves_selected_source (__main__.Tests) ... ok
+test_future_zero_malformed_are_rejected (__main__.Tests) ... ok
+test_half_second_boundary_and_original_fallback_covariance (__main__.Tests) ... ok
+test_installer_is_explicit_and_in_memory_only (__main__.Tests) ... ok
+test_medoid_keeps_its_own_source_time (__main__.Tests) ... ok
+test_mutated_loaded_method_is_rejected_even_if_file_pin_matches (__main__.Tests) ... ok
+test_output_repeats_keep_same_stamp (__main__.Tests) ... ok
+test_preserve_stamp_covariance_and_pose (__main__.Tests) ... ok
+test_replay_of_physically_rejected_frame_cannot_accumulate (__main__.Tests) ... ok
+test_snapshot_and_bounded_metadata (__main__.Tests) ... ok
+test_speed_uses_measurement_intervals (__main__.Tests) ... ok
+test_stale_before_first_accumulation (__main__.Tests) ... ok
+test_stale_rejects_cannot_force_reseed (__main__.Tests) ... ok
+test_yaw_multi_and_first_armed_gate_unchanged (__main__.Tests) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.020s
+
+OK
