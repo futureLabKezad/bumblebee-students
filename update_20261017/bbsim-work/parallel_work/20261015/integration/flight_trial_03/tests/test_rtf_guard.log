@@ -1,0 +1,15 @@
+PASS 5 s diagnostic windows ~0.5 (6 in 30 s)
+PASS 10 s sliding windows ~0.5
+PASS recent 10 s ~0.5
+PASS 8 s stall inside fast run -> invalid
+PASS steady 0.3 accepted
+PASS steady 0.19 -> invalid
+PASS no data -> invalid
+PASS require_rtf 0.1 -> invalid
+PASS require_rtf 0.5 -> value
+PASS paced_wait slow sim -> invalid
+PASS paced_wait sim advanced -> assertion
+PASS paced_wait records rows
+PASS paced_wait success returns True
+PASS 817 s suspend -> invalid
+PASS 1.9 s clock creep tolerated

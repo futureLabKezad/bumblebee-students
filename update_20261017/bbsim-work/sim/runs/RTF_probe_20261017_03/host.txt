@@ -1,0 +1,3 @@
+Linux lima-bbsim 6.8.0-142-generic #142-Ubuntu SMP PREEMPT_DYNAMIC Wed Sep  2 14:30:29 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+2
+ 21:14:46 up 1 day,  8:35,  1 user,  load average: 0.27, 2.95, 2.58

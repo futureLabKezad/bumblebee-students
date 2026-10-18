@@ -1,0 +1,17 @@
+== /work/ws_mavros214
+mavros-source
+COLCON_IGNORE
+_local_setup_util_ps1.py
+_local_setup_util_sh.py
+libmavconn
+local_setup.bash
+local_setup.ps1
+local_setup.sh
+local_setup.zsh
+mavros
+mavros_extras
+mavros_msgs
+setup.bash
+setup.ps1
+setup.sh
+setup.zsh

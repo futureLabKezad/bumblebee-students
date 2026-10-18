@@ -1,0 +1,5 @@
+ ROMFS/px4fmu_common/init.d-posix/airframes/CMakeLists.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+ M ROMFS/px4fmu_common/init.d-posix/airframes/CMakeLists.txt
+?? ROMFS/px4fmu_common/init.d-posix/airframes/4030_gz_bumblebee
+?? ROMFS/px4fmu_common/init.d-posix/airframes/4031_gz_bumblebee_demo

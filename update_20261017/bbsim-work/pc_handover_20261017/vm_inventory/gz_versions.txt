@@ -1,0 +1,27 @@
+8.15.0
+The 'gz' command provides a command line interface to the Gazebo Tools.
+
+  gz <command> [options]
+
+List of available commands:
+
+  help:          Print this help text.
+  fuel:          Manage simulation resources.
+  gui:           Launch graphical interfaces.
+  launch:        Run and manage executables and plugins.
+  log:           Record or playback topics.
+  model:         Print information about models.
+  msg:           Print information about messages.
+  param:         List, get or set parameters.
+  plugin:        Print information about plugins.
+  sdf:           Utilities for SDF files.
+  service:       Print information about services.
+  sim:           Run and manage the Gazebo Simulator.
+  topic:         Print information about topics.
+
+Options:
+
+  --force-version <VERSION>  Use a specific library version.
+  --versions                 Show the available versions.
+  --commands                 Show the available commands.
+Use 'gz help <command>' to print help for a command.

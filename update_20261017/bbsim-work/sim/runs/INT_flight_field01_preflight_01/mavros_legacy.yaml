@@ -1,0 +1,33 @@
+mavros:
+  ros__parameters:
+    fcu_url: udp://127.0.0.1:14640@127.0.0.1:14680
+    gcs_url: ''
+    use_sim_time: true
+    tgt_system: 1
+    tgt_component: 1
+    gcs_quiet_mode: true
+    conn.timeout: 8
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    plugin_allowlist:
+      - sys_status
+      - statustext
+      - imu
+      - local_position
+      - command
+      - param
+      - vision_pose
+      - rc_io
+      - manual_control
+      - setpoint_position
+      - setpoint_attitude
+      - setpoint_velocity
+      - play_tune
+
+mavros/mavros:
+  ros__parameters:
+    use_sim_time: true
+    tf.send: true
+    tf.frame_id: map
+    tf.child_frame_id: base_link

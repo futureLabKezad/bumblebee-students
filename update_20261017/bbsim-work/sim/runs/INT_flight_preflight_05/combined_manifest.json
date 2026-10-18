@@ -1,0 +1,36 @@
+{
+  "scope": "Parameters10 and detector03 for preflight qualification",
+  "files": {
+    "parameters/deadline_lock.py": "8510ffd0bff6038adc0ba028cd0fae426b22f89f6ddd5821156654919be53d08",
+    "parameters/flight_profile.py": "ce5263e73a61162984272e4a2a3ea8cdb2eabc90c46075d7badaa4cc9b5a56ae",
+    "parameters/fresh_param_adapter.py": "530496bdb31dbc9349178a86a7791bac396f7ac82daddaf4551e9a940186158e",
+    "parameters/mavlink_fault_proxy_profile.py": "d3c66e8acefc8f97dfbb721c64dfa0533d2c47f38bcca29b3d9e586d8bab1746",
+    "parameters/optin_control.py": "4ed601fa90d77b7fd3c4b8841c29a73e41f0624fd567ae1769eda0fde968f468",
+    "parameters/param_set_audit.py": "c97b414f95f941bd01d443b2ea86bf7e293d41f86e338f894cbea3c2d594a58b",
+    "parameters/profile_transaction.py": "f7dbb023d5f6ef285f4d50e2986aeb0d55b12946bee3561e1a2388652c434495",
+    "parameters/proxy_profile_policy.py": "a0b528ee5dd19879ea9e4a7feb583725b57551dc691b0f92e8ab5bc0b5a599a9",
+    "parameters/rc_expected09.json": "9ab118e0d49021aa248b14e41066dcff1248e373015023d75e55180f1c9178c2",
+    "parameters/ros_raw_bridge.py": "f39b88bb31eb825cccf6e03ed9104a2b14a7e190a505b8b298f73e1890e052eb",
+    "parameters/sitl_profile_closure_candidate.py": "d935070afc9b316b721c2c695e5d25c543113d9d5755943f6135a8cc51ce7fe3",
+    "parameters/vpe_fix.py": "c33a52bf1b10bc064ca102bdc720ed03afaa08c691d9c5c34b1d7fadf859b8b9",
+    "parameters/vpe_profile_optin.py": "8833bd94d7ecf0447f59f5d899252291986faaaa551cb9044630332abadd9d3b",
+    "vision/aruco_detect.py": "3cb617f93f9e02e014da0f1036aa24e032457f51e2096a18cc76c8155b3cd954"
+  },
+  "origins": {
+    "parameters/deadline_lock.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/deadline_lock.py",
+    "parameters/flight_profile.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/flight_profile.py",
+    "parameters/fresh_param_adapter.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/fresh_param_adapter.py",
+    "parameters/mavlink_fault_proxy_profile.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/mavlink_fault_proxy_profile.py",
+    "parameters/optin_control.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/optin_control.py",
+    "parameters/param_set_audit.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/param_set_audit.py",
+    "parameters/profile_transaction.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/profile_transaction.py",
+    "parameters/proxy_profile_policy.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/proxy_profile_policy.py",
+    "parameters/rc_expected09.json": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/rc_expected09.json",
+    "parameters/ros_raw_bridge.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/ros_raw_bridge.py",
+    "parameters/sitl_profile_closure_candidate.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/sitl_profile_closure_candidate.py",
+    "parameters/vpe_fix.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/vpe_fix.py",
+    "parameters/vpe_profile_optin.py": "parallel_work/20261015/integration/parameters_review_10/submitted/candidate/vpe_profile_optin.py",
+    "vision/aruco_detect.py": "parallel_work/20261015/integration/combined_01/vision/aruco_detect.py"
+  },
+  "flight_accepted": false
+}

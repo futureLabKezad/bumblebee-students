@@ -1,0 +1,15 @@
+    PID %CPU     ELAPSED COMMAND
+ 323165  226       00:38 gz sim -g
+ 323138  202       00:39 gz sim --verbose=2 -r -s --headless-rendering /work/sim/run/world.sdf
+ 323993 12.0       00:24 /work/sim/ros_stack/.venv/bin/python /work/sim/ros_stack/gz_camera_bridge.py --ros-args -p use_sim_time:=true -p mode:=strict
+ 323994  5.8       00:24 /work/sim/ros_stack/.venv/bin/python /work/ws_package1b/install/bumblebee/lib/bumblebee/camera_fix.py --ros-args -r __node:=main_camera_fix -r __ns:=/main_camera --params-file /tmp/launch_params_38o5a1xw
+ 323281  4.9       00:34 /home/arsenij.guest/PX4-Autopilot/build/px4_sitl_default/bin/px4 -d
+ 323989  1.8       00:25 /usr/bin/python3 /opt/ros/jazzy/bin/ros2 launch /work/parallel_work/20261015/integration/combined_trial_tools/vision.launch.py
+ 323996  0.9       00:24 /opt/ros/jazzy/lib/tf2_ros/static_transform_publisher --x 0.05 --y 0 --z -0.07 --yaw -1.5707963 --pitch 0 --roll 3.1415926 --frame-id base_link --child-frame-id main_camera_optical --ros-args -r __node:=sitl_camera_tf --params-file /tmp/launch_params_ho1z1v6p
+  23367  0.6  1-04:51:28 x11vnc -display :1 -localhost -forever -shared -nopw -quiet
+  23358  0.6  1-04:51:29 Xvfb :1 -screen 0 1600x900x24 -nolisten tcp
+    717  0.4  1-07:40:11 /usr/local/bin/lima-guestagent daemon --vsock-port 2222 --runtime-dir=/run/lima-guestagent
+ 323043  0.2       00:57 /usr/libexec/fwupd/fwupd
+  23401  0.0  1-04:51:26 bash /work/sim/viewer_attach.sh
+     17  0.0  1-07:40:18 [rcu_preempt]
+  23364  0.0  1-04:51:28 fluxbox

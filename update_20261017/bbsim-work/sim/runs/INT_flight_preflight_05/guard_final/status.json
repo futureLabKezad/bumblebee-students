@@ -1,0 +1,1 @@
+{"mode": "inhibit", "token": "a46f6281fbd440828455d65f4866e0ee", "received": 116818.397256774, "epoch": "4259eacfe6705114e24b2430e191eaea", "fault": null, "writer": [245, 190], "heartbeat": {"armed": false, "received": 116813.972496882, "sysid": 1, "compid": 1, "connected": true}, "arm_pending": false, "arm_pending_reasons": [], "arm_resolution": "no_pending_attempt"}

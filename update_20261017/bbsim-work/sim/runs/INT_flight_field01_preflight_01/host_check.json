@@ -1,0 +1,15 @@
+{
+  "tag": "INT_flight_field01_preflight_01",
+  "scenario": "preflight",
+  "view": "paused",
+  "runner_exit": 1,
+  "host_start": "2026-10-17 21:08:34 +0400",
+  "host_end": "2026-10-17 21:11:14 +0400",
+  "power_before": "Now drawing from 'Battery Power'  -InternalBattery-0 (id=7340131)\t54%; discharging; 4:58 remaining present: true",
+  "power_after": "Now drawing from 'Battery Power'  -InternalBattery-0 (id=7340131)\t53%; discharging; 4:18 remaining present: true",
+  "low_power_mode_before": "1",
+  "low_power_mode_after": "1",
+  "host_sleep_events": [],
+  "host_awake_whole_run": true,
+  "note": "host_awake_whole_run=false makes the run INVALID regardless of its result"
+}

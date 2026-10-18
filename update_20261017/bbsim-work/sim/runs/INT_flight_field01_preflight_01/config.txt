@@ -1,0 +1,3 @@
+TAG=INT_flight_field01_preflight_01 MODEL=bumblebee AUTOSTART=4030 STOCK=0 HR=1 ENGINE=ogre2 CAM_RATE=30 STEP=0.004 SHADOWS=true GST=0 FLOOR=2 ARUCO=1 SPEED= LIDAR_RATE= FLOW_RATE= LP_NUM_THREADS= SPAWN_POSE=-0.08 0 0.22 0 0 0
+date: 2026-10-17T21:08:38+04:00  px4: pinned local build, hashes recorded separately  gz: 8.15.0
+gz sim --verbose=2 -r -s --headless-rendering /work/sim/run/world.sdf

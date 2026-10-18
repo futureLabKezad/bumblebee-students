@@ -10,5 +10,13 @@
   "archive_bytes": 1353101213,
   "source_entries": 66791,
   "readable_files": 337,
-  "archive_remote_head_verified": true
+  "archive_remote_head_verified": true,
+  "update_20261017": {
+    "folder": "update_20261017",
+    "manifest": "update_20261017/MANIFEST_SHA256.json",
+    "files": 418,
+    "based_on_commit": "1c2ba48aa8a1e1d107d12247f2d37252b880b8ce",
+    "flight_accepted": false,
+    "omitted_on_purpose": "workspace-root documents with real-drone security details"
+  }
 }

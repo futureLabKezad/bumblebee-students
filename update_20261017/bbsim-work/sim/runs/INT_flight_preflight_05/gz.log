@@ -1,0 +1,58 @@
+[1;33m[Wrn] [MulticopterMotorModel.cc:257] [0m[1;33mNo robotNamespace set using entity name.[0m
+[1;33m[Wrn] [MulticopterMotorModel.cc:295] [0m[1;33m<motorNumber> is depricated, [0m[1;33mplease use <actuator_number>.[0m
+[1;33m[Wrn] [MulticopterMotorModel.cc:257] [0m[1;33mNo robotNamespace set using entity name.[0m
+[1;33m[Wrn] [MulticopterMotorModel.cc:295] [0m[1;33m<motorNumber> is depricated, [0m[1;33mplease use <actuator_number>.[0m
+[1;33m[Wrn] [MulticopterMotorModel.cc:257] [0m[1;33mNo robotNamespace set using entity name.[0m
+[1;33m[Wrn] [MulticopterMotorModel.cc:295] [0m[1;33m<motorNumber> is depricated, [0m[1;33mplease use <actuator_number>.[0m
+[1;33m[Wrn] [MulticopterMotorModel.cc:257] [0m[1;33mNo robotNamespace set using entity name.[0m
+[1;33m[Wrn] [MulticopterMotorModel.cc:295] [0m[1;33m<motorNumber> is depricated, [0m[1;33mplease use <actuator_number>.[0m
+[1;33m[Wrn] [Ogre2Camera.cc:423] [0m[1;33mOgre2Camera::SetVisibilityMask: Mask bits [0m[1;33mc0000000[0m[1;33m are set but will be ignored as they conflict with the [0m[1;33mreserved bits used internally by the ogre2 backend.[0m[1;33m[0m
+[1;33m[Wrn] [Ogre2Camera.cc:423] [0m[1;33mOgre2Camera::SetVisibilityMask: Mask bits [0m[1;33mc0000000[0m[1;33m are set but will be ignored as they conflict with the [0m[1;33mreserved bits used internally by the ogre2 backend.[0m[1;33m[0m
+Number of good matches: 1, desired: 11
+Number of good matches: 1, desired: 9
+Number of good matches: 12, desired: 20
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18
+Number of good matches: 10, desired: 18

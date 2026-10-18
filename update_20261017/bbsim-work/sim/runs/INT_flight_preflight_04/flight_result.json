@@ -1,0 +1,3387 @@
+{
+  "success": true,
+  "scenario": "preflight",
+  "operations": [
+    {
+      "kind": "rtf_check",
+      "wall": 116435.960203887,
+      "label": "before first parameter access",
+      "rtf": 0.44333333655256396,
+      "seconds": 10.0,
+      "min_required": 0.2
+    },
+    {
+      "kind": "rtf_warning",
+      "wall": 116435.967692816,
+      "initial": 0.44333333655256396,
+      "note": "vision load roughly halved RTF in run 02; below 0.5 here may fall under the gate later"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116445.437155534,
+      "service": "/vpe_fix/prepare_profile",
+      "wall_seconds": 0.6796626769937575,
+      "success": true,
+      "message": "{\"generation\": 1, \"status\": \"prepared\", \"success\": true}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116446.412917123,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 0.9598580089950701,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116447.760351548,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.3411251190118492,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116449.537942538,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.7734856219904032,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116451.221558394,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.6772446389950346,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116452.841044091,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.6154622379981447,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116454.007777941,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.16099106099864,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116455.156065383,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.142778850000468,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116458.480252944,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 3.3190613240003586,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116460.454956129,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.971732357997098,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116462.837335013,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 2.3766454809956485,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116465.022488094,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 2.1794016979984008,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116466.298617585,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.2734660009882646,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116467.599339098,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.2940941099950578,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116468.892125007,
+      "service": "/vpe_fix/set_param",
+      "wall_seconds": 1.2894837950007059,
+      "success": true,
+      "message": "{\"success\": true, \"status\": \"active\", \"generation\": 1}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116469.37943728,
+      "service": "/vpe_fix/allow_profile_flight",
+      "wall_seconds": 0.34943633900547866,
+      "success": true,
+      "message": "{\"generation\": 1, \"status\": \"flight_permitted\", \"success\": true}"
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116470.328419934,
+      "service": "/mavros/set_mode",
+      "wall_seconds": 0.02211973100202158,
+      "success": true,
+      "message": ""
+    },
+    {
+      "kind": "default_detector_started",
+      "wall": 116482.039371676,
+      "poses": 41,
+      "armed": false,
+      "mode": "OFFBOARD",
+      "quality": [
+        {
+          "wall": 116481.220544493,
+          "kind": "markers_used",
+          "value": 1
+        },
+        {
+          "wall": 116481.220585041,
+          "kind": "yaw_locked",
+          "value": false
+        },
+        {
+          "wall": 116481.675003769,
+          "kind": "markers_used",
+          "value": 1
+        },
+        {
+          "wall": 116481.675065308,
+          "kind": "yaw_locked",
+          "value": false
+        },
+        {
+          "wall": 116481.790224015,
+          "kind": "markers_used",
+          "value": 1
+        },
+        {
+          "wall": 116481.790271055,
+          "kind": "yaw_locked",
+          "value": false
+        },
+        {
+          "wall": 116481.88953406,
+          "kind": "markers_used",
+          "value": 1
+        },
+        {
+          "wall": 116481.889587337,
+          "kind": "yaw_locked",
+          "value": false
+        },
+        {
+          "wall": 116482.037846679,
+          "kind": "markers_used",
+          "value": 1
+        },
+        {
+          "wall": 116482.038986702,
+          "kind": "yaw_locked",
+          "value": true
+        }
+      ]
+    },
+    {
+      "kind": "service_reply",
+      "wall": 116501.87562044,
+      "service": "/vpe_fix/revert_all",
+      "wall_seconds": 19.827697028013063,
+      "success": true,
+      "message": "{\"generation\": 1, \"status\": \"restored\", \"success\": true}"
+    },
+    {
+      "kind": "all_19_restored",
+      "wall": 116509.315351505,
+      "count": 19
+    },
+    {
+      "kind": "scenario_completed",
+      "wall": 116509.319101501,
+      "success": true,
+      "flight_acceptance": "Independent scenario review pending"
+    }
+  ],
+  "detector_gate_by_flight_state": true,
+  "profile_restored": true,
+  "flight_accepted": false,
+  "started_wall": 116425.230995902,
+  "states": [
+    {
+      "wall": 116428.027325682,
+      "armed": false,
+      "connected": false,
+      "mode": ""
+    },
+    {
+      "wall": 116428.056139628,
+      "armed": false,
+      "connected": true,
+      "mode": "CMODE(50593792)"
+    },
+    {
+      "wall": 116430.292114798,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116432.529663137,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116434.796659888,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116437.043556541,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116439.61814731,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116442.136926717,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116444.732954297,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116445.743704601,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116446.763695609,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116447.562823538,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116448.600961717,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116449.654357187,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116450.430626073,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116451.458410702,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116452.540217775,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116453.231929475,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116454.243766135,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116455.300927335,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116456.056745183,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116457.068413731,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116458.110532553,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116458.874918206,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116459.892414877,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116460.972119309,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116461.726153128,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116462.776729019,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116463.84178784,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116464.523615351,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116465.50060588,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116466.557092791,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116467.362011512,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116468.368654993,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116470.047873096,
+      "armed": false,
+      "connected": true,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "wall": 116472.840590099,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116476.075424606,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116478.820640897,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116481.708135878,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116482.715488351,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116483.742745517,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116484.772225437,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116484.894106139,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116485.989060396,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116487.014438975,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116487.822340983,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116488.848104135,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116489.852791098,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116490.654388347,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116493.01596185,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116494.019823102,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116495.042904017,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116495.650304779,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116496.702826844,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116497.758317417,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116498.815567812,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116499.522979655,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116500.539344213,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116501.560050781,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116503.148405647,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116506.232624423,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "wall": 116509.110398477,
+      "armed": false,
+      "connected": true,
+      "mode": "OFFBOARD"
+    }
+  ],
+  "paced_waits": [
+    {
+      "label": "No connected PX4",
+      "ok": true,
+      "wall_s": 6.718530473997816,
+      "wall_limit": 45,
+      "px4_advance_s": null,
+      "px4_needed_s": 3.0,
+      "heartbeats": 3
+    },
+    {
+      "label": "raw bridge saw no FCU HEARTBEAT within 15 s wall",
+      "ok": true,
+      "wall_s": 1.0253920579998521,
+      "wall_limit": 15,
+      "px4_advance_s": 0.4319999999999986,
+      "px4_needed_s": 1.0,
+      "heartbeats": 1
+    },
+    {
+      "label": "fewer than 2 new FCU HEARTBEATs within 15 s wall after the vpe_fix wrapper started",
+      "ok": true,
+      "wall_s": 3.822452259992133,
+      "wall_limit": 15,
+      "px4_advance_s": 1.4879999999999995,
+      "px4_needed_s": 2.0,
+      "heartbeats": 2
+    },
+    {
+      "label": "Disarmed OFFBOARD not observed",
+      "ok": true,
+      "wall_s": 2.527761694000219,
+      "wall_limit": 20,
+      "px4_advance_s": 0.9239999999999995,
+      "px4_needed_s": 1.0,
+      "heartbeats": 1
+    },
+    {
+      "label": "Default detector did not start",
+      "ok": true,
+      "wall_s": 5.156352676989627,
+      "wall_limit": 45,
+      "px4_advance_s": 1.7079999999999984,
+      "px4_needed_s": 1.12,
+      "heartbeats": 1
+    },
+    {
+      "label": "No fresh yaw lock before ARM",
+      "ok": true,
+      "wall_s": 4.022070386999985,
+      "wall_limit": 45,
+      "px4_advance_s": 1.392000000000003,
+      "px4_needed_s": 3.25,
+      "heartbeats": 2
+    },
+    {
+      "label": "No stability HEARTBEATs",
+      "ok": true,
+      "wall_s": 7.076133433001814,
+      "wall_limit": 20,
+      "px4_advance_s": 2.3560000000000016,
+      "px4_needed_s": 3.0,
+      "heartbeats": 3
+    }
+  ],
+  "guarded_start_wall": 116435.968692285,
+  "independent_before": {
+    "COM_DISARM_PRFLT": {
+      "value": 30.0,
+      "type": 9,
+      "received": 116437.11013719,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "COM_SPOOLUP_TIME": {
+      "value": 0.0,
+      "type": 9,
+      "received": 116437.118823376,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_ACC_HOR": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116437.121880367,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_JERK_MAX": {
+      "value": 8.0,
+      "type": 9,
+      "received": 116437.12795128,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_LAND_SPEED": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116437.130414577,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_TKO_SPEED": {
+      "value": 1.7999999523162842,
+      "type": 9,
+      "received": 116437.1378835,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MANUAL": {
+      "value": 10.0,
+      "type": 9,
+      "received": 116437.145239982,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MAN_BACK": {
+      "value": -1.0,
+      "type": 9,
+      "received": 116437.151187517,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MAN_SIDE": {
+      "value": -1.0,
+      "type": 9,
+      "received": 116437.156310052,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_CRUISE": {
+      "value": 5.0,
+      "type": 9,
+      "received": 116437.169141285,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_P": {
+      "value": 0.949999988079071,
+      "type": 9,
+      "received": 116437.1717589,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_D_ACC": {
+      "value": 0.20000000298023224,
+      "type": 9,
+      "received": 116437.187703514,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_I_ACC": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116437.194543589,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_MAX": {
+      "value": 12.0,
+      "type": 9,
+      "received": 116437.203470446,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_P_ACC": {
+      "value": 1.7999999523162842,
+      "type": 9,
+      "received": 116437.208374356,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_VEL_MAX_DN": {
+      "value": 2.25,
+      "type": 9,
+      "received": 116437.214915201,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_VEL_MAX_UP": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116437.225323738,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_V_AUTO_DN": {
+      "value": 2.25,
+      "type": 9,
+      "received": 116437.233497816,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_V_AUTO_UP": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116437.236973925,
+      "source": [
+        1,
+        1
+      ]
+    }
+  },
+  "statustext": [
+    {
+      "wall": 116457.180074344,
+      "severity": 2,
+      "text": "Manual speed has been constrained by max speed\t"
+    },
+    {
+      "wall": 116463.567879162,
+      "severity": 2,
+      "text": "Ascent speed has been constrained by max speed\t"
+    },
+    {
+      "wall": 116465.63606598,
+      "severity": 2,
+      "text": "Descent speed has been constrained by max speed\t"
+    },
+    {
+      "wall": 116476.243670313,
+      "severity": 2,
+      "text": "Preflight Fail: heading estimate not stable"
+    }
+  ],
+  "independent_applied": {
+    "COM_DISARM_PRFLT": {
+      "value": 30.0,
+      "type": 9,
+      "received": 116468.902316345,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "COM_SPOOLUP_TIME": {
+      "value": 0.0,
+      "type": 9,
+      "received": 116468.907126464,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_ACC_HOR": {
+      "value": 2.5,
+      "type": 9,
+      "received": 116468.914339505,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_JERK_MAX": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116468.917547689,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_LAND_SPEED": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116468.922828072,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_TKO_SPEED": {
+      "value": 0.30000001192092896,
+      "type": 9,
+      "received": 116468.940754572,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MANUAL": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116468.948634477,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MAN_BACK": {
+      "value": -1.0,
+      "type": 9,
+      "received": 116468.953354798,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MAN_SIDE": {
+      "value": -1.0,
+      "type": 9,
+      "received": 116468.968439411,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_CRUISE": {
+      "value": 0.30000001192092896,
+      "type": 9,
+      "received": 116468.975917447,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_P": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116468.97959636,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_D_ACC": {
+      "value": 0.07999999821186066,
+      "type": 9,
+      "received": 116468.984195837,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_I_ACC": {
+      "value": 0.15000000596046448,
+      "type": 9,
+      "received": 116468.99133122,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_MAX": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116468.996118794,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_P_ACC": {
+      "value": 1.5,
+      "type": 9,
+      "received": 116468.999772963,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_VEL_MAX_DN": {
+      "value": 0.5,
+      "type": 9,
+      "received": 116469.002385682,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_VEL_MAX_UP": {
+      "value": 0.5,
+      "type": 9,
+      "received": 116469.006842447,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_V_AUTO_DN": {
+      "value": 0.5,
+      "type": 9,
+      "received": 116469.012013194,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_V_AUTO_UP": {
+      "value": 0.5,
+      "type": 9,
+      "received": 116469.02114151,
+      "source": [
+        1,
+        1
+      ]
+    }
+  },
+  "independent_after": {
+    "COM_DISARM_PRFLT": {
+      "value": 30.0,
+      "type": 9,
+      "received": 116501.894996811,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "COM_SPOOLUP_TIME": {
+      "value": 0.0,
+      "type": 9,
+      "received": 116501.903342312,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_ACC_HOR": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116501.915567715,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_JERK_MAX": {
+      "value": 8.0,
+      "type": 9,
+      "received": 116501.920832155,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_LAND_SPEED": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116501.925331135,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_TKO_SPEED": {
+      "value": 1.7999999523162842,
+      "type": 9,
+      "received": 116501.928896188,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MANUAL": {
+      "value": 10.0,
+      "type": 9,
+      "received": 116501.936476186,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MAN_BACK": {
+      "value": -1.0,
+      "type": 9,
+      "received": 116501.945400387,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MAN_SIDE": {
+      "value": -1.0,
+      "type": 9,
+      "received": 116501.951709269,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_CRUISE": {
+      "value": 5.0,
+      "type": 9,
+      "received": 116501.963591582,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_P": {
+      "value": 0.949999988079071,
+      "type": 9,
+      "received": 116501.971790491,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_D_ACC": {
+      "value": 0.20000000298023224,
+      "type": 9,
+      "received": 116501.978699526,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_I_ACC": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116501.988312898,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_MAX": {
+      "value": 12.0,
+      "type": 9,
+      "received": 116501.995978964,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_P_ACC": {
+      "value": 1.7999999523162842,
+      "type": 9,
+      "received": 116502.002938156,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_VEL_MAX_DN": {
+      "value": 2.25,
+      "type": 9,
+      "received": 116502.020869126,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_VEL_MAX_UP": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116502.029475358,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_V_AUTO_DN": {
+      "value": 2.25,
+      "type": 9,
+      "received": 116502.036286819,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_V_AUTO_UP": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116502.045726919,
+      "source": [
+        1,
+        1
+      ]
+    }
+  },
+  "mismatches": {},
+  "independent_stable": {
+    "COM_DISARM_PRFLT": {
+      "value": 30.0,
+      "type": 9,
+      "received": 116509.153735027,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "COM_SPOOLUP_TIME": {
+      "value": 0.0,
+      "type": 9,
+      "received": 116509.167121329,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_ACC_HOR": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116509.172305711,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_JERK_MAX": {
+      "value": 8.0,
+      "type": 9,
+      "received": 116509.180406296,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_LAND_SPEED": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116509.196570667,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_TKO_SPEED": {
+      "value": 1.7999999523162842,
+      "type": 9,
+      "received": 116509.20423839,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MANUAL": {
+      "value": 10.0,
+      "type": 9,
+      "received": 116509.214424602,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MAN_BACK": {
+      "value": -1.0,
+      "type": 9,
+      "received": 116509.228148486,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_VEL_MAN_SIDE": {
+      "value": -1.0,
+      "type": 9,
+      "received": 116509.234432256,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_CRUISE": {
+      "value": 5.0,
+      "type": 9,
+      "received": 116509.243038495,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_P": {
+      "value": 0.949999988079071,
+      "type": 9,
+      "received": 116509.252776897,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_D_ACC": {
+      "value": 0.20000000298023224,
+      "type": 9,
+      "received": 116509.265842935,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_I_ACC": {
+      "value": 0.4000000059604645,
+      "type": 9,
+      "received": 116509.272280295,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_MAX": {
+      "value": 12.0,
+      "type": 9,
+      "received": 116509.280517149,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_XY_VEL_P_ACC": {
+      "value": 1.7999999523162842,
+      "type": 9,
+      "received": 116509.285596133,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_VEL_MAX_DN": {
+      "value": 2.25,
+      "type": 9,
+      "received": 116509.292632223,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_VEL_MAX_UP": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116509.300253789,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_V_AUTO_DN": {
+      "value": 2.25,
+      "type": 9,
+      "received": 116509.308485646,
+      "source": [
+        1,
+        1
+      ]
+    },
+    "MPC_Z_V_AUTO_UP": {
+      "value": 3.0,
+      "type": 9,
+      "received": 116509.315103823,
+      "source": [
+        1,
+        1
+      ]
+    }
+  },
+  "rtf": {
+    "min_required": 0.2,
+    "gate_window_wall_s": 10.0,
+    "gate_windows": 541,
+    "gate_min": 0.22544284168030976,
+    "gate_below_min": [],
+    "diag_window_wall_s": 5.0,
+    "diag_windows": [
+      0.4007,
+      0.3781,
+      0.3539,
+      0.3531,
+      0.3529,
+      0.3543,
+      0.3587,
+      0.3328,
+      0.356,
+      0.3212,
+      0.31,
+      0.2238,
+      0.2578,
+      0.3218
+    ],
+    "min": 0.223793681561392,
+    "max": 0.4006884240467735,
+    "below_min": []
+  },
+  "success_before_cleanup": true,
+  "heartbeats": [
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116428.054522186,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116430.291589413,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116432.529439637,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116434.795874128,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116437.042801209,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116439.61658573,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116442.136502635,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116444.732278305,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116445.74200343,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116446.762859908,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116447.555602291,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116448.598054022,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116449.654679778,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116450.430560912,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116451.458340042,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116452.539944415,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116453.231377324,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116454.243697096,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116455.300595521,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116456.05666575,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116457.068343253,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116458.109901533,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116458.873349683,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116459.892042425,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116460.971390375,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116461.723749609,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116462.774311645,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116463.840577568,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116464.523292488,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116465.500173813,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116466.555123608,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116467.3616679,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116468.368582769,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116470.047799842,
+      "custom_mode": 50593792
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116472.839370152,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116476.075152122,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116478.818813949,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116481.705270063,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116482.715407029,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116483.742631126,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116484.771808128,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116484.894011484,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116485.985864499,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116487.011020508,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116487.821381737,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116488.848396395,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116489.852461502,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116490.653062201,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116493.013382382,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116494.016949416,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116495.041184109,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116495.646109113,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116496.702230123,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116497.753524431,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116498.812740164,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116499.522529692,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116500.537751293,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116501.559597052,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116503.147849078,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116506.232432363,
+      "custom_mode": 393216
+    },
+    {
+      "endpoint": "ep:1000",
+      "armed": false,
+      "received": 116509.109917976,
+      "custom_mode": 393216
+    }
+  ],
+  "quality": [
+    {
+      "wall": 116473.198807232,
+      "kind": "markers_used",
+      "value": 0
+    },
+    {
+      "wall": 116473.198860798,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116473.322180949,
+      "kind": "markers_used",
+      "value": 0
+    },
+    {
+      "wall": 116473.322226274,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116473.51975472,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116473.52404674,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116473.659889794,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116473.660136917,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116474.160760918,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116474.160807083,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116474.853058312,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116474.85310002,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116475.141790214,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116475.141833401,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116475.456344773,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116475.456394155,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116475.603513088,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116475.603548245,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116475.705315394,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116475.705347261,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116475.92429467,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116475.924324744,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116476.009199591,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116476.00923338,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116476.161774335,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116476.163172576,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116476.270102271,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116476.270142262,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116476.894643926,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116476.894674973,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116477.006134227,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116477.006167021,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116477.229393887,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116477.229431223,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116477.434394559,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116477.434429644,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116477.551659082,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116477.551701389,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116477.765389071,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116477.765896833,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116477.898546166,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116477.898576621,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116478.009374884,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116478.009744853,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116478.436587404,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116478.436622451,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116478.567467188,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116478.567512829,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116478.698077746,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116478.698116946,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116478.931957077,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116478.931988648,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116479.029431848,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116479.02946344,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116479.268558642,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116479.268593447,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116479.368868593,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116479.368903526,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116479.634884472,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116479.634917798,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116479.860165758,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116479.860201283,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116480.100452792,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116480.100498428,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116480.333370474,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116480.333619337,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116480.445110498,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116480.445144566,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116480.602601829,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116480.602640161,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116480.725612885,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116480.725690562,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116480.882163264,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116480.882193828,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116481.08500626,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116481.085087062,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116481.220544493,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116481.220585041,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116481.675003769,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116481.675065308,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116481.790224015,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116481.790271055,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116481.88953406,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116481.889587337,
+      "kind": "yaw_locked",
+      "value": false
+    },
+    {
+      "wall": 116482.037846679,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116482.038986702,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116482.25664434,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116482.25667995,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116482.746344774,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116482.746570093,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116483.009893801,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116483.00992436,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116483.119801904,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116483.119848402,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116483.903808633,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116483.903836105,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116484.345860144,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116484.345901109,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116484.477662516,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116484.477700129,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116484.593259679,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116484.593322826,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116484.743659224,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116484.743693398,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116484.84418326,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116484.84421636,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116484.989920702,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116484.989953372,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116485.096691611,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116485.09673795,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116485.366875281,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116485.366906328,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116485.575772535,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116485.575806194,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116486.139818054,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116486.140378403,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116486.273205074,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116486.273232006,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116486.499271224,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116486.499306992,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116486.600341414,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116486.600368645,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116486.725378136,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116486.72542197,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116486.865078346,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116486.865402642,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116487.099636203,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116487.099670647,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116487.350284908,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116487.350320018,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116487.458273567,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116487.458305272,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116487.796688358,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116487.796716701,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116487.914668788,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116487.914698918,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116488.268796911,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116488.268823314,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116488.369820301,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116488.36985583,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116488.529179663,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116488.529206702,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116488.626564347,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116488.626595505,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116488.746661055,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116488.746700065,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116488.850417166,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116488.850450956,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116488.94419702,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116488.944230979,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116489.105430366,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116489.105474088,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116489.214225271,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116489.214274613,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116489.326139723,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116489.326163949,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116489.45271334,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116489.452744258,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116490.042159438,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116490.042192008,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116490.152250653,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116490.152290889,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116490.413965486,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116490.414015914,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116490.511456432,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116490.511492319,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116490.600098256,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116490.600127211,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116490.800351552,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116490.800412337,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116490.957668394,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116490.957702464,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116491.284613745,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116491.285728306,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116491.401579587,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116491.401612332,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116492.479813614,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116492.47987159,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116493.765536814,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116493.765604598,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116493.944114892,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116493.944246166,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116494.402119395,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116494.402155441,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116494.563679803,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116494.563867537,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116494.830514283,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116494.830911824,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116495.156233585,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116495.156271903,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116495.440790595,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116495.440829423,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116495.606498227,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116495.606535389,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116495.727459452,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116495.727512333,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116496.105726366,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116496.105764297,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116496.30371272,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116496.303764335,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116496.588791165,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116496.588837073,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116496.936896884,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116496.936934232,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116497.078864533,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116497.078911633,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116497.381920012,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116497.381959598,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116497.695336156,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116497.69554721,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116497.84827748,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116497.848314729,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116498.002809584,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116498.002846622,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116498.220952586,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116498.220993148,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116499.171103335,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116499.171158338,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116499.49616544,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116499.496211452,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116499.633574566,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116499.633620916,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116499.934157824,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116499.934196688,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116500.126068238,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116500.126121185,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116500.283204541,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116500.28324494,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116500.441760481,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116500.441800078,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116500.816709261,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116500.816759791,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116501.111194162,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116501.111233632,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116501.296312059,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116501.296370688,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116501.44492104,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116501.444967867,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116501.752182837,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116501.752283825,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116501.878275336,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116501.878307538,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116502.471879107,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116502.471933321,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116502.603074993,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116502.603115569,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116502.834623664,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116502.834738404,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116503.736342003,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116503.737439428,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116503.895350114,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116503.895389675,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116504.030998946,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116504.031127427,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116504.35953509,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116504.359759744,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116504.511547694,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116504.511582927,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116504.633291835,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116504.633356052,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116504.847564568,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116504.847605924,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116504.932620641,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116504.933273764,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116505.114222169,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116505.114547746,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116505.240630476,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116505.241324612,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116505.399341547,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116505.399378756,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116505.742318636,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116505.742357381,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116505.884717569,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116505.884751364,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116506.077811703,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116506.077851728,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116506.203218516,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116506.203661393,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116506.305154761,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116506.305187233,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116506.565453213,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116506.56549074,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116506.734330445,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116506.73435976,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116507.166998197,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116507.16704785,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116507.620297851,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116507.620331676,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116507.855567534,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116507.855601613,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116508.154367856,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116508.157297879,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116508.363492352,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116508.363531142,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116508.614391413,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116508.614422114,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116508.714352912,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116508.714392039,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116508.814789279,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116508.814824087,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116508.947992372,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116508.948077615,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116509.234847671,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116509.234881802,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116509.409438264,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116509.409477738,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116509.520267467,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116509.520304406,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116509.687353187,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116509.687384166,
+      "kind": "yaw_locked",
+      "value": true
+    },
+    {
+      "wall": 116509.778967825,
+      "kind": "markers_used",
+      "value": 1
+    },
+    {
+      "wall": 116509.779320347,
+      "kind": "yaw_locked",
+      "value": true
+    }
+  ],
+  "final_rc_health": {
+    "health_received": 116509.736169683,
+    "rc_receiver_healthy": false,
+    "pass_rc": true,
+    "channels_received": 116482.113394486
+  },
+  "rtf_whole_process": {
+    "min_required": 0.2,
+    "gate_window_wall_s": 10.0,
+    "gate_windows": 620,
+    "gate_min": 0.22544284168030976,
+    "gate_below_min": [],
+    "diag_window_wall_s": 5.0,
+    "diag_windows": [
+      0.4429,
+      0.4265,
+      0.3962,
+      0.3666,
+      0.35,
+      0.353,
+      0.3568,
+      0.3542,
+      0.3663,
+      0.3314,
+      0.3383,
+      0.3327,
+      0.2394,
+      0.2551,
+      0.274,
+      0.3447
+    ],
+    "min": 0.23943980862860145,
+    "max": 0.44291969392461183,
+    "below_min": []
+  },
+  "finished_wall": 116509.864916294
+}

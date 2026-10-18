@@ -1,0 +1,32 @@
+[INFO] [launch]: All log files can be found below /home/arsenij.guest/.ros/log/2026-10-17-21-09-06-291022-lima-bbsim-332720
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [setpoint_freshness.py-1]: process started with pid [332746]
+[INFO] [simple_offboard-2]: process started with pid [332747]
+[setpoint_freshness.py-1] [WARN] [1792256947.203488961] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[setpoint_freshness.py-1] [WARN] [1792256947.203512035] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[simple_offboard-2] [WARN] [1792256947.410541900] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[simple_offboard-2] [WARN] [1792256947.410567874] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[simple_offboard-2] [INFO] [1792256948.448024659] [simple_offboard]: ready
+[setpoint_freshness.py-1] [INFO] [1792256950.026553715] [setpoint_freshness]: Flight-command filter active: age<=0.5 ROS s, future<=0.1 ROS s; no ARM/MODE clients
+[simple_offboard-2] [INFO] [1792257067.566501998] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [simple_offboard-2]: process has finished cleanly [pid 332747]
+[setpoint_freshness.py-1] Traceback (most recent call last):
+[setpoint_freshness.py-1]   File "/work/ws_package1b/install/bumblebee/lib/bumblebee/setpoint_freshness.py", line 185, in <module>
+[setpoint_freshness.py-1]     main()
+[setpoint_freshness.py-1]   File "/work/ws_package1b/install/bumblebee/lib/bumblebee/setpoint_freshness.py", line 177, in main
+[setpoint_freshness.py-1]     rclpy.spin(node)  # single executor: guard state never crosses callback threads
+[setpoint_freshness.py-1]     ^^^^^^^^^^^^^^^^
+[setpoint_freshness.py-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[setpoint_freshness.py-1]     executor.spin_once()
+[setpoint_freshness.py-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[setpoint_freshness.py-1]     self._spin_once_impl(timeout_sec)
+[setpoint_freshness.py-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[setpoint_freshness.py-1]     handler, entity, node = self.wait_for_ready_callbacks(
+[setpoint_freshness.py-1]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[setpoint_freshness.py-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[setpoint_freshness.py-1]     return next(self._cb_iter)
+[setpoint_freshness.py-1]            ^^^^^^^^^^^^^^^^^^^
+[setpoint_freshness.py-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 785, in _wait_for_ready_callbacks
+[setpoint_freshness.py-1]     raise ExternalShutdownException()
+[setpoint_freshness.py-1] rclpy.executors.ExternalShutdownException
+[ERROR] [setpoint_freshness.py-1]: process has died [pid 332746, exit code 1, cmd '/work/ws_package1b/install/bumblebee/lib/bumblebee/setpoint_freshness.py --ros-args -r __node:=setpoint_freshness --params-file /tmp/launch_params_xghpt14v -r ~/output/position:=/mavros/setpoint_position/local -r ~/output/position_raw:=/mavros/setpoint_raw/local -r ~/output/attitude:=/mavros/setpoint_attitude/attitude -r ~/output/attitude_raw:=/mavros/setpoint_raw/attitude -r ~/output/rates:=/mavros/setpoint_attitude/cmd_vel -r ~/output/thrust:=/mavros/setpoint_attitude/thrust'].

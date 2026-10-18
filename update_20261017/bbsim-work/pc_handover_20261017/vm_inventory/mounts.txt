@@ -1,0 +1,2 @@
+lima-fa56febd492a1f7b on /repo type virtiofs (ro,relatime)
+lima-8f9525b5cf04bee3 on /work type virtiofs (rw,relatime)

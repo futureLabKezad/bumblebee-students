@@ -1,0 +1,94 @@
+[INFO] [launch]: All log files can be found below /home/arsenij.guest/.ros/log/2026-10-17-21-04-05-168783-lima-bbsim-331157
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [python-1]: process started with pid [331185]
+[INFO] [python-2]: process started with pid [331186]
+[INFO] [python-3]: process started with pid [331187]
+[INFO] [static_transform_publisher-4]: process started with pid [331188]
+[static_transform_publisher-4] [WARN] [1792256645.800819061] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[static_transform_publisher-4] [WARN] [1792256645.800859983] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[static_transform_publisher-4] [INFO] [1792256646.024726774] [sitl_camera_tf]: Spinning until stopped - publishing transform
+[static_transform_publisher-4] translation: ('0.050000', '0.000000', '-0.070000')
+[static_transform_publisher-4] rotation: ('0.707107', '-0.707107', '-0.000000', '0.000000')
+[static_transform_publisher-4] from 'base_link' to 'main_camera_optical'
+[python-2] [WARN] [1792256647.174328097] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[python-2] [WARN] [1792256647.174351008] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[python-1] [WARN] [1792256647.553255663] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[python-1] [WARN] [1792256647.553881559] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[python-2] [INFO] [1792256647.656653711] [main_camera.main_camera_fix]: camera_fix: image_raw_yuv -> image_raw (period=5)
+[python-3] [WARN] [1792256648.080678811] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[python-3] [WARN] [1792256648.080735644] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[python-3] [INFO] [1792256648.802513742] [aruco_detect]: full_resolution_corners enabled: effective ArUco3=False, corner refinement=SUBPIX, inverted=False; NORMAL uses rectified gray
+[python-3] [INFO] [1792256648.822399791] [aruco_detect]: Loaded map from /work/sim/worlds/aruco_map/map.input.txt: 20 markers [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20, 18, 19]
+[python-3] [INFO] [1792256649.245319015] [aruco_detect]: aruco_detect ready (dict=1, length=0.15, estimate_poses=True, use_map=True, gate_by_flight_state=True)
+[python-3] [INFO] [1792256651.094896676] [aruco_detect]: aruco_detect undistort active [FISHEYE]: using new_K=[[251.99, 0, 352.09], [0, 314.81, 306.35], [0, 0, 1]] (640x480), distCoeffs=zeros for PnP after frame undistort
+[python-1] [INFO] [1792256667.600215929] [sitl_strict_camera]: published 120 strict frames
+[python-1] [INFO] [1792256687.167675640] [sitl_strict_camera]: published 240 strict frames
+[python-1] [INFO] [1792256707.158072668] [sitl_strict_camera]: published 360 strict frames
+[python-3] [INFO] [1792256711.813368883] [aruco_detect]: aruco: detection ACTIVE (armed=False mode=OFFBOARD)
+[python-3] [INFO] [1792256712.537850774] [aruco_detect]: Cached static TF base_link in main_camera_optical
+[python-3] [INFO] [1792256712.544390657] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256714.621484085] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256717.253404600] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256719.442894833] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256721.455268630] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256723.756481503] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256725.567792988] [aruco_detect]: aruco_detect: yaw_world locked at -0.0 deg (single-marker, spread=0.0 deg)
+[python-3] [INFO] [1792256725.974222623] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-1] [INFO] [1792256728.178049346] [sitl_strict_camera]: published 480 strict frames
+[python-3] [INFO] [1792256728.223748091] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256730.465875817] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256732.525198886] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256734.652334668] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256736.690805521] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256738.771297125] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256740.856359549] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256743.512027533] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256745.792124016] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256747.835424279] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-1] [INFO] [1792256750.289495579] [sitl_strict_camera]: published 600 strict frames
+[python-3] [INFO] [1792256750.341282356] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256752.444993646] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256754.446379643] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256756.543115060] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256759.043701310] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256761.477461892] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[python-3] [INFO] [1792256764.118164026] [aruco_detect]: single-marker frame: id_len=0.19m pixel=414 ndist=0.07 err=0.47px lim=49.7px
+[static_transform_publisher-4] [INFO] [1792256765.376957081] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[python-1] pybind11::handle::dec_ref() is being called while the GIL is either not held or invalid. Please see https://pybind11.readthedocs.io/en/stable/advanced/misc.html#common-sources-of-global-interpreter-lock-errors for debugging advice.
+[python-1] If you are convinced there is no bug in your code, you can #define PYBIND11_NO_ASSERT_GIL_HELD_INCREF_DECREFto disable this check. In that case you have to ensure this #define is consistently used for all translation units linked into a given pybind11 extension, otherwise there will be ODR violations.The failing pybind11::handle::dec_ref() call was triggered on a tuple object.
+[python-1] terminate called after throwing an instance of 'std::runtime_error'
+[python-1]   what():  pybind11::handle::dec_ref() PyGILState_Check() failure.
+[python-3] Traceback (most recent call last):
+[python-3]   File "/work/parallel_work/20261015/integration/combined_03/vision/aruco_detect.py", line 1791, in <module>
+[python-3]     main()
+[python-3]   File "/work/parallel_work/20261015/integration/combined_03/vision/aruco_detect.py", line 1787, in main
+[python-3]     rclpy.shutdown()
+[python-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 134, in shutdown
+[python-3]     _shutdown(context=context)
+[python-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py", line 82, in shutdown
+[python-3]     context.shutdown()
+[python-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py", line 129, in shutdown
+[python-3]     self.__context.shutdown()
+[python-3] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333
+[INFO] [static_transform_publisher-4]: process has finished cleanly [pid 331188]
+[python-2] Traceback (most recent call last):
+[python-2]   File "/work/ws_package1b/install/bumblebee/lib/bumblebee/camera_fix.py", line 161, in <module>
+[python-2]     main()
+[python-2]   File "/work/ws_package1b/install/bumblebee/lib/bumblebee/camera_fix.py", line 156, in main
+[python-2]     rclpy.spin(node)
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[python-2]     executor.spin_once()
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[python-2]     self._spin_once_impl(timeout_sec)
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[python-2]     handler, entity, node = self.wait_for_ready_callbacks(
+[python-2]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[python-2]     return next(self._cb_iter)
+[python-2]            ^^^^^^^^^^^^^^^^^^^
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 785, in _wait_for_ready_callbacks
+[python-2]     raise ExternalShutdownException()
+[python-2] rclpy.executors.ExternalShutdownException
+[ERROR] [python-2]: process has died [pid 331186, exit code 1, cmd '/work/sim/ros_stack/.venv/bin/python /work/ws_package1b/install/bumblebee/lib/bumblebee/camera_fix.py --ros-args -r __node:=main_camera_fix -r __ns:=/main_camera --params-file /tmp/launch_params_z1rg6wwq'].
+[ERROR] [python-3]: process has died [pid 331187, exit code 1, cmd '/work/sim/ros_stack/.venv/bin/python /work/parallel_work/20261015/integration/combined_03/vision/aruco_detect.py --ros-args -r __node:=aruco_detect -p use_sim_time:=true -p dictionary:=1 -p estimate_poses:=true -p send_tf:=true -p use_map_markers:=true -p length:=0.15 -p corner_refinement_method:=3 -p min_marker_perimeter_rate:=0.03 -p map_file:=/work/sim/worlds/aruco_map/map.input.txt -p adaptive_thresh_win_size_max:=51 -p use_unsharp:=true -p unsharp_sigma:=1.0 -p unsharp_amount:=0.6 -p aruco3_downscale_every_n:=4 -p track_roi_expand:=1.5 -p track_roi_min_px:=60 -p track_sweep_min:=3 -p track_sweep_max:=21 -p track_sweep_step:=6 -p track_keepalive_frames:=3 -r image_raw:=main_camera/image_raw -r camera_info:=main_camera/camera_info -r map_markers:=aruco_map/map -r markers:=aruco_detect/markers -r debug:=aruco_detect/debug -r map_pose:=aruco_map/pose -r map_image:=aruco_map/image'].
+[ERROR] [python-1]: process has died [pid 331185, exit code -6, cmd '/work/sim/ros_stack/.venv/bin/python /work/sim/ros_stack/gz_camera_bridge.py --ros-args -p use_sim_time:=true -p mode:=strict'].

@@ -1,0 +1,2172 @@
+{
+  "parameters": {
+    "COM_FLTMODE1": {
+      "before": 8,
+      "after": 8,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "COM_FLTMODE2": {
+      "before": 8,
+      "after": 8,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "COM_FLTMODE3": {
+      "before": 1,
+      "after": 1,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "COM_FLTMODE4": {
+      "before": 1,
+      "after": 1,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "COM_FLTMODE5": {
+      "before": 2,
+      "after": 2,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "COM_FLTMODE6": {
+      "before": 2,
+      "after": 2,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "COM_RCL_EXCEPT": {
+      "before": 4,
+      "after": 4,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "COM_RC_IN_MODE": {
+      "before": 0,
+      "after": 0,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "MAN_ARM_GESTURE": {
+      "before": 0,
+      "after": 0,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "NAV_RCL_ACT": {
+      "before": 0,
+      "after": 0,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC1_DZ": {
+      "before": 10.0,
+      "after": 10.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC1_MAX": {
+      "before": 1999.0,
+      "after": 1999.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC1_MIN": {
+      "before": 1000.0,
+      "after": 1000.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC1_REV": {
+      "before": 1.0,
+      "after": 1.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC1_TRIM": {
+      "before": 1499.0,
+      "after": 1499.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC2_DZ": {
+      "before": 10.0,
+      "after": 10.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC2_MAX": {
+      "before": 1999.0,
+      "after": 1999.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC2_MIN": {
+      "before": 1000.0,
+      "after": 1000.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC2_REV": {
+      "before": 1.0,
+      "after": 1.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC2_TRIM": {
+      "before": 1500.0,
+      "after": 1500.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC3_DZ": {
+      "before": 10.0,
+      "after": 10.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC3_MAX": {
+      "before": 1999.0,
+      "after": 1999.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC3_MIN": {
+      "before": 1000.0,
+      "after": 1000.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC3_REV": {
+      "before": 1.0,
+      "after": 1.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC3_TRIM": {
+      "before": 1000.0,
+      "after": 1000.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC4_DZ": {
+      "before": 10.0,
+      "after": 10.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC4_MAX": {
+      "before": 1999.0,
+      "after": 1999.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC4_MIN": {
+      "before": 1000.0,
+      "after": 1000.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC4_REV": {
+      "before": 1.0,
+      "after": 1.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC4_TRIM": {
+      "before": 1497.0,
+      "after": 1497.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC5_DZ": {
+      "before": 10.0,
+      "after": 10.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC5_MAX": {
+      "before": 1988.0,
+      "after": 1988.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC5_MIN": {
+      "before": 1011.0,
+      "after": 1011.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC5_REV": {
+      "before": 1.0,
+      "after": 1.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC5_TRIM": {
+      "before": 1499.0,
+      "after": 1499.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC6_DZ": {
+      "before": 10.0,
+      "after": 10.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC6_MAX": {
+      "before": 1999.0,
+      "after": 1999.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC6_MIN": {
+      "before": 1000.0,
+      "after": 1000.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC6_REV": {
+      "before": 1.0,
+      "after": 1.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC6_TRIM": {
+      "before": 1499.0,
+      "after": 1499.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC7_DZ": {
+      "before": 10.0,
+      "after": 10.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC7_MAX": {
+      "before": 2000.0,
+      "after": 2000.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC7_MIN": {
+      "before": 1000.0,
+      "after": 1000.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC7_REV": {
+      "before": 1.0,
+      "after": 1.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC7_TRIM": {
+      "before": 1500.0,
+      "after": 1500.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC8_DZ": {
+      "before": 10.0,
+      "after": 10.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC8_MAX": {
+      "before": 1999.0,
+      "after": 1999.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC8_MIN": {
+      "before": 1000.0,
+      "after": 1000.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC8_REV": {
+      "before": 1.0,
+      "after": 1.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC8_TRIM": {
+      "before": 1499.0,
+      "after": 1499.0,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC_ARMSWITCH_TH": {
+      "before": 0.75,
+      "after": 0.75,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC_FAILS_THR": {
+      "before": 0,
+      "after": 0,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_KILLSWITCH_TH": {
+      "before": 0.75,
+      "after": 0.75,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC_LOITER_TH": {
+      "before": 0.75,
+      "after": 0.75,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC_MAP_ARM_SW": {
+      "before": 5,
+      "after": 5,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_FLTMODE": {
+      "before": 6,
+      "after": 6,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_KILL_SW": {
+      "before": 8,
+      "after": 8,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_LOITER_SW": {
+      "before": 0,
+      "after": 0,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_MODE_SW": {
+      "before": 0,
+      "after": 0,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_OFFB_SW": {
+      "before": 0,
+      "after": 0,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_PITCH": {
+      "before": 2,
+      "after": 2,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_RETURN_SW": {
+      "before": 0,
+      "after": 0,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_ROLL": {
+      "before": 1,
+      "after": 1,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_THROTTLE": {
+      "before": 3,
+      "after": 3,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_MAP_YAW": {
+      "before": 4,
+      "after": 4,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "RC_OFFB_TH": {
+      "before": 0.75,
+      "after": 0.75,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC_RETURN_TH": {
+      "before": 0.75,
+      "after": 0.75,
+      "type": 9,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 9
+    },
+    "RC_CHAN_CNT": {
+      "before": 16,
+      "after": 16,
+      "type": 6,
+      "source": [
+        1,
+        1
+      ],
+      "wire_type": 6
+    },
+    "BAT1_N_CELLS": {
+      "before": 6,
+      "after": 6,
+      "type": 6
+    },
+    "BAT1_SOURCE": {
+      "before": -1,
+      "after": -1,
+      "type": 6
+    },
+    "BAT1_V_CHARGED": {
+      "before": 4.199999809265137,
+      "after": 4.199999809265137,
+      "type": 9
+    },
+    "CBRK_SUPPLY_CHK": {
+      "before": 894281,
+      "after": 894281,
+      "type": 6
+    },
+    "COM_ARM_SDCARD": {
+      "before": 0,
+      "after": 0,
+      "type": 6
+    },
+    "COM_DISARM_LAND": {
+      "before": 2.0,
+      "after": 2.0,
+      "type": 9
+    },
+    "COM_DISARM_PRFLT": {
+      "before": 30.0,
+      "after": 30.0,
+      "type": 9
+    },
+    "COM_FAIL_ACT_T": {
+      "before": 5.0,
+      "after": 5.0,
+      "type": 9
+    },
+    "COM_LOW_BAT_ACT": {
+      "before": 0,
+      "after": 0,
+      "type": 6
+    },
+    "COM_OF_LOSS_T": {
+      "before": 1.0,
+      "after": 1.0,
+      "type": 9
+    },
+    "COM_RC_OVERRIDE": {
+      "before": 1,
+      "after": 1,
+      "type": 6
+    },
+    "COM_SPOOLUP_TIME": {
+      "before": 0.0,
+      "after": 0.0,
+      "type": 9
+    },
+    "IMU_GYRO_CAL_EN": {
+      "before": 1,
+      "after": 1,
+      "type": 6
+    },
+    "SIM_BAT_ENABLE": {
+      "before": 0,
+      "after": 0,
+      "type": 6
+    },
+    "COM_OBL_RC_ACT": {
+      "before": 0,
+      "after": 4,
+      "type": 6
+    }
+  },
+  "channels": [
+    1499,
+    1500,
+    1000,
+    1497,
+    1000,
+    1000,
+    1500,
+    1000,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500
+  ],
+  "states": [
+    {
+      "wall": 116997.636298364,
+      "armed": false,
+      "mode": "LOITER",
+      "source_system": 1,
+      "source_component": 1
+    }
+  ],
+  "pass_rc": true,
+  "rc_receiver_healthy": true,
+  "hover_throttle": 1499,
+  "keepalive": {
+    "heartbeat_send_count": 1,
+    "rc_send_count": 0,
+    "max_heartbeat_gap_wall_s": 0.0,
+    "max_rc_gap_wall_s": 0.0
+  },
+  "parameter_read_protocol": {
+    "rejected_count": 0,
+    "rejected_last": [],
+    "correlation": "source/component/name/type and receipt after local request; PARAM protocol has no nonce"
+  },
+  "prearm_ok": false,
+  "rc_audit_sweeps": [
+    {
+      "COM_FLTMODE1": {
+        "value": 8,
+        "type": 6,
+        "request_wall": 116997.689896666,
+        "wall": 116997.690270444,
+        "local_request_index": 87,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "08000000"
+      },
+      "COM_FLTMODE2": {
+        "value": 8,
+        "type": 6,
+        "request_wall": 116997.690286816,
+        "wall": 116997.690452733,
+        "local_request_index": 88,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "08000000"
+      },
+      "COM_FLTMODE3": {
+        "value": 1,
+        "type": 6,
+        "request_wall": 116997.690465097,
+        "wall": 116997.69061,
+        "local_request_index": 89,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "01000000"
+      },
+      "COM_FLTMODE4": {
+        "value": 1,
+        "type": 6,
+        "request_wall": 116997.690618102,
+        "wall": 116997.690757519,
+        "local_request_index": 90,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "01000000"
+      },
+      "COM_FLTMODE5": {
+        "value": 2,
+        "type": 6,
+        "request_wall": 116997.690766381,
+        "wall": 116997.690892549,
+        "local_request_index": 91,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "02000000"
+      },
+      "COM_FLTMODE6": {
+        "value": 2,
+        "type": 6,
+        "request_wall": 116997.690899595,
+        "wall": 116997.691043528,
+        "local_request_index": 92,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "02000000"
+      },
+      "COM_RCL_EXCEPT": {
+        "value": 4,
+        "type": 6,
+        "request_wall": 116997.691050997,
+        "wall": 116997.69117303,
+        "local_request_index": 93,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "04000000"
+      },
+      "COM_RC_IN_MODE": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.691180372,
+        "wall": 116997.691306919,
+        "local_request_index": 94,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "MAN_ARM_GESTURE": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.691313882,
+        "wall": 116997.691432665,
+        "local_request_index": 95,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "NAV_RCL_ACT": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.691439206,
+        "wall": 116997.691557652,
+        "local_request_index": 96,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC1_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.691564614,
+        "wall": 116997.691685085,
+        "local_request_index": 97,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC1_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.691693103,
+        "wall": 116997.691812097,
+        "local_request_index": 98,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC1_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.691819397,
+        "wall": 116997.691977466,
+        "local_request_index": 99,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC1_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.691985399,
+        "wall": 116997.693547855,
+        "local_request_index": 100,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC1_TRIM": {
+        "value": 1499.0,
+        "type": 9,
+        "request_wall": 116997.693568574,
+        "wall": 116997.693975011,
+        "local_request_index": 101,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0060bb44"
+      },
+      "RC2_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.693986109,
+        "wall": 116997.694236673,
+        "local_request_index": 102,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC2_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.694248572,
+        "wall": 116997.694423224,
+        "local_request_index": 103,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC2_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.69443276,
+        "wall": 116997.694566777,
+        "local_request_index": 104,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC2_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.694574541,
+        "wall": 116997.69472552,
+        "local_request_index": 105,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC2_TRIM": {
+        "value": 1500.0,
+        "type": 9,
+        "request_wall": 116997.694735732,
+        "wall": 116997.694915068,
+        "local_request_index": 106,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0080bb44"
+      },
+      "RC3_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.694925237,
+        "wall": 116997.695099425,
+        "local_request_index": 107,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC3_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.695109467,
+        "wall": 116997.695336612,
+        "local_request_index": 108,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC3_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.695347583,
+        "wall": 116997.695552616,
+        "local_request_index": 109,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC3_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.695560127,
+        "wall": 116997.695721571,
+        "local_request_index": 110,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC3_TRIM": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.695728872,
+        "wall": 116997.695901751,
+        "local_request_index": 111,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC4_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.695908629,
+        "wall": 116997.696151006,
+        "local_request_index": 112,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC4_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.696159361,
+        "wall": 116997.696334731,
+        "local_request_index": 113,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC4_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.696342115,
+        "wall": 116997.696556305,
+        "local_request_index": 114,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC4_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.696564744,
+        "wall": 116997.697351627,
+        "local_request_index": 115,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC4_TRIM": {
+        "value": 1497.0,
+        "type": 9,
+        "request_wall": 116997.697368083,
+        "wall": 116997.697745828,
+        "local_request_index": 116,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0020bb44"
+      },
+      "RC5_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.697755744,
+        "wall": 116997.697975166,
+        "local_request_index": 117,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC5_MAX": {
+        "value": 1988.0,
+        "type": 9,
+        "request_wall": 116997.697984365,
+        "wall": 116997.698170621,
+        "local_request_index": 118,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0080f844"
+      },
+      "RC5_MIN": {
+        "value": 1011.0,
+        "type": 9,
+        "request_wall": 116997.698178174,
+        "wall": 116997.698366202,
+        "local_request_index": 119,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00c07c44"
+      },
+      "RC5_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.698373798,
+        "wall": 116997.698548154,
+        "local_request_index": 120,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC5_TRIM": {
+        "value": 1499.0,
+        "type": 9,
+        "request_wall": 116997.698557142,
+        "wall": 116997.698738756,
+        "local_request_index": 121,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0060bb44"
+      },
+      "RC6_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.698747069,
+        "wall": 116997.698935477,
+        "local_request_index": 122,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC6_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.698942313,
+        "wall": 116997.699101225,
+        "local_request_index": 123,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC6_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.699109369,
+        "wall": 116997.699297313,
+        "local_request_index": 124,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC6_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.699306849,
+        "wall": 116997.699475847,
+        "local_request_index": 125,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC6_TRIM": {
+        "value": 1499.0,
+        "type": 9,
+        "request_wall": 116997.699483611,
+        "wall": 116997.699663368,
+        "local_request_index": 126,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0060bb44"
+      },
+      "RC7_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.699671386,
+        "wall": 116997.699900049,
+        "local_request_index": 127,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC7_MAX": {
+        "value": 2000.0,
+        "type": 9,
+        "request_wall": 116997.699931528,
+        "wall": 116997.700220701,
+        "local_request_index": 128,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000fa44"
+      },
+      "RC7_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.700229942,
+        "wall": 116997.700482151,
+        "local_request_index": 129,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC7_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.700492194,
+        "wall": 116997.7006917,
+        "local_request_index": 130,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC7_TRIM": {
+        "value": 1500.0,
+        "type": 9,
+        "request_wall": 116997.700699548,
+        "wall": 116997.704698817,
+        "local_request_index": 131,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0080bb44"
+      },
+      "RC8_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.704738271,
+        "wall": 116997.705545745,
+        "local_request_index": 132,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC8_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.70556254,
+        "wall": 116997.705823019,
+        "local_request_index": 133,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC8_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.705831374,
+        "wall": 116997.705990751,
+        "local_request_index": 134,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC8_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.705998473,
+        "wall": 116997.706154347,
+        "local_request_index": 135,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC8_TRIM": {
+        "value": 1499.0,
+        "type": 9,
+        "request_wall": 116997.706165571,
+        "wall": 116997.706297267,
+        "local_request_index": 136,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0060bb44"
+      },
+      "RC_ARMSWITCH_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.706305031,
+        "wall": 116997.706456939,
+        "local_request_index": 137,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_FAILS_THR": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.706464112,
+        "wall": 116997.706580786,
+        "local_request_index": 138,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_KILLSWITCH_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.706588086,
+        "wall": 116997.706724466,
+        "local_request_index": 139,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_LOITER_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.706731892,
+        "wall": 116997.706975409,
+        "local_request_index": 140,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_MAP_ARM_SW": {
+        "value": 5,
+        "type": 6,
+        "request_wall": 116997.706987055,
+        "wall": 116997.708086825,
+        "local_request_index": 141,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "05000000"
+      },
+      "RC_MAP_FLTMODE": {
+        "value": 6,
+        "type": 6,
+        "request_wall": 116997.708130372,
+        "wall": 116997.715494104,
+        "local_request_index": 142,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "06000000"
+      },
+      "RC_MAP_KILL_SW": {
+        "value": 8,
+        "type": 6,
+        "request_wall": 116997.715514738,
+        "wall": 116997.717394935,
+        "local_request_index": 143,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "08000000"
+      },
+      "RC_MAP_LOITER_SW": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.717420168,
+        "wall": 116997.717672631,
+        "local_request_index": 144,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_MAP_MODE_SW": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.717682547,
+        "wall": 116997.717893445,
+        "local_request_index": 145,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_MAP_OFFB_SW": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.717904585,
+        "wall": 116997.718094892,
+        "local_request_index": 146,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_MAP_PITCH": {
+        "value": 2,
+        "type": 6,
+        "request_wall": 116997.718104851,
+        "wall": 116997.718329505,
+        "local_request_index": 147,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "02000000"
+      },
+      "RC_MAP_RETURN_SW": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.718340139,
+        "wall": 116997.718503862,
+        "local_request_index": 148,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_MAP_ROLL": {
+        "value": 1,
+        "type": 6,
+        "request_wall": 116997.718511246,
+        "wall": 116997.718665222,
+        "local_request_index": 149,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "01000000"
+      },
+      "RC_MAP_THROTTLE": {
+        "value": 3,
+        "type": 6,
+        "request_wall": 116997.718673619,
+        "wall": 116997.718818986,
+        "local_request_index": 150,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "03000000"
+      },
+      "RC_MAP_YAW": {
+        "value": 4,
+        "type": 6,
+        "request_wall": 116997.718825822,
+        "wall": 116997.718972329,
+        "local_request_index": 151,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "04000000"
+      },
+      "RC_OFFB_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.718979291,
+        "wall": 116997.719174113,
+        "local_request_index": 152,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_RETURN_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.719181666,
+        "wall": 116997.71934003,
+        "local_request_index": 153,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_CHAN_CNT": {
+        "value": 16,
+        "type": 6,
+        "request_wall": 116997.719347752,
+        "wall": 116997.719473287,
+        "local_request_index": 154,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "10000000"
+      }
+    },
+    {
+      "COM_FLTMODE1": {
+        "value": 8,
+        "type": 6,
+        "request_wall": 116997.719483372,
+        "wall": 116997.719651019,
+        "local_request_index": 155,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "08000000"
+      },
+      "COM_FLTMODE2": {
+        "value": 8,
+        "type": 6,
+        "request_wall": 116997.719661399,
+        "wall": 116997.720670953,
+        "local_request_index": 156,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "08000000"
+      },
+      "COM_FLTMODE3": {
+        "value": 1,
+        "type": 6,
+        "request_wall": 116997.72068568,
+        "wall": 116997.721039077,
+        "local_request_index": 157,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "01000000"
+      },
+      "COM_FLTMODE4": {
+        "value": 1,
+        "type": 6,
+        "request_wall": 116997.721051018,
+        "wall": 116997.721387241,
+        "local_request_index": 158,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "01000000"
+      },
+      "COM_FLTMODE5": {
+        "value": 2,
+        "type": 6,
+        "request_wall": 116997.721397115,
+        "wall": 116997.721776758,
+        "local_request_index": 159,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "02000000"
+      },
+      "COM_FLTMODE6": {
+        "value": 2,
+        "type": 6,
+        "request_wall": 116997.721788488,
+        "wall": 116997.722098127,
+        "local_request_index": 160,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "02000000"
+      },
+      "COM_RCL_EXCEPT": {
+        "value": 4,
+        "type": 6,
+        "request_wall": 116997.722121378,
+        "wall": 116997.72235502,
+        "local_request_index": 161,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "04000000"
+      },
+      "COM_RC_IN_MODE": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.722363713,
+        "wall": 116997.722576595,
+        "local_request_index": 162,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "MAN_ARM_GESTURE": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.722585203,
+        "wall": 116997.722803317,
+        "local_request_index": 163,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "NAV_RCL_ACT": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.722811419,
+        "wall": 116997.723103715,
+        "local_request_index": 164,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC1_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.723169837,
+        "wall": 116997.723507747,
+        "local_request_index": 165,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC1_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.7235199,
+        "wall": 116997.723693412,
+        "local_request_index": 166,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC1_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.72370181,
+        "wall": 116997.723868571,
+        "local_request_index": 167,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC1_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.723876883,
+        "wall": 116997.724044235,
+        "local_request_index": 168,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC1_TRIM": {
+        "value": 1499.0,
+        "type": 9,
+        "request_wall": 116997.724051915,
+        "wall": 116997.724343789,
+        "local_request_index": 169,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0060bb44"
+      },
+      "RC2_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.724359106,
+        "wall": 116997.72453802,
+        "local_request_index": 170,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC2_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.724545826,
+        "wall": 116997.724809808,
+        "local_request_index": 171,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC2_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.724822552,
+        "wall": 116997.725092821,
+        "local_request_index": 172,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC2_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.725102189,
+        "wall": 116997.725386847,
+        "local_request_index": 173,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC2_TRIM": {
+        "value": 1500.0,
+        "type": 9,
+        "request_wall": 116997.72539862,
+        "wall": 116997.725606143,
+        "local_request_index": 174,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0080bb44"
+      },
+      "RC3_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.725615806,
+        "wall": 116997.7258562,
+        "local_request_index": 175,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC3_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.725865694,
+        "wall": 116997.726170312,
+        "local_request_index": 176,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC3_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.72618276,
+        "wall": 116997.726574851,
+        "local_request_index": 177,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC3_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.726590927,
+        "wall": 116997.727725679,
+        "local_request_index": 178,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC3_TRIM": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.727741292,
+        "wall": 116997.728095026,
+        "local_request_index": 179,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC4_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.728107305,
+        "wall": 116997.728311283,
+        "local_request_index": 180,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC4_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.728320735,
+        "wall": 116997.72852695,
+        "local_request_index": 181,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC4_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.728537415,
+        "wall": 116997.728687508,
+        "local_request_index": 182,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC4_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.728695357,
+        "wall": 116997.728854058,
+        "local_request_index": 183,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC4_TRIM": {
+        "value": 1497.0,
+        "type": 9,
+        "request_wall": 116997.728864312,
+        "wall": 116997.729256614,
+        "local_request_index": 184,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0020bb44"
+      },
+      "RC5_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.729270117,
+        "wall": 116997.72942654,
+        "local_request_index": 185,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC5_MAX": {
+        "value": 1988.0,
+        "type": 9,
+        "request_wall": 116997.729433882,
+        "wall": 116997.729553763,
+        "local_request_index": 186,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0080f844"
+      },
+      "RC5_MIN": {
+        "value": 1011.0,
+        "type": 9,
+        "request_wall": 116997.729560472,
+        "wall": 116997.729675584,
+        "local_request_index": 187,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00c07c44"
+      },
+      "RC5_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.729683264,
+        "wall": 116997.729815171,
+        "local_request_index": 188,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC5_TRIM": {
+        "value": 1499.0,
+        "type": 9,
+        "request_wall": 116997.729823484,
+        "wall": 116997.729932351,
+        "local_request_index": 189,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0060bb44"
+      },
+      "RC6_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.729939018,
+        "wall": 116997.730097719,
+        "local_request_index": 190,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC6_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.730105568,
+        "wall": 116997.730374571,
+        "local_request_index": 191,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC6_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.730426853,
+        "wall": 116997.730658133,
+        "local_request_index": 192,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC6_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.730667205,
+        "wall": 116997.730830295,
+        "local_request_index": 193,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC6_TRIM": {
+        "value": 1499.0,
+        "type": 9,
+        "request_wall": 116997.730839409,
+        "wall": 116997.730974396,
+        "local_request_index": 194,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0060bb44"
+      },
+      "RC7_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.730981105,
+        "wall": 116997.731138246,
+        "local_request_index": 195,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC7_MAX": {
+        "value": 2000.0,
+        "type": 9,
+        "request_wall": 116997.731146052,
+        "wall": 116997.731276651,
+        "local_request_index": 196,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000fa44"
+      },
+      "RC7_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.731284499,
+        "wall": 116997.731418811,
+        "local_request_index": 197,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC7_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.731427419,
+        "wall": 116997.731549114,
+        "local_request_index": 198,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC7_TRIM": {
+        "value": 1500.0,
+        "type": 9,
+        "request_wall": 116997.731556583,
+        "wall": 116997.731666463,
+        "local_request_index": 199,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0080bb44"
+      },
+      "RC8_DZ": {
+        "value": 10.0,
+        "type": 9,
+        "request_wall": 116997.731673299,
+        "wall": 116997.73177917,
+        "local_request_index": 200,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00002041"
+      },
+      "RC8_MAX": {
+        "value": 1999.0,
+        "type": 9,
+        "request_wall": 116997.731785668,
+        "wall": 116997.731891624,
+        "local_request_index": 201,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00e0f944"
+      },
+      "RC8_MIN": {
+        "value": 1000.0,
+        "type": 9,
+        "request_wall": 116997.731898249,
+        "wall": 116997.732004162,
+        "local_request_index": 202,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00007a44"
+      },
+      "RC8_REV": {
+        "value": 1.0,
+        "type": 9,
+        "request_wall": 116997.732010703,
+        "wall": 116997.732151893,
+        "local_request_index": 203,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000803f"
+      },
+      "RC8_TRIM": {
+        "value": 1499.0,
+        "type": 9,
+        "request_wall": 116997.732159404,
+        "wall": 116997.732280719,
+        "local_request_index": 204,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0060bb44"
+      },
+      "RC_ARMSWITCH_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.732288525,
+        "wall": 116997.732417478,
+        "local_request_index": 205,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_FAILS_THR": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.732447902,
+        "wall": 116997.732584872,
+        "local_request_index": 206,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_KILLSWITCH_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.732592847,
+        "wall": 116997.732705766,
+        "local_request_index": 207,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_LOITER_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.732713488,
+        "wall": 116997.732851513,
+        "local_request_index": 208,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_MAP_ARM_SW": {
+        "value": 5,
+        "type": 6,
+        "request_wall": 116997.73286126,
+        "wall": 116997.733043381,
+        "local_request_index": 209,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "05000000"
+      },
+      "RC_MAP_FLTMODE": {
+        "value": 6,
+        "type": 6,
+        "request_wall": 116997.733055322,
+        "wall": 116997.733178747,
+        "local_request_index": 210,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "06000000"
+      },
+      "RC_MAP_KILL_SW": {
+        "value": 8,
+        "type": 6,
+        "request_wall": 116997.733186258,
+        "wall": 116997.733327364,
+        "local_request_index": 211,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "08000000"
+      },
+      "RC_MAP_LOITER_SW": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.733335845,
+        "wall": 116997.7334802,
+        "local_request_index": 212,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_MAP_MODE_SW": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.733488471,
+        "wall": 116997.733619449,
+        "local_request_index": 213,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_MAP_OFFB_SW": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.733627086,
+        "wall": 116997.733783256,
+        "local_request_index": 214,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_MAP_PITCH": {
+        "value": 2,
+        "type": 6,
+        "request_wall": 116997.733791484,
+        "wall": 116997.733928201,
+        "local_request_index": 215,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "02000000"
+      },
+      "RC_MAP_RETURN_SW": {
+        "value": 0,
+        "type": 6,
+        "request_wall": 116997.733940776,
+        "wall": 116997.734146527,
+        "local_request_index": 216,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "00000000"
+      },
+      "RC_MAP_ROLL": {
+        "value": 1,
+        "type": 6,
+        "request_wall": 116997.734155177,
+        "wall": 116997.734317296,
+        "local_request_index": 217,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "01000000"
+      },
+      "RC_MAP_THROTTLE": {
+        "value": 3,
+        "type": 6,
+        "request_wall": 116997.734335483,
+        "wall": 116997.73446355,
+        "local_request_index": 218,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "03000000"
+      },
+      "RC_MAP_YAW": {
+        "value": 4,
+        "type": 6,
+        "request_wall": 116997.734470639,
+        "wall": 116997.734593136,
+        "local_request_index": 219,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "04000000"
+      },
+      "RC_OFFB_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.73459955,
+        "wall": 116997.734715464,
+        "local_request_index": 220,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_RETURN_TH": {
+        "value": 0.75,
+        "type": 9,
+        "request_wall": 116997.734723228,
+        "wall": 116997.7348464,
+        "local_request_index": 221,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "0000403f"
+      },
+      "RC_CHAN_CNT": {
+        "value": 16,
+        "type": 6,
+        "request_wall": 116997.734853278,
+        "wall": 116997.737647285,
+        "local_request_index": 222,
+        "source_system": 1,
+        "source_component": 1,
+        "wire_float_bits": "10000000"
+      }
+    }
+  ],
+  "setup_only": true,
+  "rc_enabled": false,
+  "completed_wall": 116997.737659775,
+  "health_received": 117069.337138222,
+  "channels_received": 117069.286993983
+}

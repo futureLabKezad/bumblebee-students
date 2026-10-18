@@ -1,0 +1,7 @@
+Xlib:  extension "DPMS" missing on display ":1".
+
+The VNC desktop is:      localhost:0
+PORT=5900
+caught signal: 15
+extra[1] signal: -1
+X connection to :1 broken (explicit kill or server shutdown).

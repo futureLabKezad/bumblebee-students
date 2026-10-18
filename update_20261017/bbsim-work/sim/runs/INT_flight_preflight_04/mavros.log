@@ -1,0 +1,1042 @@
+[WARN] [1792255564.072621688] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1792255564.072959983] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[INFO] [1792255564.124143651] [mavros_node]: Starting mavros_node container
+[INFO] [1792255564.124471681] [mavros_node]: FCU URL: udp://127.0.0.1:14640@127.0.0.1:14680
+[INFO] [1792255564.124664608] [mavros_node]: GCS URL: 
+[INFO] [1792255564.124867029] [mavros_node]: UAS Prefix: /uas1
+[INFO] [1792255564.125053797] [mavros_node]: Starting mavros router node
+[INFO] [1792255564.176701113] [mavros_router]: Built-in SIMD instructions: ARM NEON
+[INFO] [1792255564.177053051] [mavros_router]: Built-in MAVLink package version: 2026.9.9
+[INFO] [1792255564.177279936] [mavros_router]: Known MAVLink dialects: common ardupilotmega ASLUAV AVSSUAS all csAirLink cubepilot development icarous loweheiser marsh paparazzi standard stemstudios storm32 uAvionix
+[INFO] [1792255564.177558227] [mavros_router]: MAVROS Router started
+[INFO] [1792255564.177934415] [mavros_node]: Starting mavros uas node
+[INFO] [1792255564.329478443] [mavros_router]: Requested to add endpoint: type: 0, url: udp://127.0.0.1:14640@127.0.0.1:14680
+[INFO] [1792255564.330911770] [mavros_router]: Endpoint link[1000] created
+[INFO] [1792255564.335261493] [mavros_router]: link[1000] opened successfully
+[INFO] [1792255564.337417087] [mavros_router]: Requested to add endpoint: type: 2, url: /uas1
+[INFO] [1792255564.339803116] [mavros_router]: Endpoint link[1001] created
+[INFO] [1792255564.338634522] [mavros]: Plugin actuator_control ignored
+[INFO] [1792255564.350302967] [mavros]: Plugin adsb ignored
+[INFO] [1792255564.350881918] [mavros]: Plugin altitude ignored
+[INFO] [1792255564.351088017] [mavros]: Plugin cam_imu_sync ignored
+[INFO] [1792255564.352243267] [mavros]: Plugin camera ignored
+[INFO] [1792255564.352911304] [mavros]: Plugin cellular_status ignored
+[INFO] [1792255564.338846737] [mavros]: UAS Executor started, threads: 6
+[INFO] [1792255564.347332855] [mavros_router]: link[1000] detected remote address 1.1
+[INFO] [1792255564.801240277] [mavros_router]: link[1001] opened successfully
+[INFO] [1792255564.861030028] [mavros]: Plugin command created
+[INFO] [1792255564.863007023] [mavros]: Plugin command initialized
+[INFO] [1792255564.863240964] [mavros]: Plugin companion_process_status ignored
+[INFO] [1792255564.863467934] [mavros]: Plugin debug_value ignored
+[INFO] [1792255564.863647132] [mavros]: Plugin distance_sensor ignored
+[INFO] [1792255564.863809650] [mavros]: Plugin esc_status ignored
+[INFO] [1792255564.863994408] [mavros]: Plugin esc_telemetry ignored
+[INFO] [1792255564.864145935] [mavros]: Plugin fake_gps ignored
+[INFO] [1792255564.864322311] [mavros]: Plugin ftp ignored
+[INFO] [1792255564.865241738] [mavros]: Plugin geofence ignored
+[INFO] [1792255564.865915249] [mavros]: Plugin gimbal_control ignored
+[INFO] [1792255564.866081232] [mavros]: Plugin global_position ignored
+[INFO] [1792255564.866859482] [mavros]: Plugin gps_input ignored
+[INFO] [1792255564.867651802] [mavros]: Plugin gps_rtk ignored
+[INFO] [1792255564.868178063] [mavros]: Plugin gps_status ignored
+[INFO] [1792255564.868420686] [mavros]: Plugin guided_target ignored
+[INFO] [1792255564.868648126] [mavros]: Plugin hil ignored
+[INFO] [1792255564.868806796] [mavros]: Plugin home_position ignored
+[INFO] [1792255564.921718591] [mavros]: Plugin imu created
+[INFO] [1792255564.922821236] [mavros]: Plugin imu initialized
+[INFO] [1792255564.925433764] [mavros]: Plugin landing_target ignored
+[INFO] [1792255564.963703625] [mavros]: Plugin local_position created
+[INFO] [1792255564.964325986] [mavros]: Plugin local_position initialized
+[INFO] [1792255564.964647259] [mavros]: Plugin log_transfer ignored
+[INFO] [1792255564.964838860] [mavros]: Plugin mag_calibration_status ignored
+[INFO] [1792255564.989546465] [mavros]: Plugin manual_control created
+[INFO] [1792255564.990171904] [mavros]: Plugin manual_control initialized
+[INFO] [1792255564.990759794] [mavros]: Plugin mocap_pose_estimate ignored
+[INFO] [1792255564.995585567] [mavros]: Plugin mount_control ignored
+[INFO] [1792255564.995738206] [mavros]: Plugin nav_controller_output ignored
+[INFO] [1792255564.995861592] [mavros]: Plugin obstacle_distance ignored
+[INFO] [1792255564.995995670] [mavros]: Plugin obstacle_distance_3d ignored
+[INFO] [1792255564.996150618] [mavros]: Plugin odometry ignored
+[INFO] [1792255564.996270968] [mavros]: Plugin onboard_computer_status ignored
+[INFO] [1792255564.996409322] [mavros]: Plugin open_drone_id ignored
+[INFO] [1792255564.996536001] [mavros]: Plugin optical_flow ignored
+[INFO] [1792255565.022970651] [mavros]: Plugin param created
+[INFO] [1792255565.027182063] [mavros]: Plugin param initialized
+[INFO] [1792255565.516533678] [mavros]: Plugin play_tune created
+[INFO] [1792255565.519898570] [mavros]: Plugin play_tune initialized
+[INFO] [1792255565.520131517] [mavros]: Plugin px4flow ignored
+[INFO] [1792255565.521115614] [mavros]: Plugin rallypoint ignored
+[INFO] [1792255565.521397801] [mavros]: Plugin rangefinder ignored
+[INFO] [1792255565.612339244] [mavros]: Plugin rc_io created
+[INFO] [1792255565.614401060] [mavros]: Plugin rc_io initialized
+[INFO] [1792255565.614616740] [mavros]: Plugin setpoint_accel ignored
+[INFO] [1792255565.665305161] [mavros]: Plugin setpoint_attitude created
+[INFO] [1792255565.665604274] [mavros]: Plugin setpoint_attitude initialized
+[INFO] [1792255565.687598919] [mavros]: Plugin setpoint_position created
+[INFO] [1792255565.687979503] [mavros]: Plugin setpoint_position initialized
+[INFO] [1792255565.688322315] [mavros]: Plugin setpoint_raw ignored
+[INFO] [1792255565.688483211] [mavros]: Plugin setpoint_trajectory ignored
+[INFO] [1792255565.714838186] [mavros]: Plugin setpoint_velocity created
+[INFO] [1792255565.715283956] [mavros]: Plugin setpoint_velocity initialized
+[INFO] [1792255565.715537793] [mavros]: Plugin sim_state ignored
+[INFO] [1792255565.760799207] [mavros]: Plugin sys_status created
+[INFO] [1792255565.762149990] [mavros]: Plugin sys_status initialized
+[INFO] [1792255565.762412055] [mavros]: Plugin sys_time ignored
+[INFO] [1792255565.762701746] [mavros]: Plugin tdr_radio ignored
+[INFO] [1792255565.762950936] [mavros]: Plugin terrain ignored
+[INFO] [1792255565.763266676] [mavros]: Plugin trajectory ignored
+[INFO] [1792255565.763529934] [mavros]: Plugin tunnel ignored
+[INFO] [1792255565.763743440] [mavros]: Plugin vfr_hud ignored
+[INFO] [1792255565.763937676] [mavros]: Plugin vibration ignored
+[INFO] [1792255565.795913039] [mavros]: Plugin vision_pose created
+[INFO] [1792255565.796158093] [mavros]: Plugin vision_pose initialized
+[INFO] [1792255565.796460276] [mavros]: Plugin vision_speed ignored
+[INFO] [1792255565.796748347] [mavros]: Plugin waypoint ignored
+[INFO] [1792255565.796959636] [mavros]: Plugin wheel_odometry ignored
+[INFO] [1792255565.797123090] [mavros]: Plugin wind_estimation ignored
+[INFO] [1792255565.799998343] [mavros]: Built-in SIMD instructions: ARM NEON
+[INFO] [1792255565.800326659] [mavros]: Built-in MAVLink package version: 2026.9.9
+[INFO] [1792255565.800751369] [mavros]: Known MAVLink dialects: common ardupilotmega ASLUAV AVSSUAS all csAirLink cubepilot development icarous loweheiser marsh paparazzi standard stemstudios storm32 uAvionix
+[INFO] [1792255565.801233761] [mavros]: MAVROS UAS via /uas1 started. MY ID 1.191, TARGET ID 1.1
+[INFO] [1792255565.810506516] [mavros.imu]: IMU: Attitude quaternion IMU detected!
+[INFO] [1792255565.850220018] [mavros.imu]: IMU: High resolution IMU detected!
+[INFO] [1792255566.739099394] [mavros_router]: link[1001] detected remote address 1.191
+[INFO] [1792255566.824970240] [mavros.sys]: VER: 1.1: Capabilities         0x000000000000e8ff
+[INFO] [1792255566.825622289] [mavros.sys]: VER: 1.1: Flight software:     011001ff (94cb201279000000)
+[INFO] [1792255566.825810459] [mavros.sys]: VER: 1.1: Middleware software: 011001ff (94cb201279000000)
+[INFO] [1792255566.825979881] [mavros.sys]: VER: 1.1: OS software:         060800ff (886acbbdb4f061e5)
+[INFO] [1792255566.826153043] [mavros.sys]: VER: 1.1: Board hardware:      00000001
+[INFO] [1792255566.826484999] [mavros.sys]: VER: 1.1: VID/PID:             0000:0000
+[INFO] [1792255566.826655015] [mavros.sys]: VER: 1.1: UID:                 4954414c44494e4f
+[WARN] [1792255566.828794699] [mavros.cmd]: CMD: Unexpected command 520, result 0
+[INFO] [1792255567.919850167] [mavros]: CON: Got HEARTBEAT, connected. FCU: PX4 Autopilot
+[INFO] [1792255567.923572783] [mavros.imu]: IMU: High resolution IMU detected!
+[INFO] [1792255567.939664548] [mavros.imu]: IMU: Attitude quaternion IMU detected!
+[INFO] [1792255568.935872141] [mavros.sys]: VER: 1.1: Capabilities         0x000000000000e8ff
+[INFO] [1792255568.936692828] [mavros.sys]: VER: 1.1: Flight software:     011001ff (94cb201279000000)
+[INFO] [1792255568.938799816] [mavros.sys]: VER: 1.1: Middleware software: 011001ff (94cb201279000000)
+[INFO] [1792255568.939084297] [mavros.sys]: VER: 1.1: OS software:         060800ff (886acbbdb4f061e5)
+[INFO] [1792255568.939281089] [mavros.sys]: VER: 1.1: Board hardware:      00000001
+[INFO] [1792255568.939473818] [mavros.sys]: VER: 1.1: VID/PID:             0000:0000
+[INFO] [1792255568.939683264] [mavros.sys]: VER: 1.1: UID:                 4954414c44494e4f
+[INFO] [1792255576.749810366] [mavros_router]: link[1001] detected remote address 245.190
+[WARN] [1792255578.755154575] [mavros.mavros]: PR: request list timeout, retries left 2
+[WARN] [1792255579.758213673] [mavros.mavros]: PR: request list timeout, retries left 1
+[WARN] [1792255580.761027263] [mavros.mavros]: PR: request list timeout, retries left 0
+[WARN] [1792255592.084529320] [mavros.cmd]: CMD: Unexpected command 512, result 0
+[ERROR] [1792255596.508787452] [mavros.sys]: FCU: Manual speed has been constrained by max speed	
+[WARN] [1792255596.563587321] [mavros.sys]: FCU: EVENT 14153224 with args -205-204-204-62-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255602.715947685] [mavros.sys]: FCU: Ascent speed has been constrained by max speed	
+[WARN] [1792255602.721560990] [mavros.sys]: FCU: EVENT 5814991 with args -0-0-0-63-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255604.782967861] [mavros.sys]: FCU: Descent speed has been constrained by max speed	
+[WARN] [1792255604.792007268] [mavros.sys]: FCU: EVENT 14080694 with args -0-0-0-63-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255608.570834574] [mavros.rc]: RC_CHANNELS message detected!
+[WARN] [1792255609.356393767] [mavros.sys]: FCU: UNK(8): EVENT 11047904 with args -0-0-0-16-1-128-0-0-0-128-59-127-128-128-59-127-128-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255609.357478939] [mavros.sys]: FCU: EVENT 10011251 with args -56-0-0-0-24-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255609.358227860] [mavros.sys]: FCU: EVENT 377561 with args -8-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255609.359256033] [mavros.sys]: FCU: EVENT 3087815 with args -0-64-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255609.362072192] [mavros.sys]: FCU: EVENT 79408 with args -32-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[WARN] [1792255609.362481570] [mavros.sys]: FCU: EVENT 453929 with args -255-255-255-255-7-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[WARN] [1792255609.363031924] [mavros.sys]: FCU: UNK(8): EVENT 1914663 with args -0-130-21-2-56-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255609.442519867] [mavros.mavros]: PR: request param #0 completely missing.
+[WARN] [1792255609.444004030] [mavros.mavros]: PR: 990 params still missing, trying to request next: #1
+[WARN] [1792255610.447568956] [mavros.mavros]: PR: request param #1 timeout, retries left 2, and 990 params still missing
+[WARN] [1792255611.448619202] [mavros.mavros]: PR: request param #1 timeout, retries left 1, and 990 params still missing
+[WARN] [1792255612.449993389] [mavros.mavros]: PR: request param #1 timeout, retries left 0, and 990 params still missing
+[ERROR] [1792255613.286195629] [mavros.mavros]: PR: request param #1 completely missing.
+[WARN] [1792255613.289913185] [mavros.mavros]: PR: 989 params still missing, trying to request next: #2
+[WARN] [1792255614.290447648] [mavros.mavros]: PR: request param #2 timeout, retries left 2, and 989 params still missing
+[WARN] [1792255615.209549465] [mavros.sys]: FCU: UNK(8): EVENT 11047904 with args -0-0-0-18-1-0-0-0-0-129-47-1-128-131-191-1-128-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255615.216356687] [mavros.sys]: FCU: EVENT 16642797 with args -126-208-126-0-17-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255615.221500763] [mavros.sys]: FCU: EVENT 13835193 with args -124-0-126-0-17-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255615.222160041] [mavros.sys]: FCU: EVENT 10011251 with args -56-0-0-0-24-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255615.223366291] [mavros.sys]: FCU: EVENT 377561 with args -8-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255615.224012452] [mavros.sys]: FCU: EVENT 3087815 with args -0-64-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255615.224777138] [mavros.sys]: FCU: EVENT 79408 with args -32-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[WARN] [1792255615.226764727] [mavros.sys]: FCU: UNK(8): EVENT 1914663 with args -0-130-21-2-56-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255615.227391169] [mavros.sys]: FCU: Preflight Fail: heading estimate not stable
+[WARN] [1792255615.292828566] [mavros.mavros]: PR: request param #2 timeout, retries left 1, and 989 params still missing
+[WARN] [1792255616.305690352] [mavros.mavros]: PR: request param #2 timeout, retries left 0, and 989 params still missing
+[ERROR] [1792255617.308786319] [mavros.mavros]: PR: request param #2 completely missing.
+[WARN] [1792255617.311537355] [mavros.mavros]: PR: 988 params still missing, trying to request next: #3
+[WARN] [1792255618.311923476] [mavros.mavros]: PR: request param #3 timeout, retries left 2, and 988 params still missing
+[WARN] [1792255619.314659941] [mavros.mavros]: PR: request param #3 timeout, retries left 1, and 988 params still missing
+[WARN] [1792255620.315601560] [mavros.mavros]: PR: request param #3 timeout, retries left 0, and 988 params still missing
+[WARN] [1792255620.977534093] [mavros.sys]: FCU: UNK(8): EVENT 11047904 with args -0-0-0-16-1-0-0-0-0-199-191-127-128-199-191-127-128-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255620.979383673] [mavros.sys]: FCU: EVENT 10011251 with args -56-0-0-0-24-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255620.983726716] [mavros.sys]: FCU: EVENT 377561 with args -8-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255620.987373695] [mavros.sys]: FCU: EVENT 3087815 with args -0-64-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255620.989268503] [mavros.sys]: FCU: EVENT 79408 with args -32-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[WARN] [1792255620.992613983] [mavros.sys]: FCU: UNK(8): EVENT 1914663 with args -0-130-21-2-56-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255621.063684674] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255621.079385495] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255621.088153703] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255621.118167610] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255621.122284934] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255621.139853719] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255621.148081506] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255621.179188797] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255621.198409613] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255621.204706804] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255621.212507777] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255621.235449325] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255621.244325752] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255621.274943891] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255621.288921334] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255621.318032239] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255621.353588078] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255621.373210873] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255621.390512120] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255621.442077904] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255621.492453071] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255621.503230335] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255621.509396030] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255621.526744252] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255621.541314436] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255621.557620921] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255621.586285355] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255621.607920406] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255621.677069243] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255621.683444010] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[WARN] [1792255621.702672612] [mavros.cmd]: CMD: Unexpected command 512, result 0
+[INFO] [1792255621.719953066] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255621.733731119] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255621.756861703] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255621.770436367] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255621.806838173] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255621.823887962] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255621.828762691] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255621.834662574] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255621.842952742] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255621.895157063] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255621.903168455] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255621.915577589] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255621.933662844] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255621.941710855] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255621.947119860] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255621.959941328] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255621.996440409] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255622.002697292] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255622.006485823] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255622.017137172] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255622.027608373] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255622.037923432] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255622.047412543] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255622.050692918] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255622.056112450] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255622.062593111] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255622.079986956] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255622.144449326] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255622.354723557] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255622.402999263] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255622.420848334] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255622.426978746] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255622.433830676] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255622.440987449] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255622.444590282] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255622.450666545] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255622.338243794] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255622.350290273] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255622.363095172] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255622.370376686] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255622.379986613] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255622.417625340] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255622.419894474] [mavros.sys]: FCU: EVENT 5623108 with args -0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255622.473200072] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255622.492316667] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255622.517472864] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255622.545055023] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255622.594696873] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255622.631059587] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255622.698102467] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255622.728053310] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255622.750483811] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255622.759315475] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255622.768141636] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255622.775667272] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255622.783242391] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255622.800156552] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255622.822075839] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255622.827950692] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255622.842571040] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255622.848958399] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255622.864163915] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255622.873262378] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255622.892194298] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255622.898004993] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255622.919519120] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255622.926250442] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255622.944017905] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255623.160473140] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255623.170823382] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255623.175893036] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255623.181062289] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255623.216321356] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255623.226732852] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255623.241122629] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255623.249484547] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255623.274518289] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255623.294195574] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255623.297998771] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255623.304711785] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255623.314535146] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255623.330805221] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255623.339473201] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255623.356638591] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255623.364221945] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255623.390295951] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255623.449555201] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255623.478224710] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255623.505709263] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255623.543857641] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255623.550008053] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255623.617050542] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255623.622573141] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255623.636190242] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255623.642146184] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255623.662514771] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255623.680086940] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255623.684251220] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255623.696152960] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255623.707038766] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255623.768111170] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255623.772680380] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255623.786681906] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255623.790349009] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255623.803147095] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255623.808428198] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255623.844511523] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255623.863281328] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255623.870860684] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255623.876420552] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255624.027054715] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255624.047008120] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255624.051714883] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255624.054050878] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255624.056011694] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255624.079991863] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255624.134708982] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255624.148965836] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255624.229011988] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255624.242900216] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255624.260001598] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255624.262136236] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255624.269806492] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255624.303597549] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255624.312843934] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255624.318686513] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255624.327668376] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255624.350743977] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255624.357890241] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255624.368497781] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255624.374545956] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255624.388920363] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255624.404243958] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255624.410589460] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255624.456514639] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255624.463341609] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255624.488349120] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255624.515921392] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255624.524198332] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255624.540999392] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255624.552880083] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255624.567549630] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255624.596599323] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255624.619777959] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255624.737368074] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255624.842279562] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255624.864437107] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255624.899620409] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255624.904575550] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255624.917569874] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255624.933964535] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255624.940237451] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255624.987028870] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255625.098917684] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255625.152219859] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255625.176115667] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255625.195607060] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255625.204932299] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255625.207430846] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255625.216668075] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255625.240096348] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255625.265427971] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255625.291372249] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255625.301599950] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255625.309870693] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255625.322270854] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255625.360796305] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255625.403479642] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255625.410402452] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255625.434272311] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255625.443446370] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255625.452064287] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255625.470067922] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255625.540212233] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255625.555449833] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255625.567291290] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255625.575115923] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255625.608380975] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255625.626185457] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255625.637204052] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255625.645276837] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255625.648109796] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255625.655296081] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255625.674441495] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255625.688839247] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255625.703867196] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255625.725537834] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255625.734869901] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255625.759160517] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255625.775645279] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255625.780637593] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255625.796766517] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255625.933765912] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255625.964154427] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255625.971707135] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255625.979815346] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255625.985802060] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255626.004077212] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255626.018104028] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255626.034478528] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255626.043045390] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255626.053603772] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255626.063087961] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255626.076346998] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255626.119871082] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255626.123627247] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255626.129922264] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255626.145970007] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255626.152531178] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255626.157703018] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255626.171263021] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255626.173988359] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255626.174919772] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255626.187159813] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255626.236241647] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255626.245917685] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255626.247960402] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255626.253489809] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255626.269281229] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255626.287388371] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255626.306050420] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255626.322967186] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255626.333811597] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255626.340069887] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255626.347748319] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255626.353492727] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255626.390323967] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255626.402238571] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255626.418170089] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255626.421031271] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255626.427990780] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255626.430671901] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255626.457008127] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255626.561329182] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255626.608540700] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255626.613806294] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255626.619083038] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255626.628355333] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255626.632239724] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255626.678673420] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255626.682825668] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255626.695457663] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255626.711395182] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255626.735349892] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255626.746517909] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255626.754820958] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255626.769925670] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255626.782256060] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255626.787029988] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255626.799969333] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255626.805029204] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255626.809362023] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255626.817070799] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255626.872212733] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255626.877500882] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255626.895089547] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255626.901338814] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255626.915331967] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255626.940120803] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255626.959463346] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255626.976969321] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255626.980060356] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255626.987093319] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255627.002147774] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255627.012403769] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255627.017466714] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255627.029157391] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255627.042598399] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255627.057635479] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255627.075670543] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255627.081959492] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[WARN] [1792255627.093974180] [mavros.sys]: FCU: UNK(8): EVENT 11047904 with args -0-0-0-16-1-128-0-0-0-128-59-127-128-128-59-127-128-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255627.095947197] [mavros.sys]: FCU: EVENT 10011251 with args -56-0-0-0-24-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255627.097627063] [mavros.sys]: FCU: EVENT 377561 with args -8-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792255627.102104003] [mavros.sys]: FCU: EVENT 3087815 with args -0-64-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255627.112842640] [mavros.sys]: FCU: EVENT 79408 with args -32-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[WARN] [1792255627.117900831] [mavros.sys]: FCU: EVENT 453929 with args -255-255-255-255-7-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[WARN] [1792255627.119135028] [mavros.sys]: FCU: UNK(8): EVENT 1914663 with args -0-2-21-2-56-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792255627.120728001] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255627.232926146] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255627.353705514] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255627.363805212] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255627.386094955] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255627.398967277] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255627.425359817] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255627.431373868] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255627.450519051] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255627.454244691] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255627.460618750] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255627.471255128] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255627.503214945] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255627.511464686] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255627.524080745] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255627.535951447] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255627.542520897] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255627.554061688] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255627.556125757] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255627.570121570] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255627.575088156] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255627.635879745] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255627.636632658] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255627.700134173] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255627.712296286] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255627.718532641] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255627.776472099] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255627.784733598] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255627.797258987] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255627.810328611] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255627.830722339] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255627.844603582] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255627.851214929] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255627.922595565] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255627.928633048] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255627.932507428] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255627.936990481] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255627.949082384] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255627.953161027] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255627.965885713] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255628.091876300] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255628.128643650] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255628.140213757] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255628.148797853] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255628.179640446] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255628.191053506] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255628.203403809] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255628.209613309] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255628.216099420] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255628.222651815] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255628.228835987] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255628.232732220] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255628.269073027] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255628.277467548] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255628.287790681] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255628.308846295] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255628.335475936] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255628.359415871] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255628.363997215] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255628.383766466] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255628.445086396] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255628.455071293] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255628.470179025] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255628.479398679] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255628.500700282] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255628.522322502] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255628.545074292] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255628.548999325] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255628.555587043] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255628.563324660] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255628.578630141] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255628.595878888] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255628.617916131] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255628.637391109] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255628.652588843] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255628.655932700] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255628.664482320] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255628.668612429] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255628.691415255] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255628.781845262] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255628.812897972] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255628.818160954] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255628.831723797] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255628.843964573] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255628.885392807] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255628.887277499] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255628.893878643] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255628.903430687] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255628.916098472] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255628.950448238] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255628.956794286] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255628.969338906] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255628.972853618] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255628.981753967] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255628.992481747] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255628.999001106] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255629.003597925] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255629.010623040] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255629.026973452] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255629.031994785] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255629.034256332] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255629.037140266] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255629.038892244] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255629.039615320] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255629.041076901] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255629.100814790] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255629.112118295] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255629.118426717] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255629.122966634] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255629.128795034] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255629.144219472] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255629.150833678] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255629.170307570] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255629.179968746] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255629.182711836] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255629.190028912] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255629.195994902] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255629.221111797] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255629.245392163] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255629.260146785] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255629.266290480] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255629.293015295] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255629.323249815] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255629.337821280] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255629.450169143] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255629.519959971] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255629.541001711] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255629.552406707] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255629.560942098] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792255629.567364777] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792255629.581370877] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792255629.590444834] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792255629.594707965] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792255629.607030861] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792255629.614806232] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792255629.632938042] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792255629.647072686] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792255629.650284426] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792255629.655379563] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792255629.661968576] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792255629.686320293] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792255629.693169733] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792255629.719367226] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792255629.769960440] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[INFO] [1792255629.833310286] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792255629.841393639] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792255629.864168969] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792255630.089191441] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[ERROR] [1792255631.098847393] [mavros.mavros]: PR: request param #3 completely missing.
+[WARN] [1792255631.110877117] [mavros.mavros]: PR: 987 params still missing, trying to request next: #4
+[INFO] [1792255631.575031427] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792255631.918645762] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792255631.940390089] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792255631.952101914] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792255631.969154526] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792255631.975575999] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792255631.991234111] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792255632.012811051] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792255632.022038238] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792255632.038440640] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792255632.089979386] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792255632.146369591] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792255632.178259537] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792255632.196642464] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792255632.225296069] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792255632.414257961] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792255632.444812732] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792255632.453968471] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256447.463376902] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256447.485021094] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256447.496376852] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256447.510773088] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256447.541390890] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256447.608769937] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256447.627754842] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256447.642337296] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256447.669200179] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256447.682549017] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256447.700963720] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256447.719147098] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256447.745404387] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256447.761542369] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256447.770133496] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256447.780145749] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256447.807502754] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256448.023737055] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256448.051282797] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256448.060037624] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256448.068606860] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256448.083632769] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256448.094797232] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256448.112568642] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256448.133432387] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256448.148637372] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256448.169712725] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256448.202307479] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256448.231282999] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256448.252816972] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256448.275247524] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256448.281685037] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256448.342574883] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256448.351178708] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256448.370276299] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256448.383241121] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256448.582541306] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256448.639984092] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256448.667509261] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256448.707569393] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256448.719332676] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256448.739423884] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256448.755466984] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256448.759905518] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256448.771520757] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256448.774149117] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256448.789712210] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256448.791521656] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256448.831292515] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256448.837815709] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256448.847916090] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256448.865836444] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256448.882072550] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256448.933389684] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256448.948994310] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256448.960640109] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256448.986208474] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256449.000279040] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256449.088364174] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256449.100149585] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256449.107457497] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256449.120509915] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256449.130766305] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256449.134950609] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256449.158501396] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256449.191984624] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256449.218030386] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256449.225685741] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256449.233244133] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256449.236964809] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256449.249770720] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256449.259626189] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256449.285346719] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256449.307463100] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256449.316521167] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256449.323482491] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256449.341083827] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256449.570586893] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256449.624600798] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256449.640305595] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256449.665076532] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256449.668547754] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256449.692446283] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256449.717899590] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256449.726688597] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256449.732946578] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256449.745043123] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256449.760873800] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256449.775163838] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256449.785611292] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256449.808692131] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256449.860350056] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256449.888031412] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256449.897042536] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256449.915874871] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256449.935687554] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256449.951003987] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256450.044954661] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256450.088873874] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256450.103145011] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256450.120846273] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256450.143060589] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256450.160921081] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256450.181283100] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256450.189865074] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256450.197886739] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256450.207556967] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256450.255913387] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256450.267341838] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256450.290772550] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256450.303979326] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256450.328401960] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256450.336849915] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256450.341406450] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256450.350521692] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256450.383894418] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256450.578290473] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256450.648265297] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256450.657337101] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256450.669901928] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256450.694292112] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256450.780367119] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256450.789581842] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256450.820014870] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256450.828834093] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256450.838326267] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256450.868988453] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256450.889420356] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256450.895462476] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256450.901775275] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256450.909622932] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256450.917725511] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256450.922576829] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256450.932875291] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256450.946683132] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256450.962030301] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256451.028556732] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256451.039068382] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256451.057807726] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256451.090976910] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256451.099067964] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256451.113304632] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256451.153701925] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256451.172044136] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256451.179330859] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256451.198424903] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256451.211179737] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256451.238020540] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256451.253326069] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256451.262775103] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256451.276405072] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256451.295449847] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256451.335607288] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256451.343656250] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256451.350596555] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256451.579894561] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256451.644941548] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256451.649285328] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256451.662511835] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256451.672822287] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256451.680646901] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256451.691690964] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256451.695294336] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256451.719788490] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256451.736704082] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256451.767740389] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256451.784327487] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256451.794114870] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256451.805801099] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256451.816188725] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256451.830827283] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256451.842777912] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256451.850085192] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256451.867933345] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256451.870759739] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256451.940872608] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256451.965841325] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256451.976175009] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256451.995987078] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256452.012894507] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256452.043288720] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256452.053731628] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256452.059857169] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256452.074430949] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256452.080087009] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256452.098035593] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256452.104303601] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256452.111420988] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256452.120426765] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256452.157816238] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256452.186824467] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256452.202954624] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256452.237924526] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256452.243193865] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256452.414675948] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256452.458955971] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256452.466359733] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256452.478271342] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256452.487498745] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256452.498307695] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256452.563987551] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256452.600057528] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256452.608139133] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256452.629459174] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256452.635132820] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256452.648125646] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256452.649454846] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256452.650524240] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256452.654110033] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256452.658285611] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256452.661087241] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256452.663216834] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256452.680892645] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256452.697213196] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256452.713060071] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256452.723684771] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256452.742071351] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256452.751496479] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256452.762754739] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256452.772515736] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256452.864087807] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256452.873898088] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256452.881710819] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256452.951619817] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256452.967535891] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256452.986775410] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256453.005162941] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256453.011506482] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256453.021850461] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256453.030639870] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256453.041562203] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256453.064057454] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256453.080499567] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256453.096496411] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256453.102154859] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256453.107333277] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256453.127320663] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256453.139364265] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256453.152584283] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256453.357632123] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256453.423344921] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256453.436638396] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256453.456998397] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256453.464542247] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256453.481595742] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256453.494510259] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256453.504918687] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256453.532362088] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256453.560807797] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256453.602156393] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256453.617868713] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256453.633840141] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256453.644394088] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256453.689286520] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256453.716433977] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256453.723681884] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256453.749660877] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256453.770765726] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256453.786169669] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256453.869923893] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256453.872642191] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256453.884808137] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256453.893990671] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256453.953558436] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256453.981231216] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256454.006875821] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256454.022013918] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256454.028809091] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256454.039994270] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256454.103768756] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256454.114948701] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256454.122293210] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256454.142825678] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256454.152620651] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256454.159111501] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256454.171777646] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256454.181550457] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256454.208985956] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256454.399332489] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256454.434585680] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256454.450779095] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256454.501362372] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256454.512990001] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256454.546440804] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256454.607187671] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256454.616269769] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256454.626393930] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256454.646173926] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256454.654711458] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256454.666727206] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256454.675736315] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256454.683908734] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256454.700345599] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256454.720406954] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256454.735930215] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256454.746325098] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256454.757588795] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256454.768755611] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256454.886424549] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256454.901874610] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256454.906638551] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256454.936685435] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256454.945140142] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256454.963195721] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256454.966935497] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256454.970270733] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256454.977846282] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256454.990816879] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256455.007976407] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256455.013625622] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256455.030763483] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256455.048362407] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256455.055619294] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256455.062032030] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256455.071917977] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256455.082196748] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256455.090589413] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256455.221887092] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256455.235879489] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256455.244971188] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256455.299604752] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256455.337942879] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256455.351803014] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256455.362495769] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256455.372346690] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256455.391774651] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256455.410683299] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256455.427647424] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256455.446011808] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256455.453024023] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256455.459041658] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256455.472130222] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256455.484005665] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256455.508546374] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256455.532277155] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256455.558488043] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[INFO] [1792256455.665222337] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 3
+[INFO] [1792256455.673711228] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 3
+[INFO] [1792256455.684639930] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 3
+[INFO] [1792256455.692744762] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 3
+[INFO] [1792256455.695764328] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 3
+[INFO] [1792256455.699288454] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 3
+[INFO] [1792256455.707083031] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 3
+[INFO] [1792256455.710950626] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 3
+[INFO] [1792256455.722446816] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 3
+[INFO] [1792256455.733391703] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 3
+[INFO] [1792256455.741622729] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 3
+[INFO] [1792256455.747984170] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 3
+[INFO] [1792256455.757291543] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 3
+[INFO] [1792256455.766157284] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 3
+[INFO] [1792256455.772765589] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 3
+[INFO] [1792256455.790527923] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 3
+[INFO] [1792256455.799808026] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 3
+[INFO] [1792256455.809652836] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 3
+[INFO] [1792256455.813944150] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 3
+[WARN] [1792256456.817924485] [mavros.mavros]: PR: request param #4 timeout, retries left 2, and 987 params still missing
+[WARN] [1792256457.669075915] [mavros.mavros]: PR: request param #4 timeout, retries left 1, and 987 params still missing
+[WARN] [1792256458.672421741] [mavros.mavros]: PR: request param #4 timeout, retries left 0, and 987 params still missing
+[ERROR] [1792256459.673980389] [mavros.mavros]: PR: request param #4 completely missing.
+[WARN] [1792256459.675296390] [mavros.mavros]: PR: 986 params still missing, trying to request next: #5
+[WARN] [1792256460.675548811] [mavros.mavros]: PR: request param #5 timeout, retries left 2, and 986 params still missing
+[WARN] [1792256461.676362139] [mavros.mavros]: PR: request param #5 timeout, retries left 1, and 986 params still missing
+[WARN] [1792256462.679330447] [mavros.mavros]: PR: request param #5 timeout, retries left 0, and 986 params still missing
+[INFO] [1792256462.773120307] [mavros.mavros]: PR: got an unsolicited param value idx=254, not resetting retries count 0
+[INFO] [1792256462.784534681] [mavros.mavros]: PR: got an unsolicited param value idx=297, not resetting retries count 0
+[INFO] [1792256462.791960820] [mavros.mavros]: PR: got an unsolicited param value idx=583, not resetting retries count 0
+[INFO] [1792256462.797956214] [mavros.mavros]: PR: got an unsolicited param value idx=591, not resetting retries count 0
+[INFO] [1792256462.815382243] [mavros.mavros]: PR: got an unsolicited param value idx=598, not resetting retries count 0
+[INFO] [1792256462.822353501] [mavros.mavros]: PR: got an unsolicited param value idx=612, not resetting retries count 0
+[INFO] [1792256462.832114135] [mavros.mavros]: PR: got an unsolicited param value idx=616, not resetting retries count 0
+[INFO] [1792256462.846224215] [mavros.mavros]: PR: got an unsolicited param value idx=617, not resetting retries count 0
+[INFO] [1792256462.856610045] [mavros.mavros]: PR: got an unsolicited param value idx=618, not resetting retries count 0
+[INFO] [1792256462.864065615] [mavros.mavros]: PR: got an unsolicited param value idx=621, not resetting retries count 0
+[INFO] [1792256462.875023118] [mavros.mavros]: PR: got an unsolicited param value idx=624, not resetting retries count 0
+[INFO] [1792256462.886367409] [mavros.mavros]: PR: got an unsolicited param value idx=627, not resetting retries count 0
+[INFO] [1792256462.890801462] [mavros.mavros]: PR: got an unsolicited param value idx=628, not resetting retries count 0
+[INFO] [1792256462.900403002] [mavros.mavros]: PR: got an unsolicited param value idx=629, not resetting retries count 0
+[INFO] [1792256462.905365237] [mavros.mavros]: PR: got an unsolicited param value idx=630, not resetting retries count 0
+[INFO] [1792256462.913338233] [mavros.mavros]: PR: got an unsolicited param value idx=640, not resetting retries count 0
+[INFO] [1792256462.916826234] [mavros.mavros]: PR: got an unsolicited param value idx=641, not resetting retries count 0
+[INFO] [1792256462.927756973] [mavros.mavros]: PR: got an unsolicited param value idx=643, not resetting retries count 0
+[INFO] [1792256462.936071363] [mavros.mavros]: PR: got an unsolicited param value idx=644, not resetting retries count 0
+[ERROR] [1792256463.937002809] [mavros.mavros]: PR: request param #5 completely missing.
+[WARN] [1792256463.937316828] [mavros.mavros]: PR: 985 params still missing, trying to request next: #6
+[WARN] [1792256464.622991740] [mavros.sys]: FCU: UNK(8): EVENT 11047904 with args -0-0-0-18-1-128-0-0-0-128-59-5-128-128-59-5-128-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792256464.624421236] [mavros.sys]: FCU: EVENT 13835193 with args -56-0-122-0-17-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792256464.625321101] [mavros.sys]: FCU: EVENT 10011251 with args -56-0-0-0-24-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792256464.626103292] [mavros.sys]: FCU: EVENT 377561 with args -8-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[ERROR] [1792256464.629077891] [mavros.sys]: FCU: EVENT 3087815 with args -0-64-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[INFO] [1792256464.630943523] [mavros.sys]: FCU: EVENT 79408 with args -32-0-0-0-20-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[WARN] [1792256464.631875791] [mavros.sys]: FCU: EVENT 453929 with args -255-255-255-255-7-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[WARN] [1792256464.632800337] [mavros.sys]: FCU: UNK(8): EVENT 1914663 with args -0-2-21-2-56-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-
+[WARN] [1792256464.939727587] [mavros.mavros]: PR: request param #6 timeout, retries left 2, and 985 params still missing
+[INFO] [1792256465.694139761] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[WARN] [1792256465.695336300] [mavros]: UAS Executor terminated

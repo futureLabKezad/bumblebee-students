@@ -1,0 +1,16 @@
+== /work/ws_sitl
+aruco_pose
+bumblebee
+COLCON_IGNORE
+_local_setup_util_ps1.py
+_local_setup_util_sh.py
+aruco_pose
+bumblebee
+local_setup.bash
+local_setup.ps1
+local_setup.sh
+local_setup.zsh
+setup.bash
+setup.ps1
+setup.sh
+setup.zsh

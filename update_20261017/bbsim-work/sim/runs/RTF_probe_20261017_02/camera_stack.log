@@ -1,0 +1,55 @@
+[INFO] [launch]: All log files can be found below /home/arsenij.guest/.ros/log/2026-10-17-20-06-14-979936-lima-bbsim-323989
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [python-1]: process started with pid [323993]
+[INFO] [python-2]: process started with pid [323994]
+[INFO] [python-3]: process started with pid [323995]
+[INFO] [static_transform_publisher-4]: process started with pid [323996]
+[static_transform_publisher-4] [WARN] [1792253175.175872843] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[static_transform_publisher-4] [WARN] [1792253175.176382005] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[static_transform_publisher-4] [INFO] [1792253175.249960826] [sitl_camera_tf]: Spinning until stopped - publishing transform
+[static_transform_publisher-4] translation: ('0.050000', '0.000000', '-0.070000')
+[static_transform_publisher-4] rotation: ('0.707107', '-0.707107', '-0.000000', '0.000000')
+[static_transform_publisher-4] from 'base_link' to 'main_camera_optical'
+[python-2] [WARN] [1792253175.696668122] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[python-2] [WARN] [1792253175.697113643] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[python-1] [WARN] [1792253175.874775373] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[python-1] [WARN] [1792253175.875301369] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[python-2] [INFO] [1792253175.930759398] [main_camera.main_camera_fix]: camera_fix: image_raw_yuv -> image_raw (period=5)
+[python-3] Traceback (most recent call last):
+[python-3]   File "/work/parallel_work/20261015/integration/combined_03/vision/aruco_detect.py", line 43, in <module>
+[python-3]     from aruco_pose.msg import MarkerArray as ArucoMarkerArray, Marker as ArucoMarker
+[python-3] ModuleNotFoundError: No module named 'aruco_pose'
+[ERROR] [python-3]: process has died [pid 323995, exit code 1, cmd '/work/sim/ros_stack/.venv/bin/python /work/parallel_work/20261015/integration/combined_03/vision/aruco_detect.py --ros-args -r __node:=aruco_detect -p use_sim_time:=true -p dictionary:=1 -p estimate_poses:=true -p send_tf:=true -p use_map_markers:=true -p length:=0.15 -p corner_refinement_method:=3 -p min_marker_perimeter_rate:=0.03 -p map_file:=/work/sim/worlds/aruco_map/map.input.txt -p adaptive_thresh_win_size_max:=51 -p use_unsharp:=true -p unsharp_sigma:=1.0 -p unsharp_amount:=0.6 -p aruco3_downscale_every_n:=4 -p track_roi_expand:=1.5 -p track_roi_min_px:=60 -p track_sweep_min:=3 -p track_sweep_max:=21 -p track_sweep_step:=6 -p track_keepalive_frames:=3 -r image_raw:=main_camera/image_raw -r camera_info:=main_camera/camera_info -r map_markers:=aruco_map/map -r markers:=aruco_detect/markers -r debug:=aruco_detect/debug -r map_pose:=aruco_map/pose -r map_image:=aruco_map/image'].
+[python-1] [INFO] [1792253193.134785630] [sitl_strict_camera]: published 120 strict frames
+[python-1] [INFO] [1792253210.044270513] [sitl_strict_camera]: published 240 strict frames
+[python-1] [INFO] [1792253226.893035672] [sitl_strict_camera]: published 360 strict frames
+[python-1] [INFO] [1792253243.508325358] [sitl_strict_camera]: published 480 strict frames
+[python-1] [INFO] [1792253260.326149280] [sitl_strict_camera]: published 600 strict frames
+[python-1] [INFO] [1792253270.108139035] [sitl_strict_camera]: published 720 strict frames
+[python-1] [INFO] [1792253279.915200240] [sitl_strict_camera]: published 840 strict frames
+[python-1] [INFO] [1792253289.500479841] [sitl_strict_camera]: published 960 strict frames
+[python-1] [INFO] [1792253299.162329558] [sitl_strict_camera]: published 1080 strict frames
+[python-1] [INFO] [1792253308.929979213] [sitl_strict_camera]: published 1200 strict frames
+[python-1] [INFO] [1792253318.599744950] [sitl_strict_camera]: published 1320 strict frames
+[static_transform_publisher-4] [INFO] [1792253325.231506447] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[python-2] Traceback (most recent call last):
+[python-2]   File "/work/ws_package1b/install/bumblebee/lib/bumblebee/camera_fix.py", line 161, in <module>
+[python-2]     main()
+[python-2]   File "/work/ws_package1b/install/bumblebee/lib/bumblebee/camera_fix.py", line 156, in main
+[python-2]     rclpy.spin(node)
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[python-2]     executor.spin_once()
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[python-2]     self._spin_once_impl(timeout_sec)
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[python-2]     handler, entity, node = self.wait_for_ready_callbacks(
+[python-2]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[python-2]     return next(self._cb_iter)
+[python-2]            ^^^^^^^^^^^^^^^^^^^
+[python-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 785, in _wait_for_ready_callbacks
+[python-2]     raise ExternalShutdownException()
+[python-2] rclpy.executors.ExternalShutdownException
+[INFO] [static_transform_publisher-4]: process has finished cleanly [pid 323996]
+[INFO] [python-1]: process has finished cleanly [pid 323993]
+[ERROR] [python-2]: process has died [pid 323994, exit code 1, cmd '/work/sim/ros_stack/.venv/bin/python /work/ws_package1b/install/bumblebee/lib/bumblebee/camera_fix.py --ros-args -r __node:=main_camera_fix -r __ns:=/main_camera --params-file /tmp/launch_params_38o5a1xw'].
