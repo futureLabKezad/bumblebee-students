@@ -97,8 +97,9 @@ def set_state(**changes):
 def fcu_status(max_age=3.0):
     """Same shape and meaning as drone.get_fcu_status() on the real drone."""
     fcu = STATE['fcu']
-    if fcu == 'stale':   # no fresh State: not ok, not connected, last armed flag
-        return {'connected': False, 'armed': STATE['last_armed'], 'mode': '', 'cell': float('nan'), 'ok': False}
+    if fcu == 'stale':   # no fresh State: not ok, not connected, last armed flag and mode
+        return {'connected': False, 'armed': STATE['last_armed'],
+                'mode': 'OFFBOARD' if STATE['last_armed'] else 'POSCTL', 'cell': float('nan'), 'ok': False}
     if fcu == 'lost':    # fresh State from MAVROS saying the FC link is down
         return {'connected': False, 'armed': False, 'mode': '', 'cell': float('nan'), 'ok': True}
     armed = fcu == 'armed'
