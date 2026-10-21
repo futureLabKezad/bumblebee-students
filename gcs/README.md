@@ -19,7 +19,7 @@ a tag `gcs-v<version>` (e.g. `gcs-v1.1.0`) also publishes them on a GitHub Relea
 Each download carries a short "How to open" note: the apps are not signed with a paid
 Apple/Microsoft certificate, so the first launch shows a one-time system warning.
 
-`windows/tools/SimDrone` is a mock drone on localhost for testing the GCS without hardware (`dotnet run --project tools\SimDrone`, then connect to `localhost`).
+`windows/tools/SimDrone` is a mock drone on localhost for testing the GCS without hardware (`dotnet run --project tools\SimDrone`, then connect to `localhost`); it takes the same `--fcu`, `--telemetry` and `--battery` states and `localhost:8799` control API as `tools/mock_drone.py`.
 
 ## Checks without a drone
 
@@ -29,4 +29,5 @@ Apple/Microsoft certificate, so the first launch shows a one-time system warning
 | --- | --- | --- |
 | `tools/check_watch_only.py` | the rule above | `python3 gcs/tools/check_watch_only.py` (tests: `test_check_watch_only.py`) |
 | `tools/mock_drone.py` | the drone's real REST backend with faked hardware, plus a rosbridge stub; flight-controller states `--fcu disarmed\|armed\|stale\|lost`, `--telemetry freeze`, `--battery low`, switchable at run time on `127.0.0.1:8799` (see its docstring) | `pip install 'tornado==6.4' bcrypt`, then `python3 gcs/tools/mock_drone.py --host 127.0.0.1` (tests: `test_mock_drone.py`) |
+| `tools/check_versions.py` | `gcs/VERSION` is the app version; Info.plist, the csproj and app.manifest must carry the same, and a release tag must be `gcs-v<VERSION>`. To release, change all four together | `python3 gcs/tools/check_versions.py [--tag gcs-vX.Y.Z]` |
 | `windows/tools/mac_compile_check.py` | compiles the Windows app's C# on a Mac or Linux (XAML parts stubbed); catches C# errors early, does not replace the Windows build | `python3 gcs/windows/tools/mac_compile_check.py` (.NET 10 SDK) |
