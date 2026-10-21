@@ -20,3 +20,13 @@ Each download carries a short "How to open" note: the apps are not signed with a
 Apple/Microsoft certificate, so the first launch shows a one-time system warning.
 
 `windows/tools/SimDrone` is a mock drone on localhost for testing the GCS without hardware (`dotnet run --project tools\SimDrone`, then connect to `localhost`).
+
+## Checks without a drone
+
+**The apps only watch the drone.** They subscribe to telemetry and call a fixed set of drone endpoints (Wi-Fi, lights, sounds); they never arm, change modes, send setpoints or write PX4 parameters. `tools/check_watch_only.py` enforces this in CI (`.github/workflows/gcs-checks.yml`): any other rosbridge op, a MAVROS command/parameter/setpoint name, or a REST path missing from its reviewed list fails the build.
+
+| Tool | What it is for | Run |
+| --- | --- | --- |
+| `tools/check_watch_only.py` | the rule above | `python3 gcs/tools/check_watch_only.py` (tests: `test_check_watch_only.py`) |
+| `tools/mock_drone.py` | the drone's real REST backend with faked hardware, plus a rosbridge stub; flight-controller states `--fcu disarmed\|armed\|stale\|lost`, `--telemetry freeze`, `--battery low`, switchable at run time on `127.0.0.1:8799` (see its docstring) | `pip install 'tornado==6.4' bcrypt`, then `python3 gcs/tools/mock_drone.py --host 127.0.0.1` (tests: `test_mock_drone.py`) |
+| `windows/tools/mac_compile_check.py` | compiles the Windows app's C# on a Mac or Linux (XAML parts stubbed); catches C# errors early, does not replace the Windows build | `python3 gcs/windows/tools/mac_compile_check.py` (.NET 10 SDK) |
