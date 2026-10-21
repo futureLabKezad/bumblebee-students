@@ -21,8 +21,9 @@ import time
 
 sys.path.insert(0, '/home/lb/ros2_ws/src/bumblebee/examples')
 import drone
+import _show  # noqa: E402
 
-STEP_MS = 120
+STEP_MS = 120  # a pixel lights every 3 steps: < 3 flashes/s even with instant writes
 NUM_LEDS = 11
 STRIPS = (drone.LED_1, drone.LED_2, drone.LED_3,
           drone.LED_4, drone.LED_5, drone.LED_6)
@@ -39,7 +40,7 @@ def _stop(*_):
 signal.signal(signal.SIGTERM, _stop)
 signal.signal(signal.SIGINT, _stop)
 
-drone.led_take_control()
+_show.take_control()
 try:
     offset = 0
     hue0 = 0.0
@@ -55,8 +56,4 @@ try:
         offset = (offset + 1) % 3
         hue0 = (hue0 + HUE_STEP) % 1.0
 finally:
-    try:
-        drone.led_off()
-    except OSError:
-        pass
-    drone.led_release_control()
+    _show.release_control()

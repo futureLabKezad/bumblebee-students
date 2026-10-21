@@ -21,21 +21,40 @@ machine maps the drone's current condition to an LED animation and, on state
 entry, a buzzer tune (PX4 FCU via MAVROS /mavros/play_tune).
 
 States (highest priority first):
-  ERROR        FCU link was up and dropped        red strobe          TUNE_ERROR
-  LOW_BATTERY  cell voltage 2.0..3.6 V            fast red blink      alarm (repeat)
-  ARUCO_LOCK   fresh markers + yaw locked         green pulse         -- silent in flight
-  ARUCO_SEARCH markers seen < 3 s ago             amber pulse         --
-  HOTSPOT      WiFi in bumblebee-hotspot AP mode  cyan breathing      rising "hotspot ready"
-  CONNECTING   WiFi not connected (debounced)     amber rotating ring long "connecting" (repeat)
-  IDLE         WiFi connected to a network        rainbow body        "ding"
+  ERROR        FCU link was up and dropped     red pulse 2.5/s,      -- light only (below)
+                                               never fully dark
+  LOW_BATTERY  cell 2.0..3.6 V for >= 1 s      slow red blink 1/s    alarm (repeat)
+  ARUCO_LOCK   fresh markers + yaw locked      green pulse           -- silent in flight
+  ARUCO_SEARCH markers seen < 3 s ago          amber pulse           --
+  HOTSPOT      WiFi in bumblebee-hotspot AP    cyan breathing        rising "hotspot ready"
+  CONNECTING   WiFi not connected (debounced)  amber rotating ring   long "connecting" (repeat)
+  IDLE         WiFi connected to a network     rainbow body          "ding"
 
-The buzzer needs MAVROS connected to the FCU (~20-25 s after boot), so every
-tune is guarded on telemetry.connected; early-boot states are LED-only.
+Nothing here flashes more than 3 times per second (photosensitive children):
+ERROR alternates bright and dim red 2.5 times per second and LOW_BATTERY
+blinks once per second, so the two alarms also look different.
 
-Yields LED control to other scripts via /tmp/led_busy (same contract as the
-old led_default.py): while the lock file exists the render loop pauses so the
-web UI animations and flight scripts can take over. Sound is independent of the
-LED lock.
+Sound. The buzzer is on the flight controller and tunes reach it through
+MAVROS, so every tune is guarded on telemetry.connected and the early-boot
+states (~20-25 s) are LED-only. For the same reason the FC-lost alarm (ERROR)
+is LIGHT ONLY on the drone: the link it reports lost is the only way to the
+buzzer. The GCS laptop app sounds that alarm instead (it sees connected=false
+in /mavros/state). Sound is handled every loop iteration, whatever the LED lock.
+
+LED lock. Other scripts take the LEDs with /tmp/led_busy (same contract as the
+old led_default.py): GCS colours and animations (wifi_manager.py,
+examples/animations/) and student or flight scripts (drone.led_take_control()).
+While a live owner holds it the normal states are not drawn, except:
+  * ERROR and LOW_BATTERY are drawn over the lock. Meanwhile /tmp/led_alarm
+    (holding this process's PID) tells the owners to stop writing; the
+    examples/animations scripts do (see _show.py). When the alarm clears the
+    owner gets the LEDs back: the GCS colour from /tmp/led_user_color is
+    repainted if it is newer than the lock, otherwise the LEDs are blanked once
+    and the owner repaints them itself.
+  * A stale lock is ignored and removed: one holding the PID of a process that
+    is gone (the animations write their PID), or one without a PID that has
+    stayed unchanged for LEGACY_LOCK_MAX_S. That age is counted on the
+    monotonic clock, so the wall-clock jump after boot does not age a lock.
 
 Runs as systemd service notify-manager.service. For a manual demo / check:
     python3 notify_manager.py --selftest
@@ -43,6 +62,7 @@ Runs as systemd service notify-manager.service. For a manual demo / check:
 
 import os
 import sys
+import json
 import math
 import time
 import signal
@@ -53,13 +73,34 @@ sys.path.insert(0, '/home/lb/ros2_ws/src/bumblebee/examples')
 import drone
 
 LOCK_FILE = '/tmp/led_busy'
+# Present while ERROR / LOW_BATTERY is drawn over a lock owner. Holds our PID,
+# so a crashed notify_manager cannot leave the owners dark for good.
+ALARM_FILE = '/tmp/led_alarm'
+# The colour /api/led/color set last, JSON {"r": R, "g": G, "b": B} (written by
+# wifi_manager). Repainted when an alarm ends, if it is newer than the lock.
+USER_COLOR_FILE = '/tmp/led_user_color'
+ALARM_STATES = ('ERROR', 'LOW_BATTERY')
+# A lock without an owner PID (drone.led_take_control(), wifi_manager's
+# colour) counts as stale after this long unchanged. A GCS colour may well stay
+# for a whole lesson, hence an hour; a new colour restarts the count.
+LEGACY_LOCK_MAX_S = 3600.0
+# A lock whose owner PID is gone is dropped only after this long, so a lock
+# being rewritten is never judged on a single read.
+STALE_GRACE_S = 1.0
+
+# --- flash rates: at most 3 flashes per second --------------------------------
+ERROR_HZ = 2.5          # bright/dim red alternations per second
+ERROR_FLOOR = 0.15      # dim-phase brightness: a pulse, never fully dark
+LOW_BATT_HZ = 1.0       # full on/off blinks per second
+LOW_BATT_ENTER_S = 1.0  # cell must read low this long before the alarm...
+LOW_BATT_HOLD_S = 5.0   # ...which then stays this long after the last low reading
 
 # --- buzzer tunes (QBASIC notation, <= 230 chars) --------------------------
 TUNE_CONNECTING = 'MFT120L8O4CDEFGAB>CL4P8'   # long rising run, ~1.4 s
 TUNE_HOTSPOT    = 'MFT160L8O4GO5CEG'          # rising "ready" arpeggio
 TUNE_LOWBATT    = 'MFT200L8O5GEC'             # urgent descending triad
-# drone.TUNE_ERROR  -> descending error motif
 # drone.TUNE_NOTIFY -> two-tone ding-dong (connected)
+# drone.TUNE_ERROR is deliberately unused: ERROR is light-only (see handle_sound).
 
 # --- colors / brightness ----------------------------------------------------
 DIM = 0.45            # extra scale on top of the hardware ~25% cap
@@ -96,6 +137,9 @@ _wifi = {'state': 'unknown', 't': 0.0}
 _seen_fcu = False         # have we ever seen FCU connected (enables ERROR)
 _last_conn_t = 0.0        # monotonic time FCU was last connected
 _last_play = {}           # tune key -> last monotonic play time
+_low_since = None         # start of the current run of low cell readings
+_low_last = None          # time of the last low cell reading
+_low_active = False       # LOW_BATTERY latched (debounced)
 
 
 def hue_to_rgb(h):
@@ -178,6 +222,23 @@ def _wifi_poller():
 
 
 # --- state machine ----------------------------------------------------------
+def _low_battery(low, now):
+    """Debounced LOW_BATTERY. It is drawn over the user's LEDs, so it must not
+    flap on a voltage sag or fire on a single bad reading."""
+    global _low_since, _low_last, _low_active
+    if low:
+        _low_last = now
+        if _low_since is None:
+            _low_since = now
+        if now - _low_since >= LOW_BATT_ENTER_S:
+            _low_active = True
+    else:
+        _low_since = None
+        if _low_active and now - _low_last >= LOW_BATT_HOLD_S:
+            _low_active = False
+    return _low_active
+
+
 def resolve_state():
     now = time.monotonic()
     with _telem_lock:
@@ -191,8 +252,8 @@ def resolve_state():
     # 1. ERROR -- FCU link was up and dropped for > 2 s (debounced).
     if _seen_fcu and not connected and (now - _last_conn_t) > 2.0:
         return 'ERROR'
-    # 2. LOW_BATTERY -- a real cell reading in the danger band.
-    if ok and cell == cell and 2.0 < cell < 3.6:
+    # 2. LOW_BATTERY -- a real cell reading in the danger band (debounced).
+    if _low_battery(bool(ok and cell == cell and 2.0 < cell < 3.6), now):
         return 'LOW_BATTERY'
     # 3/4. ArUco -- only meaningful while markers are fresh (i.e. in flight).
     try:
@@ -236,8 +297,12 @@ def _guarded_play(tune, key, min_interval):
 def handle_sound(state, prev):
     entered = (state != prev)
     if state == 'ERROR':
-        if entered:
-            _guarded_play(drone.TUNE_ERROR, 'error', 3.0)
+        # Light only, on purpose. The buzzer is on the FC and a tune reaches it
+        # through MAVROS -- over the very link ERROR reports lost -- so no tune
+        # can sound here (the old TUNE_ERROR call was always dropped by the
+        # connected guard). The GCS laptop app sounds the FC-lost alarm. When
+        # the link is back, IDLE / HOTSPOT / CONNECTING chime as usual.
+        pass
     elif state == 'LOW_BATTERY':
         _guarded_play(TUNE_LOWBATT, 'lowbatt', 10.0)      # repeats while low
     elif state == 'HOTSPOT':
@@ -289,10 +354,13 @@ def _render_connecting(t):
 def render(state):
     t = time.monotonic()
     if state == 'ERROR':
-        c = _s(RED) if int(t * 8) % 2 == 0 else (0, 0, 0)     # ~8 Hz strobe
+        # 2.5 bright/dim alternations per second (limit: 3), never fully dark.
+        bright = int(t * ERROR_HZ * 2) % 2 == 0
+        c = _s(RED) if bright else _sb(RED, ERROR_FLOOR)
         drone.set_led(drone.STRIP_ALL, drone.LED_ALL, *c)
     elif state == 'LOW_BATTERY':
-        c = _s(RED) if int(t * 4) % 2 == 0 else (0, 0, 0)     # ~4 Hz blink
+        # A slow full blink, once per second: clearly not the ERROR pulse.
+        c = _s(RED) if int(t * LOW_BATT_HZ * 2) % 2 == 0 else (0, 0, 0)
         drone.set_led(drone.STRIP_ALL, drone.LED_ALL, *c)
     elif state == 'HOTSPOT':
         b = 0.25 + 0.75 * (0.5 + 0.5 * math.sin(t * 2.2))     # slow breathing
@@ -309,31 +377,231 @@ def render(state):
         _render_idle()
 
 
+# --- LED lock (/tmp/led_busy) and alarm flag (/tmp/led_alarm) ----------------
+def _remove(path):
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+
+
+def _ident(path):
+    """Identity of the current version of a file, or None if it is absent."""
+    try:
+        st = os.stat(path)
+    except OSError:
+        return None
+    return (st.st_ino, st.st_mtime_ns, st.st_size)
+
+
+def _read_pid(path):
+    """Owner PID written in a lock / flag file, or None (empty: owner unknown)."""
+    try:
+        with open(path) as f:
+            text = f.read(32).strip()
+    except OSError:
+        return None
+    if not text or any(ch not in '0123456789' for ch in text):
+        return None
+    pid = int(text)
+    return pid if pid > 0 else None
+
+
+def _pid_alive(pid):
+    """True while process `pid` runs; an exited, not yet reaped one counts as gone."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        pass                                   # runs, as another user
+    except (OSError, OverflowError, ValueError):
+        return False
+    try:
+        with open('/proc/%d/stat' % pid) as f:
+            state = f.read().rsplit(')', 1)[1].split()[0]
+        return state not in ('Z', 'X')
+    except (OSError, IndexError):
+        return True                            # no /proc: kill() said it runs
+
+
+_lock_seen = {'key': None, 't': 0.0, 'dead_t': None, 'logged': None}
+
+
+def lock_status():
+    """'free', 'held' or 'stale' (ignored, and removed) for LOCK_FILE."""
+    ident = _ident(LOCK_FILE)
+    if ident is None:
+        _lock_seen['key'] = None
+        return 'free'
+    now = time.monotonic()
+    pid = _read_pid(LOCK_FILE)
+    key = (ident, pid, _ident(USER_COLOR_FILE))
+    if key != _lock_seen['key']:
+        # A new or rewritten lock, or a new GCS colour: its age starts now.
+        _lock_seen.update(key=key, t=now, dead_t=None)
+    if pid is not None:
+        if _pid_alive(pid):
+            _lock_seen['dead_t'] = None
+            return 'held'
+        if _lock_seen['dead_t'] is None:
+            _lock_seen['dead_t'] = now
+        if now - _lock_seen['dead_t'] < STALE_GRACE_S:
+            return 'held'
+        why = 'its owner (pid %d) is gone' % pid
+    else:
+        if now - _lock_seen['t'] <= LEGACY_LOCK_MAX_S:
+            return 'held'
+        why = 'it names no owner and has not changed for %d s' % LEGACY_LOCK_MAX_S
+    return 'stale' if _drop_stale_lock(ident, why) else 'held'
+
+
+def _drop_stale_lock(ident, why):
+    """Remove a stale lock, so the next /api/led/color creates a fresh one.
+    Returns False if the lock was rewritten meanwhile (judge it again)."""
+    if _ident(LOCK_FILE) != ident:
+        return False
+    try:
+        os.remove(LOCK_FILE)
+        what = 'removed'
+    except FileNotFoundError:
+        return True
+    except OSError as e:
+        what = 'ignored (cannot remove it: %s)' % e
+    if _lock_seen['logged'] != ident:
+        _lock_seen['logged'] = ident
+        print('notify_manager: stale %s %s: %s' % (LOCK_FILE, what, why), flush=True)
+    return True
+
+
+def _stamp_lock():
+    """Write our PID into the lock drone.led_take_control() has just created,
+    so a crash of this process does not leave a lock nobody releases."""
+    try:
+        fd = os.open(LOCK_FILE, os.O_WRONLY | os.O_TRUNC)   # never creates it
+    except OSError:
+        return
+    try:
+        os.write(fd, b'%d\n' % os.getpid())
+    except OSError:
+        pass
+    finally:
+        os.close(fd)
+
+
+_alarm_flag_on = False
+
+
+def _raise_alarm_flag():
+    global _alarm_flag_on
+    if not _alarm_flag_on or not os.path.exists(ALARM_FILE):
+        tmp = '%s.%d' % (ALARM_FILE, os.getpid())
+        try:
+            with open(tmp, 'w') as f:
+                f.write('%d\n' % os.getpid())
+            os.replace(tmp, ALARM_FILE)     # atomic: never read half-written
+        except OSError:
+            _remove(tmp)
+    _alarm_flag_on = True
+
+
+def _lower_alarm_flag():
+    global _alarm_flag_on
+    if _alarm_flag_on:
+        _remove(ALARM_FILE)
+        _alarm_flag_on = False
+
+
+def _user_color():
+    """The GCS colour to give back after an alarm, or None.
+
+    Only if wifi_manager wrote it after the lock was taken; a newer lock belongs
+    to an animation or a script, which repaints by itself.
+    """
+    try:
+        if os.stat(USER_COLOR_FILE).st_mtime_ns < os.stat(LOCK_FILE).st_mtime_ns:
+            return None
+        with open(USER_COLOR_FILE) as f:
+            value = json.loads(f.read(256))
+        if isinstance(value, dict):
+            value = [value.get('r'), value.get('g'), value.get('b')]
+        rgb = [int(x) for x in value]
+    except (OSError, ValueError, TypeError):
+        return None
+    if len(rgb) != 3:
+        return None
+    return tuple(max(0, min(255, x)) for x in rgb)
+
+
+def _give_back():
+    """An alarm drawn over the lock is over: hand the LEDs back to the owner."""
+    rgb = _user_color()
+    try:
+        if rgb is None:
+            drone.led_off()        # leave no red behind; the owner repaints
+        else:
+            drone.set_led(drone.STRIP_ALL, drone.LED_ALL, *rgb)
+    except Exception:
+        pass
+
+
+# --- main loop --------------------------------------------------------------
+_shown = None     # the state we drew last; None while the lock owner has the LEDs
+
+
+def _draw(state):
+    global _shown
+    if state != _shown:
+        _conn_pos_reset()          # the connecting ring repaints only on change
+    _shown = state
+    try:
+        render(state)
+    except Exception:
+        pass
+
+
+def step(prev):
+    """One loop iteration: resolve the state, sound, then draw or yield."""
+    global _shown
+    state = resolve_state()
+    handle_sound(state, prev)      # the buzzer never depends on the LED lock
+    lock = lock_status()
+    if state in ALARM_STATES:
+        _raise_alarm_flag()
+        if lock == 'held' and _shown not in ALARM_STATES:
+            print('notify_manager: %s drawn over %s; the owner gets the LEDs back '
+                  'when it clears' % (state, LOCK_FILE), flush=True)
+        _draw(state)
+    elif lock == 'held':
+        if _shown in ALARM_STATES:
+            _give_back()
+        _lower_alarm_flag()
+        _shown = None
+        _conn_pos_reset()
+    else:
+        _lower_alarm_flag()
+        _draw(state)
+    return state
+
+
 # --- lifecycle --------------------------------------------------------------
 def _shutdown(signum, frame):
     _stop.set()
     try:
-        drone.led_off()
+        if _shown in ALARM_STATES and lock_status() == 'held':
+            _give_back()
+        elif _shown is not None:   # never blank LEDs a lock owner is showing
+            drone.led_off()
     except Exception:
         pass
+    _lower_alarm_flag()
     os._exit(0)
 
 
 def main_loop():
     prev = None
     while not _stop.is_set():
-        # Yield to other LED scripts (web UI animations, flight scripts).
-        if os.path.exists(LOCK_FILE):
-            _conn_pos_reset()
-            time.sleep(0.2)
-            continue
-        state = resolve_state()
-        handle_sound(state, prev)
-        try:
-            render(state)
-        except Exception:
-            pass
-        prev = state
+        prev = step(prev)
         time.sleep(0.05)
 
 
@@ -343,7 +611,11 @@ def _conn_pos_reset():
 
 
 def selftest():
-    """Cycle through every state (LED + sound) for a quick demo / verification."""
+    """Cycle through every state (LED + sound) for a quick demo / verification.
+
+    ERROR stays silent here, as on a real FC loss: its tune could never reach
+    the buzzer (see handle_sound), so the selftest does not pretend it does.
+    """
     # Prime telemetry once so the buzzer guard (connected check) passes and
     # the play_tune publisher / ROS node get initialized before the demo.
     try:
@@ -353,11 +625,13 @@ def selftest():
     except Exception:
         pass
     drone.led_take_control()   # pause the running default/notify service
+    _stamp_lock()
     seq = ['CONNECTING', 'HOTSPOT', 'IDLE', 'ARUCO_SEARCH',
            'ARUCO_LOCK', 'LOW_BATTERY', 'ERROR']
     try:
         for st in seq:
-            print('selftest:', st, flush=True)
+            note = ' (light only: the GCS app sounds this alarm)' if st == 'ERROR' else ''
+            print('selftest:', st + note, flush=True)
             handle_sound(st, None)
             t0 = time.monotonic()
             while time.monotonic() - t0 < 3.0:
@@ -375,10 +649,13 @@ def selftest():
 def main():
     signal.signal(signal.SIGTERM, _shutdown)
     signal.signal(signal.SIGINT, _shutdown)
-    drone.led_off()
     if '--selftest' in sys.argv:
+        drone.led_off()
         selftest()
         return
+    _remove(ALARM_FILE)            # left by a crashed instance: owners would stay dark
+    if lock_status() != 'held':    # a restart (clock_jump.sh) keeps the owner's LEDs
+        drone.led_off()
     threading.Thread(target=_telem_poller, name='telem', daemon=True).start()
     threading.Thread(target=_wifi_poller, name='wifi', daemon=True).start()
     print('notify_manager: started', flush=True)

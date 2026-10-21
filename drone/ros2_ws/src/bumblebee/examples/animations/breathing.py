@@ -21,6 +21,7 @@ import time
 
 sys.path.insert(0, '/home/lb/ros2_ws/src/bumblebee/examples')
 import drone
+import _show  # noqa: E402
 
 PERIOD = 3.0
 FPS = 25
@@ -37,7 +38,7 @@ def _stop(*_):
 signal.signal(signal.SIGTERM, _stop)
 signal.signal(signal.SIGINT, _stop)
 
-drone.led_take_control()
+_show.take_control()
 try:
     t0 = time.time()
     while _running:
@@ -47,8 +48,4 @@ try:
         drone.set_led(drone.STRIP_ALL, drone.LED_ALL, c, c, c)
         time.sleep(FRAME)
 finally:
-    try:
-        drone.led_off()
-    except OSError:
-        pass
-    drone.led_release_control()
+    _show.release_control()

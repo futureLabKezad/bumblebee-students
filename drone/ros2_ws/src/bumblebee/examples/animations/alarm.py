@@ -19,7 +19,7 @@ from _show import drone
 
 RED = (255, 0, 0)
 OFF = (0, 0, 0)
-STROBE_HZ = 4.0
+STROBE_HZ = 2.5   # flashes per second; the limit is 3 (photosensitive children)
 
 
 def frame(t):

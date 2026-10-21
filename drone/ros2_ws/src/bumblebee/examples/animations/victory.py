@@ -19,7 +19,7 @@ from _show import drone
 
 GOLD = (245, 200, 66)
 DIM = (40, 28, 6)
-STEP_S = 0.12
+STEP_S = 0.2   # each strip lights every 3 steps: 1.7 flashes/s (limit 3)
 
 
 def frame(t):
