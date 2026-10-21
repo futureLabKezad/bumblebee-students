@@ -88,6 +88,9 @@ struct LaunchView: View {
                 Text("Select a drone to connect")
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundStyle(ConnectTheme.muted)
+                Text(AppVersion.label)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(ConnectTheme.muted)
             }
         }
     }

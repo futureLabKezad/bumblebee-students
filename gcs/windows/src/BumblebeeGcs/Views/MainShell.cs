@@ -69,7 +69,8 @@ public sealed class MainShell : Grid
                     _connLabel)),
         };
 
-        var brand = Ui.HStack(Palette.S2, Ui.AppLogo(22, Palette.RMedia), Ui.Text("Bumblebee GCS", Fonts.Brand, Palette.Text));
+        var brand = Ui.HStack(Palette.S2, Ui.AppLogo(22, Palette.RMedia), Ui.Text("Bumblebee GCS", Fonts.Brand, Palette.Text),
+            Ui.Text(AppVersion.Short, Fonts.Label, Palette.Muted));
         brand.Margin = new Thickness(Palette.S4, Palette.S5, Palette.S4, Palette.S3);
 
         var nav = new StackPanel { Spacing = 2, Margin = new Thickness(Palette.S2, 0, Palette.S2, 0) };

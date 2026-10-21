@@ -14,6 +14,7 @@
 
 # Fast checks for the GCS apps, separate from ci.yml (which builds them):
 #  - the apps only watch the drone (gcs/tools/check_watch_only.py);
+#  - Info.plist, the csproj and app.manifest carry gcs/VERSION;
 #  - the mock drone used for app testing still drives the real wifi_manager.py.
 name: GCS checks
 
@@ -46,6 +47,10 @@ jobs:
         run: python3 gcs/tools/check_watch_only.py
       - name: Tests of the watch-only check
         run: python3 gcs/tools/test_check_watch_only.py -v
+      - name: Every copy of the version agrees with gcs/VERSION
+        run: |
+          python3 gcs/tools/check_versions.py
+          python3 gcs/tools/test_check_versions.py -v
       - name: Install the mock drone's dependencies
         run: pip install 'tornado==6.4' bcrypt
       - name: Mock drone states, end to end

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Runtime.InteropServices;
+using BumblebeeGcs.Services;
 using BumblebeeGcs.Theme;
 using BumblebeeGcs.Views;
 using Microsoft.UI.Windowing;
@@ -32,7 +33,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        Title = "Bumblebee GCS";
+        Title = $"Bumblebee GCS {AppVersion.Short}";
         SetupWindowChrome();
         SetupShortcuts();
 
@@ -112,7 +113,7 @@ public sealed partial class MainWindow : Window
 
     private void RefreshRoot()
     {
-        Title = App.State.Connected ? $"{App.State.DroneHost} — Bumblebee GCS" : "Bumblebee GCS";
+        Title = App.State.Connected ? $"{App.State.DroneHost} — Bumblebee GCS {AppVersion.Short}" : $"Bumblebee GCS {AppVersion.Short}";
         Root.Children.Clear();
         if (!_booted)
             Root.Children.Add(new SplashView());

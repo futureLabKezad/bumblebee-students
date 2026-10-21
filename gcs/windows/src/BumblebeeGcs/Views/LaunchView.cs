@@ -60,9 +60,11 @@ public sealed class LaunchView : Grid
         title.Inlines.Add(new Run { Text = "GCS", Foreground = Palette.Brush(ConnectPalette.Orange) });
         var subtitle = Ui.Text("Select a drone to connect", Fonts.BodyMed with { Mono = true }, ConnectPalette.Muted);
         subtitle.HorizontalAlignment = HorizontalAlignment.Center;
+        var version = Ui.Text(AppVersion.Label, Fonts.Label with { Mono = true }, ConnectPalette.Muted);
+        version.HorizontalAlignment = HorizontalAlignment.Center;
         var logo = Ui.AppLogo(72, 18);
         logo.HorizontalAlignment = HorizontalAlignment.Center;
-        var header = Ui.VStack(16, logo, Ui.VStack(7, title, subtitle));
+        var header = Ui.VStack(16, logo, Ui.VStack(7, title, subtitle, version));
 
         // MARK: Drones panel
         var panelHeader = new Grid { ColumnSpacing = 8 };

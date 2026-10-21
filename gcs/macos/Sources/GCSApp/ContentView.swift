@@ -76,6 +76,7 @@ struct MainShell: View {
                         .clipShape(RoundedRectangle(cornerRadius: Theme.rMedia, style: .continuous))
                 }
                 Text("Bumblebee GCS").font(Theme.brand)
+                Text(AppVersion.short).font(Theme.label).foregroundStyle(Theme.muted)
             }
             .padding(.horizontal, Theme.s4).padding(.top, Theme.s7).padding(.bottom, Theme.s3)
 
