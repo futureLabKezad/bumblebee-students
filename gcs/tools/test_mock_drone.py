@@ -177,5 +177,29 @@ class EndToEnd(unittest.TestCase):
         _get('http://127.0.0.1:8799/mock/set?telemetry=normal')
 
 
+
+@unittest.skipUnless(HAVE_TORNADO or REQUIRED, 'tornado not installed')
+class Shutdown(unittest.TestCase):
+    def test_sigterm_also_stops_the_metrics_server(self):
+        if not HAVE_TORNADO:
+            raise RuntimeError('MOCK_E2E_REQUIRED=1 but tornado is not installed')
+        if not all(_free(p) for p in (8765, 8888, 9090, 8799)):
+            self.skipTest('ports in use') if not REQUIRED else self.fail('ports in use')
+        proc = subprocess.Popen([sys.executable, os.path.join(HERE, 'mock_drone.py'), '--host', '127.0.0.1'],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            deadline = time.time() + 15
+            while _free(8888) and time.time() < deadline:
+                time.sleep(0.2)
+            self.assertFalse(_free(8888), 'metrics server did not start')
+        finally:
+            proc.terminate()
+            proc.wait(timeout=10)
+        deadline = time.time() + 5
+        while not _free(8888) and time.time() < deadline:
+            time.sleep(0.2)
+        self.assertTrue(_free(8888), 'sys_metrics.py kept running after the mock was stopped')
+
+
 if __name__ == '__main__':
     unittest.main()

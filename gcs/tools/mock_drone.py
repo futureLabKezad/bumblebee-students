@@ -52,6 +52,7 @@ import logging
 import math
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -272,7 +273,11 @@ def main():
              'api=8765', 'id=' + HWID], stdout=subprocess.DEVNULL))
     say('up on %s: REST :8765 (real wifi_manager.py), metrics :8888, rosbridge :9090; control 127.0.0.1:%d' % (args.host, args.control_port))
     try:
-        tornado.ioloop.IOLoop.current().start()
+        # SIGTERM (a test runner, `kill`) must stop the loop too, so the
+        # finally block below also stops sys_metrics.py and dns-sd.
+        loop = tornado.ioloop.IOLoop.current()
+        loop.asyncio_loop.add_signal_handler(signal.SIGTERM, loop.stop)
+        loop.start()
     except KeyboardInterrupt:
         pass
     finally:
