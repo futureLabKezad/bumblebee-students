@@ -60,7 +60,12 @@ class FakeNmcli:
         if args[:2] == ('-g', 'connection.uuid'):
             return 'uuid-' + args[-1]
         if args[:3] == ('con', 'up', 'Bad Net'):
+            self.wlan0 = ('disconnected', '')   # NM took the old link down to try it
             raise RuntimeError('Error: Connection activation failed: Secrets were required')
+        if args[:2] in (('con', 'up'), ('connection', 'up')):
+            self.wlan0 = ('connected', args[2])
+        if args[:2] == ('connection', 'down'):
+            self.wlan0 = ('disconnected', '')
         if args[:4] == ('-t', '-f', 'NAME', 'con'):
             # nmcli -t escapes ':' and '\\' inside values
             return '\n'.join(c.replace('\\', '\\\\').replace(':', '\\:') for c in self.connections)
@@ -96,12 +101,17 @@ class WifiManagerTest(AsyncHTTPTestCase):
         wm.WIFI_SWITCH_MARKER = os.path.join(self.tmp.name, 'switch')
         wm.HOTSPOT_PIN_MARKER = os.path.join(self.tmp.name, 'pinned')
         wm.SWITCH_DELAY_S = 0.2
+        # A fresh, linked, disarmed flight controller: Wi-Fi changes are allowed
+        # (the "unknown = armed" rule itself: test_wifi_manager_safety.py).
+        self._orig_drone = (getattr(wm, '_drone', None), wm._LED_OK)
+        wm._drone, wm._LED_OK = FakeDrone(), True
         super().setUp()
 
     def tearDown(self):
         super().tearDown()
         (wm.nmcli, wm.WIFI_SWITCH_MARKER, wm.SWITCH_DELAY_S, wm.HOTSPOT_PIN_MARKER,
          wm.WIFI_FAILED_LOG, wm._hotspot_ssid, wm.LAST_ERROR_FILE) = self._orig
+        wm._drone, wm._LED_OK = self._orig_drone
         self.tmp.cleanup()
 
     def get_app(self):
@@ -148,8 +158,12 @@ class WifiManagerTest(AsyncHTTPTestCase):
     def test_save_gives_new_network_top_priority(self):
         resp = self.post('/api/wifi/save', {'ssid': 'Classroom', 'password': 'x' * 8})
         self.assertEqual(resp.code, 200)
+        # a new password waits in a pending profile until it joined (apply-now)
+        # or was stored for boot (apply-boot); that is when it goes on top
+        self.assertEqual(self.post('/api/wifi/apply-boot', {'ssid': 'Classroom'}).code, 200)
         prio = [c for c in self.fake.calls if 'connection.autoconnect-priority' in c][-1]
         self.assertEqual(prio[-1], '13')   # one above the current max (12)
+        self.assertEqual(prio[prio.index('connection.id') + 1], 'Classroom')
 
     def test_failed_join_brings_hotspot_back(self):
         resp = self.post('/api/wifi/apply-now', {'ssid': 'Bad Net'})
@@ -220,7 +234,8 @@ class WifiManagerTest(AsyncHTTPTestCase):
 
     def test_hotspot_profile_cannot_be_deleted(self):
         resp = self.post('/api/wifi/network', {'ssid': wm.HOTSPOT_CONN}, method='DELETE')
-        self.assertEqual(resp.code, 403)
+        self.assertEqual(resp.code, 409)            # was 403 before 1.0.2
+        self.assertEqual(json.loads(resp.body)['code'], 'protected_network')
         self.assertEqual(self.fake.called('con', 'delete'), [])
 
     def test_delete_other_network(self):
@@ -287,6 +302,45 @@ class ShowsTest(AsyncHTTPTestCase):
         n = len(self.drone.tunes)
         self.io_loop.run_sync(lambda: tornado.gen.sleep(1.2))
         self.assertEqual(len(self.drone.tunes), n, 'tune kept playing after the show stopped')
+
+    def test_show_stops_by_itself_after_show_max_s(self):
+        open(wm.LED_BUSY, 'w').close()
+        wm.SHOW_MAX_S = 1
+        try:
+            resp = self.start('alarm')
+            self.assertEqual(resp.code, 200)
+            self.assertEqual(json.loads(resp.body)['max_s'], 1)
+            st = json.loads(self.fetch('/api/led/status').body)
+            self.assertEqual((st['animation'], st['remaining_s']), ('alarm', 1))
+            self.io_loop.run_sync(lambda: tornado.gen.sleep(1.5))
+        finally:
+            wm.SHOW_MAX_S = 120
+        st = json.loads(self.fetch('/api/led/status').body)
+        self.assertEqual((st['animation'], st['pid'], st['remaining_s']), (None, None, None))
+        self.assertFalse(os.path.exists(wm.LED_BUSY), 'notify_manager did not get the LEDs back')
+        n = len(self.drone.tunes)
+        self.io_loop.run_sync(lambda: tornado.gen.sleep(1.0))
+        self.assertEqual(len(self.drone.tunes), n, 'tune kept playing after the time limit')
+
+    def test_time_limit_of_a_replaced_animation_does_not_stop_the_next(self):
+        wm.SHOW_MAX_S = 1
+        try:
+            self.start('rainbow')
+            self.io_loop.run_sync(lambda: tornado.gen.sleep(0.6))
+            self.start('fire')                       # its own 1 s from now
+            self.io_loop.run_sync(lambda: tornado.gen.sleep(0.6))
+            self.assertEqual(json.loads(self.fetch('/api/led/status').body)['animation'], 'fire')
+            self.io_loop.run_sync(lambda: tornado.gen.sleep(0.8))
+        finally:
+            wm.SHOW_MAX_S = 120
+        self.assertIsNone(json.loads(self.fetch('/api/led/status').body)['animation'])
+
+    def test_led_status_reports_remaining_seconds(self):
+        self.assertIsNone(json.loads(self.fetch('/api/led/status').body)['remaining_s'])
+        self.start('police')
+        st = json.loads(self.fetch('/api/led/status').body)
+        self.assertEqual(st['animation'], 'police')
+        self.assertTrue(118 <= st['remaining_s'] <= 120, st)
 
     def test_fcu_status_endpoint(self):
         self.drone.armed = True

@@ -150,12 +150,23 @@ class FakeNmcli:
         self.connections = ['netplan-wlan0-Classroom', 'bumblebee-hotspot']
         self.active = 'netplan-wlan0-Classroom'
 
-    def __call__(self, *args):
+    @staticmethod
+    def _name(ref):
+        """wifi_manager.py may name a profile by its uuid ("mock-uuid-<name>" here)."""
+        return ref[len('mock-uuid-'):] if ref.startswith('mock-uuid-') else ref
+
+    def __call__(self, *args, timeout=None):
+        if args[:1] == ('-w',):          # nmcli -w <secs> ...: the command itself
+            args = args[2:]
         say('nmcli', ' '.join(args))
         if args[:4] == ('-t', '-f', 'NAME', 'con'):
             return '\n'.join(self.connections)
         if args[:4] == ('-t', '-f', 'NAME,TYPE', 'con'):
             return '\n'.join(c + ':802-11-wireless' for c in self.connections)
+        if args[:4] == ('-t', '-f', 'UUID,NAME', 'con'):
+            return '\n'.join('mock-uuid-%s:%s' % (c, c) for c in self.connections)
+        if args[:2] == ('-g', 'connection.uuid'):
+            return 'mock-uuid-' + self._name(args[-1])
         if args[:4] == ('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device'):
             return 'wlan0:connected:%s' % self.active
         if args[:4] == ('-t', '-f', 'IP4.ADDRESS', 'device'):
@@ -166,8 +177,20 @@ class FakeNmcli:
             return '*:80:Classroom'
         if args[:2] == ('con', 'add'):
             self.connections.insert(0, args[args.index('con-name') + 1])
+        if args[:2] == ('con', 'clone'):     # a new password waits in a pending copy
+            self.connections.insert(0, args[3])
+        if args[:2] == ('con', 'modify') and 'connection.id' in args:
+            old, new = self._name(args[2]), args[args.index('connection.id') + 1]
+            self.connections = [new if c == old else c for c in self.connections]
+            self.active = new if self.active == old else self.active
+        if args[:2] == ('con', 'delete'):
+            name = self._name(args[2])
+            if name in self.connections:
+                self.connections.remove(name)
+            if self.active == name:          # the drone falls back to its hotspot
+                self.active = 'bumblebee-hotspot'
         if args[:2] in (('con', 'up'), ('connection', 'up')):
-            self.active = args[2]
+            self.active = self._name(args[2])
         return ''
 
 
