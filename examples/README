@@ -11,7 +11,7 @@ Example flight scripts for the Bumblebee platform, extracted from the drone's sy
 | `flight/flight_marker_loop.py` | Loop over several markers |
 | `flight/navigate_wait.py` | Low-level `navigate_wait` usage |
 | `flight/example_flight.py` | Multi-waypoint mission |
-| `animations/` | LED strip animations (fire, police, rainbow, strobe, …). The newer LED/sound shows (party, siren, alarm, victory, rainbow theater) are in `drone/ros2_ws/src/bumblebee/examples/animations/` |
+| `animations/` | LED strip animations (fire, police, rainbow, strobe, …), with their shared helper `_show.py` (keep it next to them). None flashes more than 3 times per second, and they pause while the drone shows a "flight controller lost" or "low battery" alarm. The newer LED/sound shows (party, siren, alarm, victory, rainbow theater) are in `drone/ros2_ws/src/bumblebee/examples/animations/` |
 | `misc/` | Small utilities: telemetry, camera, ArUco check, LED, servo, tunes, preflight |
 
 ## Running

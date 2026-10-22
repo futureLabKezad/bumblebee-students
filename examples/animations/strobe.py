@@ -13,16 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""strobe — fast white flash on all LEDs until SIGTERM."""
+"""strobe — white flash on all LEDs until SIGTERM.
+
+At most 3 flashes per second (photosensitive children): 150 ms on + 250 ms
+off, plus the I2C writes, is about 2.4 flashes/s, at 40 % white.
+"""
 import signal
 import sys
 import time
 
 sys.path.insert(0, '/home/lb/ros2_ws/src/bumblebee/examples')
 import drone
+import _show  # noqa: E402
 
-ON_MS = 50
-OFF_MS = 80
+ON_MS = 150
+OFF_MS = 250
+LEVEL = 100   # of 255: <= 40 % white
 
 _running = True
 
@@ -35,16 +41,12 @@ def _stop(*_):
 signal.signal(signal.SIGTERM, _stop)
 signal.signal(signal.SIGINT, _stop)
 
-drone.led_take_control()
+_show.take_control()
 try:
     while _running:
-        drone.set_led(drone.STRIP_ALL, drone.LED_ALL, 255, 255, 255)
+        drone.set_led(drone.STRIP_ALL, drone.LED_ALL, LEVEL, LEVEL, LEVEL)
         time.sleep(ON_MS / 1000.0)
         drone.set_led(drone.STRIP_ALL, drone.LED_ALL, 0, 0, 0)
         time.sleep(OFF_MS / 1000.0)
 finally:
-    try:
-        drone.led_off()
-    except OSError:
-        pass
-    drone.led_release_control()
+    _show.release_control()

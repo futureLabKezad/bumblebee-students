@@ -22,6 +22,7 @@ time, so their flash rate is measured deterministically.
 
     python3 -m unittest discover -s test -p 'test_notify_manager.py'
 """
+import ast
 import importlib.util
 import json
 import os
@@ -35,6 +36,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PKG = os.path.dirname(HERE)
 SCRIPT = os.path.join(PKG, 'scripts', 'notify_manager.py')
 ANIM_DIR = os.path.join(PKG, 'examples', 'animations')
+# The students' copy at the repository root (examples/README: "extracted from
+# the drone's system image"). Absent where only the package is installed.
+STUDENT_ANIM_DIR = os.path.normpath(os.path.join(PKG, '..', '..', '..', '..',
+                                                 'examples', 'animations'))
 
 # Same numbering as examples/drone.py.
 LEDS = {'LED_1': 0, 'LED_2': 5, 'LED_3': 1, 'LED_4': 3, 'LED_5': 2, 'LED_6': 4}
@@ -768,6 +773,52 @@ class AnimationTest(unittest.TestCase):
                            alarm_on=1.5, alarm_off=3.9, alarm_pid=dead_pid()).finish()
         during = [w for w in run.writes if 2.0 <= w[0] < 3.5]
         self.assertTrue(during, 'a crashed notify_manager must not leave animations dark')
+
+
+class StudentCopyTest(unittest.TestCase):
+    """examples/animations at the repository root is what students read, copy
+    to the drone and run. It must be the drone's own scripts, so it keeps the
+    3 flashes/s limit and pauses under the FC-lost / low-battery alarm too."""
+
+    def setUp(self):
+        if not os.path.isdir(STUDENT_ANIM_DIR):
+            self.skipTest('no repository examples/ here (installed package only)')
+
+    @staticmethod
+    def read(path):
+        with open(path, 'rb') as f:
+            return f.read()
+
+    def test_student_copies_are_the_drone_scripts(self):
+        different = []
+        for f in sorted(os.listdir(STUDENT_ANIM_DIR)):
+            if not f.endswith('.py'):
+                continue
+            ours = os.path.join(ANIM_DIR, f)
+            if not os.path.exists(ours):
+                different.append('%s: not on the drone' % f)
+            elif self.read(ours) != self.read(os.path.join(STUDENT_ANIM_DIR, f)):
+                different.append('%s: differs from the drone copy' % f)
+        self.assertEqual(different, [], 'copy them from %s' % ANIM_DIR)
+
+    def test_student_copies_have_the_helpers_they_import(self):
+        missing = []
+        for f in sorted(os.listdir(STUDENT_ANIM_DIR)):
+            if not f.endswith('.py'):
+                continue
+            tree = ast.parse(self.read(os.path.join(STUDENT_ANIM_DIR, f)))
+            for node in ast.walk(tree):
+                names = []
+                if isinstance(node, ast.Import):
+                    names = [a.name for a in node.names]
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    names = [node.module]
+                for name in names:
+                    helper = name.split('.')[0] + '.py'
+                    if (os.path.exists(os.path.join(ANIM_DIR, helper))
+                            and not os.path.exists(os.path.join(STUDENT_ANIM_DIR, helper))):
+                        missing.append('%s imports %s' % (f, helper))
+        self.assertEqual(missing, [])
 
 
 if __name__ == '__main__':

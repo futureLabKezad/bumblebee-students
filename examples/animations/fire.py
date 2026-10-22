@@ -21,6 +21,7 @@ import time
 
 sys.path.insert(0, '/home/lb/ros2_ws/src/bumblebee/examples')
 import drone
+import _show  # noqa: E402
 
 FPS = 15
 FRAME = 1.0 / FPS
@@ -48,7 +49,7 @@ def flicker():
     return r, g, b
 
 
-drone.led_take_control()
+_show.take_control()
 try:
     while _running:
         for s in STRIPS:
@@ -56,8 +57,4 @@ try:
                 drone.set_led(s, i, *flicker())
         time.sleep(FRAME)
 finally:
-    try:
-        drone.led_off()
-    except OSError:
-        pass
-    drone.led_release_control()
+    _show.release_control()
