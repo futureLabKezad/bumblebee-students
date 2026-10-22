@@ -129,10 +129,10 @@ struct MainShell: View {
 
     private var connectionCard: some View {
         HStack(spacing: Theme.s2) {
-            StatusDot(color: linkDotColor, pulsing: telemetry.link != .ok)
+            StatusDot(color: Theme.color(telemetry.link.tone), pulsing: telemetry.link != .ok)
             VStack(alignment: .leading, spacing: Theme.s0 - 1) {
                 Text(app.droneHost).font(Theme.hostMono)
-                Text(linkLine)
+                Text(telemetry.link.sidebarText(socketAnswered: telemetry.rosConnected))
                     .font(Theme.sectionLbl).foregroundStyle(Theme.muted)
             }
             Spacer(minLength: 0)
@@ -140,23 +140,6 @@ struct MainShell: View {
         .padding(Theme.s3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard(Theme.rControl)
-    }
-
-    private var linkLine: String {
-        switch telemetry.link {
-        case .ok: return "linked"
-        case .noDrone: return telemetry.rosConnected ? "waiting for FC data" : "linking…"
-        case .fcNotConnected: return "FC not connected"
-        case .telemetryFrozen: return "telemetry frozen"
-        }
-    }
-
-    private var linkDotColor: Color {
-        switch telemetry.link {
-        case .ok: return Theme.ok
-        case .noDrone: return Theme.warn
-        case .fcNotConnected, .telemetryFrozen: return Theme.danger
-        }
     }
 
     @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {

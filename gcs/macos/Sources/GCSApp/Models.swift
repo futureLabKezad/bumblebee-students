@@ -110,6 +110,19 @@ enum Theme {
     static let shadowColor: Color = .black.opacity(0.3)
     static let shadowRadius: CGFloat = 8
     static let shadowY: CGFloat = 3
+
+    /// The colour of a Tone decided in TelemetryLogic.swift.
+    static func color(_ tone: Tone) -> Color {
+        switch tone {
+        case .plain: return text
+        case .primary: return primary
+        case .ok: return ok
+        case .warn: return warn
+        case .caution: return caution
+        case .danger: return danger
+        case .neutral: return muted
+        }
+    }
 }
 
 // MARK: - Connect / Splash palette (scoped to the startup screens only)
@@ -351,7 +364,7 @@ final class TelemetryStore: ObservableObject {
             stateArmed = msg["armed"] as? Bool
             if let m = msg["mode"] as? String, m != mode {
                 mode = m
-                log("mode → \(m.isEmpty ? "unknown" : m)")
+                log(ModeText.changeLine(m))
             }
             refreshLink(now: now)
 

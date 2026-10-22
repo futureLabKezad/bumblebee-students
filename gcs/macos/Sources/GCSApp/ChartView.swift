@@ -75,12 +75,11 @@ struct ChartView: View {
     }
 
     @ViewBuilder private var scaleLabels: some View {
-        if data.count > 1 {
-            let (lo, hi) = scale
+        if let labels = ChartScale.axisLabels(data, fixedMin: fixedMin, fixedMax: fixedMax, minSpan: minSpan) {
             VStack(alignment: .trailing) {
-                Text(String(format: "%.2f", hi))
+                Text(labels.top)
                 Spacer(minLength: 0)
-                Text(String(format: "%.2f", lo))
+                Text(labels.bottom)
             }
             .font(Theme.micro)
             .foregroundStyle(Theme.muted)

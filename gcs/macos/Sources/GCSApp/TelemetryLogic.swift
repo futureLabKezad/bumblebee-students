@@ -18,6 +18,20 @@ import Foundation
 // them: is the link alive, is a value fresh, is the drone armed, who flies it,
 // what the battery line says. The Windows app follows the same rules.
 
+// MARK: - Tone
+
+/// The colour role of a value, decided here; the views map it to a Theme
+/// colour (Theme.color(_:)). Same roles as the Windows app's Tone.
+enum Tone: Equatable {
+    case plain      // normal text colour
+    case primary    // blue: program in control
+    case ok         // green
+    case warn       // orange
+    case caution    // amber: unknown, waiting for data
+    case danger     // red
+    case neutral    // grey: off, not measured
+}
+
 // MARK: - Freshness
 
 /// How long each source may stay quiet before its panel greys out.
@@ -73,6 +87,42 @@ enum LinkState: Equatable {
         }
     }
 
+    var tone: Tone {
+        switch self {
+        case .ok: return .ok
+        case .noDrone: return .warn
+        case .fcNotConnected, .telemetryFrozen: return .danger
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .ok: return "dot.radiowaves.up.forward"
+        case .noDrone: return "antenna.radiowaves.left.and.right.slash"
+        case .fcNotConnected, .telemetryFrozen: return "exclamationmark.triangle.fill"
+        }
+    }
+
+    /// Caption under the Link tile. `socketAnswered`: the rosbridge socket is
+    /// open (so "No drone" only means the first State is still on its way).
+    /// `stateNote`: the State's freshness note ("no data 4 s").
+    func caption(socketAnswered: Bool, stateNote: String?) -> String? {
+        switch self {
+        case .noDrone: return socketAnswered ? "waiting for FC data" : nil
+        case .telemetryFrozen: return stateNote
+        case .fcNotConnected, .ok: return nil
+        }
+    }
+
+    /// Second line of the sidebar's connection card.
+    func sidebarText(socketAnswered: Bool) -> String {
+        switch self {
+        case .ok: return "linked"
+        case .noDrone: return socketAnswered ? "waiting for FC data" : "linking…"
+        case .fcNotConnected, .telemetryFrozen: return text
+        }
+    }
+
     /// `socketOpenedAt` is nil while no socket is open. A State older than the
     /// socket came over the previous one and does not count.
     static func evaluate(socketOpenedAt: Date?, stateAt: Date?, stateConnected: Bool?, now: Date) -> LinkState {
@@ -120,6 +170,33 @@ enum ArmedDisplay: Equatable {
     }
 
     var caption: String? { self == .unknown ? "waiting for FC data" : nil }
+
+    /// Icon colour: caution while unknown, danger when armed or possibly armed.
+    var tone: Tone {
+        switch self {
+        case .armed, .armedLinkLost: return .danger
+        case .disarmed: return .neutral
+        case .unknown: return .caution
+        }
+    }
+
+    /// Colour of the value itself: UNKNOWN in caution, "ARMED? link lost" in danger.
+    var valueTone: Tone {
+        switch self {
+        case .unknown: return .caution
+        case .armedLinkLost: return .danger
+        case .armed, .disarmed: return .plain
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .armed: return "bolt.fill"
+        case .disarmed: return "bolt.slash"
+        case .unknown: return "questionmark.circle"
+        case .armedLinkLost: return "exclamationmark.triangle.fill"
+        }
+    }
 }
 
 // MARK: - Mode names
@@ -144,6 +221,20 @@ enum ModeText {
         case "AUTO.TAKEOFF": return "PX4 taking off"
         default: return m.hasPrefix("AUTO.") ? "PX4 automatic" : nil
         }
+    }
+
+    /// The Mode tile's value: "—" until a State with a mode arrives.
+    static func display(_ mode: String?) -> String {
+        let m = (mode ?? "").trimmingCharacters(in: .whitespaces).uppercased()
+        return m.isEmpty ? "—" : m
+    }
+
+    /// The visible log line for a mode change, with what the mode means.
+    static func changeLine(_ mode: String) -> String {
+        let m = mode.trimmingCharacters(in: .whitespaces).uppercased()
+        if m.isEmpty { return "mode → unknown" }
+        guard let what = explain(m) else { return "mode → \(m)" }
+        return "mode → \(m) (\(what))"
     }
 }
 
@@ -175,6 +266,34 @@ enum ControlOwner: Equatable {
         case .disarmed: return "Disarmed"
         case .unknown: return "Unknown"
         }
+    }
+
+    var tone: Tone {
+        switch self {
+        case .program: return .primary
+        case .pilot: return .ok
+        case .px4: return .warn
+        case .disarmed: return .neutral
+        case .unknown: return .caution
+        }
+    }
+
+    var valueTone: Tone { self == .unknown ? .caution : .plain }
+
+    var icon: String {
+        switch self {
+        case .program: return "cpu"
+        case .pilot: return "gamecontroller.fill"
+        case .px4: return "airplane.circle"
+        case .disarmed: return "bolt.slash"
+        case .unknown: return "questionmark.circle"
+        }
+    }
+
+    /// "waiting for FC data" while the armed flag itself is unknown; an armed
+    /// drone in a mode we cannot name gets no caption.
+    func caption(armed: Bool?) -> String? {
+        self == .unknown && armed == nil ? "waiting for FC data" : nil
     }
 }
 
@@ -294,6 +413,15 @@ struct BatteryDisplay: Equatable {
         }
     }
 
+    var tone: Tone {
+        switch level {
+        case .neutral: return .neutral
+        case .good: return .ok
+        case .low: return .warn
+        case .critical: return .danger
+        }
+    }
+
     private static func icon(percent p: Double) -> String {
         if p >= 88 { return "battery.100percent" }
         if p >= 63 { return "battery.75percent" }
@@ -344,6 +472,15 @@ enum ChartScale {
             }
         }
         return (lo, hi)
+    }
+
+    /// The scale's top and bottom, printed at the chart's right edge so the
+    /// height of a wiggle can be read; nil until there is a line to draw.
+    static func axisLabels(_ data: [Double], fixedMin: Double? = nil, fixedMax: Double? = nil,
+                           minSpan: Double = 1.0) -> (top: String, bottom: String)? {
+        guard data.count > 1 else { return nil }
+        let r = range(data, fixedMin: fixedMin, fixedMax: fixedMax, minSpan: minSpan)
+        return (String(format: "%.2f", r.hi), String(format: "%.2f", r.lo))
     }
 }
 
@@ -492,5 +629,48 @@ enum VideoStatus: Equatable {
         }
         guard let s = startedAt else { return .waiting }
         return now.timeIntervalSince(s) >= Freshness.video ? .noFrames : .waiting
+    }
+}
+
+/// What lies over a camera picture.
+enum VideoOverlay: Equatable {
+    case none                                   // live picture
+    case waiting                                // spinner, "waiting for video…"
+    case hint(String)                           // no frame for 3 s on a topic that only publishes in flight
+    case lost(seconds: Int, hint: String?)      // the frozen frame, dimmed, under "Video lost"
+
+    static func of(status: VideoStatus, hasImage: Bool, idleHint: String?) -> VideoOverlay {
+        if hasImage {
+            if case .lost(let s) = status { return .lost(seconds: s, hint: idleHint) }
+            return .none
+        }
+        // No frame at all. Cameras stream all the time, so keep waiting (the
+        // stream reconnects by itself); an in-flight-only topic says why.
+        switch status {
+        case .noFrames, .lost:
+            if let h = idleHint { return .hint(h) }
+            return .waiting
+        case .waiting, .live:
+            return .waiting
+        }
+    }
+}
+
+/// Topics the drone publishes only in flight: aruco_detect.py looks at the
+/// camera only while the drone is armed or in OFFBOARD (gate_by_flight_state),
+/// and the map image follows its markers. A quiet stream is normal on the
+/// table and must say so instead of spinning.
+enum VideoHints {
+    static let arucoTopic = "/aruco_detect/debug"
+    static let arucoMapTopic = "/aruco_map/image"
+    static let aruco = "ArUco image appears only when the drone is armed or in OFFBOARD"
+    static let arucoMap = "ArUco map: armed or OFFBOARD only"
+
+    static func idleHint(topic: String) -> String? {
+        switch topic {
+        case arucoTopic: return aruco
+        case arucoMapTopic: return arucoMap
+        default: return nil
+        }
     }
 }

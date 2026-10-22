@@ -17,8 +17,9 @@ import SwiftUI
 /// Native MJPEG camera view. Owns an MJPEGStream and rebuilds the URL when the
 /// host or topic changes. Supports 180° flip.
 ///
-/// A frame older than 3 s is dimmed under "Video lost". `idleHint` replaces
-/// the endless spinner for topics that only publish in flight (ArUco).
+/// What lies over the picture comes from VideoOverlay: a frame older than 3 s
+/// is dimmed under "Video lost"; topics that only publish in flight (ArUco)
+/// show their VideoHints text instead of an endless spinner.
 struct CameraView: View {
     let host: String
     let topic: String
@@ -26,7 +27,6 @@ struct CameraView: View {
     var fps = 12
     var width = 320
     var height = 240
-    var idleHint: String? = nil
     var compact = false            // small picture-in-picture: smaller text
     var restartToken = 0           // bump to reopen the stream (Reconnect)
     @State private var flipped = false
@@ -68,22 +68,24 @@ struct CameraView: View {
 
     @ViewBuilder
     private func picture(_ status: VideoStatus) -> some View {
+        let overlay = VideoOverlay.of(status: status, hasImage: stream.image != nil,
+                                      idleHint: VideoHints.idleHint(topic: topic))
         if let img = stream.image {
-            let lost: Int? = { if case .lost(let s) = status { return s } else { return nil } }()
+            let lost: Bool = { if case .lost = overlay { return true } else { return false } }()
             ZStack {
                 Image(nsImage: img)
                     .resizable()
                     .interpolation(.medium)
                     .aspectRatio(contentMode: .fit)
                     .rotationEffect(.degrees(flipped ? 180 : 0))
-                    .opacity(lost == nil ? 1 : 0.35)
-                    .saturation(lost == nil ? 1 : 0)
-                if let s = lost {
+                    .opacity(lost ? 0.35 : 1)
+                    .saturation(lost ? 0 : 1)
+                if case .lost(let s, let hint) = overlay {
                     VStack(spacing: Theme.s1) {
                         Label("Video lost", systemImage: "video.slash")
                             .font(compact ? Theme.micro : Theme.bodyStrong)
                         Text("\(s) s").font(compact ? Theme.micro : Theme.monoSmall)
-                        if let hint = idleHint, !compact {
+                        if let hint, !compact {
                             Text(hint).font(Theme.monoSmall).multilineTextAlignment(.center)
                         }
                     }
@@ -92,7 +94,7 @@ struct CameraView: View {
                     .background(Theme.scrim, in: RoundedRectangle(cornerRadius: Theme.rControl))
                 }
             }
-        } else if status == .noFrames, let hint = idleHint {
+        } else if case .hint(let hint) = overlay {
             Text(hint)
                 .font(compact ? Theme.micro : Theme.monoSmall)
                 .foregroundStyle(Theme.muted)

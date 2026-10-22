@@ -20,9 +20,11 @@ import SwiftUI
 ///
 /// Pitch is in the ROS convention (+ = nose down, like get_telemetry()): nose
 /// down moves the horizon up, so more ground shows (Horizon.offset).
+/// Before the first attitude arrives (nil) no horizon is drawn: a level
+/// horizon would claim 0° that nobody measured.
 struct AttitudeView: View {
-    let roll: Double   // degrees
-    let pitch: Double  // degrees, + = nose down
+    let roll: Double?   // degrees
+    let pitch: Double?  // degrees, + = nose down
 
     private let sky = Color(hex: 0x1a4cc0)
     private let ground = Color(hex: 0x7c4820)
@@ -33,6 +35,12 @@ struct AttitudeView: View {
             let r = min(cx, cy) - 2
             let pxPerDeg = cy / 45.0
             let circle = Path(ellipseIn: CGRect(x: cx - r, y: cy - r, width: 2 * r, height: 2 * r))
+
+            guard let roll = roll, let pitch = pitch else {
+                ctx.fill(circle, with: .color(Theme.surfaceRaised))
+                ctx.stroke(circle, with: .color(Theme.border), lineWidth: 2)
+                return
+            }
 
             // Horizon layer (clipped, rolled, pitched).
             var h = ctx
