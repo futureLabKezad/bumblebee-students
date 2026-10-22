@@ -46,11 +46,17 @@ old led_default.py): GCS colours and animations (wifi_manager.py,
 examples/animations/) and student or flight scripts (drone.led_take_control()).
 While a live owner holds it the normal states are not drawn, except:
   * ERROR and LOW_BATTERY are drawn over the lock. Meanwhile /tmp/led_alarm
-    (holding this process's PID) tells the owners to stop writing; the
-    examples/animations scripts do (see _show.py). When the alarm clears the
-    owner gets the LEDs back: the GCS colour from /tmp/led_user_color is
-    repainted if it is newer than the lock, otherwise the LEDs are blanked once
-    and the owner repaints them itself.
+    (holding this process's PID) tells the owners to stop writing. When the
+    alarm clears the owner gets the LEDs back: the GCS colour from
+    /tmp/led_user_color is repainted if it is newer than the lock, otherwise
+    the LEDs are blanked once and the owner repaints them itself.
+  * A PID in the lock means "this owner stops writing while /tmp/led_alarm is
+    up" (the examples/animations scripts, see _show.py): the alarm gets its
+    full pulse. A lock without a PID (drone.led_take_control(), a GCS colour)
+    may have an owner that keeps writing; each alarm write it paints over is a
+    flash, so there red is only re-asserted, at most REASSERT_S apart, and
+    never dimmed or blanked. Whatever writes its PID into the lock must honour
+    /tmp/led_alarm, or the two writers fight faster than 3 flashes/s.
   * A stale lock is ignored and removed: one holding the PID of a process that
     is gone (the animations write their PID), or one without a PID that has
     stayed unchanged for LEGACY_LOCK_MAX_S. That age is counted on the
@@ -94,6 +100,11 @@ ERROR_FLOOR = 0.15      # dim-phase brightness: a pulse, never fully dark
 LOW_BATT_HZ = 1.0       # full on/off blinks per second
 LOW_BATT_ENTER_S = 1.0  # cell must read low this long before the alarm...
 LOW_BATT_HOLD_S = 5.0   # ...which then stays this long after the last low reading
+# Over a lock owner that may keep writing (no PID in the lock), red is only
+# re-asserted, this far apart: <= 2 alarm writes/s, so even an owner that
+# repaints after every one of them makes <= 2 flashes/s. ERROR stays the
+# faster of the two.
+REASSERT_S = {'ERROR': 0.5, 'LOW_BATTERY': 1.0}
 
 # --- buzzer tunes (QBASIC notation, <= 230 chars) --------------------------
 TUNE_CONNECTING = 'MFT120L8O4CDEFGAB>CL4P8'   # long rising run, ~1.4 s
@@ -425,17 +436,21 @@ def _pid_alive(pid):
         return True                            # no /proc: kill() said it runs
 
 
-_lock_seen = {'key': None, 't': 0.0, 'dead_t': None, 'logged': None}
+_lock_seen = {'key': None, 't': 0.0, 'dead_t': None, 'logged': None, 'pid': None}
 
 
 def lock_status():
-    """'free', 'held' or 'stale' (ignored, and removed) for LOCK_FILE."""
+    """'free', 'held' or 'stale' (ignored, and removed) for LOCK_FILE.
+
+    Also notes in _lock_seen['pid'] the owner PID the lock names, if any.
+    """
     ident = _ident(LOCK_FILE)
     if ident is None:
-        _lock_seen['key'] = None
+        _lock_seen.update(key=None, pid=None)
         return 'free'
     now = time.monotonic()
     pid = _read_pid(LOCK_FILE)
+    _lock_seen['pid'] = pid
     key = (ident, pid, _ident(USER_COLOR_FILE))
     if key != _lock_seen['key']:
         # A new or rewritten lock, or a new GCS colour: its age starts now.
@@ -560,6 +575,29 @@ def _draw(state):
         pass
 
 
+_reassert_t = None   # monotonic time of the last red re-asserted over a writing owner
+
+
+def _reassert(state):
+    """Draw an alarm over an owner that may keep writing (a lock without a PID).
+
+    Only red, and at most once every REASSERT_S[state]: no dim or dark phase,
+    because every write of ours the owner paints over again is one flash.
+    """
+    global _shown, _reassert_t
+    if state != _shown:
+        _conn_pos_reset()
+    _shown = state
+    now = time.monotonic()
+    if _reassert_t is not None and now - _reassert_t < REASSERT_S[state]:
+        return
+    _reassert_t = now
+    try:
+        drone.set_led(drone.STRIP_ALL, drone.LED_ALL, *_s(RED))
+    except Exception:
+        pass
+
+
 def step(prev):
     """One loop iteration: resolve the state, sound, then draw or yield."""
     global _shown
@@ -571,7 +609,10 @@ def step(prev):
         if lock == 'held' and _shown not in ALARM_STATES:
             print('notify_manager: %s drawn over %s; the owner gets the LEDs back '
                   'when it clears' % (state, LOCK_FILE), flush=True)
-        _draw(state)
+        if lock == 'held' and _lock_seen['pid'] is None:
+            _reassert(state)       # the owner may not pause: do not fight it
+        else:
+            _draw(state)           # free, or an owner that pauses: full pulse
     elif lock == 'held':
         if _shown in ALARM_STATES:
             _give_back()

@@ -18,12 +18,18 @@
 At most 3 flashes per second (photosensitive children): 150 ms on + 250 ms
 off, plus the I2C writes, is about 2.4 flashes/s, at 40 % white.
 """
+import os
 import signal
 import sys
 import time
 
 sys.path.insert(0, '/home/lb/ros2_ws/src/bumblebee/examples')
 import drone
+# _show.py, the shared LED helper: next to this script, or else the copy
+# installed beside drone.py (examples/animations/) for a script copied alone.
+# sim-run (runpy.run_path) does not put this script's folder on sys.path.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(drone.__file__)), 'animations'))
 import _show  # noqa: E402
 
 ON_MS = 150

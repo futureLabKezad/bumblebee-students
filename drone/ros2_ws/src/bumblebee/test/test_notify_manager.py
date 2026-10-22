@@ -26,6 +26,7 @@ import ast
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -375,6 +376,60 @@ class AlarmOverLockTest(NotifyTestBase):
         self.assertTrue(self.status_pattern(self.writes_since(t)))
         self.assertFalse(os.path.exists(self.alarm))
 
+    ALARMS = (('ERROR', 'fc_lost', ()), ('LOW_BATTERY', 'battery', (3.4,)))
+
+    def alarm_writes(self, lock_content, setup, args, seconds=4.0):
+        """notify_manager's LED writes during `seconds` of a settled alarm."""
+        self.make_lock(lock_content)
+        getattr(self, setup)(*args)
+        self.run_for(1.5)                  # LOW_BATTERY is debounced
+        t = self.clock.t
+        self.run_for(seconds)
+        return t, self.writes_since(t)
+
+    def test_alarm_over_an_owner_that_keeps_writing_stays_within_3_per_s(self):
+        # drone.led_take_control() + led_rainbow() / a student loop: the lock
+        # names no PID and the owner does not pause for /tmp/led_alarm. Every
+        # alarm write the owner paints over again is a flash, so the fight
+        # itself must stay within 3 flashes/s, however often the owner writes.
+        for state, setup, args in self.ALARMS:
+            for every in (0.06, 0.1, 0.5):
+                with self.subTest(state=state, owner_writes_every=every):
+                    self.setUp()
+                    t, ours = self.alarm_writes('', setup, args)
+                    self.assertEqual(self.nm.resolve_state(), state)
+                    self.assertTrue(self.red_only(ours), 'alarm not shown at all')
+                    owner = [(t + k * every, ALL, ALL, (0, 200, 0))
+                             for k in range(int(4.0 / every) + 1)]
+                    both = sorted(ours + owner, key=lambda w: w[0])
+                    n, _, where = worst_flash_rate(strip_timelines(both))
+                    self.assertLessEqual(n, MAX_FLASHES_PER_S,
+                                         '%s over an owner writing every %.2f s: '
+                                         '%d flashes/s on %s' % (state, every, n, where))
+
+    def test_alarm_over_a_static_user_color_stays_red(self):
+        # The same PID-less lock with nobody writing (a GCS colour): red is
+        # re-asserted, never dimmed or blanked over the user's colour.
+        for state, setup, args in self.ALARMS:
+            with self.subTest(state=state):
+                self.setUp()
+                _, ours = self.alarm_writes('', setup, args)
+                self.assertEqual([w for w in ours if w[3] != self.nm._s(self.nm.RED)], [])
+                self.assertLessEqual(max_per_second([w[0] for w in ours]), 2)
+
+    def test_owner_that_pauses_still_gets_the_full_pulse(self):
+        # A live PID in the lock: an examples/animations script, which stops
+        # writing while /tmp/led_alarm is up. Nothing to fight: the alarm keeps
+        # its own look (ERROR pulses bright/dim, LOW_BATTERY blinks off).
+        for state, setup, args in self.ALARMS:
+            with self.subTest(state=state):
+                self.setUp()
+                _, ours = self.alarm_writes(str(os.getpid()), setup, args)
+                red = self.nm._s(self.nm.RED)
+                self.assertTrue([w for w in ours if w[3] == red])
+                self.assertTrue([w for w in ours if w[3] != red],
+                                '%s lost its dim / off phase over a pausing owner' % state)
+
 
 class StaleLockTest(NotifyTestBase):
     """A lock nobody will ever release must not freeze the status lights."""
@@ -630,9 +685,11 @@ def led_release_control():
 # so a 4 s run takes milliseconds and every interval is exact. SIGTERM (what
 # wifi_manager sends) arrives at STUB_END_S; the alarm flag appears/disappears
 # at STUB_ALARM_ON_S/STUB_ALARM_OFF_S as notify_manager would do it.
+# The script starts the way sim-run starts it: runpy.run_path(), which does
+# not put the script's own folder on sys.path.
 RUNNER = r'''
 import os, runpy, signal, sys, time
-stub_dir, anim_dir, script = sys.argv[1:4]
+stub_dir, script = sys.argv[1:3]
 env = os.environ
 END = float(env['STUB_END_S'])
 ON = float(env.get('STUB_ALARM_ON_S', 'inf'))
@@ -666,7 +723,6 @@ time.monotonic = lambda: now[0]
 time.time = lambda: 1.7e9 + now[0]
 sys.path.insert(0, stub_dir)
 import drone  # the stub; cached, so the script's own "import drone" gets it
-sys.path.insert(0, anim_dir)
 sys.argv = [script]
 runpy.run_path(script, run_name='__main__')
 '''
@@ -680,12 +736,23 @@ def animation_names():
 
 
 class AnimationRun:
-    def __init__(self, name, tmp, end_s=4.0, alarm_on=None, alarm_off=None, alarm_pid=None):
+    """One animation under RUNNER, with the stub drone.py in its own folder.
+
+    script: the file to run (default: the drone's copy in ANIM_DIR).
+    installed_show: also put _show.py in animations/ beside the stub drone.py,
+    the layout installed on the drone (examples/drone.py, examples/animations/).
+    """
+
+    def __init__(self, name, tmp, end_s=4.0, alarm_on=None, alarm_off=None, alarm_pid=None,
+                 script=None, installed_show=False):
         self.name = name
         d = os.path.join(tmp, name)
         os.mkdir(d)
         with open(os.path.join(d, 'drone.py'), 'w') as f:
             f.write(STUB_DRONE)
+        if installed_show:
+            os.mkdir(os.path.join(d, 'animations'))
+            shutil.copy(os.path.join(ANIM_DIR, '_show.py'), os.path.join(d, 'animations'))
         self.lock = os.path.join(d, 'led_busy')
         self.alarm = os.path.join(d, 'led_alarm')
         self.log = os.path.join(d, 'led.log')
@@ -695,8 +762,8 @@ class AnimationRun:
             env.update(STUB_ALARM_ON_S=str(alarm_on), STUB_ALARM_OFF_S=str(alarm_off),
                        STUB_ALARM_PID=str(alarm_pid))
         self.proc = subprocess.Popen(
-            [sys.executable, '-c', RUNNER, d, ANIM_DIR, os.path.join(ANIM_DIR, name + '.py')],
-            env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            [sys.executable, '-c', RUNNER, d, script or os.path.join(ANIM_DIR, name + '.py')],
+            env=env, cwd=d, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.end_s = end_s
 
     def finish(self, timeout=20):
@@ -773,6 +840,42 @@ class AnimationTest(unittest.TestCase):
                            alarm_on=1.5, alarm_off=3.9, alarm_pid=dead_pid()).finish()
         during = [w for w in run.writes if 2.0 <= w[0] < 3.5]
         self.assertTrue(during, 'a crashed notify_manager must not leave animations dark')
+
+
+class CopiedAnimationTest(unittest.TestCase):
+    """An animation started from somewhere else than ANIM_DIR must still find
+    its helper _show.py: `sim-run animations/strobe.py` (runpy.run_path, no
+    script folder on sys.path), or a student's copy (examples/README
+    "Running": scp one script to ~/ and run it there)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+
+    def copy_to_empty_folder(self, name, with_show):
+        d = tempfile.mkdtemp(dir=self.tmp.name)
+        shutil.copy(os.path.join(ANIM_DIR, name + '.py'), d)
+        if with_show:
+            shutil.copy(os.path.join(ANIM_DIR, '_show.py'), d)
+        return os.path.join(d, name + '.py')
+
+    def check(self, runs):
+        for run in runs:
+            run.finish()
+            with self.subTest(animation=run.name):
+                self.assertEqual(run.proc.returncode, 0,
+                                 '%s crashed:\n%s' % (run.name, run.output))
+                self.assertTrue(run.writes, '%s wrote nothing' % run.name)
+
+    def test_runs_with_show_next_to_it_without_its_folder_on_sys_path(self):
+        self.check([AnimationRun(n, self.tmp.name, end_s=1.0,
+                                 script=self.copy_to_empty_folder(n, with_show=True))
+                    for n in animation_names()])
+
+    def test_copied_alone_it_uses_the_drones_installed_show(self):
+        self.check([AnimationRun(n, self.tmp.name, end_s=1.0, installed_show=True,
+                                 script=self.copy_to_empty_folder(n, with_show=False))
+                    for n in animation_names()])
 
 
 class StudentCopyTest(unittest.TestCase):
