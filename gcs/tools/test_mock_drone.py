@@ -147,6 +147,33 @@ class EndToEnd(unittest.TestCase):
             _get('http://127.0.0.1:8799/mock/set?fcu=flying')
         self.assertEqual(e.exception.code, 400)
 
+    @staticmethod
+    def _post(path, body):
+        req = urllib.request.Request('http://127.0.0.1:8765' + path, data=json.dumps(body).encode(),
+                                     headers={'Content-Type': 'application/json'}, method='POST')
+        try:
+            with urllib.request.urlopen(req, timeout=3) as r:
+                return r.status, json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            return e.code, json.loads(e.read())
+
+    def test_real_backend_refuses_like_the_drone(self):
+        # wifi_manager.py's "unknown = armed" rule, driven by the mock's FC state
+        silent = {'tune': 'MFT255L64P64'}
+        _get('http://127.0.0.1:8799/mock/set?fcu=armed')
+        code, body = self._post('/api/sounds/play', silent)
+        self.assertEqual((code, body['code']), (409, 'armed'))
+        # disarmed for a while, then the FC link drops: that is "unknown", not
+        # "armed", because the backend polls the FC state every second as on
+        # the drone (a link lost while still armed would stay "armed")
+        _get('http://127.0.0.1:8799/mock/set?fcu=disarmed')
+        time.sleep(1.5)
+        _get('http://127.0.0.1:8799/mock/set?fcu=lost')
+        code, body = self._post('/api/sounds/play', silent)
+        self.assertEqual((code, body['code']), (503, 'fc_unknown'))
+        _get('http://127.0.0.1:8799/mock/set?fcu=disarmed')
+        self.assertEqual(self._post('/api/sounds/play', silent), (200, {'ok': True}))
+
     def test_freeze_stops_rosbridge_publications(self):
         import datetime
         from tornado import gen

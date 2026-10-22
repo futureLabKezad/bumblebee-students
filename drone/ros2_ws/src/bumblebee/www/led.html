@@ -150,7 +150,46 @@
   var msg = document.getElementById('msg');
   function showMsg(text){ msg.textContent = text; }
 
+  // Clear text for a refusal. Drones from 1.0.2 send a stable "code" with
+  // each error; older ones only "error", which is then shown as it is.
+  function explain(d, what){
+    d = d || {};
+    switch (d.code) {
+      case 'armed':
+        return what + ' refused: the drone is ARMED. Sounds stay off until it is disarmed, ' +
+          'so PX4\u2019s own warning tones can be heard.';
+      case 'fc_unknown':
+        return what + ' refused: the flight controller is not answering, so the drone counts as armed. ' +
+          'Check that the flight controller is powered and connected.';
+      case 'drone_unavailable':
+        return what + ' unavailable: the drone library did not load on the drone (see its log).';
+      case 'led_unavailable':
+        return what + ' unavailable: the LED driver did not load on the drone (see its log).';
+      case 'tts_unavailable':
+        return 'Speech is not installed on this drone (espeak-ng is missing).';
+    }
+    return what + ' error: ' + (d.error || 'unknown');
+  }
+  function replyOf(xhr){
+    try { return JSON.parse(xhr.responseText) || {}; } catch (e) { return {error: 'HTTP ' + xhr.status}; }
+  }
+
+  // From 1.0.2 an animation stops by itself (the reply says after how many
+  // seconds); the button is released then too.
+  var animTimer = null;
+  function releaseLater(name, seconds){
+    if (!seconds) return;
+    animTimer = setTimeout(function(){
+      var b = document.querySelector('.anim-btn.active[data-anim="' + name + '"]');
+      if (b) {
+        clearActive();
+        showMsg('Animation ' + name + ' stopped by itself after ' + seconds + ' s');
+      }
+    }, seconds * 1000);
+  }
+
   function clearActive(){
+    if (animTimer) { clearTimeout(animTimer); animTimer = null; }
     var btns = document.querySelectorAll('.anim-btn[data-anim]');
     for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
   }
@@ -197,7 +236,7 @@
           setOffLabel(false);
           showMsg('Color set');
         } else {
-          showMsg('Color error: HTTP ' + xhr.status);
+          showMsg(explain(replyOf(xhr), 'Color'));
         }
       };
       xhr.send(JSON.stringify({r: rgb.r, g: rgb.g, b: rgb.b}));
@@ -231,12 +270,14 @@
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function(){
           if (xhr.status === 200) {
+            var d = replyOf(xhr);
             lastState = {type: 'anim', name: name};
             setOffLabel(false);
-            showMsg('Animation: ' + name);
+            showMsg('Animation: ' + name + (d.max_s ? ' (stops by itself after ' + d.max_s + ' s)' : ''));
+            releaseLater(name, d.max_s);
           } else {
             clearActive();
-            showMsg('Animation error: HTTP ' + xhr.status);
+            showMsg(explain(replyOf(xhr), 'Animation'));
           }
         };
         xhr.onerror = function(){
@@ -262,7 +303,7 @@
         setOffLabel(true);
         showMsg('LEDs off');
       } else {
-        showMsg('Off error: HTTP ' + xhr.status);
+        showMsg(explain(replyOf(xhr), 'Off'));
       }
     };
     xhr.onerror = function(){ showMsg('Network error'); };
@@ -279,7 +320,7 @@
         setOffLabel(false);
         showMsg('Color restored');
       } else {
-        showMsg('On error: HTTP ' + xhr.status);
+        showMsg(explain(replyOf(xhr), 'On'));
       }
     };
     xhr.onerror = function(){ showMsg('Network error'); };
@@ -291,11 +332,13 @@
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function(){
       if (xhr.status === 200) {
+        var d = replyOf(xhr);
         markActive(name);
         setOffLabel(false);
-        showMsg('Animation: ' + name);
+        showMsg('Animation: ' + name + (d.max_s ? ' (stops by itself after ' + d.max_s + ' s)' : ''));
+        releaseLater(name, d.max_s);
       } else {
-        showMsg('On error: HTTP ' + xhr.status);
+        showMsg(explain(replyOf(xhr), 'On'));
       }
     };
     xhr.onerror = function(){ showMsg('Network error'); };
@@ -310,7 +353,7 @@
         setOffLabel(false);
         showMsg('Restored to default');
       } else {
-        showMsg('On error: HTTP ' + xhr.status);
+        showMsg(explain(replyOf(xhr), 'On'));
       }
     };
     xhr.onerror = function(){ showMsg('Network error'); };
@@ -334,7 +377,7 @@
     xhr.open('POST', '/api/led/reset', true);
     xhr.onload = function(){
       clearActive();
-      showMsg(xhr.status === 200 ? 'Restored to default' : 'Reset error: HTTP ' + xhr.status);
+      showMsg(xhr.status === 200 ? 'Restored to default' : explain(replyOf(xhr), 'Reset'));
     };
     xhr.send();
   });
@@ -369,7 +412,7 @@
     setSndMsg('Playing ' + (label || (fmt + ', ' + tune.length + ' chars')) + '…');
     postJSON('/api/sounds/play', {tune: tune, format: fmt || 'QBASIC'},
       function(){ setSndMsg('Played: ' + (label || tune)); },
-      function(r){ setSndMsg('Error: ' + (r.error || 'unknown')); });
+      function(r){ setSndMsg(explain(r, 'Sound')); });
   }
   var sndBtns = document.querySelectorAll('[data-snd]');
   for (var k = 0; k < sndBtns.length; k++) {
@@ -406,7 +449,7 @@
                      'length  : ' + ((r.tune || '').length) + ' / 230 chars'];
         setTtsOut(lines.join('\n'), false);
       },
-      function(r){ setTtsOut('Error: ' + (r.error || 'unknown'), true); });
+      function(r){ setTtsOut(explain(r, 'Speech'), true); });
   });
 })();
 </script>

@@ -23,7 +23,12 @@ Safety rules, each in one place:
     replaces a profile that works;
   - _switch_gen / _join_failed: only the newest Wi-Fi request acts on a failed
     join, and the hotspot is never raised over a link that is up;
-  - _is_protected: the setup hotspot cannot be changed through the API;
+  - _is_protected / _resolve_profiles: the setup hotspot cannot be changed
+    through the API, whether named by its name, UUID or any other reference
+    nmcli accepts;
+  - nmcli / BaseHandler.fail_wifi: no reply and no log line carries a Wi-Fi
+    password (nmcli failures get a generic text; the log has the command
+    with the password removed);
   - SHOW_MAX_S: animations stop by themselves;
   - every error reply is {"error": text, "code": stable snake_case string}.
 """
@@ -163,14 +168,76 @@ def load_config():
         return json.load(f)
 
 
+class NmcliError(RuntimeError):
+    """nmcli failed (code 'nmcli_failed') or timed out ('nmcli_timeout').
+
+    str() is nmcli's own message with every known Wi-Fi password replaced, so
+    it may go to the log; replies still use a generic text (BaseHandler.fail_wifi).
+    """
+
+    def __init__(self, message, code='nmcli_failed'):
+        super().__init__(message)
+        self.code = code
+
+
+HIDDEN = '<hidden>'
+
+
+def _is_secret_key(key):
+    """nmcli property (or `dev wifi connect` keyword) whose value is a secret:
+    wifi-sec.psk, 802-11-wireless-security.wep-key0, 802-1x.password, ..."""
+    key = key.lower()
+    return key in ('psk', 'password') or key.endswith('.psk') or 'password' in key or 'wep-key' in key
+
+
+def _redacted(args):
+    """The nmcli arguments with every secret value replaced by HIDDEN."""
+    out = list(args)
+    for i in range(len(out) - 1):
+        if _is_secret_key(out[i]):
+            out[i + 1] = HIDDEN
+    return out
+
+
+def _scrub(text, secrets):
+    """`text` with each secret replaced by HIDDEN."""
+    for secret in sorted({s for s in secrets if s}, key=len, reverse=True):
+        text = text.replace(secret, HIDDEN)
+    return text
+
+
+def _known_secrets(args=()):
+    """Passwords in these nmcli arguments, and those of pending profiles: what
+    nmcli could echo back (a `con up` of a pending profile carries none)."""
+    secrets = [args[i + 1] for i in range(len(args) - 1) if _is_secret_key(args[i])]
+    return secrets + [rec.get('password') or '' for rec in list(_pending.values())]
+
+
 def nmcli(*args, timeout=15):
-    """Run nmcli, return stdout. Raises RuntimeError on non-zero exit."""
-    result = subprocess.run(
-        ['nmcli'] + list(args),
-        capture_output=True, text=True, timeout=timeout,
-    )
+    """Run nmcli, return stdout. Raises NmcliError on a non-zero exit or timeout.
+
+    A Wi-Fi password can be among `args` (save, apply-boot). It must never reach
+    a reply or the log: subprocess.TimeoutExpired quotes the whole command line,
+    and nmcli may quote a value it rejects. So failures are logged here with the
+    command redacted, and raised as NmcliError with the message scrubbed and the
+    original exception dropped (`from None`, else its text lands in tracebacks).
+    """
+    shown = ' '.join(_redacted(args))
+    try:
+        result = subprocess.run(
+            ['nmcli'] + list(args),
+            capture_output=True, text=True, timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        logging.error('nmcli timed out after %s s: nmcli %s', timeout, shown)
+        raise NmcliError('nmcli timed out after %s s' % timeout, 'nmcli_timeout') from None
+    except OSError as e:
+        logging.error('cannot run nmcli %s: %s', shown, e.strerror or e.__class__.__name__)
+        raise NmcliError('cannot run nmcli: %s' % (e.strerror or e.__class__.__name__)) from None
     if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip())
+        message = _scrub(result.stderr.strip() or result.stdout.strip(), _known_secrets(args))
+        logging.warning('nmcli failed (exit %s): nmcli %s: %s', result.returncode, shown, message)
+        raise NmcliError(message)
     return result.stdout.strip()
 
 
@@ -230,6 +297,7 @@ def _nmcli_after_reply(*args, on_fail=None, on_ok=None, on_skip=None, gen=None, 
     if it succeeds.
     """
     _mark_wifi_switch()
+    shown = ' '.join(_redacted(args))
 
     def worker():
         time.sleep(SWITCH_DELAY_S)
@@ -241,7 +309,7 @@ def _nmcli_after_reply(*args, on_fail=None, on_ok=None, on_skip=None, gen=None, 
             if refusal is not None:
                 why = refusal[1]
         if why is not None:
-            logging.warning('nmcli %s not run: %s', ' '.join(args), why)
+            logging.warning('nmcli %s not run: %s', shown, why)
             if why != 'superseded':
                 _clear_switch_marker()       # nothing is switching after all
             _run_handler(on_skip, why)
@@ -249,10 +317,10 @@ def _nmcli_after_reply(*args, on_fail=None, on_ok=None, on_skip=None, gen=None, 
         try:
             nmcli('-w', str(JOIN_TIMEOUT_S), *args, timeout=JOIN_TIMEOUT_S + 10)
         except Exception as exc:
-            logging.exception('nmcli %s failed', ' '.join(args))
+            logging.exception('nmcli %s failed', shown)
             _run_handler(on_fail, exc)
             return
-        logging.info('nmcli %s: ok', ' '.join(args))
+        logging.info('nmcli %s: ok', shown)
         _run_handler(on_ok)
 
     threading.Thread(target=worker, daemon=True, name='wifi-switch').start()
@@ -277,7 +345,8 @@ LAST_ERROR_FILE = '/tmp/bumblebee-wifi-last-error.json'
 def _join_reason(exc):
     """Map an nmcli failure to a short reason code for the GCS."""
     text = str(exc).lower()
-    if isinstance(exc, subprocess.TimeoutExpired) or 'timeout' in text or 'timed out' in text:
+    if (isinstance(exc, subprocess.TimeoutExpired) or getattr(exc, 'code', '') == 'nmcli_timeout'
+            or 'timeout' in text or 'timed out' in text):
         return 'timeout'
     if 'secrets were required' in text or 'no secrets' in text or 'psk' in text or '802.1x' in text:
         return 'wrong_password'
@@ -345,7 +414,9 @@ def _join_failed(name, exc=None, rec=None, gen=None):
     if gen is not None and gen != _switch_gen:
         logging.info('join of %s failed after a newer Wi-Fi request; that one decides', name)
         return
-    _write_last_error(name, _join_reason(exc) if exc else 'failed', str(exc) if exc else '')
+    # reported in /api/wifi/status: never with the password that was tried
+    message = _scrub(str(exc), [rec['password'] if rec else '']) if exc else ''
+    _write_last_error(name, _join_reason(exc) if exc else 'failed', message)
     if rec is None:
         try:
             con_uuid = nmcli('-g', 'connection.uuid', 'con', 'show', name).strip()
@@ -426,6 +497,14 @@ def _save_network(name, password):
         return rec
 
 
+def _valid_psk(password):
+    """A WPA password NetworkManager accepts: 8..63 bytes, or 64 hex digits."""
+    size = len(password.encode('utf-8'))
+    if size == 64:
+        return all(c in '0123456789abcdefABCDEF' for c in password)
+    return 8 <= size <= 63
+
+
 def _delete_quietly(ref):
     try:
         nmcli('con', 'delete', ref)
@@ -438,7 +517,9 @@ def _promote_pending(rec):
 
     The old profile of that name is deleted first (it is not the one in use:
     the pending one is) and the pending one renamed after it, so a restart in
-    between leaves something _recover_pending() finishes.
+    between leaves something _recover_pending() finishes. An old profile that
+    cannot be deleted (read-only) stays, with autoconnect off, behind the new
+    one: the proven password must not be left in a profile NM never joins.
     """
     with _wifi_lock:
         if rec.get('final'):
@@ -449,7 +530,14 @@ def _promote_pending(rec):
         prio = _next_wifi_priority()
         for con_uuid, con_name in _con_list():
             if con_name == rec['name'] and con_uuid != rec['uuid']:
-                nmcli('con', 'delete', con_uuid)
+                try:
+                    nmcli('con', 'delete', con_uuid)
+                except Exception:
+                    logging.exception('cannot delete the old profile %s of %s', con_uuid, rec['name'])
+                    try:
+                        nmcli('con', 'modify', con_uuid, 'connection.autoconnect', 'no')
+                    except Exception:
+                        logging.exception('cannot turn off autoconnect of %s either', con_uuid)
         nmcli('con', 'modify', rec['uuid'] or rec['pending'],
               'connection.id', rec['name'],
               'connection.autoconnect', 'yes',
@@ -538,29 +626,31 @@ def _recover_pending(loop=None):
                           _in_background, loop, _recover_pending, loop)
 
 
-def _delete_network(name):
-    """Delete a saved profile (and a pending change of it)."""
+def _delete_network(ref, name=None):
+    """Delete a saved profile (and a pending change of it). `ref` is what the
+    GCS sent (usually the name); `name` the profile name it resolved to."""
+    name = name or ref
     with _wifi_lock:
         rec = _pending.get(name)
         if rec is not None:
             _discard_pending(rec)
         try:
-            nmcli('con', 'delete', name)
+            nmcli('con', 'delete', ref)
         except Exception:
             if rec is None or name in _con_names():
                 raise                # else only the pending profile existed: done
 
 
-def _delete_after_reply(name):
+def _delete_after_reply(ref, name=None):
     """Confirmed DELETE of the network in use, run after the reply went out.
     No switch marker: wifi_watchdog.sh should look for another known network
     (or raise the hotspot) at once."""
     refusal = _fcu_refusal('link')
     if refusal is not None:
-        logging.warning('delete of %s not done: %s', name, refusal[1])
+        logging.warning('delete of %s not done: %s', ref, refusal[1])
         return
-    _delete_network(name)
-    logging.info('deleted %s, the network in use', name)
+    _delete_network(ref, name)
+    logging.info('deleted %s, the network in use', ref)
 
 
 def _is_protected(name):
@@ -569,6 +659,54 @@ def _is_protected(name):
     saved over, joined, changed or deleted through the API."""
     n = name.strip().lower()
     return n == HOTSPOT_CONN or n.startswith('bumblebee-') or n.endswith(PENDING_SUFFIX)
+
+
+def _resolve_profiles(ref):
+    """Every saved profile nmcli would act on for `ref`: [{uuid, name, ssid}].
+
+    nmcli takes a profile's name, its UUID, its D-Bus path (or just the number
+    at its end) or its keyfile name wherever it takes a connection, so
+    `con delete <ref>` reaches the hotspot through any of them. nmcli itself
+    resolves `ref` here, the same way `con delete/modify/up` will.
+
+    [] when `ref` names no saved profile (a new network). Raises NmcliError if
+    NetworkManager cannot answer: callers then refuse rather than guess.
+    """
+    try:
+        out = nmcli('-g', 'connection.uuid', 'con', 'show', ref)
+    except RuntimeError as e:        # NmcliError
+        if getattr(e, 'code', '') == 'nmcli_timeout':
+            raise
+        _con_list()                  # NetworkManager answers (else this raises), so
+        return []                    # it was "no such connection profile"
+    uuids = []
+    for line in out.splitlines():
+        if line.strip() and line.strip() not in uuids:
+            uuids.append(line.strip())
+    if not uuids:
+        return []
+    names = dict(_con_list())
+    found = []
+    for con_uuid in uuids:
+        if con_uuid not in names:
+            continue                 # not a saved profile (nmcli printed something else)
+        try:
+            ssid = _nm_unescape(nmcli('-g', '802-11-wireless.ssid', 'con', 'show', con_uuid).strip())
+        except RuntimeError as e:    # NmcliError
+            if getattr(e, 'code', '') == 'nmcli_timeout':
+                raise
+            ssid = ''                # not a Wi-Fi profile
+        found.append({'uuid': con_uuid, 'name': names.get(con_uuid, ''), 'ssid': ssid})
+    return found
+
+
+def _protected_profile(profiles):
+    """The first of these profiles (_resolve_profiles) that is the setup
+    hotspot or another protected one, by name or SSID; None if there is none."""
+    for p in profiles:
+        if _is_protected(p['name']) or _is_protected(p['ssid']):
+            return p
+    return None
 
 
 def _hwid():
@@ -800,7 +938,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('Content-Type', 'application/json')
 
     def write_error(self, status_code, **kwargs):
-        msg = kwargs.get('reason', 'error')
+        msg = self._reason or 'error'
         code = {404: 'not_found', 405: 'method_not_allowed'}.get(
             status_code, 'internal_error' if status_code >= 500 else 'bad_request')
         self.finish(json.dumps({'error': msg, 'code': code}))
@@ -832,13 +970,39 @@ class BaseHandler(tornado.web.RequestHandler):
             return None
         return ssid
 
-    def refuse_protected(self, name):
-        """409 protected_network for the setup hotspot (see _is_protected)."""
-        if not _is_protected(name):
-            return False
+    def fail_wifi(self, exc, what):
+        """500 nmcli_failed, or 504 nmcli_timeout, for a Wi-Fi command that did
+        not work. The text is generic on purpose: nmcli's own output never goes
+        into a reply, since it can quote the command and so the Wi-Fi password.
+        The details are in the log (nmcli() writes them, password removed)."""
+        if getattr(exc, 'code', None) == 'nmcli_timeout':
+            self.fail(504, 'nmcli_timeout',
+                      '%s: NetworkManager on the drone did not answer in time. Try again.' % what)
+        else:
+            self.fail(500, 'nmcli_failed',
+                      '%s failed on the drone (NetworkManager error; details in %s).'
+                      % (what, LOG_PATH))
+
+    def refuse_protected(self, ref):
+        """409 protected_network if `ref` names the setup hotspot or another
+        protected profile (see _is_protected): as written, or through the saved
+        profile nmcli resolves it to (UUID, D-Bus path, keyfile name). Else
+        returns False and leaves what it resolves to in self.targets. When nmcli
+        cannot resolve it, refuses too (fail_wifi): the target is unknown."""
+        self.targets = []
+        if not _is_protected(ref):
+            try:
+                self.targets = _resolve_profiles(ref)
+            except Exception as e:
+                logging.exception('cannot resolve the network %r', ref)
+                self.fail_wifi(e, 'Looking up the network')
+                return True
+            if _protected_profile(self.targets) is None:
+                return False
+        logging.warning('%s %s refused: %r is protected', self.request.method, self.request.path, ref)
         self.fail(409, 'protected_network',
-                  "'%s' is reserved for the drones' own setup hotspot "
-                  "and cannot be saved, joined, changed or deleted here" % name)
+                  "'%s' is the drones' own setup hotspot (bumblebee-hotspot, Bumblebee-XXXX): "
+                  "it cannot be saved over, joined, changed or deleted here" % ref)
         return True
 
     def refuse_unsafe(self, action):
@@ -852,20 +1016,26 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def require_auth(self):
         if False:  # PIN auth removed by operator request
-            self.set_status(401)
-            self.finish(json.dumps({'error': 'unauthorized'}))
+            self.fail(401, 'unauthorized', 'unauthorized')
             return False
         return True
 
 
 class AuthLoginHandler(BaseHandler):
     def post(self):
-        body = json.loads(self.request.body)
+        body = self.json_body()
+        if body is None:
+            return
         pin = str(body.get('pin', ''))
-        cfg = load_config()
-        if not bcrypt.checkpw(pin.encode(), cfg['pin_hash'].encode()):
-            self.set_status(401)
-            self.finish(json.dumps({'error': 'invalid PIN'}))
+        try:
+            cfg = load_config()
+            pin_ok = bcrypt.checkpw(pin.encode(), cfg['pin_hash'].encode())
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            logging.exception('PIN login: no usable %s', CONFIG_PATH)
+            self.fail(500, 'auth_unavailable', 'PIN login is not set up on this drone')
+            return
+        if not pin_ok:
+            self.fail(401, 'invalid_pin', 'invalid PIN')
             return
         token = str(uuid.uuid4())
         SESSIONS[token] = datetime.utcnow() + SESSION_TTL
@@ -934,7 +1104,7 @@ class StatusHandler(BaseHandler):
             self.finish(json.dumps(await _blocking(_wifi_status)))
         except Exception as e:
             logging.exception('status error')
-            self.fail(500, 'nmcli_failed', str(e))
+            self.fail_wifi(e, 'Reading the Wi-Fi status')
 
 
 def _band_for_freq(freq_mhz):
@@ -996,7 +1166,7 @@ class ScanHandler(BaseHandler):
             self.finish(json.dumps(networks))
         except Exception as e:
             logging.exception('scan error')
-            self.fail(500, 'nmcli_failed', str(e))
+            self.fail_wifi(e, 'Scanning for networks')
 
 
 class NetworksHandler(BaseHandler):
@@ -1017,7 +1187,7 @@ class NetworksHandler(BaseHandler):
             self.finish(json.dumps(networks))
         except Exception as e:
             logging.exception('networks error')
-            self.fail(500, 'nmcli_failed', str(e))
+            self.fail_wifi(e, 'Listing the saved networks')
 
 
 class SaveNetworkHandler(BaseHandler):
@@ -1034,13 +1204,18 @@ class SaveNetworkHandler(BaseHandler):
             return
         password = body.get('password', '')
         password = password.strip() if isinstance(password, str) else ''
+        if password and not _valid_psk(password):
+            # caught here, not by nmcli: its error text is no longer passed on
+            self.fail(400, 'bad_password_length',
+                      'a Wi-Fi password has 8 to 63 characters (or is exactly 64 hex digits)')
+            return
         if self.refuse_protected(ssid) or self.refuse_unsafe('provision'):
             return
         try:
             rec = _save_network(ssid, password)
         except Exception as e:
             logging.exception('save error')
-            self.fail(500, 'nmcli_failed', str(e))
+            self.fail_wifi(e, 'Saving the network')
             return
         if rec is None:
             self.finish(json.dumps({'ok': True}))
@@ -1067,7 +1242,7 @@ class ApplyNowHandler(BaseHandler):
             known = _con_names()
         except Exception as e:
             logging.exception('apply-now error')
-            self.fail(500, 'nmcli_failed', str(e))
+            self.fail_wifi(e, 'Switching the network')
             return
         with _wifi_lock:
             rec = _pending.get(ssid)        # new settings saved for it: join with those
@@ -1124,7 +1299,7 @@ class ApplyBootHandler(BaseHandler):
             self.finish(json.dumps({'ok': True, 'note': 'will connect on next boot'}))
         except Exception as e:
             logging.exception('apply-boot error')
-            self.fail(500, 'nmcli_failed', str(e))
+            self.fail_wifi(e, 'Saving the network for the next boot')
 
 
 class DeleteNetworkHandler(BaseHandler):
@@ -1143,8 +1318,11 @@ class DeleteNetworkHandler(BaseHandler):
         # Without the hotspot the drone has no fallback AP and cannot be provisioned.
         if self.refuse_protected(ssid) or self.refuse_unsafe('link'):
             return
+        # the profile(s) this deletes, as nmcli resolved `ssid` (a UUID works too)
+        names = list(dict.fromkeys(t['name'] for t in self.targets if t['name'])) or [ssid]
+        name = names[0] if len(names) == 1 else None
         state, conn = _wlan0_or_none()
-        in_use = conn is None or conn in (ssid, ssid + PENDING_SUFFIX)
+        in_use = conn is None or any(conn in (n, n + PENDING_SUFFIX) for n in names + [ssid])
         if in_use and body.get('confirm_active') is not True:
             # GCS 1.1.0 shows this text as is and cannot confirm: say what to do
             self.fail(409, 'active_network',
@@ -1157,16 +1335,16 @@ class DeleteNetworkHandler(BaseHandler):
         if in_use:
             _bump_switch_gen()          # a join still under way must not raise the hotspot now
             loop = tornado.ioloop.IOLoop.current()
-            loop.call_later(SWITCH_DELAY_S, _in_background, loop, _delete_after_reply, ssid)
+            loop.call_later(SWITCH_DELAY_S, _in_background, loop, _delete_after_reply, ssid, name)
             logging.info('delete: removing %s, the network in use, after the reply', ssid)
             self.finish(json.dumps({'ok': True, 'deferred': True}))
             return
         try:
-            _delete_network(ssid)
+            _delete_network(ssid, name)
             self.finish(json.dumps({'ok': True}))
         except Exception as e:
             logging.exception('delete error')
-            self.fail(500, 'nmcli_failed', str(e))
+            self.fail_wifi(e, 'Removing the network')
 
 
 def _current_mode():
@@ -1186,7 +1364,7 @@ class ModeHandler(BaseHandler):
             self.finish(json.dumps({'mode': _current_mode()}))
         except Exception as e:
             logging.exception('mode get error')
-            self.fail(500, 'nmcli_failed', str(e))
+            self.fail_wifi(e, 'Reading the Wi-Fi mode')
 
     def post(self):
         if not self.require_auth():
@@ -1233,7 +1411,7 @@ class ModeHandler(BaseHandler):
             self.finish(json.dumps({'ok': True, 'mode': target}))
         except Exception as e:
             logging.exception('mode set error')
-            self.fail(500, 'nmcli_failed', str(e))
+            self.fail_wifi(e, 'Switching the Wi-Fi mode')
 
 
 class LedColorHandler(BaseHandler):
@@ -1241,10 +1419,14 @@ class LedColorHandler(BaseHandler):
         if not _LED_OK:
             self.fail(503, 'led_unavailable', 'led unavailable')
             return
-        body = json.loads(self.request.body)
-        r = max(0, min(255, int(body.get('r', 0))))
-        g = max(0, min(255, int(body.get('g', 0))))
-        b = max(0, min(255, int(body.get('b', 0))))
+        body = self.json_body()
+        if body is None:
+            return
+        try:
+            r, g, b = (max(0, min(255, int(body.get(k, 0)))) for k in ('r', 'g', 'b'))
+        except (TypeError, ValueError, OverflowError):
+            self.fail(400, 'bad_color', 'r, g and b must be numbers from 0 to 255')
+            return
         anim_was_running = _anim_proc is not None and _anim_proc.poll() is None
         _stop_anim()
         first = not os.path.exists(LED_BUSY)
@@ -1492,17 +1674,23 @@ def make_app():
     ])
 
 
-if __name__ == '__main__':
-    app = make_app()
-    app.listen(8765, address='0.0.0.0')
-    logging.info('wifi-manager started on 0.0.0.0:8765')
-    main_loop = tornado.ioloop.IOLoop.current()
+def start_background(loop):
+    """What the service runs besides the API (gcs/tools/mock_drone.py runs it
+    too, so the mock refuses exactly like the drone)."""
     try:
-        _recover_pending(main_loop)
+        _recover_pending(loop)
     except Exception:
         logging.exception('settling pending Wi-Fi profiles failed')
     if _LED_OK:
         # Keeps _fcu_last_linked_armed current between requests, so a link
         # lost in flight still counts as armed (see _fcu_refusal). Read-only.
         tornado.ioloop.PeriodicCallback(_fcu_flight_state, 1000).start()
+
+
+if __name__ == '__main__':
+    app = make_app()
+    app.listen(8765, address='0.0.0.0')
+    logging.info('wifi-manager started on 0.0.0.0:8765')
+    main_loop = tornado.ioloop.IOLoop.current()
+    start_background(main_loop)
     main_loop.start()

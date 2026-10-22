@@ -281,9 +281,14 @@ def main():
     wm.nmcli = FakeNmcli()
     wm._drone, wm._LED_OK = fake_drone, True
     wm.ANIM_DIR = os.path.join(PKG, 'examples', 'animations')
-    wm.WIFI_SWITCH_MARKER = os.path.join(tmp, 'wifi-switch')
+    for marker, name in (('WIFI_SWITCH_MARKER', 'wifi-switch'), ('HOTSPOT_PIN_MARKER', 'hotspot-pinned'),
+                         ('WIFI_FAILED_LOG', 'wifi-failed'), ('LAST_ERROR_FILE', 'wifi-last-error.json')):
+        setattr(wm, marker, os.path.join(tmp, name))   # per run, not the Mac's /tmp
     wm._hotspot_ssid = lambda: 'Bumblebee-' + HWID
     wm.make_app().listen(8765, address=args.host)
+    # as the service does: FC state polled every second (a link lost while
+    # armed keeps counting as armed), pending Wi-Fi profiles settled
+    wm.start_background(tornado.ioloop.IOLoop.current())
 
     tornado.web.Application([(r'/', Rosbridge)]).listen(9090, address=args.host)
     tornado.web.Application([(r'/mock/(state|set)', ControlHandler)]).listen(

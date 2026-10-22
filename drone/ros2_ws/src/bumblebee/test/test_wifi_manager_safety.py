@@ -19,17 +19,26 @@
   - Safe Remove of the network in use (confirm, reply first, delete after);
   - a new password is tried in a pending profile before it replaces a working one;
   - a stale join failure never raises the hotspot over a newer connection;
-  - the setup hotspot cannot be changed through the API;
-  - GET /api/info; every error carries a stable "code".
+  - the setup hotspot cannot be changed through the API, whatever names it;
+  - no reply and no log line carries a Wi-Fi password;
+  - GET /api/info; every error carries a stable "code";
+  - the drone's own pages (www/) explain the refusals.
 
 Run with the rest:  python -m unittest discover -s test -p 'test_*.py'
 """
 import json
+import logging
 import os
+import re
+import shutil
+import subprocess
 import tempfile
 import threading
 import time
+import unittest
+from unittest import mock
 
+import bcrypt
 import tornado.gen
 from tornado.testing import AsyncHTTPTestCase
 
@@ -37,13 +46,14 @@ import test_wifi_manager as base   # loads scripts/wifi_manager.py once, as base
 
 wm = base.wm
 FakeDrone = base.FakeDrone
+REAL_NMCLI = wm.nmcli       # the subprocess wrapper, before any test swaps in a fake
 _MISSING = object()
 
 # Module globals a test may replace; all restored in tearDown.
 PATCHED = ('nmcli', 'WIFI_SWITCH_MARKER', 'SWITCH_DELAY_S', 'HOTSPOT_PIN_MARKER',
            'WIFI_FAILED_LOG', '_hotspot_ssid', 'LAST_ERROR_FILE', '_drone', '_LED_OK',
            '_TTS_OK', '_tts_to_tune', 'PENDING_TTL_S', 'VERSION_FILE',
-           'AVAHI_SERVICE_FILE', 'STACK_DOMAIN_FILE', 'PROC_DIR')
+           'AVAHI_SERVICE_FILE', 'STACK_DOMAIN_FILE', 'PROC_DIR', 'CONFIG_PATH')
 
 CHANGING = (('con', 'add'), ('con', 'clone'), ('con', 'modify'), ('con', 'delete'),
             ('con', 'up'), ('connection', 'up'), ('connection', 'down'),
@@ -81,16 +91,27 @@ class StatefulNmcli:
     def add(self, name, ssid, psk=None, prio=0, autoconnect='yes'):
         self.n += 1
         p = {'uuid': 'uuid-%04d' % self.n, 'name': name, 'ssid': ssid, 'psk': psk,
-             'autoconnect': autoconnect, 'priority': prio}
+             'autoconnect': autoconnect, 'priority': prio, 'num': self.n}
         self.profiles.append(p)
         return p
+
+    @staticmethod
+    def refs(p):
+        """Every way nmcli lets a command name this profile: its name, UUID,
+        D-Bus path (or just the number at its end) and keyfile name."""
+        path = '/org/freedesktop/NetworkManager/Settings/%d' % p['num']
+        keyfile = '/etc/NetworkManager/system-connections/%s.nmconnection' % p['name']
+        return (p['uuid'], p['name'], path, str(p['num']), keyfile)
+
+    def find_all(self, ref):
+        return [p for p in self.profiles if ref in self.refs(p)]
 
     def find(self, ref):
         for p in self.profiles:
             if p['uuid'] == ref:
                 return p
         for p in self.profiles:
-            if p['name'] == ref:
+            if ref in self.refs(p):
                 return p
         return None
 
@@ -136,10 +157,15 @@ class StatefulNmcli:
             if a[:4] == ['-t', '-f', 'TYPE,AUTOCONNECT-PRIORITY', 'con']:
                 return '\n'.join('802-11-wireless:%d' % p['priority'] for p in self.profiles)
             if a[:2] == ['-g', 'connection.uuid']:
+                found = self.find_all(a[-1])      # nmcli shows every profile the ref names
+                if not found:
+                    raise RuntimeError('Error: %s - no such connection profile.' % a[-1])
+                return '\n'.join(p['uuid'] for p in found)
+            if a[:2] == ['-g', '802-11-wireless.ssid']:
                 p = self.find(a[-1])
                 if p is None:
                     raise RuntimeError('Error: %s - no such connection profile.' % a[-1])
-                return p['uuid']
+                return p['ssid'] or ''
             if a[:4] == ['-t', '-f', 'DEVICE,STATE,CONNECTION', 'device']:
                 return 'wlan0:%s:%s\neth0:unavailable:' % (self.wlan0[0], _esc(self.wlan0[1]))
             if a[:4] == ['-t', '-f', 'IP4.ADDRESS', 'device']:
@@ -459,6 +485,15 @@ class SafeRemoveTest(SafetyCase):
         self.assertEqual(self.fake.named('Cafe'), [])
         self.assertEqual(self.fake.named('Cafe.bb-pending'), [])
 
+    def test_active_network_named_by_its_uuid_needs_confirmation_too(self):
+        [home] = self.fake.named('Home WiFi')
+        for ref in (home['uuid'], '/org/freedesktop/NetworkManager/Settings/%d' % home['num']):
+            self.assertError(self.call('DELETE', '/api/wifi/network', {'ssid': ref}),
+                             409, 'active_network')
+        self.run_loop(wm.SWITCH_DELAY_S + 0.3)
+        self.assertEqual(self.fake.called('con', 'delete'), [])
+        self.assertEqual(self.fake.wlan0, ('connected', 'Home WiFi'))
+
     def test_failed_delete_is_reported_even_with_a_pending_change(self):
         self.call('POST', '/api/wifi/save', {'ssid': 'Cafe', 'password': 'cafepass1'})
         self.fake.fail_delete.add('Cafe')
@@ -520,6 +555,19 @@ class PendingPasswordTest(SafetyCase):
         self.assertEqual(self.fake.wlan0, ('connected', 'Home WiFi'))
         self.assertIsNone(self.last_error())
         self.assertEqual(self.fake.called('connection', 'up', wm.HOTSPOT_CONN), [])
+
+    def test_proven_password_is_kept_even_if_the_old_profile_cannot_be_deleted(self):
+        # e.g. a read-only profile: the one that just joined must still become
+        # the network the drone joins after a reboot, ahead of the old one
+        self.fake.router['Home WiFi'] = 'newpass12'
+        self.fake.fail_delete.add(self.home['uuid'])
+        self.call('POST', '/api/wifi/save', {'ssid': 'Home WiFi', 'password': 'newpass12'})
+        self.call('POST', '/api/wifi/apply-now', {'ssid': 'Home WiFi'})
+        self.assertTrue(self.wait_for(lambda: not self.pending()))
+        [new] = [p for p in self.fake.named('Home WiFi') if p is not self.home]
+        self.assertEqual((new['psk'], new['autoconnect'], new['priority']), ('newpass12', 'yes', 13))
+        self.assertEqual(self.home['autoconnect'], 'no')
+        self.assertEqual(self.fake.wlan0, ('connected', 'Home WiFi'))
 
     def test_new_network_with_wrong_password_leaves_nothing_behind(self):
         self.fake.router['Classroom'] = 'classpass1'
@@ -677,6 +725,45 @@ class ProtectedNetworkTest(SafetyCase):
         self.assertEqual(self.fake.changes(), [])
         self.assertEqual(self.fake.find(wm.HOTSPOT_CONN)['psk'], '12345678')
 
+    def changes_refused(self, refs):
+        for ref in refs:
+            for method, path, body in (
+                    ('POST', '/api/wifi/save', {'ssid': ref, 'password': 'x' * 8}),
+                    ('POST', '/api/wifi/save', {'ssid': ref, 'password': ''}),
+                    ('POST', '/api/wifi/apply-now', {'ssid': ref}),
+                    ('POST', '/api/wifi/apply-boot', {'ssid': ref}),
+                    ('DELETE', '/api/wifi/network', {'ssid': ref}),
+                    ('DELETE', '/api/wifi/network', {'ssid': ref, 'confirm_active': True})):
+                self.assertError(self.call(method, path, body), 409, 'protected_network')
+        time.sleep(wm.SWITCH_DELAY_S + 0.2)
+        self.assertEqual(self.fake.changes(), [])
+
+    def test_hotspot_named_any_way_nmcli_accepts_is_protected(self):
+        # nmcli takes a UUID, a D-Bus path (or its number) or a keyfile name
+        # wherever it takes a profile name: `con delete <hotspot uuid>` must
+        # not get past a guard that only compares names.
+        self.fake.add('Home WiFi', 'Home WiFi', 'goodpass1', prio=12)
+        self.fake.wlan0 = ('connected', 'Home WiFi')
+        hotspot = self.fake.find(wm.HOTSPOT_CONN)
+        before = dict(hotspot)
+        self.changes_refused(self.fake.refs(hotspot))
+        self.assertIn(hotspot, self.fake.profiles)
+        self.assertEqual(hotspot, before)
+
+    def test_profile_of_a_bumblebee_ssid_is_protected_under_any_name(self):
+        other = self.fake.add('Lab drone', 'Bumblebee-1F2E', '12345678')
+        before = dict(other)
+        self.changes_refused(('Lab drone', other['uuid']))
+        self.assertEqual(other, before)
+
+    def test_ordinary_profiles_by_uuid_still_work(self):
+        cafe = self.fake.add('Cafe', 'Cafe', None, prio=3)
+        self.assertEqual(self.call('POST', '/api/wifi/apply-boot', {'ssid': cafe['uuid']})[0], 200)
+        self.assertEqual(cafe['priority'], 10)
+        self.assertEqual(self.call('DELETE', '/api/wifi/network', {'ssid': cafe['uuid']}),
+                         (200, {'ok': True}))
+        self.assertNotIn(cafe, self.fake.profiles)
+
 
 class InfoTest(SafetyCase):
     def write(self, path, text):
@@ -752,3 +839,182 @@ class ErrorCodeTest(SafetyCase):
         wm._LED_OK = False
         self.assertError(self.call('POST', '/api/sounds/play', {'tune': 'C'}), 503, 'drone_unavailable')
         self.assertError(self.call('POST', '/api/led/animation', {'name': 'rainbow'}), 503, 'led_unavailable')
+
+    def test_led_color_and_login_errors_carry_codes(self):
+        self.assertError(self.call('POST', '/api/led/color', b'{'), 400, 'bad_json')
+        self.assertError(self.call('POST', '/api/led/color', {'r': 'red'}), 400, 'bad_color')
+        wm.CONFIG_PATH = os.path.join(self.tmp.name, 'config.json')
+        with open(wm.CONFIG_PATH, 'w') as f:
+            json.dump({'pin_hash': bcrypt.hashpw(b'1234', bcrypt.gensalt(4)).decode()}, f)
+        self.assertError(self.call('POST', '/api/auth/login', {'pin': '0000'}), 401, 'invalid_pin')
+        self.assertError(self.call('POST', '/api/auth/login', b'pin'), 400, 'bad_json')
+        self.assertEqual(self.call('POST', '/api/auth/login', {'pin': '1234'}), (200, {'ok': True}))
+        wm._LED_OK = False
+        self.assertError(self.call('POST', '/api/led/color', {'r': 1}), 503, 'led_unavailable')
+
+    def test_password_length_is_checked_before_nmcli(self):
+        self.fake.add('Home WiFi', 'Home WiFi', 'goodpass1', prio=12)
+        for ssid in ('Home WiFi', 'Classroom'):
+            for password in ('short', 'x' * 64, 'y' * 70):
+                self.assertError(self.call('POST', '/api/wifi/save',
+                                           {'ssid': ssid, 'password': password}),
+                                 400, 'bad_password_length')
+        self.assertEqual(self.fake.changes(), [])
+        # 8..63 characters, or exactly 64 hex digits (a raw WPA key)
+        for password in ('8chars!!', 'z' * 63, 'ab' * 32):
+            self.assertEqual(self.call('POST', '/api/wifi/save',
+                                       {'ssid': 'Home WiFi', 'password': password})[0], 200)
+
+
+class _Capture(logging.Handler):
+    """Every log record, traceback included, formatted as the log file gets it."""
+
+    def __init__(self):
+        super().__init__(logging.DEBUG)
+        self.lines = []
+        self.formatter_ = logging.Formatter('%(levelname)s %(name)s %(message)s')
+
+    def emit(self, record):
+        self.lines.append(self.formatter_.format(record))
+
+
+class SecretTest(SafetyCase):
+    """No reply and no log line may carry a Wi-Fi password, nmcli's own
+    failures included: a timed-out subprocess quotes its whole command line,
+    and nmcli may quote a value it rejects. The real nmcli() wrapper runs here,
+    over a fake subprocess.run that hands everything else to StatefulNmcli."""
+
+    SECRET = 'Pa55-w0rd!x'
+
+    def setUp(self):
+        super().setUp()
+        self.home = self.fake.add('Home WiFi', 'Home WiFi', 'goodpass1', prio=12)
+        self.fake.router['Home WiFi'] = 'goodpass1'
+        self.fake.wlan0 = ('connected', 'Home WiFi')
+        self.on_secret = None        # 'timeout' | 'echo': what a command carrying SECRET does
+        self.on_join = None          # stderr of a failing `con up`
+        wm.nmcli = REAL_NMCLI
+        patcher = mock.patch.object(wm.subprocess, 'run', self.run_nmcli)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.log = _Capture()
+        root = logging.getLogger()
+        self.addCleanup(root.setLevel, root.level)
+        self.addCleanup(root.removeHandler, self.log)
+        root.addHandler(self.log)
+        root.setLevel(logging.DEBUG)
+
+    def run_nmcli(self, cmd, **kw):
+        args = tuple(cmd[1:])
+        if self.on_secret and any(self.SECRET in a for a in args):
+            if self.on_secret == 'timeout':
+                raise subprocess.TimeoutExpired(cmd, kw.get('timeout'))
+            return subprocess.CompletedProcess(
+                cmd, 2, '', "Error: failed to modify 802-11-wireless-security.psk: "
+                            "'%s' is not a valid PSK.\n" % self.SECRET)
+        if self.on_join and ('con', 'up') in (args[:2], args[2:4]):
+            return subprocess.CompletedProcess(cmd, 4, '', self.on_join + '\n')
+        try:
+            out = self.fake(*args)
+        except RuntimeError as e:
+            return subprocess.CompletedProcess(cmd, 10, '', str(e) + '\n')
+        return subprocess.CompletedProcess(cmd, 0, (out or '') + '\n', '')
+
+    def send(self, method, path, body):
+        resp = self.fetch(path, method=method, allow_nonstandard_methods=True, body=json.dumps(body))
+        return resp.code, resp.body.decode()
+
+    def assertNoSecret(self, *texts):
+        self.assertTrue(self.log.lines)
+        for text in texts + tuple(self.log.lines):
+            self.assertNotIn(self.SECRET, text)
+
+    def test_timed_out_save_does_not_echo_the_password(self):
+        self.on_secret = 'timeout'
+        code, raw = self.send('POST', '/api/wifi/save', {'ssid': 'Home WiFi', 'password': self.SECRET})
+        self.assertEqual(code, 504, raw)
+        self.assertEqual(json.loads(raw)['code'], 'nmcli_timeout')
+        self.assertNoSecret(raw)
+        # the command is logged, without the password
+        self.assertTrue([line for line in self.log.lines
+                         if 'timed out' in line and 'wifi-sec.psk' in line], self.log.lines)
+        # nothing half-done is left: the working profile as it was, no pending copy
+        self.assertEqual(self.home['psk'], 'goodpass1')
+        self.assertEqual(self.fake.named('Home WiFi.bb-pending'), [])
+
+    def test_timed_out_save_of_a_new_network_does_not_echo_the_password(self):
+        self.on_secret = 'timeout'
+        code, raw = self.send('POST', '/api/wifi/save', {'ssid': 'Classroom', 'password': self.SECRET})
+        self.assertEqual((code, json.loads(raw)['code']), (504, 'nmcli_timeout'), raw)
+        self.assertNoSecret(raw)
+
+    def test_nmcli_error_quoting_the_password_is_not_echoed(self):
+        self.on_secret = 'echo'
+        for ssid in ('Home WiFi', 'Classroom'):
+            code, raw = self.send('POST', '/api/wifi/save', {'ssid': ssid, 'password': self.SECRET})
+            self.assertEqual((code, json.loads(raw)['code']), (500, 'nmcli_failed'), raw)
+            self.assertNoSecret(raw)
+        # the log keeps the rest of nmcli's message
+        self.assertTrue([line for line in self.log.lines if 'is not a valid PSK' in line])
+
+    def test_timed_out_apply_boot_does_not_echo_the_password(self):
+        self.assertEqual(self.send('POST', '/api/wifi/save',
+                                   {'ssid': 'Home WiFi', 'password': self.SECRET})[0], 200)
+        self.on_secret = 'timeout'
+        code, raw = self.send('POST', '/api/wifi/apply-boot', {'ssid': 'Home WiFi'})
+        self.assertEqual((code, json.loads(raw)['code']), (504, 'nmcli_timeout'), raw)
+        self.assertNoSecret(raw)
+
+    def test_failed_join_does_not_show_the_password(self):
+        self.assertEqual(self.send('POST', '/api/wifi/save',
+                                   {'ssid': 'Home WiFi', 'password': self.SECRET})[0], 200)
+        self.on_join = 'Error: Connection activation failed: psk %s was rejected' % self.SECRET
+        self.assertEqual(self.send('POST', '/api/wifi/apply-now', {'ssid': 'Home WiFi'})[0], 200)
+        self.assertTrue(self.wait_for(lambda: self.last_error() is not None))
+        status = self.fetch('/api/wifi/status').body.decode()
+        self.assertEqual(json.loads(status)['last_error']['reason'], 'wrong_password')
+        self.assertNoSecret(status)
+
+
+class WebPagesTest(unittest.TestCase):
+    """The drone's own pages (www/) call this API directly: every refusal it
+    can send them has a clear text there, and Safe Remove is confirmed. They
+    also work with a drone that sends no "code" (they show its "error")."""
+
+    WWW = os.path.join(base.PKG, 'www')
+
+    def page(self, name):
+        with open(os.path.join(self.WWW, name), encoding='utf-8') as f:
+            return f.read()
+
+    def assertExplains(self, name, codes):
+        html = self.page(name)
+        for code in codes:
+            self.assertIn("case '%s':" % code, html, '%s has no text for %s' % (name, code))
+
+    def test_wifi_page(self):
+        self.assertExplains('wifi.html', (
+            'armed', 'fc_unknown', 'active_network', 'protected_network', 'nmcli_failed',
+            'nmcli_timeout', 'unknown_network', 'bad_password_length', 'ssid_required'))
+        self.assertIn('confirm_active: true', self.page('wifi.html'))
+
+    def test_led_page(self):
+        self.assertExplains('led.html', (
+            'armed', 'fc_unknown', 'drone_unavailable', 'led_unavailable', 'tts_unavailable'))
+
+    def test_gcs_page(self):
+        self.assertExplains('gcs.html', ('led_unavailable', 'led_failed'))
+
+    @unittest.skipUnless(shutil.which('node'), 'node not installed')
+    def test_inline_scripts_parse(self):
+        for name in ('wifi.html', 'led.html', 'gcs.html'):
+            scripts = re.findall(r'<script>(.*?)</script>', self.page(name), re.S)
+            self.assertTrue(scripts, name)
+            for script in scripts:
+                with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False) as f:
+                    f.write(script)
+                try:
+                    res = subprocess.run(['node', '--check', f.name], capture_output=True, text=True)
+                finally:
+                    os.remove(f.name)
+                self.assertEqual(res.returncode, 0, '%s: %s' % (name, res.stderr))
