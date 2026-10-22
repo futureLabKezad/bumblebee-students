@@ -16,6 +16,9 @@ import SwiftUI
 
 /// Native MJPEG camera view. Owns an MJPEGStream and rebuilds the URL when the
 /// host or topic changes. Supports 180° flip.
+///
+/// A frame older than 3 s is dimmed under "Video lost". `idleHint` replaces
+/// the endless spinner for topics that only publish in flight (ArUco).
 struct CameraView: View {
     let host: String
     let topic: String
@@ -23,6 +26,9 @@ struct CameraView: View {
     var fps = 12
     var width = 320
     var height = 240
+    var idleHint: String? = nil
+    var compact = false            // small picture-in-picture: smaller text
+    var restartToken = 0           // bump to reopen the stream (Reconnect)
     @State private var flipped = false
     @StateObject private var stream = MJPEGStream()
 
@@ -33,17 +39,8 @@ struct CameraView: View {
     var body: some View {
         ZStack {
             Color.black
-            if let img = stream.image {
-                Image(nsImage: img)
-                    .resizable()
-                    .interpolation(.medium)
-                    .aspectRatio(contentMode: .fit)
-                    .rotationEffect(.degrees(flipped ? 180 : 0))
-            } else {
-                VStack(spacing: Theme.s2) {
-                    ProgressView().controlSize(.small)
-                    Text("waiting for video…").font(Theme.monoSmall).foregroundStyle(Theme.muted)
-                }
+            TimelineView(.periodic(from: .now, by: 0.5)) { ctx in
+                picture(VideoStatus.of(lastFrameAt: stream.lastFrameAt, startedAt: stream.startedAt, now: ctx.date))
             }
             VStack {
                 HStack {
@@ -65,11 +62,52 @@ struct CameraView: View {
         .onAppear { restart() }
         .onChange(of: host) { _, _ in restart() }
         .onChange(of: topic) { _, _ in restart() }
+        .onChange(of: restartToken) { _, _ in restart(force: true) }
         .onDisappear { stream.stop() }
     }
 
-    private func restart() {
+    @ViewBuilder
+    private func picture(_ status: VideoStatus) -> some View {
+        if let img = stream.image {
+            let lost: Int? = { if case .lost(let s) = status { return s } else { return nil } }()
+            ZStack {
+                Image(nsImage: img)
+                    .resizable()
+                    .interpolation(.medium)
+                    .aspectRatio(contentMode: .fit)
+                    .rotationEffect(.degrees(flipped ? 180 : 0))
+                    .opacity(lost == nil ? 1 : 0.35)
+                    .saturation(lost == nil ? 1 : 0)
+                if let s = lost {
+                    VStack(spacing: Theme.s1) {
+                        Label("Video lost", systemImage: "video.slash")
+                            .font(compact ? Theme.micro : Theme.bodyStrong)
+                        Text("\(s) s").font(compact ? Theme.micro : Theme.monoSmall)
+                        if let hint = idleHint, !compact {
+                            Text(hint).font(Theme.monoSmall).multilineTextAlignment(.center)
+                        }
+                    }
+                    .foregroundStyle(Theme.text)
+                    .padding(compact ? Theme.s1 : Theme.s3)
+                    .background(Theme.scrim, in: RoundedRectangle(cornerRadius: Theme.rControl))
+                }
+            }
+        } else if status == .noFrames, let hint = idleHint {
+            Text(hint)
+                .font(compact ? Theme.micro : Theme.monoSmall)
+                .foregroundStyle(Theme.muted)
+                .multilineTextAlignment(.center)
+                .padding(compact ? Theme.s1 : Theme.s4)
+        } else {
+            VStack(spacing: Theme.s2) {
+                ProgressView().controlSize(.small)
+                Text("waiting for video…").font(compact ? Theme.micro : Theme.monoSmall).foregroundStyle(Theme.muted)
+            }
+        }
+    }
+
+    private func restart(force: Bool = false) {
         guard let url = streamURL else { return }
-        stream.start(url: url)
+        stream.start(url: url, force: force)
     }
 }

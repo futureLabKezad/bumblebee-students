@@ -19,13 +19,23 @@ import Foundation
 /// Subscribes to the six telemetry topics the dashboard needs and pushes parsed
 /// values into a TelemetryStore on the main thread. Auto-reconnects on drop.
 /// The GCS is monitor-only, so this client never publishes or calls services.
+///
+/// Everything here runs on the main thread (the URLSession delivers there and
+/// connect/disconnect come from the UI), so `generation` is checked where the
+/// store is written: a message of a socket that has since been closed or
+/// replaced by another drone's is dropped, never shown.
 final class RosbridgeClient: NSObject {
     private let store: TelemetryStore
+    private let port: Int
     private var task: URLSessionWebSocketTask?
     private var session: URLSession!
     private var host = ""
     private var active = false
-    private var generation = 0
+    /// Bumped by every connect, drop and disconnect.
+    private(set) var generation = 0
+    private var linked = false              // this socket has answered
+    private var watchdog = PingWatchdog()
+    private var pingTimer: Timer?
 
     /// `throttleMs`: rosbridge sends at most one message per interval (0 = all),
     /// keeping only the newest. A linked flight controller streams pose and
@@ -41,10 +51,12 @@ final class RosbridgeClient: NSObject {
         .init(topic: "/mavros/mavros/data",               type: "sensor_msgs/msg/Imu",            throttleMs: 50),
     ]
 
-    init(store: TelemetryStore) {
+    /// `port` is 9090 on every drone; tests point it at a local fake.
+    init(store: TelemetryStore, port: Int = 9090) {
         self.store = store
+        self.port = port
         super.init()
-        session = URLSession(configuration: .ephemeral)
+        session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
     }
 
     func connect(host: String) {
@@ -57,28 +69,60 @@ final class RosbridgeClient: NSObject {
 
     func disconnect() {
         active = false
+        generation += 1
+        closeSocket()
+        store.resetForReconnect()
+    }
+
+    private func closeSocket() {
+        pingTimer?.invalidate()
+        pingTimer = nil
+        watchdog.reset()
+        linked = false
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
-        DispatchQueue.main.async { self.store.resetForReconnect() }
     }
 
     private func openSocket(_ gen: Int) {
-        guard active, gen == generation, let url = URL(string: "ws://\(host):9090") else { return }
+        guard active, gen == generation, let url = URL(string: "ws://\(host):\(port)") else { return }
         let t = session.webSocketTask(with: url)
         task = t
         t.resume()
         // rosbridge has no explicit "ready" handshake; subscribe immediately.
         for s in subs { send(subscribe: s) }
-        // Only report "linked" once the socket really answers: a WebSocket
-        // ping succeeds only after the upgrade to :9090 has completed.
+        // Ping every 2 s. A pong (or any message) shows the upgrade to :9090
+        // has completed; no pong within 4 s means the link died silently
+        // (drone off, out of Wi-Fi range), which TCP alone notices only after
+        // a minute or more.
+        ping(gen)
+        let timer = Timer(timeInterval: PingWatchdog.interval, repeats: true) { [weak self] _ in
+            self?.ping(gen)
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        pingTimer = timer
+        receive(gen)
+    }
+
+    private func ping(_ gen: Int) {
+        guard active, gen == generation, let t = task else { return }
+        let id = watchdog.sent(now: Date())
         t.sendPing { [weak self] error in
-            guard let self = self, error == nil, gen == self.generation, self.active else { return }
             DispatchQueue.main.async {
-                self.store.rosConnected = true
-                self.store.log("rosbridge connected (\(self.host))")
+                guard let self = self, gen == self.generation, error == nil else { return }
+                self.watchdog.answered(id)
+                self.markLinked(gen)
             }
         }
-        receive(gen)
+        DispatchQueue.main.asyncAfter(deadline: .now() + PingWatchdog.timeout + 0.05) { [weak self] in
+            guard let self = self, self.active, gen == self.generation else { return }
+            if self.watchdog.timedOut(now: Date()) { self.handleDrop(gen) }
+        }
+    }
+
+    private func markLinked(_ gen: Int) {
+        guard !linked, active, gen == generation else { return }
+        linked = true
+        store.socketOpened(host: host)
     }
 
     private func send(subscribe s: Sub) {
@@ -94,111 +138,50 @@ final class RosbridgeClient: NSObject {
 
     private func receive(_ gen: Int) {
         task?.receive { [weak self] result in
-            guard let self = self, gen == self.generation else { return }
-            switch result {
-            case .failure:
-                self.handleDrop(gen)
-            case .success(let message):
-                switch message {
-                case .string(let s): self.handle(text: s)
-                case .data(let d): self.handle(text: String(decoding: d, as: UTF8.self))
-                @unknown default: break
+            DispatchQueue.main.async {
+                guard let self = self, gen == self.generation else { return }
+                switch result {
+                case .failure:
+                    self.handleDrop(gen)
+                case .success(let message):
+                    self.markLinked(gen)
+                    switch message {
+                    case .string(let s): self.deliver(text: s, gen: gen)
+                    case .data(let d): self.deliver(text: String(decoding: d, as: UTF8.self), gen: gen)
+                    @unknown default: break
+                    }
+                    self.receive(gen)
                 }
-                self.receive(gen)
             }
         }
     }
 
     private func handleDrop(_ gen: Int) {
         guard active, gen == generation else { return }
-        DispatchQueue.main.async {
-            self.store.rosConnected = false
-            self.store.log("rosbridge lost — reconnecting…")
-        }
+        let wasLinked = linked
+        generation += 1
+        let next = generation
+        closeSocket()
+        store.socketDropped(wasLinked: wasLinked)
         // Reconnect after 3 s (matches web behaviour).
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3) { [weak self] in
-            guard let self = self, self.active, gen == self.generation else { return }
-            self.openSocket(gen)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            guard let self = self, self.active, next == self.generation else { return }
+            self.openSocket(next)
         }
     }
 
     // MARK: - Message parsing
 
-    private func handle(text: String) {
-        guard let data = text.data(using: .utf8),
-              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+    /// One rosbridge frame of socket `gen`; ignored unless that socket is the
+    /// current one. JSON5 parsing accepts the bare NaN that Python's json
+    /// writes for an unmeasured battery voltage.
+    func deliver(text: String, gen: Int, now: Date = Date()) {
+        guard gen == generation,
+              let data = text.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: data, options: [.json5Allowed]) as? [String: Any],
               (obj["op"] as? String) == "publish",
               let topic = obj["topic"] as? String,
               let msg = obj["msg"] as? [String: Any] else { return }
-
-        DispatchQueue.main.async { self.apply(topic: topic, msg: msg) }
-    }
-
-    private func apply(topic: String, msg: [String: Any]) {
-        switch topic {
-        case "/mavros/state":
-            if let mode = msg["mode"] as? String, mode != store.mode {
-                store.mode = mode
-                store.log("mode → \(mode)")
-            }
-            if let armed = msg["armed"] as? Bool { store.armed = armed }
-            store.touched()
-
-        case "/mavros/statustext/recv":
-            let sev = (msg["severity"] as? Int) ?? 99
-            if sev <= 4, let txt = msg["text"] as? String { store.log("[FCU] \(txt)") }
-
-        case "/mavros/battery":
-            let v = (msg["voltage"] as? Double) ?? Double.nan
-            let pRaw = (msg["percentage"] as? Double) ?? Double.nan
-            if v.isFinite && v > 0 && v < 60 { store.batteryVoltage = v } else { store.batteryVoltage = nil }
-            var pct: Double? = nil
-            if pRaw.isFinite && pRaw >= 0 && pRaw <= 1 {
-                pct = pRaw * 100
-            } else if let v = store.batteryVoltage {
-                pct = max(0, min(100, (v / 6 - 3.3) / (4.2 - 3.3) * 100)) // 6S estimate
-            }
-            store.batteryPct = pct
-            if let pct = pct {
-                store.pushChart(\.chartBat, pct)
-                if pct < 15, let v = store.batteryVoltage {
-                    store.log(String(format: "WARNING LOW BATTERY: %.2f V", v))
-                }
-            }
-            store.touched()
-
-        case "/mavros/mavros/pose":
-            guard let pose = msg["pose"] as? [String: Any],
-                  let p = pose["position"] as? [String: Any],
-                  let o = pose["orientation"] as? [String: Any] else { return }
-            store.posX = (p["x"] as? Double) ?? 0
-            store.posY = (p["y"] as? Double) ?? 0
-            store.posZ = (p["z"] as? Double) ?? 0
-            let e = quatToEuler((o["x"] as? Double) ?? 0, (o["y"] as? Double) ?? 0,
-                                (o["z"] as? Double) ?? 0, (o["w"] as? Double) ?? 1)
-            store.roll = e.roll; store.pitch = e.pitch; store.yaw = e.yaw
-            store.pushTrail(store.posX, store.posY)
-            store.pushChart(\.chartAlt, store.posZ)
-            store.touched()
-
-        case "/mavros/mavros/velocity_local":
-            guard let twist = msg["twist"] as? [String: Any],
-                  let l = twist["linear"] as? [String: Any] else { return }
-            store.vx = (l["x"] as? Double) ?? 0
-            store.vy = (l["y"] as? Double) ?? 0
-            store.vz = (l["z"] as? Double) ?? 0
-            store.pushChart(\.chartSpd, store.speedH)
-            store.touched()
-
-        case "/mavros/mavros/data":
-            guard let av = msg["angular_velocity"] as? [String: Any],
-                  let la = msg["linear_acceleration"] as? [String: Any] else { return }
-            let gx = (av["x"] as? Double) ?? 0, gy = (av["y"] as? Double) ?? 0, gz = (av["z"] as? Double) ?? 0
-            let ax = (la["x"] as? Double) ?? 0, ay = (la["y"] as? Double) ?? 0, az = (la["z"] as? Double) ?? 0
-            store.gyroMag = (gx * gx + gy * gy + gz * gz).squareRoot() * 180 / Double.pi
-            store.accelMag = (ax * ax + ay * ay + az * az).squareRoot()
-
-        default: break
-        }
+        store.ingest(topic: topic, msg: msg, now: now)
     }
 }

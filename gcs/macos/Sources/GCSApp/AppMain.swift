@@ -82,6 +82,8 @@ final class AppState: ObservableObject {
     @Published var connected = false
     @Published var lastHost: String? = UserDefaults.standard.string(forKey: "lastHost")
     @Published var knownDrones: [KnownDrone] = AppState.loadKnown()
+    /// Bumped by Reconnect so the camera views reopen their streams too.
+    @Published var videoEpoch = 0
 
     private var activity: NSObjectProtocol?
     private static let knownKey = "knownDrones"
@@ -89,10 +91,17 @@ final class AppState: ObservableObject {
     func connect(to ip: String) {
         let ip = ip.trimmingCharacters(in: .whitespaces)
         guard !ip.isEmpty else { return }
+        // Another drone: nothing of the previous one may stay on screen (trail,
+        // charts, log, values, armed, Pi metrics). The same drone keeps its log.
+        if ConnectKind.of(previousHost: droneHost, newHost: ip) == .newDrone {
+            telemetry.resetAll()
+            metrics.reset()
+        }
         droneHost = ip
         api.host = ip
         ros.connect(host: ip)
         metrics.start(host: ip)
+        telemetry.startClock()
         connected = true
         lastHost = ip
         UserDefaults.standard.set(ip, forKey: "lastHost")
@@ -124,11 +133,13 @@ final class AppState: ObservableObject {
         guard connected, !droneHost.isEmpty else { return }
         ros.connect(host: droneHost)
         metrics.start(host: droneHost)
+        videoEpoch += 1
     }
 
     func disconnect() {
         ros.disconnect()
         metrics.stop()
+        telemetry.stopClock()
         connected = false
         endKeepAwake()
     }

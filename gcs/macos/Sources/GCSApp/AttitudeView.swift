@@ -17,9 +17,12 @@ import SwiftUI
 /// Artificial horizon (attitude indicator). Roll rotates the horizon, pitch
 /// shifts it vertically; includes a pitch ladder, roll arc and fixed aircraft
 /// marker — same construction as the web canvas.
+///
+/// Pitch is in the ROS convention (+ = nose down, like get_telemetry()): nose
+/// down moves the horizon up, so more ground shows (Horizon.offset).
 struct AttitudeView: View {
     let roll: Double   // degrees
-    let pitch: Double  // degrees
+    let pitch: Double  // degrees, + = nose down
 
     private let sky = Color(hex: 0x1a4cc0)
     private let ground = Color(hex: 0x7c4820)
@@ -36,7 +39,7 @@ struct AttitudeView: View {
             h.clip(to: circle)
             h.translateBy(x: cx, y: cy)
             h.rotate(by: .degrees(-roll))
-            h.translateBy(x: 0, y: pitch * pxPerDeg)
+            h.translateBy(x: 0, y: Horizon.offset(pitchDeg: pitch, pxPerDeg: pxPerDeg))
 
             let big = max(size.width, size.height) * 2
             h.fill(Path(CGRect(x: -big, y: -big, width: 2 * big, height: big)), with: .color(sky))

@@ -22,9 +22,12 @@ struct DashboardView: View {
     @State private var bottomTopic = "/main_camera/image_raw"
     @State private var pipBig = false
 
+    private static let arucoTopic = "/aruco_detect/debug"
+    private static let arucoHint = "ArUco image appears only when the drone is armed or in OFFBOARD"
+
     private let bottomTabs: [(String, String)] = [
         ("Bottom", "/main_camera/image_raw"),
-        ("ArUco", "/aruco_detect/debug"),
+        ("ArUco", DashboardView.arucoTopic),
     ]
 
     var body: some View {
@@ -32,6 +35,7 @@ struct DashboardView: View {
             ScrollView {
                 VStack(spacing: Theme.s4) {
                     heroRow
+                    if let ev = t.controlEvent { controlEventLine(ev) }
                     cameras
                     masonry(width: geo.size.width)
                 }
@@ -60,18 +64,57 @@ struct DashboardView: View {
         }
     }
 
+    // MARK: - Freshness of each source
+
+    private var stateStatus: Freshness.Status { Freshness.status(t.stateAt, limit: Freshness.state, now: t.now) }
+    private var poseStatus: Freshness.Status { Freshness.status(t.poseAt, limit: Freshness.pose, now: t.now) }
+    private var velStatus: Freshness.Status { Freshness.status(t.velocityAt, limit: Freshness.velocity, now: t.now) }
+    private var imuStatus: Freshness.Status { Freshness.status(t.imuAt, limit: Freshness.imu, now: t.now) }
+    private var attStatus: Freshness.Status { Freshness.status(t.attitudeAt, limit: Freshness.imu, now: t.now) }
+    private var batStatus: Freshness.Status { Freshness.status(t.batteryAt, limit: Freshness.battery, now: t.now) }
+    private var metricsStatus: Freshness.Status { Freshness.status(metricsClient.lastAt, limit: Freshness.metrics, now: t.now) }
+
     // MARK: - Hero
 
     private var heroRow: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 190), spacing: Theme.s3)], spacing: Theme.s3) {
-            StatTile(label: "Mode", value: t.mode.uppercased(), icon: "airplane", color: Theme.primary)
-            StatTile(label: "State", value: t.armed ? "ARMED" : "DISARMED",
-                     icon: t.armed ? "bolt.fill" : "bolt.slash", color: t.armed ? Theme.danger : Theme.muted)
-            StatTile(label: "Battery", value: batteryShort, icon: "battery.75", color: batteryColor)
-            StatTile(label: "Altitude", value: String(format: "%.2f m", t.posZ), icon: "arrow.up.to.line", color: Theme.primary)
-            StatTile(label: "Link", value: t.rosConnected ? "OK" : "—",
-                     icon: "dot.radiowaves.up.forward", color: t.rosConnected ? Theme.ok : Theme.warn)
+        let state = stateStatus, pose = poseStatus, bat = batStatus
+        let armed = t.armedDisplay
+        let battery = BatteryDisplay(t.battery)
+        let owner = t.owner
+        return LazyVGrid(columns: [GridItem(.adaptive(minimum: 190), spacing: Theme.s3)], spacing: Theme.s3) {
+            StatTile(label: "Mode", value: modeValue, icon: "airplane", color: Theme.primary,
+                     caption: state.isFresh ? ModeText.explain(t.mode) : state.note,
+                     captionColor: state.isFresh ? Theme.muted : Theme.caution, dimmed: !state.isFresh)
+            StatTile(label: "State", value: armed.text, icon: armedIcon(armed), color: armedColor(armed),
+                     caption: armed.caption, valueColor: armedValueColor(armed))
+            StatTile(label: "Battery", value: battery.tileValue, icon: battery.icon, color: levelColor(battery.level),
+                     caption: bat.isFresh ? battery.tileCaption : bat.note,
+                     captionColor: bat.isFresh ? Theme.muted : Theme.caution, dimmed: !bat.isFresh)
+            StatTile(label: "Z (local)", value: num(t.posZ, "%.2f m"), icon: "arrow.up.to.line", color: Theme.primary,
+                     caption: pose.note, captionColor: Theme.caution, dimmed: !pose.isFresh)
+            StatTile(label: "Link", value: t.link.text, icon: linkIcon(t.link), color: linkColor(t.link),
+                     caption: linkCaption(state), captionColor: Theme.caution)
+            StatTile(label: "Control", value: owner.text, icon: ownerIcon(owner), color: ownerColor(owner),
+                     caption: owner == .unknown && t.armed == nil ? "waiting for FC data" : nil,
+                     valueColor: owner == .unknown ? Theme.caution : Theme.text)
         }
+    }
+
+    /// The last change of who is in control, as its own line under the tiles.
+    private func controlEventLine(_ ev: ControlEventLine) -> some View {
+        HStack(spacing: Theme.s2) {
+            Image(systemName: "flag.fill").font(.system(size: Theme.iconSm)).foregroundStyle(ownerColor(t.owner))
+            Text(ev.time).font(Theme.monoSmall).foregroundStyle(Theme.muted)
+            Text(ev.text).font(Theme.bodyStrong).foregroundStyle(Theme.text)
+            if !ev.mode.isEmpty {
+                Text(ModeText.explain(ev.mode).map { "\(ev.mode) · \($0)" } ?? ev.mode)
+                    .font(Theme.monoSmall).foregroundStyle(Theme.muted)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, Theme.s3).padding(.vertical, Theme.s2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassCard(Theme.rControl)
     }
 
     // MARK: - Cameras
@@ -79,15 +122,19 @@ struct DashboardView: View {
     private var cameras: some View {
         HStack(alignment: .top, spacing: Theme.s4) {
             cameraCard(title: "Front", tabs: nil) {
-                CameraView(host: app.droneHost, topic: "/second_camera/image_raw")
+                CameraView(host: app.droneHost, topic: "/second_camera/image_raw", restartToken: app.videoEpoch)
                     .aspectRatio(4.0/3.0, contentMode: .fit)
             }
             cameraCard(title: "Bottom", tabs: AnyView(tabBar)) {
                 ZStack(alignment: .topTrailing) {
-                    CameraView(host: app.droneHost, topic: bottomTopic)
+                    CameraView(host: app.droneHost, topic: bottomTopic,
+                               idleHint: bottomTopic == Self.arucoTopic ? Self.arucoHint : nil,
+                               restartToken: app.videoEpoch)
                         .aspectRatio(4.0/3.0, contentMode: .fit)
                     CameraView(host: app.droneHost, topic: "/aruco_map/image",
-                               quality: 50, fps: 3, width: 160, height: 120)
+                               quality: 50, fps: 3, width: 160, height: 120,
+                               idleHint: "ArUco map: armed or OFFBOARD only", compact: true,
+                               restartToken: app.videoEpoch)
                         .frame(width: pipBig ? 190 : 120, height: pipBig ? 142 : 90)
                         .overlay(RoundedRectangle(cornerRadius: Theme.rMedia).stroke(Theme.primary.opacity(0.7), lineWidth: 1))
                         .padding(Theme.s2)
@@ -121,41 +168,55 @@ struct DashboardView: View {
     // MARK: - Panels
 
     private var attitudePanel: some View {
-        Panel(title: "Attitude", icon: "gyroscope") {
-            HStack { Spacer(); AttitudeView(roll: t.roll, pitch: t.pitch); Spacer() }
+        let att = attStatus
+        return Panel(title: "Attitude", icon: "gyroscope", note: att.note, dimmed: !att.isFresh) {
+            HStack { Spacer(); AttitudeView(roll: t.roll ?? 0, pitch: t.pitch ?? 0); Spacer() }
             HStack {
-                Readout(label: "Roll", value: String(format: "%.1f°", t.roll))
-                Readout(label: "Pitch", value: String(format: "%.1f°", t.pitch))
-                Readout(label: "Yaw", value: String(format: "%.1f°", t.yaw))
+                Readout(label: "Roll", value: num(t.roll, "%.1f°"))
+                Readout(label: "Pitch", value: num(t.pitch, "%.1f°"))
+                Readout(label: "Yaw", value: num(t.yaw, "%.1f°"))
             }
+            Text("Pitch + = nose down (ROS)").font(Theme.monoSmall).foregroundStyle(Theme.muted)
         }
     }
 
     private var telemetryPanel: some View {
-        Panel(title: "Telemetry", icon: "location.fill") {
-            LabeledBar(label: "Battery", value: batteryText, pct: t.batteryPct ?? 0, color: batteryColor)
-            Readout(label: "X", value: String(format: "%+.3f", t.posX), color: Theme.danger)
-            Readout(label: "Y", value: String(format: "%+.3f", t.posY), color: Theme.ok)
-            Readout(label: "Z", value: String(format: "%+.3f", t.posZ), color: Theme.accent2)
+        let battery = BatteryDisplay(t.battery)
+        return Panel(title: "Telemetry", icon: "location.fill") {
+            group(batStatus) {
+                LabeledBar(label: "Battery", value: battery.barText, pct: battery.barPercent, color: levelColor(battery.level))
+            }
+            group(poseStatus) {
+                Readout(label: "X", value: num(t.posX, "%+.3f m"), color: Theme.danger)
+                Readout(label: "Y", value: num(t.posY, "%+.3f m"), color: Theme.ok)
+                Readout(label: "Z (local)", value: num(t.posZ, "%+.3f m"), color: Theme.accent2)
+            }
             Divider().overlay(Theme.hairline)
-            Readout(label: "Vx", value: String(format: "%+.3f", t.vx))
-            Readout(label: "Vy", value: String(format: "%+.3f", t.vy))
-            Readout(label: "Vz", value: String(format: "%+.3f", t.vz))
+            group(velStatus) {
+                Readout(label: "Vx", value: num(t.vx, "%+.3f m/s"))
+                Readout(label: "Vy", value: num(t.vy, "%+.3f m/s"))
+                Readout(label: "Vz", value: num(t.vz, "%+.3f m/s"))
+            }
         }
     }
 
     private var flightDataPanel: some View {
         Panel(title: "Flight Data", icon: "speedometer") {
-            LabeledBar(label: "Horiz. Speed", value: String(format: "%.2f m/s", t.speedH), pct: pctOf(t.speedH, 5), color: Theme.dataTeal)
-            LabeledBar(label: "Vert. Speed", value: String(format: "%.2f m/s", t.speedV), pct: pctOf(t.speedV, 3), color: Theme.dataBlue)
-            LabeledBar(label: "Angular Rate", value: String(format: "%.1f °/s", t.gyroMag), pct: pctOf(t.gyroMag, 360), color: Theme.dataOrange)
-            LabeledBar(label: "IMU Accel", value: String(format: "%.2f m/s²", t.accelMag), pct: pctOf(t.accelMag, 30), color: Theme.dataGreen)
+            group(velStatus) {
+                LabeledBar(label: "Horiz. Speed", value: num(t.speedH, "%.2f m/s"), pct: pctOf(t.speedH ?? 0, 5), color: Theme.dataTeal)
+                LabeledBar(label: "Vert. Speed", value: num(t.speedV, "%.2f m/s"), pct: pctOf(t.speedV ?? 0, 3), color: Theme.dataBlue)
+            }
+            group(imuStatus) {
+                LabeledBar(label: "Angular Rate", value: num(t.gyroMag, "%.1f °/s"), pct: pctOf(t.gyroMag ?? 0, 360), color: Theme.dataOrange)
+                LabeledBar(label: "IMU Accel", value: num(t.accelMag, "%.2f m/s²"), pct: pctOf(t.accelMag ?? 0, 30), color: Theme.dataGreen)
+            }
         }
     }
 
     private var systemPanel: some View {
         let m = metricsClient.metrics
-        return Panel(title: "Raspberry Pi", icon: "cpu") {
+        let ms = metricsStatus
+        return Panel(title: "Raspberry Pi", icon: "cpu", note: ms.note, dimmed: !ms.isFresh) {
             LabeledBar(label: "CPU Temp", value: m.cpuTemp.map { String(format: "%.1f °C", $0) } ?? "—",
                        pct: min(100, m.cpuTemp ?? 0), color: tempColor(m.cpuTemp))
             LabeledBar(label: "CPU Load", value: m.cpuPct.map { String(format: "%.0f%%", $0) } ?? "—",
@@ -168,41 +229,135 @@ struct DashboardView: View {
 
     private var chartsPanel: some View {
         Panel(title: "Charts", icon: "chart.xyaxis.line") {
-            ChartView(title: "Altitude (m)", data: t.chartAlt, color: Theme.dataBlue)
-            ChartView(title: "Speed (m/s)", data: t.chartSpd, color: Theme.dataTeal, fixedMin: 0, fixedMax: 5)
-            ChartView(title: "Battery (%)", data: t.chartBat, color: Theme.dataGreen, fixedMin: 0, fixedMax: 100)
+            ChartView(title: "Z (local), m", data: t.chartAlt, color: Theme.dataBlue,
+                      minSpan: 1.0, staleNote: poseStatus.note)
+            ChartView(title: "Speed (m/s)", data: t.chartSpd, color: Theme.dataTeal, fixedMin: 0, fixedMax: 5,
+                      staleNote: velStatus.note)
+            ChartView(title: "Battery (%)", data: t.chartBat, color: Theme.dataGreen, fixedMin: 0, fixedMax: 100,
+                      staleNote: batStatus.note)
         }
     }
 
     private var mapPanel: some View {
-        Panel(title: "Position Map", icon: "map") { PositionMapView(trail: t.posTrail) }
+        let pose = poseStatus
+        return Panel(title: "Position Map", icon: "map", note: pose.note, dimmed: !pose.isFresh) {
+            PositionMapView(trail: t.posTrail)
+        }
     }
 
     private var logPanel: some View {
-        Panel(title: "Messages", icon: "list.bullet.rectangle") {
-            VStack(alignment: .leading, spacing: Theme.s0) {
-                if t.logs.isEmpty { Text("—").font(Theme.monoSmall).foregroundStyle(Theme.muted) }
-                ForEach(t.logs) { e in
-                    HStack(alignment: .top, spacing: Theme.s1 + 2) {
-                        Text(e.time).font(Theme.logMono).foregroundStyle(Theme.muted)
-                        Text(e.text).font(Theme.logMono).foregroundStyle(Theme.text)
-                    }
+        let logs = t.logs
+        return Panel(title: "Messages", icon: "list.bullet.rectangle") {
+            if logs.count > 16 {
+                ScrollView { logList(logs) }.frame(height: 240)
+            } else {
+                logList(logs)
+            }
+        }
+    }
+
+    private func logList(_ logs: [LogEntry]) -> some View {
+        VStack(alignment: .leading, spacing: Theme.s0) {
+            if logs.isEmpty { Text("—").font(Theme.monoSmall).foregroundStyle(Theme.muted) }
+            ForEach(logs) { e in
+                HStack(alignment: .top, spacing: Theme.s1 + 2) {
+                    Text(e.time).font(Theme.logMono).foregroundStyle(Theme.muted)
+                    Text(e.line).font(Theme.logMono).foregroundStyle(e.source == .fcu ? Theme.caution : Theme.text)
                 }
-            }.frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }.frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// A group of rows fed by one source: greyed with "no data N s" when quiet.
+    private func group<V: View>(_ s: Freshness.Status, @ViewBuilder _ content: () -> V) -> some View {
+        VStack(alignment: .leading, spacing: Theme.s3) {
+            content().staleDimmed(!s.isFresh)
+            StaleNote(status: s)
         }
     }
 
     // MARK: - Derived
 
-    private var batteryShort: String { t.batteryPct.map { String(format: "%.0f%%", $0) } ?? "—" }
-    private var batteryText: String {
-        let v = t.batteryVoltage.map { String(format: "%.2f V", $0) } ?? "— V"
-        let p = t.batteryPct.map { String(format: "%.0f%%", $0) } ?? "—"
-        return "\(v) · \(p)"
+    private var modeValue: String {
+        guard let m = t.mode, !m.isEmpty else { return "—" }
+        return m.uppercased()
     }
-    private var batteryColor: Color {
-        guard let p = t.batteryPct else { return Theme.muted }
-        return p > 55 ? Theme.ok : (p > 25 ? Theme.warn : Theme.danger)
+
+    private func num(_ v: Double?, _ format: String) -> String {
+        v.map { String(format: format, $0) } ?? "—"
+    }
+
+    private func armedIcon(_ a: ArmedDisplay) -> String {
+        switch a {
+        case .armed: return "bolt.fill"
+        case .disarmed: return "bolt.slash"
+        case .unknown: return "questionmark.circle"
+        case .armedLinkLost: return "exclamationmark.triangle.fill"
+        }
+    }
+    private func armedColor(_ a: ArmedDisplay) -> Color {
+        switch a {
+        case .armed, .armedLinkLost: return Theme.danger
+        case .disarmed: return Theme.muted
+        case .unknown: return Theme.caution
+        }
+    }
+    private func armedValueColor(_ a: ArmedDisplay) -> Color {
+        switch a {
+        case .unknown: return Theme.caution
+        case .armedLinkLost: return Theme.danger
+        case .armed, .disarmed: return Theme.text
+        }
+    }
+
+    private func linkIcon(_ l: LinkState) -> String {
+        switch l {
+        case .ok: return "dot.radiowaves.up.forward"
+        case .noDrone: return "antenna.radiowaves.left.and.right.slash"
+        case .fcNotConnected, .telemetryFrozen: return "exclamationmark.triangle.fill"
+        }
+    }
+    private func linkColor(_ l: LinkState) -> Color {
+        switch l {
+        case .ok: return Theme.ok
+        case .noDrone: return Theme.warn
+        case .fcNotConnected, .telemetryFrozen: return Theme.danger
+        }
+    }
+    private func linkCaption(_ state: Freshness.Status) -> String? {
+        switch t.link {
+        case .noDrone: return t.rosConnected ? "waiting for FC data" : nil
+        case .telemetryFrozen: return state.note
+        case .fcNotConnected, .ok: return nil
+        }
+    }
+
+    private func ownerIcon(_ o: ControlOwner) -> String {
+        switch o {
+        case .program: return "cpu"
+        case .pilot: return "gamecontroller.fill"
+        case .px4: return "airplane.circle"
+        case .disarmed: return "bolt.slash"
+        case .unknown: return "questionmark.circle"
+        }
+    }
+    private func ownerColor(_ o: ControlOwner) -> Color {
+        switch o {
+        case .program: return Theme.primary
+        case .pilot: return Theme.ok
+        case .px4: return Theme.warn
+        case .disarmed: return Theme.muted
+        case .unknown: return Theme.caution
+        }
+    }
+
+    private func levelColor(_ l: BatteryDisplay.Level) -> Color {
+        switch l {
+        case .neutral: return Theme.muted
+        case .good: return Theme.ok
+        case .low: return Theme.warn
+        case .critical: return Theme.danger
+        }
     }
     private func tempColor(_ x: Double?) -> Color { x.map { $0 < 60 ? Theme.ok : ($0 < 75 ? Theme.warn : Theme.danger) } ?? Theme.muted }
     private func cpuColor(_ x: Double?) -> Color { x.map { $0 < 60 ? Theme.ok : ($0 < 85 ? Theme.warn : Theme.danger) } ?? Theme.muted }
