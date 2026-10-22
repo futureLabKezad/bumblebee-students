@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using BumblebeeGcs.Logic;
 using BumblebeeGcs.Models;
 using Microsoft.UI.Dispatching;
 
@@ -33,8 +34,12 @@ public sealed class AppState
     public List<KnownDrone> KnownDrones => _settings.KnownDrones;
 
     public event Action? ConnectedChanged;
+    /// <summary>Reconnect (Ctrl+R) was pressed: cameras reopen their streams too.</summary>
+    public event Action? Reconnected;
 
     private readonly AppSettings _settings = AppSettings.Load();
+    /// <summary>Re-evaluates link/armed/alarms twice a second: staleness needs no message.</summary>
+    private readonly DispatcherQueueTimer _monitor;
 
     public AppState(DispatcherQueue dq)
     {
@@ -42,12 +47,25 @@ public sealed class AppState
         Metrics = new MetricsClient(dq);
         Handoff = new WifiHandoff(dq, _settings);
         Ros = new RosbridgeClient(Telemetry, dq);
+
+        Telemetry.AlarmRaised += AlertSound.Play;
+        _monitor = dq.CreateTimer();
+        _monitor.Interval = TimeSpan.FromMilliseconds(500);
+        _monitor.Tick += (_, _) => Telemetry.Evaluate(MonoClock.Now);
+        _monitor.Start();
     }
 
     public void Connect(string ip)
     {
         ip = ip.Trim();
         if (ip.Length == 0) return;
+        // Другой дрон: трек, графики, журнал, поза, батарея, режим, armed и метрики
+        // прошлого не должны остаться на экране. Тот же дрон — журнал сохраняется.
+        if (ip != DroneHost)
+        {
+            Telemetry.ResetAll(MonoClock.Now);
+            Metrics.Clear();
+        }
         DroneHost = ip;
         Api.Host = ip;
         Ros.Connect(ip);
@@ -80,6 +98,7 @@ public sealed class AppState
         if (!Connected || DroneHost.Length == 0) return;
         Ros.Connect(DroneHost);
         Metrics.Start(DroneHost);
+        Reconnected?.Invoke();
     }
 
     public void Disconnect()

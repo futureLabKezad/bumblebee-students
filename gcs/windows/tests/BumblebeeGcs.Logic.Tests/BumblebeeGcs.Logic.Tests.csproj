@@ -1,0 +1,31 @@
+<!--
+  Unit tests for the Windows GCS decision logic (link state, freshness, armed,
+  mode text, who is in control, battery, charts, log, alarms, video status).
+  The app itself is WinUI and only builds on Windows; these files have no UI
+  dependency, so they are compiled here straight from the app's sources and the
+  tests run anywhere .NET 10 runs:
+
+      dotnet test gcs/windows/tests/BumblebeeGcs.Logic.Tests
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <!-- Only the UI-independent app files. -->
+  <ItemGroup>
+    <Compile Include="../../src/BumblebeeGcs/Logic/*.cs" Link="App/Logic/%(Filename)%(Extension)" />
+    <Compile Include="../../src/BumblebeeGcs/Models/Models.cs" Link="App/Models/Models.cs" />
+  </ItemGroup>
+</Project>

@@ -32,6 +32,9 @@ public static class IconGlyphs
     public const string Armed         = "\uE945"; // bolt.fill -> LightningBolt
     public const string Disarmed      = "\uE945"; // bolt.slash - differs by color
     public const string Battery       = "\uE859"; // battery.75 -> Battery8
+    public const string BatteryUnknown = "\uE996"; // battery not measured / no data -> BatteryUnknown
+    public const string Unknown       = "\uE9CE"; // questionmark -> Unknown
+    public const string InControl     = "\uE77B"; // person -> Contact
     public const string Altitude      = "\uE74A"; // arrow.up.to.line -> Up
     public const string Link          = "\uE701"; // dot.radiowaves.up.forward -> Wifi
     public const string Attitude      = "\uE7AD"; // gyroscope -> Rotate
