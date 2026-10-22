@@ -25,22 +25,23 @@ using Windows.UI;
 namespace BumblebeeGcs.Views;
 
 /// <summary>
-/// Дашборд: hero-плитки, «кто управляет», камеры, masonry-панели. Порт DashboardView.swift.
-/// Честный экран: до первых данных «—», устаревший источник — серая панель с «no data N s»,
-/// armed — три состояния, Link — одно из четырёх (решения — в BumblebeeGcs.Logic).
+/// Дашборд: hero-плитки (с «Control» — кто управляет), строка события управления, камеры,
+/// masonry-панели. Порт DashboardView.swift, те же правила: до первых данных «—» и серая
+/// панель с «no data yet», устаревший источник — серая группа с «no data N s», armed — три
+/// состояния, Link — одно из четырёх (решения — в BumblebeeGcs.Logic, там же тесты).
 /// </summary>
 public sealed class DashboardPage : Grid
 {
     private readonly AppState _app;
     private readonly TelemetryStore _t;
 
-    // Hero
-    private readonly StatTile _modeTile, _stateTile, _batteryTile, _altTile, _linkTile;
+    // Hero (the Control tile: who is in control, display only)
+    private readonly StatTile _modeTile, _stateTile, _batteryTile, _altTile, _linkTile, _controlTile;
 
-    // Who is in control (display only) + visible control events
-    private readonly FontIcon _controlIcon;
-    private readonly TextBlock _controlValue, _controlCaption;
-    private readonly StackPanel _eventList = new() { Spacing = Palette.S1 };
+    // The latest change of who is in control, as its own line under the tiles
+    private readonly Border _eventCard;
+    private readonly FontIcon _eventIcon;
+    private readonly TextBlock _eventTime, _eventText, _eventMode;
     private int _eventsVersion = -1;
 
     // Cameras
@@ -51,7 +52,7 @@ public sealed class DashboardPage : Grid
     private readonly AttitudeView _attitude = new();
     private readonly ReadoutRow _roll = new("Roll"), _pitch = new("Pitch"), _yaw = new("Yaw");
     private readonly TextBlock _attitudeHint;
-    private readonly Grid _rpyRow;
+    private readonly StackPanel _attitudeBody;
     private readonly LabeledBarRow _batteryBar;
     private readonly ReadoutRow _x, _y, _z, _vx, _vy, _vz;
     private readonly LabeledBarRow _hSpeed, _vSpeed, _angRate, _imuAccel;
@@ -60,7 +61,9 @@ public sealed class DashboardPage : Grid
     private readonly PositionMapView _map;
     private readonly StackPanel _logList = new() { Spacing = Palette.S0 };
     private int _logVersion = -1;
-    private readonly PanelCard _attitudePanel, _telemetryPanel, _flightPanel, _piPanel, _chartsPanel, _mapPanel;
+    private readonly PanelCard _attitudePanel, _piPanel, _mapPanel;
+    // Rows fed by one source: greyed together, with their own "no data N s" line (as on the Mac).
+    private readonly SourceGroup _batteryGroup, _poseGroup, _velGroup, _speedGroup, _imuGroup;
 
     private readonly Grid _masonry = new() { ColumnSpacing = Palette.S4 };
     private readonly FrameworkElement[] _panels;
@@ -70,7 +73,7 @@ public sealed class DashboardPage : Grid
     private readonly Microsoft.UI.Dispatching.DispatcherQueueTimer _refresh;
     private readonly Action _onTelemetry, _onMetrics, _onReconnected;
 
-    private const string AttitudeHint = "+pitch = nose down (ROS) · yaw ENU, 0 = east";
+    private const string AttitudeHint = "Pitch + = nose down (ROS) · yaw ENU, 0 = east";
 
     public DashboardPage(AppState app)
     {
@@ -83,29 +86,21 @@ public sealed class DashboardPage : Grid
         _batteryTile = new StatTile("Battery", IconGlyphs.BatteryUnknown, Palette.Muted);
         _altTile = new StatTile("Z (local)", IconGlyphs.Altitude, Palette.Primary);
         _linkTile = new StatTile("Link", IconGlyphs.Link, Palette.Warn);
+        _controlTile = new StatTile("Control", IconGlyphs.Unknown, Palette.Caution);
         var hero = new AdaptiveGridPanel { MinItemWidth = 190, Spacing = Palette.S3 };
-        foreach (var tile in new[] { _modeTile, _stateTile, _batteryTile, _altTile, _linkTile })
+        foreach (var tile in new[] { _modeTile, _stateTile, _batteryTile, _altTile, _linkTile, _controlTile })
             hero.Children.Add(tile);
 
-        // MARK: Who is in control (display only)
-        _controlIcon = Ui.Icon(IconGlyphs.InControl, Palette.IconLg, Palette.Caution);
-        _controlValue = Ui.Text("Unknown", Fonts.StatValue, Palette.Caution);
-        _controlCaption = Ui.Text("", Fonts.MonoSmall, Palette.Muted);
-        var controlPlate = Ui.VStack(Palette.S0,
-            Ui.Text("IN CONTROL", Fonts.SectionLbl, Palette.Muted, tracking: 0.8),
-            Ui.HStack(Palette.S2, _controlIcon, _controlValue),
-            _controlCaption);
-        controlPlate.MinWidth = 220;
-        var controlRow = new Grid { ColumnSpacing = Palette.S5 };
-        controlRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        controlRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        _eventList.VerticalAlignment = VerticalAlignment.Center;
-        Grid.SetColumn(controlPlate, 0);
-        Grid.SetColumn(_eventList, 1);
-        controlRow.Children.Add(controlPlate);
-        controlRow.Children.Add(_eventList);
-        var controlCard = Ui.GlassCard(controlRow, Palette.RPanel,
-            new Thickness(Palette.S3, Palette.S2 + 2, Palette.S3, Palette.S2 + 2));
+        // MARK: Control event line (display only; hidden until the first change)
+        _eventIcon = Ui.Icon(IconGlyphs.Flag, Palette.IconSm, Palette.Caution);
+        _eventTime = Ui.Text("", Fonts.MonoSmall, Palette.Muted);
+        _eventText = Ui.Text("", Fonts.BodyStrong, Palette.Text);
+        _eventMode = Ui.Text("", Fonts.MonoSmall, Palette.Muted);
+        foreach (var t in new[] { _eventTime, _eventText, _eventMode }) t.VerticalAlignment = VerticalAlignment.Center;
+        _eventIcon.VerticalAlignment = VerticalAlignment.Center;
+        _eventCard = Ui.GlassCard(Ui.HStack(Palette.S2, _eventIcon, _eventTime, _eventText, _eventMode),
+            Palette.RControl, new Thickness(Palette.S3, Palette.S2, Palette.S3, Palette.S2));
+        _eventCard.Visibility = Visibility.Collapsed;
 
         // MARK: Cameras
         _front = new CameraView { Host = app.DroneHost, Topic = "/second_camera/image_raw" };
@@ -116,7 +111,7 @@ public sealed class DashboardPage : Grid
             Topic = "/aruco_map/image",
             Quality = 50, Fps = 3, StreamWidth = 160, StreamHeight = 120,
             Width = 120, Height = 90,
-            CompactHint = true,
+            Compact = true,
         };
         _pip.BorderBrush = Palette.Brush(Palette.WithAlpha(Palette.Primary, 0.7));
         _pip.BorderThickness = new Thickness(1);
@@ -176,16 +171,22 @@ public sealed class DashboardPage : Grid
         var attitudeCentered = new Grid();
         _attitude.HorizontalAlignment = HorizontalAlignment.Center;
         attitudeCentered.Children.Add(_attitude);
-        _rpyRow = new Grid { ColumnSpacing = Palette.S3 };
+        var rpyRow = new Grid { ColumnSpacing = Palette.S3 };
         foreach (var i in Enumerable.Range(0, 3))
-            _rpyRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            rpyRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         Grid.SetColumn(_roll, 0); Grid.SetColumn(_pitch, 1); Grid.SetColumn(_yaw, 2);
-        _rpyRow.Children.Add(_roll); _rpyRow.Children.Add(_pitch); _rpyRow.Children.Add(_yaw);
+        rpyRow.Children.Add(_roll); rpyRow.Children.Add(_pitch); rpyRow.Children.Add(_yaw);
         // Цифра Pitch — в ROS-конвенции, как get_telemetry() у учеников; рисунок исправлен.
         _attitudeHint = Ui.Text(AttitudeHint, Fonts.MonoSmall, Palette.Muted);
         _attitudeHint.TextWrapping = TextWrapping.Wrap;
+        _attitudeBody = Ui.VStack(Palette.S3, attitudeCentered, rpyRow, _attitudeHint);
 
         var divider = new Border { Height = 1, Background = Palette.Brush(Palette.Hairline) };
+        _batteryGroup = new SourceGroup(_batteryBar);
+        _poseGroup = new SourceGroup(_x, _y, _z);
+        _velGroup = new SourceGroup(_vx, _vy, _vz);
+        _speedGroup = new SourceGroup(_hSpeed, _vSpeed);
+        _imuGroup = new SourceGroup(_angRate, _imuAccel);
 
         _logList.Children.Add(Ui.Text("—", Fonts.MonoSmall, Palette.Muted));
         var logScroll = new ScrollViewer
@@ -195,25 +196,22 @@ public sealed class DashboardPage : Grid
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
         };
 
-        _attitudePanel = new PanelCard("Attitude", IconGlyphs.Attitude, attitudeCentered, _rpyRow, _attitudeHint);
-        _telemetryPanel = new PanelCard("Telemetry", IconGlyphs.Telemetry, _batteryBar, _x, _y, _z, divider, _vx, _vy, _vz);
-        _flightPanel = new PanelCard("Flight Data", IconGlyphs.FlightData, _hSpeed, _vSpeed, _angRate, _imuAccel);
+        _attitudePanel = new PanelCard("Attitude", IconGlyphs.Attitude, _attitudeBody);
         _piPanel = new PanelCard("Raspberry Pi", IconGlyphs.Cpu, _cpuTemp, _cpuLoad, _load135, _ram);
-        _chartsPanel = new PanelCard("Charts", IconGlyphs.Charts, _chartAlt, _chartSpd, _chartBat);
         _mapPanel = new PanelCard("Position Map", IconGlyphs.Map, _map);
         _panels = new FrameworkElement[]
         {
             _attitudePanel,
-            _telemetryPanel,
-            _flightPanel,
+            new PanelCard("Telemetry", IconGlyphs.Telemetry, _batteryGroup.Panel, _poseGroup.Panel, divider, _velGroup.Panel),
+            new PanelCard("Flight Data", IconGlyphs.FlightData, _speedGroup.Panel, _imuGroup.Panel),
             _piPanel,
-            _chartsPanel,
+            new PanelCard("Charts", IconGlyphs.Charts, _chartAlt, _chartSpd, _chartBat),
             _mapPanel,
             new PanelCard("Messages", IconGlyphs.Messages, logScroll),
         };
 
         // MARK: Layout
-        var stack = Ui.VStack(Palette.S4, hero, controlCard, cameras, _masonry);
+        var stack = Ui.VStack(Palette.S4, hero, _eventCard, cameras, _masonry);
         stack.Padding = new Thickness(Palette.S4);
         var scroll = new ScrollViewer { Content = stack, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         Children.Add(scroll);
@@ -314,138 +312,148 @@ public sealed class DashboardPage : Grid
 
     // MARK: - Refresh
 
-    private static double Limit(TelemetrySource s) => Freshness.Limit(s);
-
-    private static string? Note(double? at, double now, TelemetrySource s) => Freshness.StaleNote(at, now, Limit(s));
-
-    /// <summary>"no data N s" of the oldest stale source of a mixed panel (its stale rows are greyed), or null.</summary>
-    private static string? OldestNote(double now, params (double? At, TelemetrySource Source)[] sources)
+    /// <summary>Rows fed by one source: greyed together, with a right-aligned "no data N s" under them.</summary>
+    private sealed class SourceGroup
     {
-        double? worst = null;
-        foreach (var (at, src) in sources)
-            if (at is double t && Freshness.IsStale(t, now, Limit(src)) && (worst is null || now - t > worst))
-                worst = now - t;
-        return worst is double w ? Freshness.NoDataText(w) : null;
+        public readonly StackPanel Panel = new() { Spacing = Palette.S3 };
+        private readonly UIElement[] _rows;
+        private readonly TextBlock _note = Ui.Text("", Fonts.MonoSmall, Palette.Caution);
+
+        public SourceGroup(params UIElement[] rows)
+        {
+            _rows = rows;
+            foreach (var r in rows) Panel.Children.Add(r);
+            _note.HorizontalAlignment = HorizontalAlignment.Right;
+            _note.Visibility = Visibility.Collapsed;
+            Panel.Children.Add(_note);
+        }
+
+        public void Set(FreshStatus s)
+        {
+            foreach (var r in _rows) Stale.Dim(r, !s.IsFresh);
+            _note.Text = s.Note ?? "";
+            _note.Visibility = s.Note is null ? Visibility.Collapsed : Visibility.Visible;
+        }
     }
 
     private void RefreshTelemetry()
     {
         var now = MonoClock.Now;
-        var stateNote = Note(_t.StateAt, now, TelemetrySource.State);
-        var poseNote = Note(_t.PoseAt, now, TelemetrySource.Pose);
-        var velNote = Note(_t.VelocityAt, now, TelemetrySource.Velocity);
-        var imuNote = Note(_t.ImuAt, now, TelemetrySource.Imu);
-        var attNote = Note(_t.AttitudeAt, now, TelemetrySource.Attitude);
-        var batNote = Note(_t.BatteryAt, now, TelemetrySource.Battery);
+        var state = Freshness.Status(_t.StateAt, now, TelemetrySource.State);
+        var pose = Freshness.Status(_t.PoseAt, now, TelemetrySource.Pose);
+        var vel = Freshness.Status(_t.VelocityAt, now, TelemetrySource.Velocity);
+        var imu = Freshness.Status(_t.ImuAt, now, TelemetrySource.Imu);
+        var att = Freshness.Status(_t.AttitudeAt, now, TelemetrySource.Attitude);
+        var bat = Freshness.Status(_t.BatteryAt, now, TelemetrySource.Battery);
 
         // MARK: Hero
         _modeTile.Update(ModeLogic.DisplayMode(_t.Mode), Palette.Primary);
-        _modeTile.SetCaption(stateNote ?? ModeLogic.Explain(_t.Mode), stateNote is null ? null : Palette.Caution);
-        _modeTile.SetDimmed(stateNote is not null);
+        _modeTile.SetCaption(state.IsFresh ? ModeLogic.Explain(_t.Mode) : state.Note!, state.IsFresh ? null : Palette.Caution);
+        _modeTile.SetDimmed(!state.IsFresh);
 
         var armed = ArmedLogic.Display(_t.Armed, _t.LastKnownArmed);
         var armedColor = Palette.ForTone(armed.Tone);
-        _stateTile.Update(armed.Value, armedColor,
-            _t.Armed is null ? IconGlyphs.Unknown : (_t.Armed == true ? IconGlyphs.Armed : IconGlyphs.Disarmed));
-        _stateTile.SetCaption(armed.Caption, armedColor);
+        _stateTile.Update(armed.Value, armedColor, _t.Armed switch
+        {
+            true => IconGlyphs.Armed,
+            false => IconGlyphs.Disarmed,
+            null => _t.LastKnownArmed == true ? IconGlyphs.Caution : IconGlyphs.Unknown,
+        }, valueColor: _t.Armed is null ? armedColor : Palette.Text);
+        _stateTile.SetCaption(armed.Caption);
 
-        var bat = _t.Battery;
-        _batteryTile.Update(bat.Short, Palette.ForTone(bat.Tone), bat.HasLevel ? IconGlyphs.Battery : IconGlyphs.BatteryUnknown);
-        _batteryTile.SetCaption(batNote ?? bat.Caption, batNote is null ? null : Palette.Caution);
-        _batteryTile.SetDimmed(batNote is not null);
+        var battery = _t.Battery;
+        _batteryTile.Update(battery.Short, Palette.ForTone(battery.Tone),
+            battery.HasLevel ? IconGlyphs.Battery : IconGlyphs.BatteryUnknown);
+        _batteryTile.SetCaption(bat.IsFresh ? battery.Caption : bat.Note!, bat.IsFresh ? null : Palette.Caution);
+        _batteryTile.SetDimmed(!bat.IsFresh);
 
         _altTile.Update(Format.Fixed(_t.PosZ, 2, "m"), Palette.Primary);
-        _altTile.SetCaption(poseNote ?? (_t.PosZ is null ? "no position yet" : "local estimate"),
-            poseNote is null ? null : Palette.Caution);
-        _altTile.SetDimmed(poseNote is not null);
+        _altTile.SetCaption(pose.Note ?? "", Palette.Caution);
+        _altTile.SetDimmed(!pose.IsFresh);
 
         var link = _t.Link;
-        var linkColor = Palette.ForTone(LinkLogic.ToneOf(link));
-        _linkTile.Update(LinkLogic.Text(link), linkColor);
-        _linkTile.SetCaption(LinkLogic.Caption(link, _t.LinkConnecting, _t.StateAgeOnSocket(now)),
-            link == LinkState.Ok ? null : linkColor);
+        _linkTile.Update(LinkLogic.Text(link), Palette.ForTone(LinkLogic.ToneOf(link)), link switch
+        {
+            LinkState.Ok or LinkState.NoDrone => IconGlyphs.Link,
+            _ => IconGlyphs.Caution,
+        });
+        _linkTile.SetCaption(LinkLogic.Caption(link, _t.RosConnected, state), Palette.Caution);
 
-        RefreshControl();
+        var who = _t.InControl;
+        var whoColor = Palette.ForTone(ModeLogic.ControllerTone(who));
+        _controlTile.Update(ModeLogic.ControllerText(who), whoColor, ControllerGlyph(who),
+            valueColor: who == Controller.Unknown ? Palette.Caution : Palette.Text);
+        _controlTile.SetCaption(ModeLogic.ControlCaption(who, _t.Armed));
+        RefreshEvent(whoColor);
 
         // MARK: Attitude (IMU orientation when valid, else pose)
         _attitude.Update(_t.Roll ?? 0, _t.Pitch ?? 0);
-        Stale.Dim(_attitude, _t.Roll is null || attNote is not null);
         _roll.Set(Format.Degrees(_t.Roll));
         _pitch.Set(Format.Degrees(_t.Pitch));
         _yaw.Set(Format.Degrees(_t.Yaw));
-        Stale.Dim(_rpyRow, attNote is not null);
         _attitudeHint.Text = AttitudeHint + (_t.Roll is null ? "" : _t.AttitudeFromImu ? " · from IMU" : " · from pose");
-        _attitudePanel.SetNote(attNote);
+        Stale.Dim(_attitudeBody, !att.IsFresh);
+        _attitudePanel.SetNote(att.Note);
 
         // MARK: Telemetry
-        _batteryBar.Set(bat.Text, bat.Pct ?? 0, Palette.ForTone(bat.Tone));
-        Stale.Dim(_batteryBar, batNote is not null);
+        _batteryBar.Set(battery.Text, battery.Pct ?? 0, Palette.ForTone(battery.Tone));
+        _batteryGroup.Set(bat);
         _x.Set(Format.Signed(_t.PosX, "m"));
         _y.Set(Format.Signed(_t.PosY, "m"));
         _z.Set(Format.Signed(_t.PosZ, "m"));
+        _poseGroup.Set(pose);
         _vx.Set(Format.Signed(_t.Vx, "m/s"));
         _vy.Set(Format.Signed(_t.Vy, "m/s"));
         _vz.Set(Format.Signed(_t.Vz, "m/s"));
-        foreach (var r in new UIElement[] { _x, _y, _z }) Stale.Dim(r, poseNote is not null);
-        foreach (var r in new UIElement[] { _vx, _vy, _vz }) Stale.Dim(r, velNote is not null);
-        _telemetryPanel.SetNote(OldestNote(now,
-            (_t.BatteryAt, TelemetrySource.Battery), (_t.PoseAt, TelemetrySource.Pose), (_t.VelocityAt, TelemetrySource.Velocity)));
+        _velGroup.Set(vel);
 
         // MARK: Flight data
         _hSpeed.Set(Format.Fixed(_t.SpeedH, 2, "m/s"), MathUtil.PctOf(_t.SpeedH ?? 0, 5));
         _vSpeed.Set(Format.Fixed(_t.SpeedV, 2, "m/s"), MathUtil.PctOf(_t.SpeedV ?? 0, 3));
+        _speedGroup.Set(vel);
         _angRate.Set(Format.Fixed(_t.GyroMag, 1, "°/s"), MathUtil.PctOf(_t.GyroMag ?? 0, 360));
         _imuAccel.Set(Format.Fixed(_t.AccelMag, 2, "m/s²"), MathUtil.PctOf(_t.AccelMag ?? 0, 30));
-        Stale.Dim(_hSpeed, velNote is not null);
-        Stale.Dim(_vSpeed, velNote is not null);
-        Stale.Dim(_angRate, imuNote is not null);
-        Stale.Dim(_imuAccel, imuNote is not null);
-        _flightPanel.SetNote(OldestNote(now, (_t.VelocityAt, TelemetrySource.Velocity), (_t.ImuAt, TelemetrySource.Imu)));
+        _imuGroup.Set(imu);
 
         // MARK: Charts & map
-        _chartAlt.SetStale(poseNote);
-        _chartSpd.SetStale(velNote);
-        _chartBat.SetStale(batNote);
+        _chartAlt.SetStale(pose.Note);
+        _chartSpd.SetStale(vel.Note);
+        _chartBat.SetStale(bat.Note);
         _chartAlt.Refresh();
         _chartSpd.Refresh();
         _chartBat.Refresh();
-        _chartsPanel.SetNote(OldestNote(now,
-            (_t.PoseAt, TelemetrySource.Pose), (_t.VelocityAt, TelemetrySource.Velocity), (_t.BatteryAt, TelemetrySource.Battery)));
         _map.Refresh();
-        Stale.Dim(_map, poseNote is not null);
-        _mapPanel.SetNote(poseNote);
+        Stale.Dim(_map, !pose.IsFresh);
+        _mapPanel.SetNote(pose.Note);
 
         RefreshMetricsFreshness(now);
         RefreshLog();
     }
 
-    /// <summary>Плашка «кто управляет» и последние события смены режима/управления.</summary>
-    private void RefreshControl()
+    private static string ControllerGlyph(Controller c) => c switch
     {
-        var who = _t.InControl;
-        var color = Palette.ForTone(ModeLogic.ControllerTone(who));
-        _controlValue.Text = ModeLogic.ControllerText(who);
-        _controlValue.Foreground = Palette.Brush(color);
-        _controlIcon.Foreground = Palette.Brush(color);
-        _controlCaption.Text = ModeLogic.ControllerCaption(who, _t.Mode);
+        Controller.Program => IconGlyphs.Cpu,
+        Controller.Pilot => IconGlyphs.Pilot,
+        Controller.Px4 => IconGlyphs.Mode,
+        Controller.Disarmed => IconGlyphs.Disarmed,
+        _ => IconGlyphs.Unknown,
+    };
 
+    /// <summary>The latest control event: "12:03:11  Pilot took control  POSCTL · pilot, position hold".</summary>
+    private void RefreshEvent(Color ownerColor)
+    {
+        _eventIcon.Foreground = Palette.Brush(ownerColor);
         if (_t.Events.Version == _eventsVersion) return;
         _eventsVersion = _t.Events.Version;
-        _eventList.Children.Clear();
-        if (_t.Events.Items.Count == 0)
+        if (_t.Events.Latest is not ControlEvent ev)
         {
-            _eventList.Children.Add(Ui.Text("no control changes yet", Fonts.MonoSmall, Palette.Muted));
+            _eventCard.Visibility = Visibility.Collapsed;
             return;
         }
-        var first = true;
-        foreach (var ev in _t.Events.Items)
-        {
-            var text = Ui.Text(ev.Text, first ? Fonts.BodyStrong : Fonts.Body,
-                first ? Palette.ForTone(ev.Tone) : Palette.Muted);
-            var time = Ui.Text(ev.Time, Fonts.LogMono, Palette.Muted);
-            _eventList.Children.Add(Ui.HStack(Palette.S2, time, text));
-            first = false;
-        }
+        _eventTime.Text = ev.Time;
+        _eventText.Text = ev.Text;
+        _eventMode.Text = ModeLogic.ModeWithExplanation(ev.Mode);
+        _eventCard.Visibility = Visibility.Visible;
     }
 
     private void RefreshLog()
@@ -488,12 +496,12 @@ public sealed class DashboardPage : Grid
         RefreshMetricsFreshness(MonoClock.Now);
     }
 
-    /// <summary>Metrics older than 6 s (:8888 stopped answering): grey with "no data N s".</summary>
+    /// <summary>Metrics older than 6 s (:8888 stopped answering) or none yet: grey with "no data N s" / "no data yet".</summary>
     private void RefreshMetricsFreshness(double now)
     {
-        var note = Note(_app.Metrics.LastArrival, now, TelemetrySource.Metrics);
-        foreach (var r in new UIElement[] { _cpuTemp, _cpuLoad, _load135, _ram }) Stale.Dim(r, note is not null);
-        _piPanel.SetNote(note);
+        var s = Freshness.Status(_app.Metrics.LastArrival, now, TelemetrySource.Metrics);
+        foreach (var r in new UIElement[] { _cpuTemp, _cpuLoad, _load135, _ram }) Stale.Dim(r, !s.IsFresh);
+        _piPanel.SetNote(s.Note);
     }
 
     // MARK: - Derived (цвета метрик)

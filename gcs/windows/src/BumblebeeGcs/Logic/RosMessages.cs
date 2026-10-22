@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Text;
 using System.Text.Json;
 using BumblebeeGcs.Models;
 
@@ -23,6 +24,69 @@ namespace BumblebeeGcs.Logic;
 /// </summary>
 public static class RosMessages
 {
+    /// <summary>
+    /// One rosbridge frame: true for {"op":"publish","topic":...,"msg":{...}} (msg is a clone,
+    /// safe to hand to the UI thread). rosbridge serialises with Python's json, which may write
+    /// NaN, Infinity and -Infinity bare (not valid JSON); they become null here, as the Mac app's
+    /// JSON5 parser reads them, so a BatteryState with NaN fields is not thrown away.
+    /// </summary>
+    public static bool TryParsePublish(string text, out string topic, out JsonElement msg)
+    {
+        topic = "";
+        msg = default;
+        JsonDocument doc;
+        try
+        {
+            doc = JsonDocument.Parse(text);
+        }
+        catch (JsonException)
+        {
+            if (NonFiniteToNull(text) is not string fixedText) return false;
+            try { doc = JsonDocument.Parse(fixedText); }
+            catch (JsonException) { return false; }
+        }
+        using (doc)
+        {
+            var root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object || Str(root, "op") != "publish" ||
+                Str(root, "topic") is not string t || Obj(root, "msg") is not JsonElement m) return false;
+            topic = t;
+            msg = m.Clone();
+            return true;
+        }
+    }
+
+    /// <summary>Bare NaN / Infinity / -Infinity outside strings replaced by null; null if there were none.</summary>
+    static string? NonFiniteToNull(string text)
+    {
+        StringBuilder? sb = null;
+        bool inString = false, escaped = false;
+        var copied = 0;
+        for (var i = 0; i < text.Length; i++)
+        {
+            var c = text[i];
+            if (inString)
+            {
+                if (escaped) escaped = false;
+                else if (c == '\\') escaped = true;
+                else if (c == '"') inString = false;
+                continue;
+            }
+            if (c == '"') { inString = true; continue; }
+            var len = At(text, i, "NaN") ? 3 : At(text, i, "Infinity") ? 8 : At(text, i, "-Infinity") ? 9 : 0;
+            if (len == 0) continue;
+            sb ??= new StringBuilder(text.Length);
+            sb.Append(text, copied, i - copied).Append("null");
+            i += len - 1;
+            copied = i + 1;
+        }
+        if (sb is null) return null;
+        sb.Append(text, copied, text.Length - copied);
+        return sb.ToString();
+    }
+
+    static bool At(string text, int i, string word) => string.CompareOrdinal(text, i, word, 0, word.Length) == 0;
+
     /// <summary>Returns true when the store changed.</summary>
     public static bool Apply(TelemetryStore s, string topic, JsonElement msg, double now)
     {

@@ -62,7 +62,7 @@ public class TelemetryStoreTests
         s.Evaluate(103.6);                                 // no state for > 3 s
         Assert.Equal(LinkState.TelemetryFrozen, s.Link);
         Assert.Null(s.Armed);
-        Assert.Equal("ARMED?", ArmedLogic.Display(s.Armed, s.LastKnownArmed).Value);
+        Assert.Equal("ARMED? link lost", ArmedLogic.Display(s.Armed, s.LastKnownArmed).Value);
     }
 
     [Fact]
@@ -102,10 +102,17 @@ public class TelemetryStoreTests
         Assert.Null(s.Armed);
         Assert.Equal(LinkState.NoDrone, s.Link);
         Assert.Contains(s.Messages.Entries, e => e.Text == "[FCU] Baro failed");
-        Assert.Equal("POSCTL", s.Mode);                     // kept, shown greyed as stale
+        // As on the Mac: the State of the closed socket is forgotten (mode "—" until a new
+        // State); the last known armed value stays for "ARMED? link lost".
+        Assert.Null(s.Mode);
+        Assert.Null(s.StateAt);
+        Assert.False(s.LastKnownArmed);
         s.SocketOpened("10.0.0.7", 104);
-        Assert.Equal(LinkState.NoDrone, s.Link);           // the old state does not count
+        Assert.Equal(LinkState.NoDrone, s.Link);
         Assert.Null(s.Armed);
+        State(s, true, false, "POSCTL", 104.5);
+        Assert.Equal(LinkState.Ok, s.Link);
+        Assert.Equal("mode → POSCTL", s.Messages.Entries[0].Text);   // the mode after the reconnect, once
     }
 
     [Fact]
@@ -130,7 +137,8 @@ public class TelemetryStoreTests
         Assert.Empty(s.ChartSpd);
         Assert.Empty(s.ChartBat);
         Assert.Empty(s.Messages.Entries);
-        Assert.Empty(s.Events.Items);
+        Assert.Null(s.Events.Latest);
+        Assert.Null(s.LowBatteryBanner);
         Assert.Null(s.PosX);
         Assert.Null(s.PosZ);
         Assert.Null(s.Roll);
@@ -138,7 +146,7 @@ public class TelemetryStoreTests
         Assert.Null(s.GyroMag);
         Assert.Null(s.AccelMag);
         Assert.Equal(BatteryKind.NoData, s.Battery.Kind);
-        Assert.Equal("", s.Mode);
+        Assert.Null(s.Mode);
         Assert.Null(s.Armed);
         Assert.Null(s.LastKnownArmed);
         Assert.False(s.LowBattery.IsLow);
@@ -204,9 +212,19 @@ public class TelemetryStoreTests
         var s = Linked();
         for (var i = 0; i < 30; i++)
             RosMessages.Apply(s, "/mavros/battery", J("{\"voltage\":20.4,\"percentage\":0.12}"), 100 + i);
-        Assert.Single(s.Messages.Entries, e => e.Text.StartsWith("LOW BATTERY"));
-        Assert.Equal("LOW BATTERY: 20.40 V · 12%", s.Messages.Entries.First(e => e.Text.StartsWith("LOW")).Text);
+        Assert.Single(s.Messages.Entries, e => e.Text.Contains("LOW BATTERY"));
+        Assert.Equal("WARNING LOW BATTERY: 20.40 V (12%)", s.Messages.Entries[0].Text);
         Assert.True(s.LowBattery.IsLow);
+        Assert.Equal("Low battery: 20.40 V · 12%", s.LowBatteryBanner);
+        // The banner follows the reading while low, keeps its text over a not-measured
+        // message and clears only above 20 %.
+        RosMessages.Apply(s, "/mavros/battery", J("{\"voltage\":20.1,\"percentage\":0.17}"), 131);
+        Assert.Equal("Low battery: 20.10 V · 17%", s.LowBatteryBanner);
+        RosMessages.Apply(s, "/mavros/battery", J("{\"voltage\":65.535,\"percentage\":-0.01}"), 132);
+        Assert.Equal("Low battery: 20.10 V · 17%", s.LowBatteryBanner);
+        RosMessages.Apply(s, "/mavros/battery", J("{\"voltage\":22.0,\"percentage\":0.21}"), 133);
+        Assert.Null(s.LowBatteryBanner);
+        Assert.Single(s.Messages.Entries, e => e.Text.Contains("LOW BATTERY"));
     }
 
     [Fact]
@@ -215,9 +233,44 @@ public class TelemetryStoreTests
         var s = Linked();
         State(s, true, true, "OFFBOARD", 100.1);
         State(s, true, true, "POSCTL", 100.9);
-        Assert.Equal("Pilot took control", s.Events.Items[0].Text);
-        Assert.Contains(s.Messages.Entries, e => e.Text == "mode → POSCTL");
+        Assert.Equal("Pilot took control", s.Events.Latest!.Text);
+        Assert.Equal("POSCTL", s.Events.Latest.Mode);
+        // Newest first: the event line is logged after its "mode → X" line (as on the Mac).
+        Assert.Equal("Pilot took control", s.Messages.Entries[0].Text);
+        Assert.Equal("mode → POSCTL", s.Messages.Entries[1].Text);
     }
+
+    [Fact]
+    public void EmptyMode_IsLoggedAsUnknown()
+    {
+        var s = Linked();
+        State(s, false, false, "", 100.1);
+        Assert.Equal("", s.Mode);
+        Assert.Contains(s.Messages.Entries, e => e.Text == "mode → unknown");
+    }
+
+    [Fact]
+    public void BareNaN_FromPythonJson_IsParsed()
+    {
+        // rosbridge serialises with Python's json, which may write NaN / Infinity bare.
+        const string frame = "{\"op\":\"publish\",\"topic\":\"/mavros/battery\",\"msg\":{\"voltage\":NaN," +
+                             "\"current\":-Infinity,\"charge\":Infinity,\"percentage\":-0.01,\"location\":\"NaN slot\"}}";
+        Assert.True(RosMessages.TryParsePublish(frame, out var topic, out var msg));
+        Assert.Equal("/mavros/battery", topic);
+        Assert.Equal(JsonValueKind.Null, msg.GetProperty("voltage").ValueKind);
+        Assert.Equal("NaN slot", msg.GetProperty("location").GetString());   // strings untouched
+        var s = Linked();
+        Assert.True(RosMessages.Apply(s, topic, msg, 100.1));
+        Assert.Equal(BatteryKind.NotMeasured, s.Battery.Kind);
+    }
+
+    [Theory]
+    [InlineData("{\"op\":\"status\",\"msg\":{}}")]
+    [InlineData("{\"op\":\"publish\",\"topic\":\"/mavros/state\"}")]
+    [InlineData("not json")]
+    [InlineData("{\"op\":\"publish\",\"topic\":\"/x\",\"msg\":{\"a\":NaNx}}")]
+    public void NonPublishOrBrokenFrames_AreIgnored(string frame) =>
+        Assert.False(RosMessages.TryParsePublish(frame, out _, out _));
 
     [Fact]
     public void StatusText_OnlyWarningsAndWorse()
@@ -246,7 +299,8 @@ public class TelemetryStoreTests
         Assert.Equal(5, s.SpeedH!.Value, 9);
         Assert.Equal(1, s.SpeedV!.Value, 9);
         Assert.Equal(100, s.VelocityAt);
-        Assert.Null(Freshness.StaleNote(s.VelocityAt, 102, Freshness.Limit(TelemetrySource.Velocity)));
-        Assert.Equal("no data 2 s", Freshness.StaleNote(s.VelocityAt, 102.1, Freshness.Limit(TelemetrySource.Velocity)));
+        Assert.Null(Freshness.Status(s.VelocityAt, 102, Freshness.Limit(TelemetrySource.Velocity)).Note);
+        Assert.Equal("no data 2 s", Freshness.Status(s.VelocityAt, 102.1, Freshness.Limit(TelemetrySource.Velocity)).Note);
+        Assert.Equal("no data yet", Freshness.Status(s.PoseAt, 102.1, Freshness.Limit(TelemetrySource.Pose)).Note);
     }
 }

@@ -32,8 +32,11 @@ public enum BatteryKind
 /// </summary>
 public readonly record struct BatteryReading(BatteryKind Kind, double? Voltage, double? Pct)
 {
-    /// <summary>MAVROS turns SYS_STATUS voltage_battery = UINT16_MAX into 65.535 V.</summary>
-    public const double SentinelVolts = 65.535;
+    /// <summary>
+    /// MAVROS turns SYS_STATUS voltage_battery = UINT16_MAX into 65.535 V; like the Mac app,
+    /// anything from 65.5 V up counts as that sentinel (no Bumblebee pack comes near it).
+    /// </summary>
+    public const double SentinelFromVolts = 65.5;
 
     public static readonly BatteryReading NoData = new(BatteryKind.NoData, null, null);
 
@@ -45,7 +48,7 @@ public readonly record struct BatteryReading(BatteryKind Kind, double? Voltage, 
     {
         var v = voltage ?? double.NaN;
         var p = percentage ?? double.NaN;
-        var noVoltage = !double.IsFinite(v) || v <= 0 || Math.Abs(v - SentinelVolts) < 0.01;
+        var noVoltage = !double.IsFinite(v) || v <= 0 || v >= SentinelFromVolts;
         if (noVoltage || (double.IsFinite(p) && p < 0))
             return new BatteryReading(BatteryKind.NotMeasured, null, null);
         // No guessed percentage from the voltage: the pack's cell count is unknown here.
@@ -57,7 +60,7 @@ public readonly record struct BatteryReading(BatteryKind Kind, double? Voltage, 
     public string Text => Kind switch
     {
         BatteryKind.NotMeasured => "Not measured — check with a tester",
-        BatteryKind.Measured => $"{Volts(2)} · {(Pct is double p ? PctText(p) : Format.Dash)}",
+        BatteryKind.Measured => Pct is double p ? $"{Volts(2)} · {PctText(p)}" : Volts(2),
         _ => Format.Dash,
     };
 
@@ -65,17 +68,12 @@ public readonly record struct BatteryReading(BatteryKind Kind, double? Voltage, 
     public string Short => Kind switch
     {
         BatteryKind.NotMeasured => "Not measured",
-        BatteryKind.Measured => Pct is double p ? PctText(p) : Volts(1),
+        BatteryKind.Measured => Pct is double p ? PctText(p) : Volts(2),
         _ => Format.Dash,
     };
 
-    /// <summary>The small line under the hero tile.</summary>
-    public string Caption => Kind switch
-    {
-        BatteryKind.NotMeasured => "check with a tester",
-        BatteryKind.Measured when Pct is not null => Volts(2),
-        _ => "",
-    };
+    /// <summary>The small line under the hero tile (the volts are on the Telemetry bar).</summary>
+    public string Caption => Kind == BatteryKind.NotMeasured ? "check with a tester" : "";
 
     public Tone Tone => Pct is double p
         ? (p > 55 ? Tone.Ok : p > 25 ? Tone.Warn : Tone.Danger)
@@ -83,6 +81,14 @@ public readonly record struct BatteryReading(BatteryKind Kind, double? Voltage, 
 
     /// <summary>True when the battery icon may show a charge level (otherwise a neutral icon).</summary>
     public bool HasLevel => Kind == BatteryKind.Measured && Pct is not null;
+
+    /// <summary>The one Messages line when the charge drops below 15 % (same text as the Mac app).</summary>
+    public string LowLogLine =>
+        $"WARNING LOW BATTERY: {Volts(2)} ({(Pct is double p ? PctText(p) : Format.Dash)})";
+
+    /// <summary>The red banner while the charge is low; it follows the newest reading.</summary>
+    public string LowBannerText =>
+        $"Low battery: {Volts(2)} · {(Pct is double p ? PctText(p) : Format.Dash)}";
 
     string Volts(int decimals) => Voltage is double v ? v.ToString("F" + decimals, Inv) + " V" : Format.Dash;
 

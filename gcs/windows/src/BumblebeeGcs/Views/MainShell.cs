@@ -43,9 +43,8 @@ public sealed class MainShell : Grid
     private readonly StatusDot _connDot;
     private readonly TextBlock _connLabel;
     private readonly Action _onConnChanged, _onTelemetry;
-    // Тревоги поверх любой страницы: FC потерян у армленного дрона, низкий заряд.
-    private readonly StatusBanner _fcLostBanner = new(), _lowBatteryBanner = new();
-    private string _lowBatteryText = "";
+    // Тревоги поверх любой страницы (как AlarmBanner на Mac): FC потерян у армленного дрона, низкий заряд.
+    private readonly AlarmBanner _fcLostBanner = new(IconGlyphs.Error), _lowBatteryBanner = new(IconGlyphs.BatteryUnknown);
 
     public MainShell(AppState app)
     {
@@ -138,8 +137,7 @@ public sealed class MainShell : Grid
         header.Children.Add(reconnect);
         header.Children.Add(rescan);
 
-        var banners = Ui.VStack(Palette.S2, _fcLostBanner, _lowBatteryBanner);
-        banners.Margin = new Thickness(Palette.S4, 0, Palette.S4, 0);
+        var banners = Ui.VStack(0, _fcLostBanner, _lowBatteryBanner);
 
         var contentCol = new Grid { Background = Palette.AppGradient() };
         contentCol.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -154,26 +152,22 @@ public sealed class MainShell : Grid
         Grid.SetColumn(contentCol, 1);
         Children.Add(contentCol);
 
-        // Точка и подпись в сайдбаре следуют за Link (а не только за сокетом).
+        // Точка и подпись в сайдбаре следуют за Link (а не только за сокетом), как на Mac.
         _onConnChanged = () =>
         {
-            var link = _app.Telemetry.Link;
-            var ok = link == LinkState.Ok;
-            _connDot.SetColor(Palette.ForTone(LinkLogic.ToneOf(link)));
-            _connDot.SetPulsing(!ok);
-            _connLabel.Text = link switch
-            {
-                LinkState.Ok => "linked",
-                LinkState.NoDrone => "linking…",
-                _ => LinkLogic.Text(link).ToLowerInvariant(),
-            };
+            var t = _app.Telemetry;
+            _connDot.SetColor(Palette.ForTone(LinkLogic.ToneOf(t.Link)));
+            _connDot.SetPulsing(t.Link != LinkState.Ok);
+            _connLabel.Text = LinkLogic.SidebarText(t.Link, t.RosConnected);
         };
         _onTelemetry = RefreshBanners;
         _app.Telemetry.LinkChanged += _onConnChanged;
+        _app.Telemetry.ConnectionChanged += _onConnChanged;
         _app.Telemetry.Updated += _onTelemetry;
         Unloaded += (_, _) =>
         {
             _app.Telemetry.LinkChanged -= _onConnChanged;
+            _app.Telemetry.ConnectionChanged -= _onConnChanged;
             _app.Telemetry.Updated -= _onTelemetry;
         };
         _onConnChanged();
@@ -185,20 +179,8 @@ public sealed class MainShell : Grid
     private void RefreshBanners()
     {
         var t = _app.Telemetry;
-        var fcLost = t.FcAlarm.BannerVisible;
-        if (fcLost != (_fcLostBanner.Visibility == Visibility.Visible))
-        {
-            if (fcLost) _fcLostBanner.Show("Flight controller link lost", StatusBanner.Kind.Error);
-            else _fcLostBanner.Hide();
-        }
-        var low = !t.LowBattery.IsLow ? ""
-            : t.Battery.Kind == BatteryKind.Measured ? $"LOW BATTERY: {t.Battery.Text}" : "LOW BATTERY";
-        if (low != _lowBatteryText)
-        {
-            _lowBatteryText = low;
-            if (low.Length > 0) _lowBatteryBanner.Show(low, StatusBanner.Kind.Error);
-            else _lowBatteryBanner.Hide();
-        }
+        _fcLostBanner.Set(t.FcAlarm.BannerVisible ? FcLostAlarm.Text : null);
+        _lowBatteryBanner.Set(t.LowBatteryBanner);
     }
 
     private Border NavRow(Section id, string label, string glyph)

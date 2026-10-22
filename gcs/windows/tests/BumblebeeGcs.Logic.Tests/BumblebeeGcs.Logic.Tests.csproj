@@ -1,6 +1,8 @@
 <!--
   Unit tests for the Windows GCS decision logic (link state, freshness, armed,
-  mode text, who is in control, battery, charts, log, alarms, video status).
+  mode text, who is in control, battery, charts, log, alarms, video status), and
+  socket tests of the rosbridge and MJPEG clients against local fake servers
+  (silent drop, watchdog, reconnect, one video connection per view).
   The app itself is WinUI and only builds on Windows; these files have no UI
   dependency, so they are compiled here straight from the app's sources and the
   tests run anywhere .NET 10 runs:
@@ -27,5 +29,7 @@
   <ItemGroup>
     <Compile Include="../../src/BumblebeeGcs/Logic/*.cs" Link="App/Logic/%(Filename)%(Extension)" />
     <Compile Include="../../src/BumblebeeGcs/Models/Models.cs" Link="App/Models/Models.cs" />
+    <Compile Include="../../src/BumblebeeGcs/Services/RosbridgeClient.cs" Link="App/Services/RosbridgeClient.cs" />
+    <Compile Include="../../src/BumblebeeGcs/Services/MjpegStream.cs" Link="App/Services/MjpegStream.cs" />
   </ItemGroup>
 </Project>

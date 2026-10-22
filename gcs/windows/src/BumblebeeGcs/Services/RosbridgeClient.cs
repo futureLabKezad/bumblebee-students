@@ -17,7 +17,6 @@ using System.Text;
 using System.Text.Json;
 using BumblebeeGcs.Logic;
 using BumblebeeGcs.Models;
-using Microsoft.UI.Dispatching;
 
 namespace BumblebeeGcs.Services;
 
@@ -28,15 +27,18 @@ namespace BumblebeeGcs.Services;
 /// GCS работает в режиме монитора — клиент никогда не публикует и не зовёт сервисы.
 /// Тихий обрыв (дрон выключен, вне Wi-Fi): WebSocket ping каждые 2 с, без pong 4 с —
 /// обрыв; плюс сторож: 5 с без единого сообщения — Abort и тот же путь обрыва.
+/// Без WinUI (UI-поток — IUiQueue), поэтому проверяется сокет-тестами на любой ОС.
 /// </summary>
 public sealed class RosbridgeClient
 {
-    private static readonly TimeSpan KeepAliveInterval = TimeSpan.FromSeconds(2);
-    private static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(4);
-    private const int SilenceWatchdogMs = 5000;
+    public static readonly TimeSpan KeepAliveInterval = TimeSpan.FromSeconds(2);
+    public static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(4);
+    public const int SilenceWatchdogMs = 5000;
+    public const int ReconnectDelayMs = 3000;
 
     private readonly TelemetryStore _store;
-    private readonly DispatcherQueue _dq;
+    private readonly IUiQueue _dq;
+    private readonly int _port;
     private ClientWebSocket? _ws;
     private string _host = "";
     private volatile bool _active;
@@ -59,10 +61,12 @@ public sealed class RosbridgeClient
         new("/mavros/mavros/data",          "sensor_msgs/msg/Imu",            50),
     };
 
-    public RosbridgeClient(TelemetryStore store, DispatcherQueue dq)
+    /// <param name="port">9090 on every drone; tests point it at a local fake rosbridge.</param>
+    public RosbridgeClient(TelemetryStore store, IUiQueue ui, int port = 9090)
     {
         _store = store;
-        _dq = dq;
+        _dq = ui;
+        _port = port;
     }
 
     /// <summary>Call on the UI thread.</summary>
@@ -110,7 +114,7 @@ public sealed class RosbridgeClient
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-            await ws.ConnectAsync(new Uri($"ws://{host}:9090"), cts.Token);
+            await ws.ConnectAsync(new Uri($"ws://{host}:{_port}"), cts.Token);
         }
         catch
         {
@@ -134,7 +138,7 @@ public sealed class RosbridgeClient
             catch { ws.Dispose(); HandleDrop(gen); return; }
         }
 
-        // Socket open; the Link tile stays "No drone · connecting…" until the first /mavros/state.
+        // Socket open; the Link tile stays "No drone · waiting for FC data" until the first /mavros/state.
         OnUiIfCurrent(gen, () => _store.SocketOpened(host, MonoClock.Now));
 
         await ReceiveLoopAsync(ws, gen);
@@ -175,7 +179,7 @@ public sealed class RosbridgeClient
         // One collapsing log line ("rosbridge lost — reconnecting… · attempt N"), not a line per attempt.
         OnUiIfCurrent(gen, () => _store.SocketLost(MonoClock.Now));
         // Реконнект через 3 с (совпадает с поведением веба/мака).
-        _ = Task.Delay(3000).ContinueWith(_ =>
+        _ = Task.Delay(ReconnectDelayMs).ContinueWith(_ =>
         {
             if (_active && _generation.IsCurrent(gen)) _ = OpenSocketAsync(gen);
         });
@@ -185,24 +189,13 @@ public sealed class RosbridgeClient
 
     private void HandleText(string text, int gen)
     {
-        JsonDocument doc;
-        try { doc = JsonDocument.Parse(text); }
-        catch { return; }
-        using (doc)
+        // Bare NaN from Python's json is accepted; msg is a clone, safe for the UI thread.
+        if (!RosMessages.TryParsePublish(text, out var topic, out var msg)) return;
+        // The generation is checked again on the UI thread: a message of the previous
+        // drone that was already queued when the user switched must not reach the screen.
+        OnUiIfCurrent(gen, () =>
         {
-            var root = doc.RootElement;
-            if (root.ValueKind != JsonValueKind.Object) return;
-            if (!root.TryGetProperty("op", out var op) || op.GetString() != "publish") return;
-            if (!root.TryGetProperty("topic", out var topicEl) || topicEl.GetString() is not string topic) return;
-            if (!root.TryGetProperty("msg", out var msg) || msg.ValueKind != JsonValueKind.Object) return;
-            // JsonElement живёт внутри документа — клонируем для перехода на UI-поток.
-            var msgClone = msg.Clone();
-            // The generation is checked again on the UI thread: a message of the previous
-            // drone that was already queued when the user switched must not reach the screen.
-            OnUiIfCurrent(gen, () =>
-            {
-                if (RosMessages.Apply(_store, topic, msgClone, MonoClock.Now)) _store.NotifyUpdated();
-            });
-        }
+            if (RosMessages.Apply(_store, topic, msg, MonoClock.Now)) _store.NotifyUpdated();
+        });
     }
 }

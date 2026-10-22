@@ -188,5 +188,9 @@ public class VideoLogicTests
     }
 
     [Fact]
-    public void LostText() => Assert.Equal("no frame for 12 s", VideoLogic.LostCaption(12.7));
+    public void LostText() => Assert.Equal("12 s", VideoLogic.LostCaption(12.7));
+
+    [Fact]
+    public void PictureInPictureHint() =>
+        Assert.Equal("ArUco map: armed or OFFBOARD only", VideoLogic.ArucoHintShort);
 }

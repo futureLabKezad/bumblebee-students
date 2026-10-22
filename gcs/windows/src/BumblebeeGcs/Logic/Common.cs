@@ -34,6 +34,19 @@ public static class MonoClock
 }
 
 /// <summary>
+/// The UI thread, as the network clients see it (WinUI: DispatcherUiQueue in Services;
+/// tests: a single worker thread), so the clients run and are tested without WinUI.
+/// </summary>
+public interface IUiQueue
+{
+    /// <summary>True when called on the UI thread.</summary>
+    bool HasThreadAccess { get; }
+
+    /// <summary>Run the action later on the UI thread; false if the queue is shut down.</summary>
+    bool TryEnqueue(Action action);
+}
+
+/// <summary>
 /// Connection generation: every connect/disconnect advances it, and data captured
 /// under an older number is dropped on the UI thread (late answers of the previous drone).
 /// </summary>

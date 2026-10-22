@@ -43,13 +43,11 @@ public static class LinkLogic
         double? onSocket = stateAt is double at && at >= opened ? at : null;
         if (onSocket is double t && now - t <= StateFreshSec)
             return stateConnected == true ? LinkState.Ok : LinkState.FcNotConnected;
+        // No fresh state on this socket: frozen once 3 s have passed since the last state
+        // or, if none came yet, since the socket opened (the first state is on its way).
         var since = onSocket ?? opened;
         return now - since > StateFreshSec ? LinkState.TelemetryFrozen : LinkState.NoDrone;
     }
-
-    /// <summary>The socket is open but the first state has not come yet (shown as "No drone · connecting…").</summary>
-    public static bool IsConnecting(double? socketOpenedAt, double? stateAt, double now) =>
-        socketOpenedAt is double opened && !(stateAt is double at && at >= opened) && now - opened <= StateFreshSec;
 
     public static string Text(LinkState s) => s switch
     {
@@ -59,25 +57,59 @@ public static class LinkLogic
         _ => "No drone",
     };
 
+    /// <summary>Same colours as the Mac app: no socket is a warning, a socket without a live FC is danger.</summary>
     public static Tone ToneOf(LinkState s) => s switch
     {
         LinkState.Ok => Tone.Ok,
-        LinkState.FcNotConnected => Tone.Danger,
-        _ => Tone.Warn,
+        LinkState.NoDrone => Tone.Warn,
+        _ => Tone.Danger,
     };
 
-    /// <summary>The small line under the Link tile.</summary>
-    public static string Caption(LinkState s, bool connecting, double? stateAge) => s switch
+    /// <summary>The small line under the Link tile ("" = none).</summary>
+    /// <param name="socketOpen">The rosbridge socket is open (it may still wait for the first state).</param>
+    /// <param name="state">Freshness of the last /mavros/state.</param>
+    public static string Caption(LinkState s, bool socketOpen, FreshStatus state) => s switch
     {
-        LinkState.Ok => "FC connected",
-        LinkState.FcNotConnected => "MAVROS sees no FC",
-        LinkState.TelemetryFrozen => stateAge is double a ? $"no state for {(int)Math.Floor(a)} s" : "no state yet",
-        _ => connecting ? "connecting…" : "reconnecting…",
+        LinkState.NoDrone => socketOpen ? "waiting for FC data" : "",
+        LinkState.TelemetryFrozen => state.Note ?? "",
+        _ => "",
+    };
+
+    /// <summary>The line under the drone address in the sidebar.</summary>
+    public static string SidebarText(LinkState s, bool socketOpen) => s switch
+    {
+        LinkState.Ok => "linked",
+        LinkState.FcNotConnected => "FC not connected",
+        LinkState.TelemetryFrozen => "telemetry frozen",
+        _ => socketOpen ? "waiting for FC data" : "linking…",
     };
 }
 
 /// <summary>Sources whose age the dashboard tracks (video is tracked per camera).</summary>
 public enum TelemetrySource { State, Pose, Velocity, Imu, Attitude, Battery, Metrics }
+
+public enum FreshKind
+{
+    /// <summary>Nothing arrived yet: the value shows "—" (never 0) and the panel is grey.</summary>
+    Never,
+    Fresh,
+    /// <summary>Older than the source's limit: grey with "no data N s".</summary>
+    Stale,
+}
+
+/// <summary>Freshness of one source, as the Mac app's Freshness.Status.</summary>
+public readonly record struct FreshStatus(FreshKind Kind, int Seconds)
+{
+    public bool IsFresh => Kind == FreshKind.Fresh;
+
+    /// <summary>Caption for a greyed panel; null while the data is fresh.</summary>
+    public string? Note => Kind switch
+    {
+        FreshKind.Fresh => null,
+        FreshKind.Never => "no data yet",
+        _ => Freshness.NoDataText(Seconds),
+    };
+}
 
 /// <summary>Per-source freshness: a panel older than its limit is greyed with "no data N s".</summary>
 public static class Freshness
@@ -92,16 +124,23 @@ public static class Freshness
         _ => 2.0,   // pose, velocity, imu, attitude
     };
 
+    public static FreshStatus Status(double? arrivedAt, double now, double limit)
+    {
+        if (arrivedAt is not double t) return new FreshStatus(FreshKind.Never, 0);
+        var age = Math.Max(0, now - t);
+        return age <= limit ? new FreshStatus(FreshKind.Fresh, 0)
+                            : new FreshStatus(FreshKind.Stale, (int)Math.Floor(age));
+    }
+
+    public static FreshStatus Status(double? arrivedAt, double now, TelemetrySource s) =>
+        Status(arrivedAt, now, Limit(s));
+
     public static double? Age(double? arrivedAt, double now) =>
         arrivedAt is double t ? Math.Max(0, now - t) : null;
 
     /// <summary>True only when something arrived and is now older than the limit.</summary>
     public static bool IsStale(double? arrivedAt, double now, double limit) =>
         arrivedAt is double t && now - t > limit;
-
-    /// <summary>"no data N s" when stale, null when fresh or when nothing arrived yet (then the value shows "—").</summary>
-    public static string? StaleNote(double? arrivedAt, double now, double limit) =>
-        arrivedAt is double t && now - t > limit ? NoDataText(now - t) : null;
 
     public static string NoDataText(double ageSec) => $"no data {(int)Math.Floor(Math.Max(0, ageSec))} s";
 }

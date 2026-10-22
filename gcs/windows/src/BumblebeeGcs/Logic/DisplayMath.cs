@@ -70,11 +70,12 @@ public static class AttitudeMath
 
     /// <summary>
     /// sensor_msgs/Imu orientation is usable: orientation_covariance[0] != -1 ("no orientation")
-    /// and the quaternion is close to unit length.
+    /// and the quaternion is close to unit length. Without a covariance the quaternion decides
+    /// (as in the Mac app).
     /// </summary>
     public static bool IsValidImuOrientation(double? covariance0, double x, double y, double z, double w)
     {
-        if (covariance0 is not double c || c == -1) return false;
+        if (covariance0 is double c && c == -1) return false;
         if (!double.IsFinite(x) || !double.IsFinite(y) || !double.IsFinite(z) || !double.IsFinite(w)) return false;
         var norm = Math.Sqrt(x * x + y * y + z * z + w * w);
         return Math.Abs(norm - 1) < 0.05;
@@ -96,7 +97,8 @@ public enum VideoState
 public static class VideoLogic
 {
     public const string ArucoHint = "ArUco image appears only when the drone is armed or in OFFBOARD";
-    public const string ArucoHintShort = "ArUco: only when armed or in OFFBOARD";
+    /// <summary>The small picture-in-picture (/aruco_map/image).</summary>
+    public const string ArucoHintShort = "ArUco map: armed or OFFBOARD only";
 
     /// <param name="lastFrameAt">Arrival of the last frame of the current stream; null = none yet.</param>
     /// <param name="startedAt">When the current stream (URL) was started.</param>
@@ -109,7 +111,8 @@ public static class VideoLogic
     /// <summary>The drone publishes ArUco images only when armed or in OFFBOARD (aruco_detect gate_by_flight_state).</summary>
     public static bool IsArucoTopic(string topic) => topic.Contains("aruco", StringComparison.OrdinalIgnoreCase);
 
-    public static string LostCaption(double ageSec) => $"no frame for {(int)Math.Floor(Math.Max(0, ageSec))} s";
+    /// <summary>The line under "Video lost": how old the frozen frame is.</summary>
+    public static string LostCaption(double ageSec) => $"{(int)Math.Floor(Math.Max(0, ageSec))} s";
 }
 
 /// <summary>
@@ -119,6 +122,8 @@ public static class VideoLogic
 /// </summary>
 public sealed class FcLostAlarm
 {
+    public const string Text = "Flight controller link lost";
+
     private LinkState _prev = LinkState.NoDrone;
 
     public bool BannerVisible { get; private set; }

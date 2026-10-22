@@ -37,8 +37,8 @@ public sealed class CameraView : Grid
     public string Host = "";
     public string Topic = "";
     public int Quality = 60, Fps = 12, StreamWidth = 320, StreamHeight = 240;
-    /// <summary>Use the short ArUco hint (the small PiP).</summary>
-    public bool CompactHint;
+    /// <summary>The small picture-in-picture: short ArUco hint, no hint under "Video lost" (as on the Mac).</summary>
+    public bool Compact;
 
     private readonly MjpegStream _stream = new();
     private readonly Image _image;
@@ -153,7 +153,7 @@ public sealed class CameraView : Grid
     {
         var now = MonoClock.Now;
         var aruco = VideoLogic.IsArucoTopic(Topic);
-        var hint = CompactHint ? VideoLogic.ArucoHintShort : VideoLogic.ArucoHint;
+        var hint = Compact ? VideoLogic.ArucoHintShort : VideoLogic.ArucoHint;
         var state = _startedUrl is null ? VideoState.Waiting : VideoLogic.Compute(_lastFrameAt, _startedAt, now, aruco);
         switch (state)
         {
@@ -164,8 +164,9 @@ public sealed class CameraView : Grid
             case VideoState.Lost:
                 _placeholder.Visibility = Visibility.Collapsed;
                 _lostCaption.Text = VideoLogic.LostCaption(now - (_lastFrameAt ?? now));
-                _lostHint.Text = aruco ? hint : "";
-                _lostHint.Visibility = aruco ? Visibility.Visible : Visibility.Collapsed;
+                var showHint = aruco && !Compact;
+                _lostHint.Text = showHint ? hint : "";
+                _lostHint.Visibility = showHint ? Visibility.Visible : Visibility.Collapsed;
                 _lostOverlay.Visibility = Visibility.Visible;
                 break;
             case VideoState.NoArucoFrames:

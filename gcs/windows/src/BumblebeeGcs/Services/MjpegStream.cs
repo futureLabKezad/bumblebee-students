@@ -31,7 +31,11 @@ public sealed class MjpegStream
     public event Action<bool>? ReceivingChanged;
 
     /// <summary>No byte for this long: the connection is dead (the server's keep-alive comes every 5 s).</summary>
-    public const int IdleTimeoutMs = 10_000;
+    public const int DefaultIdleTimeoutMs = 10_000;
+    public const int RetryDelayMs = 1200;
+
+    /// <summary>Idle watchdog of this stream (tests use a shorter one).</summary>
+    public int IdleTimeoutMs { get; init; } = DefaultIdleTimeoutMs;
 
     private static readonly HttpClient Http = new(new SocketsHttpHandler
     {
@@ -104,7 +108,7 @@ public sealed class MjpegStream
 
             if (ct.IsCancellationRequested) return;
             ReceivingChanged?.Invoke(false);
-            try { await Task.Delay(1200, ct); } catch { return; }
+            try { await Task.Delay(RetryDelayMs, ct); } catch { return; }
         }
     }
 

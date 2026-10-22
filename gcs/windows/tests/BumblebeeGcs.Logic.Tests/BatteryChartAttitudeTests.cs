@@ -23,6 +23,8 @@ public class BatteryTests
     [Theory]
     [InlineData(65.535, -0.01)]      // PX4 BAT1_SOURCE=-1 through MAVROS
     [InlineData(65.53500366, 0.5)]   // the same sentinel as float32
+    [InlineData(65.5, 0.5)]          // anything from 65.5 V up, as on the Mac
+    [InlineData(99.0, 0.5)]
     [InlineData(null, 0.5)]          // rosbridge sends NaN as null
     [InlineData(double.NaN, 0.5)]
     [InlineData(0.0, 0.5)]
@@ -46,7 +48,7 @@ public class BatteryTests
         Assert.Equal(BatteryKind.Measured, r.Kind);
         Assert.Equal("24.10 V · 83%", r.Text);
         Assert.Equal("83%", r.Short);
-        Assert.Equal("24.10 V", r.Caption);
+        Assert.Equal("", r.Caption);                     // the volts are on the Telemetry bar
         Assert.Equal(83, r.Pct!.Value, 6);
         Assert.Equal(Tone.Ok, r.Tone);
     }
@@ -57,8 +59,10 @@ public class BatteryTests
         var r = BatteryReading.Classify(16.2, null);
         Assert.Equal(BatteryKind.Measured, r.Kind);
         Assert.Null(r.Pct);
-        Assert.Equal("16.20 V · —", r.Text);
-        Assert.Equal("16.2 V", r.Short);
+        Assert.Equal("16.20 V", r.Text);
+        Assert.Equal("16.20 V", r.Short);
+        Assert.Equal("", r.Caption);
+        Assert.False(r.HasLevel);                        // neutral icon
         Assert.Equal(Tone.Neutral, r.Tone);
     }
 
@@ -69,6 +73,14 @@ public class BatteryTests
         Assert.Equal(BatteryKind.NoData, r.Kind);
         Assert.Equal("—", r.Text);
         Assert.Equal("—", r.Short);
+    }
+
+    [Fact]
+    public void LowBatteryTexts()
+    {
+        var r = BatteryReading.Classify(20.4, 0.12);
+        Assert.Equal("WARNING LOW BATTERY: 20.40 V (12%)", r.LowLogLine);
+        Assert.Equal("Low battery: 20.40 V · 12%", r.LowBannerText);
     }
 
     [Theory]
@@ -179,11 +191,11 @@ public class AttitudeTests
     }
 
     [Fact]
-    public void ImuOrientation_ValidOnlyWithCovarianceAndUnitQuaternion()
+    public void ImuOrientation_ValidUnlessFlaggedOrNotUnit()
     {
         Assert.True(AttitudeMath.IsValidImuOrientation(0.0, 0, S5, 0, C5));
         Assert.False(AttitudeMath.IsValidImuOrientation(-1.0, 0, S5, 0, C5));   // "no orientation" per sensor_msgs/Imu
-        Assert.False(AttitudeMath.IsValidImuOrientation(null, 0, S5, 0, C5));
+        Assert.True(AttitudeMath.IsValidImuOrientation(null, 0, S5, 0, C5));     // no covariance: the quaternion decides (Mac)
         Assert.False(AttitudeMath.IsValidImuOrientation(0.0, 0, 0, 0, 0));       // empty quaternion
         Assert.False(AttitudeMath.IsValidImuOrientation(0.0, 0, 0, 0, 0.5));
         Assert.False(AttitudeMath.IsValidImuOrientation(0.0, double.NaN, 0, 0, 1));

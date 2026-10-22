@@ -63,6 +63,41 @@ public sealed class PanelCard : Grid
     public void SetNote(string? note) => _note.Text = note ?? "";
 }
 
+/// <summary>
+/// Persistent red strip for a safety alarm ("Flight controller link lost", low battery), as the
+/// Mac app's AlarmBanner: solid danger colour, not dismissable, stays until the condition clears.
+/// </summary>
+public sealed class AlarmBanner : Grid
+{
+    private readonly TextBlock _text;
+
+    public AlarmBanner(string glyph)
+    {
+        var icon = Ui.Icon(glyph, Palette.IconMd, Colors.White);
+        _text = Ui.Text("", Fonts.BodyStrong, Colors.White);
+        _text.TextWrapping = TextWrapping.Wrap;
+        _text.VerticalAlignment = VerticalAlignment.Center;
+        icon.VerticalAlignment = VerticalAlignment.Center;
+        Background = Palette.Brush(Palette.Danger);
+        Padding = new Thickness(Palette.S4, Palette.S2 + 2, Palette.S4, Palette.S2 + 2);
+        HorizontalAlignment = HorizontalAlignment.Stretch;
+        Children.Add(Ui.HStack(Palette.S2, icon, _text));
+        Visibility = Visibility.Collapsed;
+    }
+
+    /// <summary>Show the text, or hide the banner for null.</summary>
+    public void Set(string? text)
+    {
+        if (text is null)
+        {
+            Visibility = Visibility.Collapsed;
+            return;
+        }
+        _text.Text = text;
+        Visibility = Visibility.Visible;
+    }
+}
+
 /// <summary>Серый вид устаревших данных: панель/строка остаётся, но явно «не живая».</summary>
 public static class Stale
 {
@@ -116,9 +151,11 @@ public sealed class StatTile : Grid
         Children.Add(Ui.HStack(Palette.S3, _iconBox, texts));
     }
 
-    public void Update(string value, Color? color = null, string? glyph = null)
+    /// <param name="valueColor">Colour of the value text (UNKNOWN in caution, "ARMED? link lost" in danger); default text.</param>
+    public void Update(string value, Color? color = null, string? glyph = null, Color? valueColor = null)
     {
         _value.Text = value;
+        _value.Foreground = Palette.Brush(valueColor ?? Palette.Text);
         // Длинные значения («Telemetry frozen», «Not measured») мельче, чтобы влезть в 190 px.
         _value.FontSize = value.Length > 10 ? Fonts.StatValue.Size - 3 : Fonts.StatValue.Size;
         if (color is Color c && c != _color)

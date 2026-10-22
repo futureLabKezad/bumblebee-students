@@ -30,7 +30,7 @@ public static class ArmedLogic
     {
         true => new TileText("ARMED", "", Tone.Danger),
         false => new TileText("DISARMED", "", Tone.Neutral),
-        null when lastKnownArmed == true => new TileText("ARMED?", "link lost", Tone.Danger),
+        null when lastKnownArmed == true => new TileText("ARMED? link lost", "", Tone.Danger),
         _ => new TileText("UNKNOWN", "waiting for FC data", Tone.Caution),
     };
 }
@@ -38,15 +38,18 @@ public static class ArmedLogic
 /// <summary>Who flies the drone right now (display only, from armed and the PX4 mode).</summary>
 public enum Controller { Unknown, Disarmed, Program, Pilot, Px4 }
 
-/// <summary>PX4 mode names with a short explanation, and "who is in control".</summary>
+/// <summary>PX4 mode names with a short explanation, and "who is in control" (same rules as the Mac app).</summary>
 public static class ModeLogic
 {
     static string Norm(string? mode) => (mode ?? "").Trim().ToUpperInvariant();
 
     static bool IsPilotMode(string m) => m is "POSCTL" or "ALTCTL" or "STABILIZED" or "ACRO" or "MANUAL";
 
-    /// <summary>Short explanation under the mode; "" for a mode without one.</summary>
-    public static string Explain(string? mode) => Norm(mode) switch
+    /// <summary>
+    /// Short explanation under the mode: "unknown" for the empty mode MAVROS sends without an FC,
+    /// "" before any state (null) and for names we do not know (they are shown as they are).
+    /// </summary>
+    public static string Explain(string? mode) => mode is null ? "" : Norm(mode) switch
     {
         "" => "unknown",
         "OFFBOARD" => "program in control",
@@ -63,6 +66,15 @@ public static class ModeLogic
 
     /// <summary>The mode as shown on the tile: "—" until a state with a mode arrives.</summary>
     public static string DisplayMode(string? mode) => Norm(mode) is { Length: > 0 } m ? m : Format.Dash;
+
+    /// <summary>"OFFBOARD · program in control" for the event line; "" for no mode.</summary>
+    public static string ModeWithExplanation(string? mode)
+    {
+        var m = (mode ?? "").Trim();
+        if (m.Length == 0) return "";
+        var what = Explain(m);
+        return what.Length > 0 ? $"{m} · {what}" : m;
+    }
 
     public static Controller WhoIsInControl(bool? armed, string? mode)
     {
@@ -93,70 +105,55 @@ public static class ModeLogic
         _ => Tone.Caution,
     };
 
-    /// <summary>Caption under the controller plate.</summary>
-    public static string ControllerCaption(Controller c, string? mode) => c switch
-    {
-        Controller.Unknown => "waiting for FC data",
-        Controller.Disarmed => "on the ground, motors off",
-        _ => $"{DisplayMode(mode)} · {Explain(mode)}",
-    };
+    /// <summary>Caption under the Control tile: only while armed itself is unknown.</summary>
+    public static string ControlCaption(Controller c, bool? armed) =>
+        c == Controller.Unknown && armed is null ? "waiting for FC data" : "";
 
     /// <summary>
-    /// The visible event line for a change of who is in control or of the mode, or null.
-    /// No event for the first known value (prev == Unknown) or when control becomes unknown:
-    /// link problems have their own banner.
+    /// The visible event line for a change of who is in control, or null. No event for the
+    /// first known value (prev == Unknown) or when control becomes unknown (link problems have
+    /// their own banner). With the same owner only PX4 changing its own manoeuvre is news;
+    /// other mode changes are the "mode → X" lines of the Messages panel.
     /// </summary>
     public static string? EventText(Controller prev, string? prevMode, Controller now, string? mode)
     {
         if (prev == Controller.Unknown || now == Controller.Unknown) return null;
         var m = Norm(mode);
-        if (now == prev && m == Norm(prevMode)) return null;
-        switch (now)
+        if (now == prev && (now != Controller.Px4 || m == Norm(prevMode))) return null;
+        return now switch
         {
-            case Controller.Disarmed:
-                return prev != Controller.Disarmed ? "Disarmed" : $"Mode → {DisplayMode(m)} ({Explain(m)})".Replace(" ()", "");
-            case Controller.Program:
-                if (prev == Controller.Disarmed) return "Armed: program in control";
-                return prev != Controller.Program ? "Program took control" : null;
-            case Controller.Pilot:
-                if (prev == Controller.Disarmed) return "Armed: pilot in control";
-                if (prev != Controller.Pilot) return "Pilot took control";
-                var what = Explain(m);
-                return "Pilot: " + (what.StartsWith("pilot, ", StringComparison.Ordinal) ? what["pilot, ".Length..] : DisplayMode(m));
-            case Controller.Px4:
-                return m switch
-                {
-                    "AUTO.LAND" => "PX4 is landing",
-                    "AUTO.RTL" => "PX4 is returning",
-                    "AUTO.LOITER" => "PX4 is holding",
-                    "AUTO.TAKEOFF" => "PX4 is taking off",
-                    _ => "PX4 took control",
-                };
-            default:
-                return null;
-        }
+            Controller.Program => "Program took control",
+            Controller.Pilot => "Pilot took control",
+            Controller.Disarmed => "Disarmed",
+            Controller.Px4 => m switch
+            {
+                "AUTO.LAND" => "PX4 is landing",
+                "AUTO.RTL" => "PX4 is returning",
+                "AUTO.LOITER" => "PX4 is holding",
+                "AUTO.TAKEOFF" => "PX4 is taking off",
+                _ => "PX4 took control",
+            },
+            _ => null,
+        };
     }
-
-    public static Tone EventTone(Controller now) => now switch
-    {
-        Controller.Disarmed => Tone.Neutral,
-        _ => ControllerTone(now),
-    };
 }
 
-/// <summary>One visible control event: "12:03:11 Pilot took control".</summary>
-public sealed record ControlEvent(string Time, string Text, Tone Tone);
+/// <summary>One visible control event: "12:03:11 Pilot took control  POSCTL · pilot, position hold".</summary>
+public sealed record ControlEvent(string Time, string Text, string Mode);
 
-/// <summary>The last few control events, newest first; survives link gaps, cleared on a drone switch.</summary>
+/// <summary>
+/// Turns changes of who is in control into one visible event line (the latest is shown under
+/// the tiles; the store also logs it). Survives link gaps; cleared on a drone switch.
+/// </summary>
 public sealed class ControlEvents
 {
-    public const int Max = 3;
-
-    private readonly List<ControlEvent> _items = new();
     private Controller _lastKnown = Controller.Unknown;
     private string _lastMode = "";
 
-    public IReadOnlyList<ControlEvent> Items => _items;
+    /// <summary>The newest event; null before the first one.</summary>
+    public ControlEvent? Latest { get; private set; }
+
+    /// <summary>Changes on every new event and on Reset; the view redraws when it changes.</summary>
     public int Version { get; private set; }
 
     /// <summary>Feed the current controller and mode; returns the new event text, if any.</summary>
@@ -167,15 +164,14 @@ public sealed class ControlEvents
         _lastKnown = now;
         _lastMode = mode ?? "";
         if (text is null) return null;
-        _items.Insert(0, new ControlEvent(time, text, ModeLogic.EventTone(now)));
-        if (_items.Count > Max) _items.RemoveRange(Max, _items.Count - Max);
+        Latest = new ControlEvent(time, text, (mode ?? "").Trim());
         Version++;
         return text;
     }
 
     public void Reset()
     {
-        _items.Clear();
+        Latest = null;
         _lastKnown = Controller.Unknown;
         _lastMode = "";
         Version++;

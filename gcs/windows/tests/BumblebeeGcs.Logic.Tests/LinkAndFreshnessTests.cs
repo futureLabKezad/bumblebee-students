@@ -57,9 +57,7 @@ public class LinkLogicTests
     {
         // Socket opened at 100; nothing yet. During the first 3 s it is not frozen yet.
         Assert.Equal(LinkState.NoDrone, LinkLogic.Compute(100, null, null, 102.9));
-        Assert.True(LinkLogic.IsConnecting(100, null, 102.9));
         Assert.Equal(LinkState.TelemetryFrozen, LinkLogic.Compute(100, null, null, 103.1));
-        Assert.False(LinkLogic.IsConnecting(100, null, 103.1));
     }
 
     [Fact]
@@ -78,12 +76,35 @@ public class LinkLogicTests
     public void Texts(LinkState s, string text) => Assert.Equal(text, LinkLogic.Text(s));
 
     [Fact]
-    public void OnlyOkIsGreen()
+    public void Colours_AsOnTheMac()
     {
         Assert.Equal(Tone.Ok, LinkLogic.ToneOf(LinkState.Ok));
-        Assert.NotEqual(Tone.Ok, LinkLogic.ToneOf(LinkState.NoDrone));
-        Assert.NotEqual(Tone.Ok, LinkLogic.ToneOf(LinkState.FcNotConnected));
-        Assert.NotEqual(Tone.Ok, LinkLogic.ToneOf(LinkState.TelemetryFrozen));
+        Assert.Equal(Tone.Warn, LinkLogic.ToneOf(LinkState.NoDrone));
+        Assert.Equal(Tone.Danger, LinkLogic.ToneOf(LinkState.FcNotConnected));
+        Assert.Equal(Tone.Danger, LinkLogic.ToneOf(LinkState.TelemetryFrozen));
+    }
+
+    [Fact]
+    public void TileCaption()
+    {
+        var never = Freshness.Status(null, 100, 3);
+        var stale = Freshness.Status(91.5, 100, 3);
+        Assert.Equal("waiting for FC data", LinkLogic.Caption(LinkState.NoDrone, socketOpen: true, never));
+        Assert.Equal("", LinkLogic.Caption(LinkState.NoDrone, socketOpen: false, stale));
+        Assert.Equal("no data 8 s", LinkLogic.Caption(LinkState.TelemetryFrozen, socketOpen: true, stale));
+        Assert.Equal("no data yet", LinkLogic.Caption(LinkState.TelemetryFrozen, socketOpen: true, never));
+        Assert.Equal("", LinkLogic.Caption(LinkState.FcNotConnected, socketOpen: true, Freshness.Status(99, 100, 3)));
+        Assert.Equal("", LinkLogic.Caption(LinkState.Ok, socketOpen: true, Freshness.Status(99, 100, 3)));
+    }
+
+    [Fact]
+    public void SidebarLine()
+    {
+        Assert.Equal("linked", LinkLogic.SidebarText(LinkState.Ok, true));
+        Assert.Equal("waiting for FC data", LinkLogic.SidebarText(LinkState.NoDrone, true));
+        Assert.Equal("linking…", LinkLogic.SidebarText(LinkState.NoDrone, false));
+        Assert.Equal("FC not connected", LinkLogic.SidebarText(LinkState.FcNotConnected, true));
+        Assert.Equal("telemetry frozen", LinkLogic.SidebarText(LinkState.TelemetryFrozen, true));
     }
 }
 
@@ -107,7 +128,6 @@ public class FreshnessTests
     {
         Assert.Null(Freshness.Age(null, 100));
         Assert.False(Freshness.IsStale(null, 100, 2));
-        Assert.Null(Freshness.StaleNote(null, 100, 2));
     }
 
     [Fact]
@@ -115,8 +135,25 @@ public class FreshnessTests
     {
         Assert.False(Freshness.IsStale(98, 100, 2));
         Assert.True(Freshness.IsStale(97.9, 100, 2));
-        Assert.Equal("no data 7 s", Freshness.StaleNote(92.4, 100, 5));
         Assert.Equal("no data 7 s", Freshness.NoDataText(7.9));
+    }
+
+    [Fact]
+    public void Status_NeverFreshStale_AsOnTheMac()
+    {
+        var never = Freshness.Status(null, 100, 2);
+        Assert.Equal(FreshKind.Never, never.Kind);
+        Assert.False(never.IsFresh);                       // nothing came: greyed, value "—"
+        Assert.Equal("no data yet", never.Note);
+
+        var fresh = Freshness.Status(98, 100, 2);          // exactly at the limit is still fresh
+        Assert.True(fresh.IsFresh);
+        Assert.Null(fresh.Note);
+
+        var stale = Freshness.Status(92.4, 100, 5);
+        Assert.Equal(FreshKind.Stale, stale.Kind);
+        Assert.False(stale.IsFresh);
+        Assert.Equal("no data 7 s", stale.Note);
     }
 
     [Fact]

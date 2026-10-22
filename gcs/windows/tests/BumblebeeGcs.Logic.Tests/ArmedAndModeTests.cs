@@ -68,8 +68,8 @@ public class ArmedLogicTests
     public void Tile_WasArmedAndBecameUnknown_SaysArmedLinkLost()
     {
         var d = ArmedLogic.Display(null, true);
-        Assert.Equal("ARMED?", d.Value);
-        Assert.Equal("link lost", d.Caption);
+        Assert.Equal("ARMED? link lost", d.Value);   // one value, as on the Mac
+        Assert.Equal("", d.Caption);
         Assert.Equal(Tone.Danger, d.Tone);
     }
 }
@@ -90,8 +90,8 @@ public class ModeLogicTests
     [InlineData("AUTO.MISSION", "PX4 automatic")]
     [InlineData("AUTO.PRECLAND", "PX4 automatic")]
     [InlineData("", "unknown")]
-    [InlineData(null, "unknown")]
-    [InlineData("RATTITUDE", "")]
+    [InlineData(null, "")]            // no State yet: nothing to explain
+    [InlineData("RATTITUDE", "")]     // unknown names are shown as they are
     public void Explanations(string? mode, string text) => Assert.Equal(text, ModeLogic.Explain(mode));
 
     [Fact]
@@ -128,6 +128,9 @@ public class ModeLogicTests
     [InlineData(Controller.Unknown, "Unknown")]
     public void ControllerNames(Controller c, string text) => Assert.Equal(text, ModeLogic.ControllerText(c));
 
+    // Events follow the Mac app: a line when the hands on the drone change, and
+    // when PX4 changes its own manoeuvre. Mode changes inside one owner are only
+    // "mode → X" lines in the Messages panel.
     [Fact]
     public void Events_PilotTakesOverFromTheProgram()
     {
@@ -149,39 +152,68 @@ public class ModeLogicTests
     {
         Assert.Equal("Program took control",
             ModeLogic.EventText(Controller.Pilot, "POSCTL", Controller.Program, "OFFBOARD"));
-        Assert.Equal("Pilot: altitude hold",
-            ModeLogic.EventText(Controller.Pilot, "POSCTL", Controller.Pilot, "ALTCTL"));
-        Assert.Equal("Armed: pilot in control",
+        Assert.Equal("Pilot took control",
             ModeLogic.EventText(Controller.Disarmed, "POSCTL", Controller.Pilot, "POSCTL"));
+        Assert.Equal("Program took control",
+            ModeLogic.EventText(Controller.Disarmed, "OFFBOARD", Controller.Program, "OFFBOARD"));
         Assert.Equal("Disarmed",
             ModeLogic.EventText(Controller.Pilot, "POSCTL", Controller.Disarmed, "POSCTL"));
-        Assert.Equal("Mode → ALTCTL (pilot, altitude hold)",
-            ModeLogic.EventText(Controller.Disarmed, "POSCTL", Controller.Disarmed, "ALTCTL"));
+        Assert.Equal("PX4 is returning",
+            ModeLogic.EventText(Controller.Px4, "AUTO.LAND", Controller.Px4, "AUTO.RTL"));
     }
 
     [Fact]
-    public void Events_NoneForTheFirstValue_NoChange_OrUnknown()
+    public void Events_NoneForTheFirstValue_NoChange_SameOwner_OrUnknown()
     {
         Assert.Null(ModeLogic.EventText(Controller.Unknown, "", Controller.Program, "OFFBOARD"));
         Assert.Null(ModeLogic.EventText(Controller.Pilot, "POSCTL", Controller.Pilot, "POSCTL"));
+        Assert.Null(ModeLogic.EventText(Controller.Pilot, "POSCTL", Controller.Pilot, "ALTCTL"));
+        Assert.Null(ModeLogic.EventText(Controller.Disarmed, "POSCTL", Controller.Disarmed, "OFFBOARD"));
+        Assert.Null(ModeLogic.EventText(Controller.Px4, "AUTO.LAND", Controller.Px4, "AUTO.LAND"));
         Assert.Null(ModeLogic.EventText(Controller.Pilot, "POSCTL", Controller.Unknown, "POSCTL"));
     }
 
     [Fact]
-    public void ControlEvents_KeepTheLastFew_AndSurviveALinkGap()
+    public void ControlEvents_SameSequenceAsTheMacApp()
     {
         var ev = new ControlEvents();
-        Assert.Null(ev.Update(Controller.Disarmed, "POSCTL", "12:00:00"));   // baseline
-        Assert.Equal("Armed: pilot in control", ev.Update(Controller.Pilot, "POSCTL", "12:00:01"));
-        Assert.Null(ev.Update(Controller.Unknown, "POSCTL", "12:00:02"));     // link lost: no event
-        Assert.Equal("Program took control", ev.Update(Controller.Program, "OFFBOARD", "12:00:05"));
-        Assert.Equal("PX4 is landing", ev.Update(Controller.Px4, "AUTO.LAND", "12:00:09"));
-        Assert.Equal("Disarmed", ev.Update(Controller.Disarmed, "AUTO.LAND", "12:00:20"));
-        Assert.Equal(ControlEvents.Max, ev.Items.Count);
-        Assert.Equal("Disarmed", ev.Items[0].Text);
-        Assert.Equal("12:00:20", ev.Items[0].Time);
+        Assert.Null(ev.Update(Controller.Disarmed, "POSCTL", "12:00:00"));    // first look is not an event
+        Assert.Null(ev.Latest);
+        Assert.Equal("Pilot took control", ev.Update(Controller.Pilot, "POSCTL", "12:00:01"));
+        Assert.Null(ev.Update(Controller.Pilot, "POSCTL", "12:00:02"));
+        Assert.Null(ev.Update(Controller.Pilot, "ALTCTL", "12:00:03"));       // pilot changing hold mode
+        Assert.Equal("Program took control", ev.Update(Controller.Program, "OFFBOARD", "12:00:04"));
+        Assert.Equal("Pilot took control", ev.Update(Controller.Pilot, "POSCTL", "12:00:05"));
+        Assert.Equal("PX4 is holding", ev.Update(Controller.Px4, "AUTO.LOITER", "12:00:06"));
+        Assert.Equal("PX4 is landing", ev.Update(Controller.Px4, "AUTO.LAND", "12:00:07"));
+        Assert.Null(ev.Update(Controller.Unknown, "AUTO.LAND", "12:00:08"));  // link lost: no event
+        Assert.Null(ev.Update(Controller.Px4, "AUTO.LAND", "12:00:09"));      // same as before the gap
+        Assert.Equal("PX4 is returning", ev.Update(Controller.Px4, "AUTO.RTL", "12:00:10"));
+        Assert.Equal("PX4 is taking off", ev.Update(Controller.Px4, "AUTO.TAKEOFF", "12:00:11"));
+        Assert.Equal("PX4 took control", ev.Update(Controller.Px4, "AUTO.MISSION", "12:00:12"));
+        Assert.Equal("Disarmed", ev.Update(Controller.Disarmed, "AUTO.MISSION", "12:00:20"));
+        Assert.Equal(new ControlEvent("12:00:20", "Disarmed", "AUTO.MISSION"), ev.Latest);
+        var v = ev.Version;
         ev.Reset();
-        Assert.Empty(ev.Items);
-        Assert.Null(ev.Update(Controller.Pilot, "POSCTL", "12:01:00"));      // new baseline after reset
+        Assert.Null(ev.Latest);
+        Assert.NotEqual(v, ev.Version);
+        Assert.Null(ev.Update(Controller.Pilot, "POSCTL", "12:01:00"));       // new first look after reset
     }
+
+    [Fact]
+    public void ControlTile_WaitsForFcData_OnlyWhileArmedIsUnknown()
+    {
+        Assert.Equal("waiting for FC data", ModeLogic.ControlCaption(Controller.Unknown, null));
+        Assert.Equal("", ModeLogic.ControlCaption(Controller.Unknown, true));   // armed in a mode we do not know
+        Assert.Equal("", ModeLogic.ControlCaption(Controller.Program, true));
+        Assert.Equal("", ModeLogic.ControlCaption(Controller.Disarmed, false));
+    }
+
+    [Theory]
+    [InlineData("OFFBOARD", "OFFBOARD · program in control")]
+    [InlineData("AUTO.LAND", "AUTO.LAND · PX4 landing")]
+    [InlineData("RATTITUDE", "RATTITUDE")]
+    [InlineData("", "")]
+    public void EventLine_ModeWithItsExplanation(string mode, string text) =>
+        Assert.Equal(text, ModeLogic.ModeWithExplanation(mode));
 }

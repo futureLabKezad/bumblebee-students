@@ -34,7 +34,8 @@ public static class IconGlyphs
     public const string Battery       = "\uE859"; // battery.75 -> Battery8
     public const string BatteryUnknown = "\uE996"; // battery not measured / no data -> BatteryUnknown
     public const string Unknown       = "\uE9CE"; // questionmark -> Unknown
-    public const string InControl     = "\uE77B"; // person -> Contact
+    public const string Pilot         = "\uE7FC"; // gamecontroller.fill -> Game
+    public const string Flag          = "\uE7C1"; // flag.fill -> Flag
     public const string Altitude      = "\uE74A"; // arrow.up.to.line -> Up
     public const string Link          = "\uE701"; // dot.radiowaves.up.forward -> Wifi
     public const string Attitude      = "\uE7AD"; // gyroscope -> Rotate

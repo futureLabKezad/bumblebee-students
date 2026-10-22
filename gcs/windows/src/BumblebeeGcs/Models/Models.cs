@@ -67,11 +67,11 @@ public sealed class TelemetryStore
     public bool? StateConnected, StateArmed;
     /// <summary>Last armed value a connected FC reported; kept over reconnects, null after a drone switch.</summary>
     public bool? LastKnownArmed;
-    public string Mode = "";               // "" = unknown
+    /// <summary>PX4 mode of the last state; null = no state on this connection yet, "" = MAVROS sent none.</summary>
+    public string? Mode;
 
     // Derived by Evaluate()
     public LinkState Link { get; private set; } = LinkState.NoDrone;
-    public bool LinkConnecting { get; private set; }
     /// <summary>Tri-state armed the screen may show (null = unknown).</summary>
     public bool? Armed { get; private set; }
     public Controller InControl { get; private set; } = Controller.Unknown;
@@ -82,6 +82,8 @@ public sealed class TelemetryStore
     public BatteryReading Battery = BatteryReading.NoData;
     public double? BatteryAt;
     public readonly LowBatteryLatch LowBattery = new();
+    /// <summary>Red banner text while the charge is low (below 15 % until above 20 %); null = no banner.</summary>
+    public string? LowBatteryBanner { get; private set; }
 
     // Pose (X/Y/Z, trail) and attitude (from IMU orientation when valid, else from pose)
     public double? PosX, PosY, PosZ;
@@ -147,14 +149,18 @@ public sealed class TelemetryStore
     }
 
     /// <summary>
-    /// Reconnect or disconnect, same drone: the socket is gone and armed becomes unknown;
-    /// the log and the last values stay (they show greyed as stale).
+    /// Reconnect or disconnect, same drone (as the Mac app): the socket and the State of the old
+    /// connection are gone, so armed and the mode are unknown until a new State arrives. The log,
+    /// the last known armed value and the other values stay (they show greyed as stale).
     /// </summary>
     public void ResetForReconnect(double now)
     {
         var wasOpen = RosConnected;
         RosConnected = false;
         SocketOpenedAt = null;
+        StateAt = null;
+        StateConnected = StateArmed = null;
+        Mode = null;
         LinkLog.Reset();
         if (wasOpen) ConnectionChanged?.Invoke();
         Evaluate(now);
@@ -167,10 +173,11 @@ public sealed class TelemetryStore
         SocketOpenedAt = null;
         StateAt = null;
         StateConnected = StateArmed = LastKnownArmed = null;
-        Mode = "";
+        Mode = null;
         Battery = BatteryReading.NoData;
         BatteryAt = null;
         LowBattery.Reset();
+        LowBatteryBanner = null;
         PosX = PosY = PosZ = null;
         PoseAt = null;
         Roll = Pitch = Yaw = null;
@@ -202,25 +209,17 @@ public sealed class TelemetryStore
         var link = LinkLogic.Compute(SocketOpenedAt, StateAt, StateConnected, now);
         var linkChanged = link != Link;
         Link = link;
-        LinkConnecting = LinkLogic.IsConnecting(SocketOpenedAt, StateAt, now);
         Armed = ArmedLogic.Effective(link, StateArmed);
         InControl = ModeLogic.WhoIsInControl(Armed, Mode);
-        Events.Update(InControl, Mode, TimeString());
+        // The event also goes into the Messages panel (newest first: after its "mode → X").
+        if (Events.Update(InControl, Mode, TimeString()) is string ev) Log(ev);
         if (FcAlarm.Update(link, LastKnownArmed))
         {
-            Log("Flight controller link lost");
+            Log(FcLostAlarm.Text);
             AlarmRaised?.Invoke();
         }
         if (linkChanged) LinkChanged?.Invoke();
         Updated?.Invoke();
-    }
-
-    /// <summary>Age of the state for the Link caption: since the last state on this socket, else since it opened.</summary>
-    public double? StateAgeOnSocket(double now)
-    {
-        if (SocketOpenedAt is not double opened) return null;
-        var since = StateAt is double at && at >= opened ? at : opened;
-        return Math.Max(0, now - since);
     }
 
     // MARK: - Data (called by RosMessages on the UI thread)
@@ -235,7 +234,7 @@ public sealed class TelemetryStore
         if (mode is not null && mode != Mode)
         {
             Mode = mode;
-            Log($"mode → {ModeLogic.DisplayMode(mode)}");
+            Log($"mode → {(mode.Length == 0 ? "unknown" : mode)}");
         }
         Evaluate(now);
     }
@@ -244,8 +243,12 @@ public sealed class TelemetryStore
     {
         Battery = r;
         BatteryAt = now;
-        if (r.Pct is double p) PushChart(ChartBat, p);
-        if (LowBattery.Update(r.Pct)) Log($"LOW BATTERY: {r.Text}");
+        // Only a measured charge moves the chart and the LOW BATTERY latch; a not-measured
+        // message keeps the banner as it was.
+        if (r.Pct is not double p) return;
+        PushChart(ChartBat, p);
+        if (LowBattery.Update(p)) Log(r.LowLogLine);
+        LowBatteryBanner = LowBattery.IsLow ? r.LowBannerText : null;
     }
 
     public void ApplyPose(double x, double y, double z, Euler? attitude, double now)
