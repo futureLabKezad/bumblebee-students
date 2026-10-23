@@ -5,6 +5,77 @@ Versioning follows [SemVer](https://semver.org/); each release has a tag `vX.Y.Z
 a release page in the [wiki](https://github.com/futureLabKezad/bumblebee-students/wiki)
 and downloadable builds.
 
+## v1.0.2 — unreleased
+
+Drone update **1.0.2** (update bundle; release candidate `1.0.2-rc1`) and ground
+station **Bumblebee GCS 1.2.0** (Mac and Windows). Theme: the screen never
+misleads about safety, one click cannot take a drone out of class, the app
+only watches. Flight code and PX4 parameters are unchanged by these items;
+flight-side changes for 1.0.2 are listed separately when they land.
+
+### Drone (update 1.0.2)
+- LED alarms (flight controller lost, low battery) now show over a colour or a
+  show chosen in the GCS; animations pause under an alarm and get the LEDs back
+  afterwards. No animation, show or system alarm flashes faster than 3 times
+  per second; the students' copies in `examples/animations` match the drone's.
+- Every animation and show stops by itself after 2 minutes;
+  `GET /api/led/status` reports the seconds left (`remaining_s`).
+- "Unknown = armed": Wi-Fi changes and buzzer/speech are refused while the
+  drone is armed or its flight-controller state is not fresh (first-time setup
+  over the drone's own hotspot still works). Refusals carry a stable `code`
+  (`armed`, `fc_unknown`, ...) in every error reply.
+- A new Wi-Fi password is tried in a pending profile before it replaces the
+  working one: a typo no longer cuts the drone off its classroom network.
+- Removing the network in use needs `confirm_active` and happens after the
+  reply; a double "Apply Now" or a slow join no longer raises the hotspot over
+  a good connection; the drone's setup hotspot cannot be changed through the
+  API under any name.
+- No Wi-Fi password in any reply or log line.
+- `GET /api/info`: the drone's name, id, software version, ROS domain and API
+  contract number.
+- Video server: a camera's ROS subscription is released 10 s after its last
+  viewer (the ArUco debug image stops rendering), a vanished viewer is dropped
+  after 10 s, and stream parameters are capped and shared fairly.
+- The update bundle carries the version (`drone/VERSION`) and writes it as the
+  first line of `/etc/bumblebee_version` (rollback restores it); it now also
+  installs `notify_manager.py`, all animations, the video server and the
+  drone's web pages.
+
+### Ground station (GCS 1.2.0, Mac and Windows)
+- Dashboard: Link shows No drone / FC not connected / Telemetry frozen / OK
+  (a silent drop is noticed within seconds); armed is ARMED / DISARMED /
+  UNKNOWN / "ARMED? link lost"; values read "—" before data and grey out when
+  stale; "Flight controller link lost" banner and sound on the laptop; who is
+  in control (program, pilot, PX4); pitch sign fixed; battery "Not measured"
+  instead of a full icon; "Video lost" over a frozen frame.
+- Connect screen: drones remembered by their id, not their address; switched-off
+  drones grey out and leave the list; a device with port 9090 open is not shown
+  as a drone; a known drone that lost its Wi-Fi is labelled so; "Connect
+  directly" over any drone's hotspot; typed addresses are checked before
+  connecting; requests bypass system proxies.
+- Settings: every change checks that the same drone still answers; removing the
+  network in use asks first, naming the drone; after "Apply Now" the drone is
+  found again on the new network; errors in plain words; password rules
+  (8–63 characters) and protected network names checked in the form.
+- Entertainment: shows what really runs on the drone, with a countdown and a
+  Stop button; sounds are disabled while armed or unknown; a show started from
+  this laptop stops on Disconnect, on switching drones and when the app quits.
+- "Copy diagnostics" (versions, drone, connection, recent messages; no
+  passwords) and a crash log in both apps.
+- Windows: "Add drone" button and Location hint, Shows panel, window fits the
+  screen at 150 % scaling, keyboard and Narrator access, Rescan keeps
+  DNS-SD drones, the subnet scan skips virtual adapters (WSL2, Hyper-V).
+- Mac: "Add drone" no longer freezes the window; the connect screen scrolls;
+  a banner when macOS joined a drone's hotspot by itself.
+
+### Tooling
+- CI runs the Mac (`swift test`) and Windows logic tests and builds SimDrone;
+  every action is pinned to a commit; a release tag must match the app
+  version. The watch-only check now reads every file (a `/*` inside a comment
+  used to hide the rest of a file).
+- Mock drones (`gcs/tools/mock_drone.py`, `gcs/windows/tools/SimDrone`) emulate
+  armed / FC lost / stale / frozen states and the 1.0.2 API.
+
 ## v1.0.1 — 2026-10-12
 
 Drone SD image **1.0.1** (`bumblebee-1.0.1-rpi5.img.xz`, release
