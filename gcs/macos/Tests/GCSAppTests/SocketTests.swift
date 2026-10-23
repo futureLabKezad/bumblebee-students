@@ -151,6 +151,7 @@ final class SocketTests: XCTestCase {
         stream.start(url: URL(string: "http://127.0.0.1:\(server.port)/stream?topic=a")!)
         XCTAssertTrue(spin(until: 3) { stream.image != nil })
         server.sending = false        // socket stays open, no bytes: a powered-off drone
+        spin(until: 0.3) { false }    // a frame already on its way still lands (frames are 0.1 s apart)
         let first = stream.lastFrameAt
         XCTAssertTrue(spin(until: 6) { server.accepted >= 2 }, "half-open connection replaced")
         XCTAssertEqual(stream.lastFrameAt, first, "no new frame while silent")
