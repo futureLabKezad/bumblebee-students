@@ -7,7 +7,7 @@ and downloadable builds.
 
 ## v1.0.2 — unreleased
 
-Drone update **1.0.2** (update bundle; release candidate `1.0.2-rc1`) and ground
+Drone update **1.0.2** (update bundle; release candidate `1.0.2-rc2`) and ground
 station **Bumblebee GCS 1.2.0** (Mac and Windows). Theme: the screen never
 misleads about safety, one click cannot take a drone out of class, the app
 only watches. Flight code and PX4 parameters are unchanged by these items;
@@ -26,6 +26,8 @@ flight-side changes for 1.0.2 are listed separately when they land.
   (`armed`, `fc_unknown`, ...) in every error reply.
 - A new Wi-Fi password is tried in a pending profile before it replaces the
   working one: a typo no longer cuts the drone off its classroom network.
+  `wifi_watchdog.sh` leaves pending profiles alone: it never joins them,
+  never turns their autoconnect on and does not count them as saved networks.
 - Removing the network in use needs `confirm_active` and happens after the
   reply; a double "Apply Now" or a slow join no longer raises the hotspot over
   a good connection; the drone's setup hotspot cannot be changed through the
