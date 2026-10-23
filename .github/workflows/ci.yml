@@ -27,7 +27,10 @@ jobs:
     name: macOS GCS app (ready-to-run .dmg)
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - name: Unit and socket tests (screen decisions, rosbridge and MJPEG clients)
+        working-directory: gcs/macos
+        run: swift test
       - name: Build release app bundle (Apple Silicon + Intel)
         working-directory: gcs/macos
         run: ./build_app.sh release
@@ -41,7 +44,7 @@ jobs:
       - name: Package disk image
         working-directory: gcs/macos
         run: ./make_dmg.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: BumblebeeGCS-mac
           path: |
@@ -53,8 +56,8 @@ jobs:
     name: Windows GCS app (ready-to-run .zip)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
         with:
           dotnet-version: '10.0.x'
       - name: Publish self-contained app (no .NET needed on the PC)
@@ -70,7 +73,7 @@ jobs:
           $zip = "BumblebeeGCS-$ver-windows-x64.zip"
           Compress-Archive -Path publish\BumblebeeGCS -DestinationPath $zip
           (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() + "  $zip" | Out-File -Encoding ascii "$zip.sha256"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: BumblebeeGCS-windows
           path: |
@@ -78,19 +81,37 @@ jobs:
             gcs/windows/BumblebeeGCS-*-windows-x64.zip.sha256
           if-no-files-found: error
 
+  gcs-windows-tests:
+    name: Windows GCS logic and socket tests, SimDrone
+    # The test project compiles the app's UI-independent files (Logic, Models, the
+    # rosbridge and MJPEG clients) for plain .NET, so it runs on Linux, faster.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
+        with:
+          dotnet-version: '10.0.x'
+      - name: Unit and socket tests
+        working-directory: gcs/windows
+        run: dotnet test tests/BumblebeeGcs.Logic.Tests --logger "console;verbosity=normal"
+      - name: SimDrone builds (the mock drone for testing the Windows app)
+        working-directory: gcs/windows
+        run: dotnet build tools/SimDrone
+
   release:
     name: Publish GCS downloads (tags gcs-v*)
     if: startsWith(github.ref, 'refs/tags/gcs-v')
-    needs: [gcs-macos, gcs-windows]
+    needs: [gcs-macos, gcs-windows, gcs-windows-tests]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           path: dist
           merge-multiple: true
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2.6.2
         with:
           files: dist/*
           body: |
@@ -103,8 +124,8 @@ jobs:
     name: Drone scripts (unit + simulation tests)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
           python-version: '3.12'   # the drone runs Ubuntu 24.04's python 3.12
       - name: Install test dependencies
