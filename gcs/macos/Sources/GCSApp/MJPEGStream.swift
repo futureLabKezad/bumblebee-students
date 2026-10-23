@@ -19,71 +19,121 @@ import AppKit
 /// `http://host:8080/stream?...`, splits the byte stream on JPEG SOI/EOI
 /// markers, decodes each frame to an NSImage and publishes the latest one.
 /// No WebView involved — the video is rendered fully natively.
-final class MJPEGStream: NSObject, ObservableObject, URLSessionDataDelegate {
+///
+/// One stream object holds at most one connection. Its state lives on the
+/// main thread; every connection has its own session and buffer, and its
+/// callbacks carry a generation number, so a connection that was replaced
+/// (camera tab switched, Disconnect) can neither show a frame nor schedule a
+/// retry. The drone's server writes an empty boundary every 5 s, so 10 s
+/// without a byte means the connection is dead (drone rebooted): it is
+/// dropped and opened again, and the video comes back by itself.
+final class MJPEGStream: NSObject, ObservableObject {
     @Published var image: NSImage?
     @Published var receiving = false
+    @Published private(set) var lastFrameAt: Date?
+    @Published private(set) var startedAt: Date?
 
-    private var session: URLSession?
-    private var dataTask: URLSessionDataTask?
-    private var buffer = Data()
-    private let decodeQueue = DispatchQueue(label: "gcs.mjpeg.decode")
+    /// Seconds without a byte before the connection counts as dead.
+    var idleTimeout: TimeInterval = 10
+    static let retryDelay: TimeInterval = 1.2
 
-    // JPEG markers.
-    private let soi: [UInt8] = [0xFF, 0xD8]
-    private let eoi: [UInt8] = [0xFF, 0xD9]
-
+    private var connection: MJPEGConnection?
     private var currentURL: URL?
+    private var generation = 0
 
-    func start(url: URL) {
-        if url == currentURL, dataTask != nil { return }
+    /// `force` reopens the same URL (Reconnect).
+    func start(url: URL, force: Bool = false) {
+        if !force, url == currentURL, connection != nil { return }
         stop()
         currentURL = url
-        buffer.removeAll(keepingCapacity: true)
-        let cfg = URLSessionConfiguration.ephemeral
-        cfg.timeoutIntervalForRequest = 30
-        cfg.timeoutIntervalForResource = .infinity
-        let s = URLSession(configuration: cfg, delegate: self, delegateQueue: nil)
-        session = s
-        let t = s.dataTask(with: url)
-        dataTask = t
-        t.resume()
+        image = nil
+        lastFrameAt = nil
+        startedAt = Date()
+        open(url)
     }
 
     func stop() {
-        dataTask?.cancel()
-        dataTask = nil
-        session?.invalidateAndCancel()
-        session = nil
+        generation += 1
+        connection?.cancel()
+        connection = nil
         currentURL = nil
-        DispatchQueue.main.async { self.receiving = false }
+        startedAt = nil
+        receiving = false
+    }
+
+    private func open(_ url: URL) {
+        generation += 1
+        let gen = generation
+        connection = MJPEGConnection(url: url, idleTimeout: idleTimeout) { [weak self] event in
+            DispatchQueue.main.async { self?.handle(event, gen: gen) }
+        }
+    }
+
+    private func handle(_ event: MJPEGConnection.Event, gen: Int) {
+        guard gen == generation else { return }   // a replaced connection
+        switch event {
+        case .frame(let img):
+            image = img
+            lastFrameAt = Date()
+            receiving = true
+        case .ended:
+            receiving = false
+            connection = nil
+            // Auto-retry the same URL after a short delay (server restart / wifi blip).
+            guard let url = currentURL else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + Self.retryDelay) { [weak self] in
+                guard let self = self, gen == self.generation, self.currentURL == url,
+                      self.connection == nil else { return }
+                self.open(url)
+            }
+        }
+    }
+}
+
+/// One HTTP connection of an MJPEGStream, with its own session and buffer.
+private final class MJPEGConnection: NSObject, URLSessionDataDelegate {
+    enum Event { case frame(NSImage), ended }
+
+    private var session: URLSession?
+    private var buffer = Data()
+    private let onEvent: (Event) -> Void
+
+    // JPEG markers.
+    private let soi = Data([0xFF, 0xD8])
+    private let eoi = Data([0xFF, 0xD9])
+
+    init(url: URL, idleTimeout: TimeInterval, onEvent: @escaping (Event) -> Void) {
+        self.onEvent = onEvent
+        super.init()
+        let cfg = URLSessionConfiguration.ephemeral
+        cfg.timeoutIntervalForRequest = idleTimeout       // idle watchdog
+        cfg.timeoutIntervalForResource = .infinity
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 1             // delegate calls in order, one at a time
+        let s = URLSession(configuration: cfg, delegate: self, delegateQueue: queue)
+        session = s
+        s.dataTask(with: url).resume()
+    }
+
+    /// The session keeps its delegate (this object) until invalidated.
+    func cancel() {
+        session?.invalidateAndCancel()
     }
 
     // MARK: - URLSessionDataDelegate
 
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
-                    didReceive data: Data) {
-        decodeQueue.async {
-            self.buffer.append(data)
-            self.extractFrames()
-            // Guard against unbounded growth if no full frame appears.
-            if self.buffer.count > 4 * 1024 * 1024 {
-                self.buffer.removeAll(keepingCapacity: true)
-            }
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        buffer.append(data)
+        extractFrames()
+        // Guard against unbounded growth if no full frame appears.
+        if buffer.count > 4 * 1024 * 1024 {
+            buffer.removeAll(keepingCapacity: true)
         }
     }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask,
-                    didCompleteWithError error: Error?) {
-        DispatchQueue.main.async { self.receiving = false }
-        // Auto-retry the same URL after a short delay (server restart / wifi blip).
-        guard let url = currentURL else { return }
-        decodeQueue.asyncAfter(deadline: .now() + 1.2) { [weak self] in
-            guard let self = self, self.currentURL == url, self.dataTask == nil else { return }
-            self.start(url: url)
-        }
-        dataTask = nil
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         session.invalidateAndCancel()
-        self.session = nil
+        onEvent(.ended)
     }
 
     // MARK: - Frame extraction
@@ -96,9 +146,8 @@ final class MJPEGStream: NSObject, ObservableObject, URLSessionDataDelegate {
         // immediately overwritten on screen.
         var lastFrame: Data?
         while true {
-            guard let start = buffer.firstRange(of: Data(soi)) else { break }
-            guard let endRange = buffer.range(of: Data(eoi),
-                                              in: start.upperBound..<buffer.endIndex) else {
+            guard let start = buffer.range(of: soi) else { break }
+            guard let endRange = buffer.range(of: eoi, in: start.upperBound..<buffer.endIndex) else {
                 // No complete frame yet; drop any garbage before SOI.
                 if start.lowerBound > buffer.startIndex {
                     buffer.removeSubrange(buffer.startIndex..<start.lowerBound)
@@ -109,17 +158,7 @@ final class MJPEGStream: NSObject, ObservableObject, URLSessionDataDelegate {
             buffer.removeSubrange(buffer.startIndex..<endRange.upperBound)
         }
         if let frameData = lastFrame, let img = NSImage(data: frameData) {
-            DispatchQueue.main.async {
-                self.image = img
-                self.receiving = true
-            }
+            onEvent(.frame(img))
         }
-    }
-}
-
-private extension Data {
-    /// First range of `sub` searching the whole data.
-    func firstRange(of sub: Data) -> Range<Index>? {
-        range(of: sub)
     }
 }

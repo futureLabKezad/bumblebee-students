@@ -19,6 +19,9 @@ import PackageDescription
 // locally and connects to a drone selected from a network scan. No third-party
 // dependencies on purpose — the Mac is usually on the drone's wifi hotspot with
 // no internet, so SwiftPM cannot fetch remote packages.
+//
+// GCSAppTests covers the screen's decision logic (link state, freshness, armed,
+// battery text, log, chart span...) with XCTest: `swift test`.
 let package = Package(
     name: "GCSApp",
     platforms: [.macOS(.v14)],
@@ -27,6 +30,11 @@ let package = Package(
             name: "GCSApp",
             path: "Sources/GCSApp",
             resources: [.process("Resources")]
+        ),
+        .testTarget(
+            name: "GCSAppTests",
+            dependencies: ["GCSApp"],
+            path: "Tests/GCSAppTests"
         )
     ]
 )

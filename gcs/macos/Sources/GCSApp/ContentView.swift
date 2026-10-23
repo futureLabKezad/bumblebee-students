@@ -50,14 +50,20 @@ struct MainShell: View {
             sidebar
                 .navigationSplitViewColumnWidth(min: 210, ideal: 224, max: 260)
         } detail: {
-            // Inline switch (not a computed property) so the detail column
-            // reliably re-renders when `section` changes.
-            Group {
-                switch section ?? .dashboard {
-                case .dashboard: DashboardView()
-                case .entertainment: EntertainmentView()
-                case .settings: SettingsView()
+            VStack(spacing: 0) {
+                // Safety banners stay on top of every section until they clear.
+                if telemetry.fcLost { AlarmBanner(text: FcLostAlarm.text, icon: "exclamationmark.octagon.fill") }
+                if let low = telemetry.lowBattery { AlarmBanner(text: low, icon: "battery.25percent") }
+                // Inline switch (not a computed property) so the detail column
+                // reliably re-renders when `section` changes.
+                Group {
+                    switch section ?? .dashboard {
+                    case .dashboard: DashboardView()
+                    case .entertainment: EntertainmentView()
+                    case .settings: SettingsView()
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .navigationTitle(app.droneHost)
             .toolbar { toolbarContent }
@@ -123,10 +129,10 @@ struct MainShell: View {
 
     private var connectionCard: some View {
         HStack(spacing: Theme.s2) {
-            StatusDot(color: telemetry.rosConnected ? Theme.ok : Theme.warn, pulsing: !telemetry.rosConnected)
+            StatusDot(color: Theme.color(telemetry.link.tone), pulsing: telemetry.link != .ok)
             VStack(alignment: .leading, spacing: Theme.s0 - 1) {
                 Text(app.droneHost).font(Theme.hostMono)
-                Text(telemetry.rosConnected ? "linked" : "linking…")
+                Text(telemetry.link.sidebarText(socketAnswered: telemetry.rosConnected))
                     .font(Theme.sectionLbl).foregroundStyle(Theme.muted)
             }
             Spacer(minLength: 0)

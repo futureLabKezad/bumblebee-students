@@ -16,10 +16,13 @@ import SwiftUI
 
 // MARK: - Panel
 
-/// Titled card with an SF Symbol header.
+/// Titled card with an SF Symbol header. `note` ("no data 4 s") sits at the
+/// right of the header; `dimmed` greys the content of a quiet source.
 struct Panel<Content: View>: View {
     let title: String
     var icon: String? = nil
+    var note: String? = nil
+    var dimmed = false
     @ViewBuilder var content: Content
 
     var body: some View {
@@ -30,13 +33,34 @@ struct Panel<Content: View>: View {
                     .font(Theme.sectionLbl).tracking(1.1)
                     .foregroundStyle(Theme.muted)
                 Spacer(minLength: 0)
+                if let note { Text(note).font(Theme.monoSmall).foregroundStyle(Theme.caution) }
             }
-            content
+            content.staleDimmed(dimmed)
         }
         .padding(Theme.s4)
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard(Theme.rPanel)
         .cardShadow()
+    }
+}
+
+/// Right-aligned "no data N s" line for one group inside a panel.
+struct StaleNote: View {
+    let status: Freshness.Status
+    var body: some View {
+        if let note = status.note {
+            HStack {
+                Spacer()
+                Text(note).font(Theme.monoSmall).foregroundStyle(Theme.caution)
+            }
+        }
+    }
+}
+
+extension View {
+    /// Greys out values whose source went quiet (or never spoke).
+    func staleDimmed(_ dimmed: Bool) -> some View {
+        opacity(dimmed ? 0.4 : 1).saturation(dimmed ? 0 : 1)
     }
 }
 
@@ -47,6 +71,10 @@ struct StatTile: View {
     let value: String
     var icon: String
     var color: Color = Theme.text
+    var caption: String? = nil
+    var valueColor: Color = Theme.text
+    var captionColor: Color = Theme.muted
+    var dimmed = false
 
     var body: some View {
         HStack(spacing: Theme.s3) {
@@ -57,13 +85,41 @@ struct StatTile: View {
             .frame(width: 34, height: 34)
             VStack(alignment: .leading, spacing: Theme.s0 - 1) {
                 Text(label.uppercased()).font(Theme.sectionLbl).tracking(0.8).foregroundStyle(Theme.muted)
-                Text(value).font(Theme.statValue).foregroundStyle(Theme.text)
+                Text(value).font(Theme.statValue).foregroundStyle(valueColor)
+                    .lineLimit(1).minimumScaleFactor(0.6)
+                if let caption {
+                    Text(caption).font(Theme.label).foregroundStyle(captionColor)
+                        .lineLimit(1).minimumScaleFactor(0.8)
+                }
             }
             Spacer(minLength: 0)
         }
+        .staleDimmed(dimmed)
         .padding(.horizontal, Theme.s3).padding(.vertical, Theme.s2 + 2)
         .frame(maxWidth: .infinity, alignment: .leading)
         .glassCard(Theme.rPanel)
+    }
+}
+
+// MARK: - Alarm banner
+
+/// Persistent red strip for a safety alarm (FC link lost, low battery). Stays
+/// until the condition clears; not dismissable.
+struct AlarmBanner: View {
+    let text: String
+    var icon = "exclamationmark.triangle.fill"
+
+    var body: some View {
+        HStack(spacing: Theme.s2) {
+            Image(systemName: icon).font(.system(size: Theme.iconMd, weight: .semibold))
+            Text(text).font(Theme.bodyStrong)
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, Theme.s4).padding(.vertical, Theme.s2 + 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.danger)
+        .accessibilityElement(children: .combine)
     }
 }
 
