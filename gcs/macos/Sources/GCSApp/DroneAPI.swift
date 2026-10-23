@@ -22,7 +22,7 @@ final class DroneAPI {
     /// Backend port that `wifi_manager.py` binds (previously behind nginx :80).
     static let port = 8765
     var host = ""
-    private let session = URLSession(configuration: .ephemeral)
+    private let session = URLSession(configuration: .drone)
 
     /// An error reply of the drone (or "no drone"). `code` is the stable code
     /// drones from 1.0.2 send; the message is already in plain words.
@@ -219,4 +219,14 @@ final class DroneAPI {
     func saveNetwork(ssid: String, password: String) async throws { try await ok("POST", "/api/wifi/save", json: ["ssid": ssid, "password": password]) }
     func applyNow(ssid: String) async throws { try await ok("POST", "/api/wifi/apply-now", json: ["ssid": ssid]) }
     func applyBoot(ssid: String) async throws { try await ok("POST", "/api/wifi/apply-boot", json: ["ssid": ssid]) }
+}
+
+extension URLSessionConfiguration {
+    /// Ephemeral and never through a proxy: the drone is on the local network,
+    /// and a school's HTTP proxy cannot reach it (requests time out there).
+    static var drone: URLSessionConfiguration {
+        let c = URLSessionConfiguration.ephemeral
+        c.connectionProxyDictionary = [:]
+        return c
+    }
 }

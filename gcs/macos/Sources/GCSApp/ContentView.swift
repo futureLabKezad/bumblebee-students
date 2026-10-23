@@ -43,6 +43,7 @@ struct RootView: View {
 struct MainShell: View {
     @EnvironmentObject var app: AppState
     @EnvironmentObject var telemetry: TelemetryStore
+    @EnvironmentObject var handoff: WifiHandoff
     @State private var section: Section? = .dashboard
 
     var body: some View {
@@ -54,6 +55,11 @@ struct MainShell: View {
                 // Safety banners stay on top of every section until they clear.
                 if telemetry.fcLost { AlarmBanner(text: FcLostAlarm.text, icon: "exclamationmark.octagon.fill") }
                 if let low = telemetry.lowBattery { AlarmBanner(text: low, icon: "battery.25percent") }
+                // On a drone's hotspot by choice ("Connect directly") is fine; macOS
+                // hopping onto one by itself is not.
+                if handoff.onDroneHotspot && app.droneHost != kHotspotGatewayHost {
+                    OnDroneHotspotBanner(ssid: handoff.currentSSID).padding(Theme.s2)
+                }
                 // Inline switch (not a computed property) so the detail column
                 // reliably re-renders when `section` changes.
                 Group {
@@ -67,6 +73,19 @@ struct MainShell: View {
             }
             .navigationTitle(app.droneHost)
             .toolbar { toolbarContent }
+            .task {
+                while !Task.isCancelled {
+                    handoff.refreshCurrentSSID()
+                    try? await Task.sleep(nanoseconds: 15_000_000_000)
+                }
+            }
+            .alert("Not the drone you picked", isPresented: Binding(
+                get: { app.identityMismatch != nil }, set: { if !$0 { app.identityMismatch = nil } })) {
+                Button("Disconnect", role: .cancel) { app.disconnect() }
+                Button("Stay connected") { app.identityMismatch = nil }
+            } message: {
+                Text(app.identityMismatch ?? "")
+            }
         }
     }
 

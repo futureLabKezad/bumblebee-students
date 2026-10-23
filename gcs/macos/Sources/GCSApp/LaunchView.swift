@@ -15,73 +15,103 @@
 import SwiftUI
 import AppKit
 
-/// Connect screen — one unified panel. Drones auto-appear by name via Bonjour
-/// (no manual "scan" step); a single footer combines the two fallbacks —
-/// entering an IP by hand and setting up a brand-new drone over its hotspot.
-/// Copy is English and type is SF (system); the orange/blue palette lives in
-/// `ConnectTheme` and is scoped to this screen + the splash.
 /// One opening of the setup sheet; `drone` is the hotspot SSID tapped, if any.
 struct SetupRequest: Identifiable {
     let id = UUID()
     let drone: String?
 }
 
+/// Connect screen — one unified panel. Drones on the network appear by name
+/// via Bonjour, and drone hotspots nearby every ~12 s; switched-off drones grey
+/// out and leave. The last drone is found again by its id. A footer takes an
+/// address by hand and checks that a drone answers there before connecting.
+/// Copy is English and type is SF (system); the orange/blue palette lives in
+/// `ConnectTheme` and is scoped to this screen + the splash. Decisions in
+/// DiscoveryLogic.swift.
 struct LaunchView: View {
     @EnvironmentObject var app: AppState
     @EnvironmentObject var scanner: DroneScanner
     @EnvironmentObject var handoff: WifiHandoff
     @State private var manualIP = ""
+    @State private var manualProblem: String?
+    @State private var manualUnanswered: String?
+    @State private var checkingManual = false
     @State private var lastPingOK = false
     /// The open "Add a drone" sheet and the drone it was opened for. One value
     /// for both, passed by `.sheet(item:)`: with a separate flag the sheet was
     /// built from a stale copy and never saw the drone that was tapped.
     @State private var setup: SetupRequest?
 
+    private let rowHeight: CGFloat = 69
+
     var body: some View {
-        ZStack {
-            ConnectTheme.background.ignoresSafeArea()
+        GeometryReader { geo in
+            ZStack {
+                ConnectTheme.background.ignoresSafeArea()
 
-            VStack(spacing: 22) {
-                header
+                VStack(spacing: 18) {
+                    header
+                    if handoff.onDroneHotspot { OnDroneHotspotBanner(ssid: handoff.currentSSID) }
 
-                if let last = app.lastHost {
-                    LastDroneCard(ip: last, reachable: lastReachable(last)) { app.connect(to: last) }
-                        .task(id: last) {
-                            lastPingOK = false
-                            lastPingOK = await scanner.isReachable(last)
-                        }
+                    if let last = app.lastDrone {
+                        let ip = KnownFleet.currentIP(of: last, found: scanner.foundIDs)
+                        LastDroneCard(drone: last, ip: ip, reachable: lastReachable(last, ip),
+                                      connect: { app.connect(to: ip, expectedID: last.verified ? last.droneID : nil) },
+                                      forget: { app.forget(last) })
+                            .task(id: ip) { await watchLast(ip) }
+                    }
+
+                    dronesPanel(listMaxHeight: max(rowHeight * 2, geo.size.height - 470))
+                    footer
                 }
-
-                dronesPanel
-                footer
+                .frame(maxWidth: 560)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 20)
             }
-            .frame(maxWidth: 560)
-            .padding(.horizontal, 24)
         }
         .foregroundStyle(ConnectTheme.text)
         .sheet(item: $setup) { request in
             ProvisioningView(preselected: request.drone)
         }
-        .task { await handoff.scanHotspots() }   // surface drone hotspots in the list
+        .task { await watchHotspots() }
     }
 
-    /// The last drone is "live" if discovery already found it, or a one-off
-    /// ping to :9090 answered. Otherwise the dot stays gray.
-    private func lastReachable(_ ip: String) -> Bool {
-        scanner.found.contains { $0.ip == ip } || lastPingOK
+    /// The last drone is "live" if discovery lists it, or a ping to :9090 at
+    /// its address answered within the last 10 s. Otherwise the dot is grey.
+    private func lastReachable(_ last: KnownDrone, _ ip: String) -> Bool {
+        if last.verified, scanner.visibleIDs.contains(last.droneID) { return true }
+        return lastPingOK
+    }
+
+    private func watchLast(_ ip: String) async {
+        while !Task.isCancelled {
+            lastPingOK = await scanner.isReachable(ip)
+            try? await Task.sleep(nanoseconds: UInt64(Liveness.period * 1_000_000_000))
+        }
+    }
+
+    /// New drone hotspots show up by themselves: a Wi-Fi scan every 12 s while
+    /// this screen is open and no setup runs (a scan takes the adapter off its
+    /// channel for a moment; there is no video here).
+    private func watchHotspots() async {
+        while !Task.isCancelled {
+            handoff.refreshCurrentSSID()
+            if setup == nil, !handoff.phase.isProvisioning { await handoff.scanHotspots() }
+            try? await Task.sleep(nanoseconds: 12_000_000_000)
+        }
     }
 
     // MARK: - Header
 
     private var header: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 14) {
             if let icon = AppIcon.image {
                 Image(nsImage: icon)
                     .resizable().interpolation(.high)
-                    .frame(width: 72, height: 72)
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .frame(width: 64, height: 64)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
-            VStack(spacing: 7) {
+            VStack(spacing: 6) {
                 (Text("Bumblebee ").foregroundColor(ConnectTheme.text)
                     + Text("GCS").foregroundColor(ConnectTheme.orange))
                     .font(.system(size: 26, weight: .bold)).tracking(-0.3)
@@ -97,8 +127,23 @@ struct LaunchView: View {
 
     // MARK: - Drones (auto-discovered, unified list)
 
-    private var dronesPanel: some View {
-        VStack(spacing: 0) {
+    private struct HotspotItem: Identifiable {
+        let hotspot: WifiHandoff.Hotspot
+        let kind: HotspotRow
+        var id: String { hotspot.id }
+    }
+
+    private var hotspotItems: [HotspotItem] {
+        handoff.hotspots.compactMap { h in
+            let kind = HotspotRow.of(ssid: h.ssid, known: app.knownDrones, visibleIDs: scanner.visibleIDs)
+            return kind == .hidden ? nil : HotspotItem(hotspot: h, kind: kind)
+        }
+    }
+
+    private func dronesPanel(listMaxHeight: CGFloat) -> some View {
+        let drones = scanner.drones, unknown = scanner.unknownDevices, hotspots = hotspotItems
+        let rows = CGFloat(drones.count + hotspots.count) * rowHeight + CGFloat(unknown.count) * 40
+        return VStack(spacing: 0) {
             HStack(spacing: 8) {
                 Text("AVAILABLE DRONES")
                     .font(.system(size: 11, design: .monospaced)).tracking(1.4)
@@ -131,25 +176,57 @@ struct LaunchView: View {
             if handoff.phase == .needLocationPermission {
                 locationBanner.padding(.bottom, 10)
             }
+            if case .joiningHotspot(let ssid) = handoff.phase, setup == nil {
+                statusLine("Joining \(ssid)… this Mac leaves its WiFi meanwhile.")
+            }
+            if case .failed(let f) = handoff.phase, setup == nil, f.kind == .droneSilent {
+                statusLine("\(f.title). \(f.detail)", color: ConnectTheme.orange)
+            }
 
-            if !scanner.found.isEmpty || !handoff.hotspots.isEmpty {
-                VStack(spacing: 9) {
-                    ForEach(scanner.found) { d in
-                        DiscoveredRow(drone: d) { app.connect(to: d.ip) }
-                    }
-                    // Drones only reachable via their own setup hotspot (offline
-                    // from this WiFi). Tapping opens the hand-off wizard.
-                    ForEach(handoff.hotspots) { h in
-                        HotspotDroneRow(hotspot: h) { setup = SetupRequest(drone: h.ssid) }
+            if !drones.isEmpty || !hotspots.isEmpty || !unknown.isEmpty {
+                ScrollView {
+                    VStack(spacing: 9) {
+                        ForEach(drones) { d in
+                            DiscoveredRow(drone: d) { app.connect(to: d.ip, expectedID: d.droneID) }
+                        }
+                        // Drones only reachable via their own setup hotspot.
+                        ForEach(hotspots) { item in
+                            HotspotDroneRow(hotspot: item.hotspot, kind: item.kind,
+                                            setup: { setup = SetupRequest(drone: item.hotspot.ssid) },
+                                            direct: { connectDirect(item.hotspot.ssid) })
+                        }
+                        ForEach(unknown) { d in
+                            UnknownDeviceRow(device: d) { app.connect(to: d.ip) }
+                        }
                     }
                 }
+                .frame(height: min(rows, listMaxHeight))
             } else {
                 emptyState(scanner.scanning || !scanner.hasScanned ? "Looking for drones…"
                                                                    : "No drones found",
                            scanner.discoveryError
-                               ?? "Drones on this WiFi appear here automatically. A new drone shows up about 30 s after power-on — then tap Add.")
+                               ?? "Drones on this WiFi appear here by themselves. A new drone shows up about 30 s after power-on — then tap Add.")
             }
         }
+    }
+
+    /// Work with a drone over its own hotspot (no shared WiFi needed).
+    private func connectDirect(_ ssid: String) {
+        let expected = HotspotRow.id(of: ssid)
+        Task {
+            await handoff.connectDirect(hotspotSSID: ssid) { host in
+                app.connect(to: host, expectedID: expected)
+            }
+        }
+    }
+
+    private func statusLine(_ text: String, color: Color = ConnectTheme.muted2) -> some View {
+        Text(text)
+            .font(.system(size: 11.5, design: .monospaced))
+            .foregroundStyle(color)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.bottom, 8)
     }
 
     /// macOS hides WiFi names (and so new drones) until Location is allowed.
@@ -191,39 +268,67 @@ struct LaunchView: View {
         .padding(.vertical, 22).padding(.horizontal, 15)
     }
 
-    // MARK: - Footer: manual IP
+    // MARK: - Footer: manual address
 
     private var footer: some View {
         let trimmed = manualIP.trimmingCharacters(in: .whitespaces)
-        return HStack(spacing: 10) {
-            Text("IP").font(.system(size: 11, design: .monospaced)).tracking(1.3)
-                .foregroundStyle(ConnectTheme.faint)
-            TextField("172.20.10.4", text: $manualIP)
-                .textFieldStyle(.plain)
-                .font(.system(size: 14, design: .monospaced))
-                .foregroundStyle(ConnectTheme.text)
-                .onSubmit(connectManual)
-            Button(action: connectManual) {
-                Text("Connect")
-                    .font(.system(size: 13, weight: .semibold))
-                    .padding(.vertical, 9).padding(.horizontal, 18)
-                    .background(trimmed.isEmpty ? Color.white.opacity(0.06) : ConnectTheme.blue)
-                    .foregroundStyle(trimmed.isEmpty ? ConnectTheme.faint : .white)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 10) {
+                Text("IP").font(.system(size: 11, design: .monospaced)).tracking(1.3)
+                    .foregroundStyle(ConnectTheme.faint)
+                TextField("172.20.10.4", text: $manualIP)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 14, design: .monospaced))
+                    .foregroundStyle(ConnectTheme.text)
+                    .onSubmit(connectManual)
+                    .onChange(of: manualIP) { _, _ in manualProblem = nil; manualUnanswered = nil }
+                if checkingManual { ProgressView().controlSize(.small) }
+                Button(action: connectManual) {
+                    Text("Connect")
+                        .font(.system(size: 13, weight: .semibold))
+                        .padding(.vertical, 9).padding(.horizontal, 18)
+                        .background(trimmed.isEmpty ? Color.white.opacity(0.06) : ConnectTheme.blue)
+                        .foregroundStyle(trimmed.isEmpty ? ConnectTheme.faint : .white)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .buttonStyle(.plain)
+                .disabled(trimmed.isEmpty || checkingManual)
             }
-            .buttonStyle(.plain)
-            .disabled(trimmed.isEmpty)
+            .padding(.leading, 16).padding(.trailing, 6).padding(.vertical, 10)
+            .background(ConnectTheme.rowBg)
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(ConnectTheme.hairline, lineWidth: 1))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            if let p = manualProblem {
+                Text(p).font(.system(size: 11.5, design: .monospaced)).foregroundStyle(ConnectTheme.orange)
+            }
+            if let host = manualUnanswered {
+                HStack(alignment: .top) {
+                    Text(ManualAddress.noAnswer(host))
+                        .font(.system(size: 11.5, design: .monospaced)).foregroundStyle(ConnectTheme.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer()
+                    Button("Connect anyway") { app.connect(to: host) }
+                        .buttonStyle(.plain).font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(ConnectTheme.blueSoft)
+                }
+            }
         }
-        .padding(.leading, 16).padding(.trailing, 6).padding(.vertical, 10)
-        .background(ConnectTheme.rowBg)
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ConnectTheme.hairline, lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    /// A typed address goes to the dashboard only when something answers on
+    /// :9090 there (else a message and "Connect anyway"): a typo never becomes
+    /// the remembered drone.
     private func connectManual() {
-        let ip = manualIP.trimmingCharacters(in: .whitespaces)
-        guard !ip.isEmpty else { return }
-        app.connect(to: ip)
+        let ip = manualIP.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !ip.isEmpty, !checkingManual else { return }
+        if let p = ManualAddress.problem(ip) { manualProblem = p; return }
+        checkingManual = true
+        Task {
+            let open = await scanner.isReachable(ip, timeout: 1.5)
+            checkingManual = false
+            if open { app.connect(to: ip) } else { manualUnanswered = ip }
+        }
     }
 }
 
@@ -237,44 +342,75 @@ private struct Dot: View {
     }
 }
 
+// MARK: - The Mac sits on a drone's WiFi
+
+/// macOS remembers the drone hotspots it joined and may hop onto one by itself
+/// (shared password): then this Mac sees that drone, not the classroom.
+struct OnDroneHotspotBanner: View {
+    let ssid: String
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "wifi.exclamationmark").foregroundStyle(ConnectTheme.orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("This Mac is on \(ssid), a drone's own WiFi").font(.system(size: 13, weight: .semibold))
+                Text("Pick your classroom WiFi in the menu bar. To stop macOS from joining drone networks by itself, remove them in System Settings → Wi-Fi → Known Networks.")
+                    .font(.system(size: 11, design: .monospaced)).foregroundStyle(ConnectTheme.muted2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 10).padding(.horizontal, 14)
+        .background(ConnectTheme.orange.opacity(0.07))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ConnectTheme.orange.opacity(0.4), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
 // MARK: - Last drone (hero action)
 
 private struct LastDroneCard: View {
+    let drone: KnownDrone
     let ip: String
     var reachable: Bool
-    let action: () -> Void
+    let connect: () -> Void
+    let forget: () -> Void
     @State private var hover = false
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
+        HStack(spacing: 16) {
+            Button(action: connect) {
                 HStack(spacing: 14) {
                     Dot(color: reachable ? ConnectTheme.green : ConnectTheme.faint, size: 10)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Last drone").font(.system(size: 16, weight: .semibold))
-                        Text("\(ip) · last connection")
+                        Text(drone.name == ip ? "Last drone" : drone.name).font(.system(size: 16, weight: .semibold))
+                        Text("\(ip) · \(reachable ? "last connection" : "not answering")"
+                             + (drone.verified ? "" : " · unverified"))
                             .font(.system(size: 12, design: .monospaced))
                             .foregroundStyle(ConnectTheme.muted2)
                     }
+                    Spacer(minLength: 8)
+                    HStack(spacing: 7) {
+                        Text("Connect").font(.system(size: 14, weight: .semibold))
+                        Text("→").font(.system(size: 14, design: .monospaced))
+                    }
+                    .foregroundStyle(ConnectTheme.orange)
                 }
-                Spacer(minLength: 8)
-                HStack(spacing: 7) {
-                    Text("Connect").font(.system(size: 14, weight: .semibold))
-                    Text("→").font(.system(size: 14, design: .monospaced))
-                }
-                .foregroundStyle(ConnectTheme.orange)
+                .contentShape(Rectangle())
             }
-            .padding(.vertical, 18).padding(.horizontal, 20)
-            .background(
-                LinearGradient(colors: [ConnectTheme.orange.opacity(0.12), ConnectTheme.orange.opacity(0.02)],
-                               startPoint: .leading, endPoint: .trailing)
-            )
-            .overlay(RoundedRectangle(cornerRadius: 14)
-                .stroke(ConnectTheme.orange.opacity(hover ? 0.7 : 0.4), lineWidth: 1))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+            Button("Forget", action: forget)
+                .buttonStyle(.plain).font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(ConnectTheme.faint)
+                .help("Remove this drone from the remembered list")
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, 16).padding(.horizontal, 20)
+        .background(
+            LinearGradient(colors: [ConnectTheme.orange.opacity(0.12), ConnectTheme.orange.opacity(0.02)],
+                           startPoint: .leading, endPoint: .trailing)
+        )
+        .overlay(RoundedRectangle(cornerRadius: 14)
+            .stroke(ConnectTheme.orange.opacity(hover ? 0.7 : 0.4), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
         .onHover { hover = $0 }
     }
 }
@@ -288,13 +424,19 @@ private struct DiscoveredRow: View {
     @State private var btnHover = false
 
     private var name: String { drone.name == drone.ip ? "Drone" : drone.name }
+    private var detail: String {
+        var parts = [drone.ip]
+        parts.append(drone.droneID.map { "id \($0)" } ?? "id unknown")
+        if drone.liveness == .unsure { parts.append("not answering") }
+        return parts.joined(separator: " · ")
+    }
 
     var body: some View {
         HStack(spacing: 14) {
-            Dot(color: ConnectTheme.green)
+            Dot(color: drone.liveness == .live ? ConnectTheme.green : ConnectTheme.faint)
             VStack(alignment: .leading, spacing: 3) {
                 Text(name).font(.system(size: 14.5, weight: .semibold))
-                Text("\(drone.ip) · rosbridge :9090")
+                Text(detail)
                     .font(.system(size: 11.5, design: .monospaced))
                     .foregroundStyle(ConnectTheme.muted2)
             }
@@ -317,48 +459,84 @@ private struct DiscoveredRow: View {
         .overlay(RoundedRectangle(cornerRadius: 12)
             .stroke(hover ? ConnectTheme.blue.opacity(0.45) : ConnectTheme.hairline, lineWidth: 1))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .opacity(drone.liveness == .live ? 1 : 0.6)
         .onHover { hover = $0 }
     }
 }
 
-// MARK: - Drone-hotspot row (needs setup)
+// MARK: - A host with port 9090 open that does not answer like a drone
+
+private struct UnknownDeviceRow: View {
+    let device: DroneScanner.Drone
+    let connect: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Dot(color: ConnectTheme.faint, size: 6)
+            Text("Unknown device · \(device.ip) · port 9090 open, not a drone")
+                .font(.system(size: 11.5, design: .monospaced))
+                .foregroundStyle(ConnectTheme.faint)
+            Spacer()
+            Button("Connect anyway", action: connect)
+                .buttonStyle(.plain).font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(ConnectTheme.muted2)
+        }
+        .padding(.vertical, 6).padding(.horizontal, 15)
+    }
+}
+
+// MARK: - Drone-hotspot row (needs setup, or lost its WiFi)
 
 private struct HotspotDroneRow: View {
     let hotspot: WifiHandoff.Hotspot
+    let kind: HotspotRow
     let setup: () -> Void
+    let direct: () -> Void
     @State private var hover = false
 
+    private var title: String {
+        if case .lostWifi(let name) = kind { return name }
+        return hotspot.ssid
+    }
+    private var subtitle: String {
+        if case .lostWifi = kind { return "lost its WiFi · running its own hotspot \(hotspot.ssid)" }
+        return "new drone · not on your WiFi yet"
+    }
+
     var body: some View {
-        Button(action: setup) {
-            HStack(spacing: 14) {
-                Image(systemName: "antenna.radiowaves.left.and.right")
-                    .font(.system(size: 13))
-                    .foregroundStyle(ConnectTheme.orange)
-                    .frame(width: 12)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(hotspot.ssid).font(.system(size: 14.5, weight: .semibold))
-                    Text("new drone · not on your WiFi yet")
-                        .font(.system(size: 11.5, design: .monospaced))
-                        .foregroundStyle(ConnectTheme.muted2)
-                }
-                Spacer(minLength: 8)
-                Text("\(hotspot.rssi) dBm")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(ConnectTheme.faint)
+        HStack(spacing: 14) {
+            Image(systemName: "antenna.radiowaves.left.and.right")
+                .font(.system(size: 13))
+                .foregroundStyle(ConnectTheme.orange)
+                .frame(width: 12)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.system(size: 14.5, weight: .semibold))
+                Text(subtitle)
+                    .font(.system(size: 11.5, design: .monospaced))
+                    .foregroundStyle(ConnectTheme.muted2)
+            }
+            Spacer(minLength: 8)
+            Text("\(hotspot.rssi) dBm")
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(ConnectTheme.faint)
+            Button("Direct", action: direct)
+                .buttonStyle(.plain).font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(ConnectTheme.blueSoft)
+                .help("Join this drone's own WiFi. The Mac has no internet while connected directly.")
+            Button(action: setup) {
                 HStack(spacing: 6) {
-                    Text("Add").font(.system(size: 13, weight: .semibold))
+                    Text(kind == .new ? "Add" : "Bring back").font(.system(size: 13, weight: .semibold))
                     Text("→").font(.system(size: 13, design: .monospaced))
                 }
                 .foregroundStyle(ConnectTheme.orange)
             }
-            .padding(.vertical, 13).padding(.horizontal, 15)
-            .background(hover ? ConnectTheme.orange.opacity(0.06) : ConnectTheme.rowBg)
-            .overlay(RoundedRectangle(cornerRadius: 12)
-                .stroke(hover ? ConnectTheme.orange.opacity(0.5) : ConnectTheme.hairline, lineWidth: 1))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, 13).padding(.horizontal, 15)
+        .background(hover ? ConnectTheme.orange.opacity(0.06) : ConnectTheme.rowBg)
+        .overlay(RoundedRectangle(cornerRadius: 12)
+            .stroke(hover ? ConnectTheme.orange.opacity(0.5) : ConnectTheme.hairline, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .onHover { hover = $0 }
     }
 }

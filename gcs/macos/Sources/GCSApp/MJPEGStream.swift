@@ -105,7 +105,7 @@ private final class MJPEGConnection: NSObject, URLSessionDataDelegate {
     init(url: URL, idleTimeout: TimeInterval, onEvent: @escaping (Event) -> Void) {
         self.onEvent = onEvent
         super.init()
-        let cfg = URLSessionConfiguration.ephemeral
+        let cfg = URLSessionConfiguration.drone
         cfg.timeoutIntervalForRequest = idleTimeout       // idle watchdog
         cfg.timeoutIntervalForResource = .infinity
         let queue = OperationQueue()

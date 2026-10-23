@@ -77,7 +77,13 @@ struct ProvisioningView: View {
             }
         }
         .onChange(of: doneHost) { _, host in
-            if let host { app.connect(to: host); dismiss() }
+            // Over a drone's hotspot (10.42.0.1 on every drone) the id must be the
+            // one in the hotspot's name.
+            if let host {
+                let expected = host == kHotspotGatewayHost ? lastDrone.flatMap(HotspotRow.id(of:)) : nil
+                app.connect(to: host, expectedID: expected)
+                dismiss()
+            }
         }
         .onChange(of: homeWifi) { _, _ in
             // The Mac moved to another network while the window was open (seen
@@ -171,6 +177,14 @@ struct ProvisioningView: View {
                     .font(.system(size: 11.5, design: .monospaced)).foregroundStyle(ConnectTheme.muted2)
             }
             Spacer()
+            // Works without a shared Wi-Fi (a class without a network): the Mac
+            // joins the drone's own hotspot and loses its internet meanwhile.
+            Button { lastDrone = h.ssid; direct(h.ssid) } label: {
+                Text("Connect directly").font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(ConnectTheme.blueSoft)
+            }
+            .buttonStyle(.plain)
+            .help("Join this drone's own WiFi. The Mac has no internet while connected directly.")
             Button { add(h.ssid) } label: {
                 Text("Add").font(.system(size: 13, weight: .semibold))
                     .padding(.vertical, 8).padding(.horizontal, 18)

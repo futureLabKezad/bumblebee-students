@@ -27,7 +27,7 @@ final class MetricsClient: ObservableObject {
     private var host = ""
     private(set) var generation = 0
     private var inFlight: URLSessionDataTask?
-    private let session = URLSession(configuration: .ephemeral)
+    private let session = URLSession(configuration: .drone)
 
     func start(host: String) {
         stop()

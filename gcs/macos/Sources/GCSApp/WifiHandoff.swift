@@ -283,7 +283,7 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
                            detail: "Some networks keep devices apart (guest WiFi, \"AP isolation\"). Use another network — for example a phone hotspot — or connect directly to the drone.")
         }
         var reason: DroneAPI.JoinError?
-        if (try? iface.associate(to: net, password: kHotspotPSK)) != nil {
+        if (try? await Self.associate(iface, net, kHotspotPSK)) != nil {
             let api = DroneAPI()
             api.host = kHotspotGatewayHost
             reason = await Self.waitForBackend(api, timeout: 20)?.lastError
@@ -317,7 +317,7 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
                 net = (try? await Self.scan(iface))?.first(where: { $0.ssid == ssid })
             }
             guard let net else { lastErr = "its WiFi is not in range"; break }
-            do { try iface.associate(to: net, password: kHotspotPSK); return nil }
+            do { try await Self.associate(iface, net, kHotspotPSK); return nil }
             catch {
                 lastErr = error.localizedDescription
                 if attempt < 4 { try? await Task.sleep(nanoseconds: 2_000_000_000) }
@@ -331,16 +331,30 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
     private func returnHome(_ iface: CWInterface, _ ssid: String, _ password: String) async {
         guard !ssid.isEmpty, iface.ssid() != ssid else { return }
         if let home = (try? await Self.scan(iface))?.first(where: { $0.ssid == ssid }) {
-            try? iface.associate(to: home, password: password)
+            try? await Self.associate(iface, home, password)
         }
     }
 
     // MARK: - Helpers
 
+    /// CoreWLAN calls block (associate: seconds, until the join is over). They
+    /// run on one serial queue: never on the main thread (the window froze
+    /// during "Add drone"), and never two at once (CoreWLAN races).
+    private static let wlanQueue = DispatchQueue(label: "gcs.corewlan", qos: .userInitiated)
+
+    private static func associate(_ iface: CWInterface, _ net: CWNetwork, _ password: String?) async throws {
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+            wlanQueue.async {
+                do { try iface.associate(to: net, password: password); cont.resume() }
+                catch { cont.resume(throwing: error) }
+            }
+        }
+    }
+
     /// CoreWLAN scan is blocking; run it off the main thread.
     private static func scan(_ iface: CWInterface) async throws -> Set<CWNetwork> {
         try await withCheckedThrowingContinuation { cont in
-            DispatchQueue.global(qos: .userInitiated).async {
+            wlanQueue.async {
                 do { cont.resume(returning: try iface.scanForNetworks(withSSID: nil)) }
                 catch { cont.resume(throwing: error) }
             }

@@ -19,13 +19,16 @@ import Network
 ///
 /// Primary path is zero-config **Bonjour/mDNS**: each drone advertises a
 /// `_bumblebee._tcp` service whose instance resolves to an IP and whose TXT
-/// record carries a friendly `name` (e.g. "Bumblebee-4") plus the service
-/// ports. This works on a shared WiFi and over a drone's own hotspot alike,
+/// record carries a friendly `name` (e.g. "Bumblebee-20EC") and its hardware
+/// `id`. This works on a shared WiFi and over a drone's own hotspot alike,
 /// with no IP typing.
 ///
 /// A brute-force /24 subnet scan (rosbridge :9090 probe) stays as a fallback
-/// for drones that are reachable but not yet advertising the service; those
-/// get a name enriched from the metrics endpoint (:8888), falling back to IP.
+/// for drones that are reachable but not yet advertising the service. A host
+/// with 9090 open counts as a drone only if the drone's REST API or metrics
+/// answer like one (DeviceKind); anything else is listed apart as an unknown
+/// device. Every row is re-probed every 10 s: a drone switched off greys out,
+/// then leaves the list (Liveness).
 @MainActor
 final class DroneScanner: ObservableObject {
     struct Drone: Identifiable, Equatable {
@@ -35,6 +38,13 @@ final class DroneScanner: ObservableObject {
         /// True when the name/ports came from the drone's Bonjour TXT record —
         /// a trusted friendly name the subnet-scan enrichment must not clobber.
         var bonjour: Bool = false
+        /// The drone's hardware id (TXT `id` or /api/wifi/status), if known.
+        var droneID: String? = nil
+        /// False for a host with 9090 open that does not answer like a drone.
+        var isDrone: Bool = true
+        /// TCP probes of :9090 missed in a row (Liveness).
+        var misses: Int = 0
+        var liveness: Liveness { Liveness.of(misses: misses) }
     }
 
     @Published private(set) var found: [Drone] = []
@@ -46,19 +56,30 @@ final class DroneScanner: ObservableObject {
     /// because Local Network access was denied for this app.
     @Published private(set) var discoveryError: String?
 
-    nonisolated private let probeQueue = DispatchQueue(label: "gcs.scan", attributes: .concurrent)
-    private let session = URLSession(configuration: .ephemeral)
-    private var bonjour: BonjourDroneBrowser?
+    /// Drones (not unknown devices) for the list.
+    var drones: [Drone] { found.filter(\.isDrone) }
+    var unknownDevices: [Drone] { found.filter { !$0.isDrone } }
+    /// Ids of the drones listed on the network now.
+    var visibleIDs: Set<String> { Set(found.compactMap { $0.droneID?.uppercased() }) }
+    var foundIDs: [(ip: String, droneID: String?)] { found.map { ($0.ip, $0.droneID) } }
 
-    /// Starts continuous Bonjour discovery. Safe to call more than once.
+    nonisolated private let probeQueue = DispatchQueue(label: "gcs.scan", attributes: .concurrent)
+    private let session = URLSession(configuration: .drone)
+    private var bonjour: BonjourDroneBrowser?
+    private var livenessTimer: Timer?
+    private var lostAt: [String: Date] = [:]   // ip -> Bonjour said removed
+
+    /// Starts continuous Bonjour discovery and the liveness re-probe. Safe to
+    /// call more than once.
     func startDiscovery() {
+        startLiveness()
         guard bonjour == nil else { return }
         let browser = BonjourDroneBrowser(
-            onFound: { [weak self] ip, name, _ in
-                Task { @MainActor in self?.upsertBonjour(ip: ip, name: name) }
+            onFound: { [weak self] ip, name, id in
+                Task { @MainActor in self?.upsertBonjour(ip: ip, name: name, droneID: id) }
             },
             onLost: { [weak self] ip in
-                Task { @MainActor in self?.found.removeAll { $0.id == ip && $0.bonjour } }
+                Task { @MainActor in self?.bonjourLost(ip) }
             },
             onError: { [weak self] message in
                 Task { @MainActor in self?.discoveryError = message }
@@ -68,16 +89,40 @@ final class DroneScanner: ObservableObject {
     }
 
     /// Merge a Bonjour-discovered drone into `found`, keyed by IP. A Bonjour
-    /// name always wins over a subnet-scan placeholder.
-    private func upsertBonjour(ip: String, name: String) {
+    /// name always wins over a subnet-scan placeholder. A drone that moved to
+    /// a new address loses its old row.
+    private func upsertBonjour(ip: String, name: String, droneID: String?) {
         let display = name.isEmpty ? ip : name
+        lostAt[ip] = nil
+        if let id = droneID?.uppercased() {
+            found.removeAll { $0.ip != ip && $0.droneID?.uppercased() == id }
+        }
         if let idx = found.firstIndex(where: { $0.id == ip }) {
             found[idx].name = display
             found[idx].bonjour = true
+            found[idx].isDrone = true
+            found[idx].misses = 0
+            if let id = droneID { found[idx].droneID = id.uppercased() }
         } else {
-            found.append(Drone(id: ip, name: display, bonjour: true))
-            found.sort { $0.ip.compare($1.ip, options: .numeric) == .orderedAscending }
+            found.append(Drone(id: ip, name: display, bonjour: true, droneID: droneID?.uppercased()))
+            sortFound()
         }
+    }
+
+    /// Bonjour also says "removed" on a short Wi-Fi blip: the row goes only if
+    /// it did not come back within Liveness.lostGrace.
+    private func bonjourLost(_ ip: String) {
+        let at = Date()
+        lostAt[ip] = at
+        DispatchQueue.main.asyncAfter(deadline: .now() + Liveness.lostGrace) { [weak self] in
+            guard let self = self, self.lostAt[ip] == at else { return }
+            self.lostAt[ip] = nil
+            self.found.removeAll { $0.id == ip && $0.bonjour }
+        }
+    }
+
+    private func sortFound() {
+        found.sort { $0.ip.compare($1.ip, options: .numeric) == .orderedAscending }
     }
 
     func scan() {
@@ -85,6 +130,7 @@ final class DroneScanner: ObservableObject {
         guard let prefix = Self.localSubnetPrefix() else { hasScanned = true; return }
         scanning = true
         found = []
+        lostAt = [:]
         // NetServiceBrowser never re-reports a service it already announced,
         // so restart it: live drones come back within a moment, gone ones don't.
         bonjour?.stop()
@@ -119,36 +165,66 @@ final class DroneScanner: ObservableObject {
     }
 
     /// One-off reachability check for a single host — is rosbridge (:9090) open?
-    /// Used to color the "last drone" dot (green only when it actually answers).
     func isReachable(_ ip: String, timeout: TimeInterval = 1.0) async -> Bool {
         await withCheckedContinuation { cont in
             probe(ip: ip, port: 9090, timeout: timeout) { open in cont.resume(returning: open) }
         }
     }
 
+    /// A subnet-scan hit: listed at once, then confirmed as a drone (or not).
     private func add(ip: String) {
         guard !found.contains(where: { $0.id == ip }) else { return }
         found.append(Drone(id: ip, name: ip))
-        found.sort { $0.ip.compare($1.ip, options: .numeric) == .orderedAscending }
-        enrichName(ip: ip)
+        sortFound()
+        Task { await classify(ip: ip) }
     }
 
-    /// Best-effort: pull a hostname from the metrics JSON for nicer labels.
-    private func enrichName(ip: String) {
-        guard let url = URL(string: "http://\(ip):8888/") else { return }
-        var req = URLRequest(url: url, timeoutInterval: 1.5)
-        req.httpMethod = "GET"
-        session.dataTask(with: req) { data, _, _ in
-            guard let data = data,
-                  let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
-            let name = (obj["hostname"] as? String) ?? (obj["name"] as? String)
-            guard let name = name, !name.isEmpty else { return }
-            Task { @MainActor in
-                if let idx = self.found.firstIndex(where: { $0.id == ip }), !self.found[idx].bonjour {
-                    self.found[idx].name = "\(name) (\(ip))"
-                }
+    private func classify(ip: String) async {
+        async let status = fetchJSON("http://\(ip):\(DroneAPI.port)/api/wifi/status")
+        async let metrics = fetchJSON("http://\(ip):8888/")
+        let kind = DeviceKind.classify(wifiStatus: await status, metrics: await metrics)
+        guard let idx = found.firstIndex(where: { $0.id == ip }), !found[idx].bonjour else { return }
+        switch kind {
+        case .drone(let id, let name):
+            found[idx].isDrone = true
+            found[idx].droneID = id
+            if let name { found[idx].name = "\(name) (\(ip))" }
+            if let id, found.contains(where: { $0.ip != ip && $0.droneID == id }) {
+                found.remove(at: idx)            // the same drone is listed already
             }
-        }.resume()
+        case .unknownDevice:
+            found[idx].isDrone = false
+        }
+    }
+
+    private func fetchJSON(_ url: String) async -> [String: Any]? {
+        guard let u = URL(string: url) else { return nil }
+        var req = URLRequest(url: u, timeoutInterval: 1.5)
+        req.httpMethod = "GET"
+        guard let (data, _) = try? await session.data(for: req) else { return nil }
+        return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+    }
+
+    // MARK: - Liveness
+
+    private func startLiveness() {
+        guard livenessTimer == nil else { return }
+        let t = Timer(timeInterval: Liveness.period, repeats: true) { [weak self] _ in
+            Task { @MainActor in await self?.recheck() }
+        }
+        RunLoop.main.add(t, forMode: .common)
+        livenessTimer = t
+    }
+
+    /// Probe every row once; rows found only by the subnet scan go after
+    /// Liveness.goneAfter misses (Bonjour rows go when Bonjour says so).
+    private func recheck() async {
+        for row in found {
+            let open = await isReachable(row.ip, timeout: 1.5)
+            guard let idx = found.firstIndex(where: { $0.id == row.id }) else { continue }
+            found[idx].misses = open ? 0 : found[idx].misses + 1
+            if found[idx].liveness == .gone, !found[idx].bonjour { found.remove(at: idx) }
+        }
     }
 
     // MARK: - TCP probe

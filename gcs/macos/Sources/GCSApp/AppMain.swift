@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import SwiftUI
+import Combine
 import AppKit
 
 enum Section: String, CaseIterable, Identifiable {
@@ -61,14 +62,6 @@ struct GCSMacApp: App {
     }
 }
 
-/// A drone the operator has connected to before — remembered across launches so
-/// the fleet shows up by name without a fresh scan.
-struct KnownDrone: Codable, Identifiable, Equatable {
-    var id: String { host }   // ip/host, stable
-    var host: String
-    var name: String
-}
-
 @MainActor
 final class AppState: ObservableObject {
     let scanner = DroneScanner()
@@ -80,14 +73,19 @@ final class AppState: ObservableObject {
 
     @Published var droneHost = ""
     @Published var connected = false
-    @Published var lastHost: String? = UserDefaults.standard.string(forKey: "lastHost")
-    @Published var knownDrones: [KnownDrone] = AppState.loadKnown()
+    /// Drones this Mac connected to, most recent first (DiscoveryLogic.swift).
+    @Published private(set) var knownDrones: [KnownDrone] = AppState.loadKnown()
     /// Bumped by Reconnect so the camera views reopen their streams too.
     @Published var videoEpoch = 0
     /// Id of the drone this session talks to (last 4 hex digits of its MAC, as
     /// in Bonjour TXT and /api/wifi/status); nil until known or on drone
     /// software without one. Settings refuses changes when another id answers.
     @Published var droneID: String?
+    /// Set when the drone answering at the address is not the one picked.
+    @Published var identityMismatch: String?
+
+    /// The last drone, for the connect screen's first card.
+    var lastDrone: KnownDrone? { knownDrones.first }
 
     /// The drone's name for confirmations and messages.
     var droneName: String {
@@ -103,12 +101,19 @@ final class AppState: ObservableObject {
 
     private var activity: NSObjectProtocol?
     private var terminateObserver: NSObjectProtocol?
-    private static let knownKey = "knownDrones"
+    private var linkedSink: AnyCancellable?
+    private static let knownKey = "knownDronesV2"
 
     init() {
         terminateObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.stopOwnLedAnimation(blocking: true) }
+        }
+        // A drone is remembered only once it answered: a mistyped address or a
+        // device that is not a drone never becomes the "last drone".
+        linkedSink = telemetry.$rosConnected.removeDuplicates().sink { [weak self] linked in
+            guard linked else { return }
+            DispatchQueue.main.async { self?.rememberCurrent() }
         }
     }
 
@@ -125,7 +130,9 @@ final class AppState: ObservableObject {
         }
     }
 
-    func connect(to ip: String) {
+    /// `expectedID`: the id of the drone picked (Last drone card, a Bonjour
+    /// row); the id answering at `ip` is checked against it.
+    func connect(to ip: String, expectedID: String? = nil) {
         let ip = ip.trimmingCharacters(in: .whitespaces)
         guard !ip.isEmpty else { return }
         // Another drone: nothing of the previous one may stay on screen (trail,
@@ -136,36 +143,60 @@ final class AppState: ObservableObject {
             metrics.reset()
             droneID = nil
         }
+        identityMismatch = nil
         droneHost = ip
         api.host = ip
         ros.connect(host: ip)
         metrics.start(host: ip)
         telemetry.startClock()
         connected = true
-        lastHost = ip
-        UserDefaults.standard.set(ip, forKey: "lastHost")
-        rememberDrone(host: ip)
         beginKeepAwake()
+        checkIdentity(host: ip, expectedID: expectedID)
     }
 
-    /// Upsert a drone into the remembered fleet, keyed by host. Prefers a
-    /// Bonjour-provided friendly name when the scanner has one.
-    private func rememberDrone(host: String) {
-        let name = scanner.found.first(where: { $0.ip == host })?.name ?? host
-        if let idx = knownDrones.firstIndex(where: { $0.host == host }) {
-            if name != host { knownDrones[idx].name = name }
-        } else {
-            knownDrones.append(KnownDrone(host: host, name: name))
+    /// Reads the id answering at `host`; remembers the drone when it answers.
+    private func checkIdentity(host: String, expectedID: String?) {
+        Task {
+            guard let status = try? await api.wifiStatus(), host == droneHost else { return }
+            if let id = status.id {
+                droneID = id
+                if let want = expectedID, !want.isEmpty, want.uppercased() != id.uppercased() {
+                    let name = knownDrones.first { $0.droneID == want.uppercased() }?.name ?? "Bumblebee-\(want)"
+                    identityMismatch = ConnectIdentity.mismatchText(expectedName: name, foundID: id)
+                    return
+                }
+            }
+            rememberCurrent()
         }
+    }
+
+    /// Upsert the current drone into the remembered fleet (by id when known).
+    private func rememberCurrent() {
+        guard connected, !droneHost.isEmpty, identityMismatch == nil else { return }
+        knownDrones = KnownFleet.upsert(knownDrones, droneID: droneID, name: droneName, ip: droneHost, now: Date())
+        saveKnown()
+    }
+
+    /// "Forget" on the connect screen.
+    func forget(_ drone: KnownDrone) {
+        knownDrones = KnownFleet.forget(knownDrones, key: drone.id)
+        saveKnown()
+    }
+
+    private func saveKnown() {
         if let data = try? JSONEncoder().encode(knownDrones) {
             UserDefaults.standard.set(data, forKey: Self.knownKey)
         }
     }
 
+    /// The fleet, or the 1.1.0 entries (host + name, by IP) moved over once.
     private static func loadKnown() -> [KnownDrone] {
-        guard let data = UserDefaults.standard.data(forKey: knownKey),
-              let list = try? JSONDecoder().decode([KnownDrone].self, from: data) else { return [] }
-        return list
+        let d = UserDefaults.standard
+        if let data = d.data(forKey: knownKey),
+           let list = try? JSONDecoder().decode([KnownDrone].self, from: data) { return list }
+        struct Old: Codable { var host: String; var name: String }
+        let old = (d.data(forKey: "knownDrones")).flatMap { try? JSONDecoder().decode([Old].self, from: $0) } ?? []
+        return KnownFleet.migrate(hosts: old.map { ($0.host, $0.name) }, lastHost: d.string(forKey: "lastHost"), now: Date())
     }
 
     func reconnect() {
@@ -181,6 +212,7 @@ final class AppState: ObservableObject {
         metrics.stop()
         telemetry.stopClock()
         connected = false
+        identityMismatch = nil
         endKeepAwake()
     }
 

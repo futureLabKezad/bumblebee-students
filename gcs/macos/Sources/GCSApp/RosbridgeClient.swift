@@ -56,7 +56,7 @@ final class RosbridgeClient: NSObject {
         self.store = store
         self.port = port
         super.init()
-        session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+        session = URLSession(configuration: .drone, delegate: nil, delegateQueue: .main)
     }
 
     func connect(host: String) {
