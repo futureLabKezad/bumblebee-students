@@ -24,8 +24,7 @@ namespace BumblebeeGcs.Logic.Tests;
 
 /// <summary>
 /// The real RosbridgeClient against a fake rosbridge on 127.0.0.1 (real time, a few seconds
-/// each): Link states, the silent-drop detection (keep-alive 2 s / 4 s plus the 5 s silence
-/// watchdog) and the reconnect. The store is re-evaluated every 100 ms, as AppState does
+/// each): Link states, the silent-drop detection (keep-alive 2 s / 4 s) and the reconnect. The store is re-evaluated every 100 ms, as AppState does
 /// every 500 ms.
 /// </summary>
 [Collection("rosbridge sockets")]
@@ -93,9 +92,10 @@ public class RosbridgeSocketTests
     }
 
     [Fact]
-    public async Task RosbridgeAliveButSilent_IsFrozen_ThenTheWatchdogReconnects()
+    public async Task RosbridgeAliveButSilent_StaysFrozen_OnTheSameSocket()
     {
-        // MAVROS stopped, rosbridge still answers pings: only the 5 s watchdog can notice.
+        // MAVROS stopped, rosbridge still answers pings: the Link tile says "Telemetry frozen"
+        // and keeps saying it (as on the Mac); a reconnect would only flip it to "No drone".
         using var server = new FakeRosbridge();
         using var h = new Harness(server.Port);
         h.Connect();
@@ -103,12 +103,16 @@ public class RosbridgeSocketTests
 
         server.Publish = false;
         var frozen = await h.WaitFor(s => s.Link == LinkState.TelemetryFrozen, 4.5, "Telemetry frozen");
-        var dropped = await h.WaitFor(s => !s.RosConnected, 4, "watchdog drop");
-        Assert.InRange(frozen + dropped, 4.5, 6.5);
-        await h.WaitFor(_ => server.Accepted >= 2, 5, "a new connection after the 3 s delay");
-        // The new socket gets no state either: frozen again after 3 s (not OK, not DISARMED).
-        await h.WaitFor(s => s.Link == LinkState.TelemetryFrozen, 5, "frozen on the new socket");
+        Assert.InRange(frozen, 2.5, 4.5);
+        await Task.Delay(8000);
+        Assert.Equal(LinkState.TelemetryFrozen, h.Read(s => s.Link));
+        Assert.True(h.Read(s => s.RosConnected));
+        Assert.Equal(1, server.Accepted);
         Assert.Null(h.Read(s => s.Armed));
+
+        server.Publish = true;
+        await h.WaitFor(s => s.Link == LinkState.Ok, 3, "OK again on the same socket");
+        Assert.Equal(1, server.Accepted);
     }
 
     [Fact]

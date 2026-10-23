@@ -26,14 +26,14 @@ namespace BumblebeeGcs.Services;
 /// в TelemetryStore на UI-потоке. Авто-реконнект при обрыве через 3 с.
 /// GCS работает в режиме монитора — клиент никогда не публикует и не зовёт сервисы.
 /// Тихий обрыв (дрон выключен, вне Wi-Fi): WebSocket ping каждые 2 с, без pong 4 с —
-/// обрыв; плюс сторож: 5 с без единого сообщения — Abort и тот же путь обрыва.
+/// обрыв. Сокет, который отвечает на ping, но молчит (MAVROS стоит, FC отключён),
+/// не рвётся: Link показывает «Telemetry frozen» / «FC not connected», как на Mac.
 /// Без WinUI (UI-поток — IUiQueue), поэтому проверяется сокет-тестами на любой ОС.
 /// </summary>
 public sealed class RosbridgeClient
 {
     public static readonly TimeSpan KeepAliveInterval = TimeSpan.FromSeconds(2);
     public static readonly TimeSpan KeepAliveTimeout = TimeSpan.FromSeconds(4);
-    public const int SilenceWatchdogMs = 5000;
     public const int ReconnectDelayMs = 3000;
 
     private readonly TelemetryStore _store;
@@ -149,15 +149,15 @@ public sealed class RosbridgeClient
     {
         var chunk = new byte[64 * 1024];
         var message = new MemoryStream();
-        // Silence watchdog: no message for 5 s cancels the receive, which aborts the socket.
-        using var silence = new CancellationTokenSource();
+        // No silence watchdog: a drone that stops publishing but still answers pings is
+        // "Telemetry frozen" on the open socket (reconnecting would only flip it to "No drone").
+        // A dead link fails the receive through the keep-alive timeout.
         while (_active && _generation.IsCurrent(gen))
         {
             WebSocketReceiveResult result;
             try
             {
-                silence.CancelAfter(SilenceWatchdogMs);
-                result = await ws.ReceiveAsync(chunk, silence.Token);
+                result = await ws.ReceiveAsync(chunk, CancellationToken.None);
             }
             catch
             {

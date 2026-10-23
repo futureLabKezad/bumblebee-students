@@ -387,7 +387,7 @@ public sealed class DashboardPage : Grid
         RefreshEvent(whoColor);
 
         // MARK: Attitude (IMU orientation when valid, else pose)
-        _attitude.Update(_t.Roll ?? 0, _t.Pitch ?? 0);
+        _attitude.Update(_t.Roll, _t.Pitch);
         _roll.Set(Format.Degrees(_t.Roll));
         _pitch.Set(Format.Degrees(_t.Pitch));
         _yaw.Set(Format.Degrees(_t.Yaw));

@@ -46,6 +46,7 @@ public sealed class AttitudeView : Grid
     private readonly RotateTransform _horizonRot = new() { CenterX = C, CenterY = C };
     private readonly TranslateTransform _pitchShift = new();
     private readonly RotateTransform _arcRot = new() { CenterX = C, CenterY = C };
+    private readonly Canvas _horizon, _arc;
 
     public AttitudeView()
     {
@@ -80,12 +81,14 @@ public sealed class AttitudeView : Grid
             var label = Ui.Text(Math.Abs(deg).ToString(), Fonts.Micro, Colors.White);
             pitched.Children.Add(Place(label, C + w + 4, y - 5));
         }
-        var horizon = new Canvas { Width = S, Height = S, RenderTransform = _horizonRot };
+        // До первой ориентации горизонта нет (как на Mac): ровный горизонт заявлял бы 0°.
+        clipHost.Children.Add(new Rectangle { Width = S, Height = S, Fill = Palette.Brush(Palette.SurfaceRaised) });
+        var horizon = _horizon = new Canvas { Width = S, Height = S, RenderTransform = _horizonRot, Visibility = Visibility.Collapsed };
         horizon.Children.Add(pitched);
         clipHost.Children.Add(horizon);
 
         // Слой roll-дуги (только вращение).
-        var arc = new Canvas { Width = S, Height = S, RenderTransform = _arcRot };
+        var arc = _arc = new Canvas { Width = S, Height = S, RenderTransform = _arcRot, Visibility = Visibility.Collapsed };
         foreach (var deg in new[] { -60, -45, -30, -20, -10, 0, 10, 20, 30, 45, 60 })
         {
             var ang = deg * Math.PI / 180 - Math.PI / 2;
@@ -122,8 +125,12 @@ public sealed class AttitudeView : Grid
         Children.Add(overlay);
     }
 
-    public void Update(double roll, double pitch)
+    /// <summary>null (no attitude yet): an empty dial, no horizon.</summary>
+    public void Update(double? rollDeg, double? pitchDeg)
     {
+        var known = rollDeg is not null && pitchDeg is not null;
+        _horizon.Visibility = _arc.Visibility = known ? Visibility.Visible : Visibility.Collapsed;
+        if (rollDeg is not double roll || pitchDeg is not double pitch) return;
         _horizonRot.Angle = -roll;
         _arcRot.Angle = -roll;
         _pitchShift.Y = AttitudeMath.HorizonShiftPx(pitch, PxPerDeg);
