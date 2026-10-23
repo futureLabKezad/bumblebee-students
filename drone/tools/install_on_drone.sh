@@ -163,7 +163,7 @@ fi
 {
     echo "systemctl stop bumblebee-clock-jump.timer bumblebee-identity-recheck.timer bumblebee-ros-watchdog || true"
     echo "systemctl daemon-reload || true"
-    echo "systemctl restart wifi-manager wifi-watchdog sys_metrics bumblebee-identity || true"
+    echo "systemctl restart wifi-manager wifi-watchdog sys_metrics notify-manager bumblebee-identity || true"
     echo "echo 'rolled back to the state before $TS'"
     echo "echo 'Reboot the drone now (sudo reboot): the flight stack still runs with the update until then.'"
 } | { [ -n "$SUDO" ] && sed 's/^systemctl/sudo systemctl/' || cat; } >> "$ROLLBACK"
@@ -189,8 +189,9 @@ $SUDO systemctl start bumblebee-clock-jump.timer bumblebee-identity-recheck.time
 $SUDO systemctl restart bumblebee-ros-watchdog || true
 [ -z "$ROOT" ] && $SUDO sysctl --system >/dev/null 2>&1 || true   # bigger DDS socket buffers
 $SUDO systemctl restart wifi-manager wifi-watchdog sys_metrics
+$SUDO systemctl restart notify-manager || true   # LED alarms; not part of the flight stack
 $SUDO systemctl restart bumblebee-identity
 
 say "done. Backup + rollback: $ROLLBACK"
 say "Reboot the drone to finish: flight-controller rate detection, the per-drone"
-say "ROS domain and the Wi-Fi power-save change take effect after a reboot."
+say "ROS domain, the Wi-Fi power-save change and the video server take effect after a reboot."
