@@ -57,6 +57,11 @@ struct SettingsView: View {
                 savedPanel
                 addPanel
                 if let m = msg { StatusBanner(text: m.text, kind: m.kind) }
+                Panel(title: "Diagnostics", icon: "stethoscope") {
+                    Text("For a message when something goes wrong: versions, connection, recent messages. No passwords.")
+                        .font(Theme.monoSmall).foregroundStyle(Theme.muted)
+                    HStack { CopyDiagnosticsButton(); Spacer() }
+                }
             }
             .padding(Theme.s4)
             .frame(maxWidth: 640)

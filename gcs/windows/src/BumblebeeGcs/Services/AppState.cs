@@ -168,6 +168,57 @@ public sealed class AppState
         FleetChanged?.Invoke();
     }
 
+    // MARK: - Diagnostics
+
+    /// <summary>The "Copy diagnostics" report (Logic/Diagnostics.cs): no passwords.</summary>
+    public async Task<string> DiagnosticsTextAsync()
+    {
+        var info = Connected ? await Api.InfoAsync() : null;
+        Handoff.RefreshCurrentSsid();
+        var t = Telemetry;
+        var input = new DiagnosticsInput
+        {
+            NowUtc = DateTime.UtcNow,
+            App = AppVersion.Label,
+            Os = $"{System.Runtime.InteropServices.RuntimeInformation.OSDescription} " +
+                 $"({System.Runtime.InteropServices.RuntimeInformation.OSArchitecture})",
+            Connected = Connected,
+            DroneHost = DroneHost,
+            DroneName = DroneName,
+            DroneId = DroneId,
+            DroneSoftware = info?.Version,
+            Link = LinkLogic.Text(t.Link),
+            Armed = ArmedLogic.Display(t.Armed, t.LastKnownArmed).Value,
+            Mode = ModeLogic.DisplayMode(t.Mode),
+            Control = ModeLogic.ControllerText(t.InControl),
+            Battery = t.Battery.Text,
+            ComputerWifi = Handoff.CurrentSsid,
+            OnDroneHotspot = Handoff.OnDroneHotspot,
+            Found = Scanner.Drones.Select(d => new DiagnosticsInput.FoundDrone(d.Name, d.Ip, d.DroneId, d.Liveness == Liveness.Live)).ToList(),
+            UnknownDevices = Scanner.UnknownDevices.Count(),
+            Hotspots = Handoff.Hotspots.Select(h => h.Ssid).ToList(),
+            RememberedDrones = _settings.Fleet.Select(k => new DiagnosticsInput.Remembered(k.Name, k.DroneId, k.LastIp)).ToList(),
+            Messages = t.Messages.Entries.Select(e => $"{e.Time} {e.Text}").ToList(),
+            LastCrash = CrashLog.Last(),
+        };
+        return Diagnostics.Report(input);
+    }
+
+    /// <summary>Puts the report on the clipboard; true when it is there.</summary>
+    public async Task<bool> CopyDiagnosticsAsync()
+    {
+        var text = await DiagnosticsTextAsync();
+        try
+        {
+            var data = new Windows.ApplicationModel.DataTransfer.DataPackage();
+            data.SetText(text);
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(data);
+            Windows.ApplicationModel.DataTransfer.Clipboard.Flush();
+            return true;
+        }
+        catch { return false; }
+    }
+
     public void Reconnect()
     {
         if (!Connected || DroneHost.Length == 0) return;

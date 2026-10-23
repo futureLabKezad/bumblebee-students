@@ -21,4 +21,5 @@ enum AppVersion {
     static let short: String =
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev"
     static let label = "GCS " + short
+    static let build: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "dev"
 }

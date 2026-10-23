@@ -447,3 +447,38 @@ extension View {
         shadow(color: Theme.shadowColor, radius: Theme.shadowRadius, y: Theme.shadowY)
     }
 }
+
+// MARK: - Copy diagnostics
+
+/// Puts the diagnostics report on the clipboard and says so for a moment.
+struct CopyDiagnosticsButton: View {
+    @EnvironmentObject var app: AppState
+    var compact = false
+    @State private var copied = false
+
+    var body: some View {
+        Button {
+            Task {
+                copied = await app.copyDiagnostics()
+                try? await Task.sleep(nanoseconds: 2_500_000_000)
+                copied = false
+            }
+        } label: {
+            Label(copied ? "Copied — paste it into a message" : "Copy diagnostics",
+                  systemImage: copied ? "checkmark" : "doc.on.clipboard")
+        }
+        .help("Copies app and drone versions, connection state and recent messages (no passwords)")
+        .modifier(DiagnosticsButtonLook(compact: compact))
+    }
+}
+
+private struct DiagnosticsButtonLook: ViewModifier {
+    let compact: Bool
+    func body(content: Content) -> some View {
+        if compact {
+            content.buttonStyle(.plain).font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.muted)
+        } else {
+            content.buttonStyle(GhostButtonStyle())
+        }
+    }
+}

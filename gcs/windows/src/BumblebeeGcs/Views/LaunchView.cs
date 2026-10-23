@@ -164,7 +164,9 @@ public sealed class LaunchView : Grid
             Child = footerRow,
         }, _manualNote);
 
-        var content = Ui.VStack(18, header, _bannerSlot, _lastSlot, dronesPanel, footer);
+        var diag = DiagnosticsButton.Create(app, compact: true);
+        diag.HorizontalAlignment = HorizontalAlignment.Center;
+        var content = Ui.VStack(18, header, _bannerSlot, _lastSlot, dronesPanel, footer, diag);
         content.HorizontalAlignment = HorizontalAlignment.Center;
         content.VerticalAlignment = VerticalAlignment.Center;
         content.Width = 560;

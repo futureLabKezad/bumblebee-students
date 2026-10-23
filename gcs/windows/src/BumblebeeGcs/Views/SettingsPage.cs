@@ -88,7 +88,12 @@ public sealed class SettingsPage : Grid
         hint.TextWrapping = TextWrapping.Wrap;
         var addPanel = new PanelCard("Add / Update Network", IconGlyphs.Add, _addSsid, _addPass, _formNote, addButtons, hint);
 
-        var stack = Ui.VStack(Palette.S3, _identityBanner, _statusPanel, scanPanel, savedPanel, addPanel, _msg);
+        var diagHint = Ui.Text("For a message when something goes wrong: versions, connection, recent messages. No passwords.",
+            Fonts.MonoSmall, Palette.Muted);
+        diagHint.TextWrapping = TextWrapping.Wrap;
+        var diagPanel = new PanelCard("Diagnostics", IconGlyphs.Info, diagHint, DiagnosticsButton.Create(app, compact: false));
+
+        var stack = Ui.VStack(Palette.S3, _identityBanner, _statusPanel, scanPanel, savedPanel, addPanel, _msg, diagPanel);
         stack.MaxWidth = 640;
         stack.HorizontalAlignment = HorizontalAlignment.Center;
         stack.Width = 640;

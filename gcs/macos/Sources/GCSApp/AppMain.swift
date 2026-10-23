@@ -45,6 +45,7 @@ struct GCSMacApp: App {
                 .frame(minWidth: 1100, minHeight: 720)
                 .preferredColorScheme(.dark)
                 .onAppear {
+                    CrashLog.install()
                     app.scanner.startDiscovery()   // continuous Bonjour/mDNS
                     app.scanner.scan()              // one-shot subnet fallback
                     app.handoff.requestLocation()   // settle WiFi-scan permission up front
@@ -57,6 +58,9 @@ struct GCSMacApp: App {
                 Button("Reconnect") { app.reconnect() }.keyboardShortcut("r", modifiers: .command)
                 Button("Rescan Network") { app.scanner.scan() }.keyboardShortcut("k", modifiers: .command)
                 Button("Disconnect") { app.disconnect() }.keyboardShortcut("d", modifiers: [.command, .shift])
+            }
+            CommandGroup(after: .help) {
+                Button("Copy Diagnostics") { Task { await app.copyDiagnostics() } }
             }
         }
     }
@@ -197,6 +201,44 @@ final class AppState: ObservableObject {
         struct Old: Codable { var host: String; var name: String }
         let old = (d.data(forKey: "knownDrones")).flatMap { try? JSONDecoder().decode([Old].self, from: $0) } ?? []
         return KnownFleet.migrate(hosts: old.map { ($0.host, $0.name) }, lastHost: d.string(forKey: "lastHost"), now: Date())
+    }
+
+    // MARK: - Diagnostics
+
+    /// The "Copy diagnostics" report (DiagnosticsLogic.swift): no passwords.
+    func diagnosticsText() async -> String {
+        let info = connected ? await api.info() : nil
+        handoff.refreshCurrentSSID()
+        let t = telemetry
+        #if arch(arm64)
+        let arch = "arm64"
+        #else
+        let arch = "x86_64"
+        #endif
+        let input = DiagnosticsInput(
+            now: Date(),
+            app: "\(AppVersion.label) (build \(AppVersion.build))",
+            os: "macOS \(ProcessInfo.processInfo.operatingSystemVersionString) (\(arch))",
+            connected: connected, droneHost: droneHost, droneName: droneName, droneID: droneID,
+            droneSoftware: info?.version,
+            link: t.link.text, armed: t.armedDisplay.text, mode: ModeText.display(t.mode),
+            control: t.owner.text, battery: BatteryDisplay(t.battery).barText,
+            computerWifi: handoff.currentSSID, onDroneHotspot: handoff.onDroneHotspot,
+            found: scanner.drones.map { .init(name: $0.name, ip: $0.ip, droneID: $0.droneID, live: $0.liveness == .live) },
+            unknownDevices: scanner.unknownDevices.count,
+            hotspots: handoff.hotspots.map(\.ssid),
+            remembered: knownDrones.map { .init(name: $0.name, droneID: $0.droneID, lastIP: $0.lastIP) },
+            messages: t.logs.map { "\($0.time) \($0.line)" },
+            lastCrash: CrashLog.last())
+        return Diagnostics.report(input)
+    }
+
+    /// Puts the report on the clipboard; true when it is there.
+    @discardableResult
+    func copyDiagnostics() async -> Bool {
+        let text = await diagnosticsText()
+        NSPasteboard.general.clearContents()
+        return NSPasteboard.general.setString(text, forType: .string)
     }
 
     func reconnect() {

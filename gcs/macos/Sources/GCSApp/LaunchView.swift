@@ -61,8 +61,9 @@ struct LaunchView: View {
                             .task(id: ip) { await watchLast(ip) }
                     }
 
-                    dronesPanel(listMaxHeight: max(rowHeight * 2, geo.size.height - 470))
+                    dronesPanel(listMaxHeight: max(rowHeight * 2, geo.size.height - 490))
                     footer
+                    CopyDiagnosticsButton(compact: true)
                 }
                 .frame(maxWidth: 560)
                 .padding(.horizontal, 24)
