@@ -70,12 +70,12 @@ elif t == 'DEVICE,STATE':
     out = ['wlan0:' + st['state']]
 elif t == 'UUID,NAME':
     out = ['%s:%s' % (c['uuid'], esc(c['name'])) for c in st['cons']]
-elif t == 'UUID,TYPE':
-    out = ['%s:802-11-wireless' % c['uuid'] for c in st['cons']]
-elif t == 'UUID,TYPE,AUTOCONNECT':
-    out = ['%s:802-11-wireless:%s' % (c['uuid'], c.get('auto', 'yes')) for c in st['cons']]
-elif t == 'UUID,TYPE,AUTOCONNECT-PRIORITY,TIMESTAMP':
-    out = ['%s:802-11-wireless:%d:%d' % (c['uuid'], c['prio'], c['ts']) for c in st['cons']]
+elif t == 'UUID,TYPE,NAME':
+    out = ['%s:802-11-wireless:%s' % (c['uuid'], esc(c['name'])) for c in st['cons']]
+elif t == 'UUID,TYPE,AUTOCONNECT,NAME':
+    out = ['%s:802-11-wireless:%s:%s' % (c['uuid'], c.get('auto', 'yes'), esc(c['name'])) for c in st['cons']]
+elif t == 'UUID,TYPE,AUTOCONNECT-PRIORITY,TIMESTAMP,NAME':
+    out = ['%s:802-11-wireless:%d:%d:%s' % (c['uuid'], c['prio'], c['ts'], esc(c['name'])) for c in st['cons']]
 elif t == 'SSID' and 'list' in args:
     out = [esc(s) for s in st['visible']]
 elif t == '802-11-wireless.ssid':
@@ -340,6 +340,47 @@ class WatchdogSim(unittest.TestCase):
         st = self.run_watchdog({'cons': [self.hotspot(), con('Lab:5G', 'u-lab')],
                                 'visible': ['Lab:5G'], 'conn': HOTSPOT, 'state': 'connected'}, 8)
         self.assertEqual(st['conn'], 'Lab:5G')
+
+    # -- pending profiles of wifi_manager.py (<name>.bb-pending) --------------
+
+    def pending(self, name, uuid):
+        c = con(name + '.bb-pending', uuid, ssid=name)
+        c['auto'] = 'no'                 # as wifi_manager.py creates it
+        return c
+
+    def test_pending_profile_is_never_joined(self):
+        # the saved Home profile has the old (wrong) password; the untested
+        # new one waits in Home.bb-pending: only the GCS's apply-now joins it
+        st = self.run_watchdog({'cons': [self.hotspot(), con('Home', 'u-home', psk_ok=False),
+                                         self.pending('Home', 'u-pend')],
+                                'visible': ['Home'], 'conn': '', 'state': 'disconnected'}, 3)
+        self.assertEqual(self.ups(st, 'u-pend'), [])
+        self.assertEqual(len(self.ups(st, 'u-home')), 1)
+        self.assertEqual(st['conn'], HOTSPOT)
+
+    def test_pending_profile_keeps_autoconnect_off(self):
+        cons = [self.hotspot(), con('Home', 'u-home'), con('Lab', 'u-lab'), self.pending('Lab', 'u-pend')]
+        cons[2]['auto'] = 'no'
+        st = self.run_watchdog({'cons': cons, 'visible': ['Home'], 'conn': 'Home', 'state': 'connected'}, 2)
+        modified = [c[2] for c in st['calls'] if c[:2] == ['connection', 'modify']]
+        self.assertEqual(sorted(set(modified)), ['u-lab'])
+
+    def test_only_a_pending_profile_counts_as_none_saved(self):
+        # first Add drone on a fresh drone: the new network exists only as a
+        # pending profile; the hotspot comes up at once, without scan rounds
+        st = self.run_watchdog({'cons': [self.hotspot(), self.pending('Classroom', 'u-pend')],
+                                'visible': ['Classroom'], 'conn': '', 'state': 'disconnected'}, 2)
+        self.assertEqual(st['conn'], HOTSPOT)
+        self.assertEqual(self.ups(st, 'u-pend'), [])
+        calls = st['calls']
+        first_up = next(i for i, c in enumerate(calls) if c[:2] == ['connection', 'up'] and c[-1] == HOTSPOT)
+        self.assertNotIn(['dev', 'wifi', 'rescan'], calls[:first_up], 'scanned before raising the hotspot')
+
+    def test_pending_suffix_after_a_colon_in_the_name(self):
+        st = self.run_watchdog({'cons': [self.hotspot(), self.pending('Lab:5G', 'u-pend')],
+                                'visible': ['Lab:5G'], 'conn': '', 'state': 'disconnected'}, 2)
+        self.assertEqual(self.ups(st, 'u-pend'), [])
+        self.assertEqual(st['conn'], HOTSPOT)
 
 
 if __name__ == '__main__':
