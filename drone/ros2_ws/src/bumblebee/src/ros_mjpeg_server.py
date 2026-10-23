@@ -22,11 +22,25 @@ Serves MJPEG streams on port 8080 compatible with the GCS dashboard.
 URL format:
   http://host:8080/stream?topic=/camera/image_raw[&quality=60&fps=5&width=320&height=240]
 
-Query parameters (all optional, taken from the FIRST active client of a topic):
-  quality  JPEG quality 1..100          (default 60)
-  fps      max encoded frames per second (default 5; 0 = uncapped)
-  width    max output width in px        (default 320; 0 = no downscale)
+Query parameters (all optional; each request is clamped to these limits):
+  quality  JPEG quality 10..90             (default 60)
+  fps      max encoded frames/s 1..15      (default 5;   0 = the cap, 15)
+  width    max output width in px 80..640  (default 320; 0 = the cap, 640)
   height   accepted but ignored — aspect ratio is preserved from width
+
+THE SHARED-PARAMETER RULE
+  A topic is encoded once and every viewer of it gets the same JPEGs, so
+  quality/fps/width are shared per topic. They are the HIGHEST value of each
+  parameter among the viewers connected right now (each request clamped as
+  above first), recomputed whenever a viewer joins or leaves:
+    * nobody gets less than they asked for, within the limits;
+    * nobody can push the drone past 640 px / 15 fps / quality 90, whatever
+      the URL says (fps=0&width=0 used to mean full size at the camera rate);
+    * when the most demanding viewer leaves, the stream drops back to what
+      the remaining viewers asked for (it used to stay with whatever the
+      FIRST viewer of the topic had asked, for as long as anyone watched).
+  The GCS apps ask quality=60&fps=12&width=320 (PiP 50/3/160), www/gcs.html
+  60/5/320; all inside the limits, so they get exactly what they ask.
 
 Handles both raw RGB images and YUYV images from v4l2_camera + libcamerify.
 YUYV topics are identified by topic name containing 'yuv' and the step-5 tile
@@ -34,11 +48,23 @@ pattern is corrected the same way camera_fix.py does it.
 
 Performance notes (the Pi 5 is CPU-bound — aruco_detect pins ~2 cores):
   * Topics are subscribed lazily, only when a browser actually opens the stream.
+  * A topic's subscription is destroyed once it has had no viewer for 10 s,
+    so publishers that only render while someone subscribes (aruco_detect's
+    640x480 debug image, ~0.9 MB per frame, and its map image) stop again,
+    and raw camera frames are no longer received just to be dropped; the
+    next viewer subscribes anew. This runs from a timer of the node, i.e. in the executor
+    thread, so destroy_subscription never races the executor.
   * The expensive cvtColor/resize/imencode work is skipped entirely while no
     client is watching a topic (encode-on-demand via a per-topic client count).
-  * Each topic is throttled to its requested fps and downscaled to its
-    requested width before JPEG encoding, so the dashboard gets exactly the
-    lightweight stream it asks for instead of full-res 15 Hz.
+  * Each topic is throttled to its shared fps and downscaled to its shared
+    width before JPEG encoding, so the dashboard gets the lightweight stream
+    it asks for instead of full-res 15 Hz.
+  * A viewer whose socket accepts no data for 10 s is dropped (socket timeout
+    on the handler, plus TCP_USER_TIMEOUT on Linux for a laptop that vanished
+    while only keep-alives are sent), instead of being counted as watching
+    for up to ~15 min of TCP retransmissions.
+  * A new viewer's first frame is never older than 2 s: a leftover frame
+    (say, the ArUco debug image of the last flight) is not shown as live.
   * All image subscriptions use BEST_EFFORT, which is QoS-compatible with both
     RELIABLE and BEST_EFFORT publishers (a RELIABLE subscriber is not).
 
@@ -49,12 +75,16 @@ Usage (from launch):
   ros2 run bumblebee ros_mjpeg_server.py
 """
 
+import errno
+import math
+import socket
 import threading
 import time
 import urllib.parse
 import io
 import socketserver
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import Dict, List, Optional, Tuple
 
 
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, HTTPServer):
@@ -75,6 +105,51 @@ DEFAULT_QUALITY = 60
 DEFAULT_FPS = 5.0
 DEFAULT_WIDTH = 320
 
+# Limits every viewer's request is clamped to (see THE SHARED-PARAMETER RULE).
+MIN_QUALITY, MAX_QUALITY = 10, 90
+MIN_FPS, MAX_FPS = 1.0, 15.0
+MIN_WIDTH, MAX_WIDTH = 80, 640
+
+SUB_IDLE_RELEASE_S = 10.0   # destroy a topic's subscription after this long without viewers
+SUB_SWEEP_PERIOD_S = 1.0    # how often the node looks for such subscriptions
+CLIENT_TIMEOUT_S = 10       # drop a viewer whose socket accepts no data for this long
+STALE_FRAME_S = 2.0         # a new viewer's first frame must be younger than this
+
+# One clock for the idle / frame-age / fps bookkeeping (the tests replace it).
+_clock = time.monotonic
+
+
+def clamp_request(quality, fps, width) -> Tuple[int, float, int]:
+    """Clamp one viewer's request to the server limits.
+
+    0 or a negative fps/width (the old "uncapped" / "no downscale") means the
+    cap; a value that is not a number means the default.
+    """
+    try:
+        quality = int(quality)
+    except (TypeError, ValueError, OverflowError):
+        quality = DEFAULT_QUALITY
+    quality = max(MIN_QUALITY, min(MAX_QUALITY, quality))
+
+    try:
+        fps = float(fps)
+    except (TypeError, ValueError, OverflowError):
+        fps = DEFAULT_FPS
+    if math.isnan(fps):
+        fps = DEFAULT_FPS
+    elif fps <= 0:
+        fps = MAX_FPS
+    fps = max(MIN_FPS, min(MAX_FPS, fps))
+
+    try:
+        width = int(width)
+    except (TypeError, ValueError, OverflowError):
+        width = DEFAULT_WIDTH
+    if width <= 0:
+        width = MAX_WIDTH
+    width = max(MIN_WIDTH, min(MAX_WIDTH, width))
+    return quality, fps, width
+
 
 # -------------------------------------------------------------------
 # Per-topic state: latest JPEG, client refcount, and stream parameters.
@@ -84,14 +159,28 @@ class FrameStore:
     def __init__(self):
         self._lock = threading.Lock()
         self._cond = threading.Condition(self._lock)
-        self._jpeg: bytes | None = None
+        self._jpeg: Optional[bytes] = None
         self._seq: int = 0
+        self._stamp = 0.0           # _clock() of the latest put()
 
     def put(self, jpeg: bytes):
         with self._cond:
             self._jpeg = jpeg
             self._seq += 1
+            self._stamp = _clock()
             self._cond.notify_all()
+
+    def start_seq(self, max_age: float = STALE_FRAME_S) -> int:
+        """The seq a new viewer should start from (pass it to get()).
+
+        The latest frame is handed out at once only if it is younger than
+        max_age; an older one (left from a previous viewer, the publisher has
+        stopped since) is skipped and the viewer waits for a new frame.
+        """
+        with self._cond:
+            if self._jpeg is not None and _clock() - self._stamp <= max_age:
+                return self._seq - 1
+            return self._seq
 
     def get(self, last_seq: int, timeout: float = 2.0):
         """Block until a new frame arrives (seq > last_seq), return (jpeg, seq)."""
@@ -106,20 +195,35 @@ class FrameStore:
 
 
 class TopicState:
-    """Frame store + viewer count + stream params for one image topic."""
+    """Frame store + viewers + shared stream params for one image topic.
+    Fields other than store are guarded by lock."""
     def __init__(self):
         self.store = FrameStore()
         self.lock = threading.Lock()
-        self.clients = 0
+        # One clamped (quality, fps, width) request per connected viewer.
+        self.requests: List[Tuple[int, float, int]] = []
+        self.idle_since: Optional[float] = None   # _clock() when the last viewer left
         self.last_encode = 0.0
-        # Stream params; locked in from the first client of the topic.
+        # Shared stream params: per-field maximum of requests (see the rule
+        # at the top of the file); unchanged while there are no viewers.
         self.quality = DEFAULT_QUALITY
         self.fps = DEFAULT_FPS
         self.width = DEFAULT_WIDTH
 
+    @property
+    def clients(self) -> int:
+        return len(self.requests)
+
+    def recompute(self):
+        """Re-derive the shared params from the viewers present (hold lock)."""
+        if self.requests:
+            self.quality = max(r[0] for r in self.requests)
+            self.fps = max(r[1] for r in self.requests)
+            self.width = max(r[2] for r in self.requests)
+
 
 # topic -> TopicState
-_topics: dict[str, TopicState] = {}
+_topics: Dict[str, TopicState] = {}
 _topics_lock = threading.Lock()
 
 
@@ -138,8 +242,8 @@ def get_topic(topic: str) -> TopicState:
 class MjpegNode(Node):
     def __init__(self):
         super().__init__('ros_mjpeg_server')
-        self._subs: dict[str, object] = {}
-        self._subs_lock = threading.Lock()
+        self._subs: Dict[str, object] = {}
+        self._subs_lock = threading.Lock()   # order: _subs_lock, then a TopicState.lock
 
         # BEST_EFFORT is compatible with both RELIABLE and BEST_EFFORT
         # publishers, so it works for raw camera topics (best-effort) and
@@ -150,31 +254,84 @@ class MjpegNode(Node):
             depth=1,
         )
 
-        self.get_logger().info(f'MJPEG server ready on port {PORT} (lazy subscribe, encode-on-demand)')
+        # HTTP threads only ever create subscriptions; destroying them while
+        # the executor spins would race it, so idle ones are destroyed by this
+        # timer, whose callback runs in the executor thread itself.
+        self._sweep_timer = self.create_timer(SUB_SWEEP_PERIOD_S, self._release_idle_subscriptions)
+
+        self.get_logger().info(
+            f'MJPEG server ready on port {PORT} (lazy subscribe, encode-on-demand, '
+            f'idle release {SUB_IDLE_RELEASE_S:g} s, client timeout {CLIENT_TIMEOUT_S} s)')
 
     def add_client(self, topic: str, quality: int, fps: float, width: int) -> TopicState:
-        """Register a viewer. Subscribes lazily on the first client and locks
-        in the stream params from that client."""
+        """Register a viewer: clamp its request, recompute the topic's shared
+        params and subscribe if the topic has no subscription (any more)."""
+        req = clamp_request(quality, fps, width)
         st = get_topic(topic)
         with st.lock:
-            if st.clients == 0:
-                st.quality = quality
-                st.fps = fps
-                st.width = width
-            st.clients += 1
-        with self._subs_lock:
-            if topic not in self._subs:
-                self._do_subscribe(topic, st)
+            st.requests.append(req)
+            st.idle_since = None
+            st.recompute()
+        try:
+            with self._subs_lock:
+                if topic not in self._subs:
+                    self._do_subscribe(topic, st)
+        except Exception:
+            self._forget(st, req)     # no phantom viewer if subscribing failed
+            raise
+        with st.lock:
+            n, q, f, w = st.clients, st.quality, st.fps, st.width
+        self.get_logger().info(f'MJPEG viewer + {topic}: clients={n}, sending {w}px {f:g}fps q{q}')
         return st
 
-    def remove_client(self, topic: str):
+    def remove_client(self, topic: str, quality: int, fps: float, width: int, reason: str = 'closed'):
+        """Unregister the viewer that was added with these params. The
+        subscription stays until the topic has been idle SUB_IDLE_RELEASE_S."""
         st = get_topic(topic)
+        n = self._forget(st, clamp_request(quality, fps, width))
+        if n is not None:
+            self.get_logger().info(f'MJPEG viewer - {topic} ({reason}): clients={n}')
+
+    @staticmethod
+    def _forget(st: TopicState, req) -> Optional[int]:
+        """Drop one viewer's request; returns the viewers left (None if absent)."""
         with st.lock:
-            if st.clients > 0:
-                st.clients -= 1
-        # Subscription is kept alive (destroying it from this thread while the
-        # executor spins is racy); _image_cb early-returns while clients == 0,
-        # so no JPEG encoding happens for topics nobody is watching.
+            try:
+                st.requests.remove(req)
+            except ValueError:
+                return None
+            if not st.requests:
+                st.idle_since = _clock()
+            st.recompute()
+            return st.clients
+
+    def _release_idle_subscriptions(self):
+        """Timer callback (executor thread): destroy the subscription of every
+        topic that has had no viewer for SUB_IDLE_RELEASE_S seconds."""
+        now = _clock()
+        released = []
+        with self._subs_lock:
+            for topic, sub in list(self._subs.items()):
+                st = get_topic(topic)
+                with st.lock:
+                    if st.clients:
+                        continue
+                    if st.idle_since is None:
+                        st.idle_since = now
+                    if now - st.idle_since < SUB_IDLE_RELEASE_S:
+                        continue
+                # A viewer arriving from here on finds the topic missing in
+                # _subs (it waits for _subs_lock) and subscribes again.
+                del self._subs[topic]
+                try:
+                    self.destroy_subscription(sub)
+                except Exception as e:
+                    self.get_logger().error(f'MJPEG server: destroy_subscription({topic}) failed: {e}')
+                released.append(topic)
+        for topic in released:
+            self.get_logger().info(
+                f'MJPEG server: released {topic} (no viewers for {SUB_IDLE_RELEASE_S:g} s)')
+        return released
 
     def _do_subscribe(self, topic: str, st: TopicState):
         """Create a subscription for topic (caller holds _subs_lock)."""
@@ -188,7 +345,7 @@ class MjpegNode(Node):
 
     def _image_cb(self, msg: Image, topic: str, st: TopicState):
         # Encode-on-demand + fps cap: bail out before any heavy work.
-        now = time.monotonic()
+        now = _clock()
         with st.lock:
             if st.clients <= 0:
                 return
@@ -240,7 +397,7 @@ class MjpegNode(Node):
         return bytes(buf)
 
 
-_node: MjpegNode | None = None
+_node: Optional[MjpegNode] = None
 
 
 # -------------------------------------------------------------------
@@ -260,7 +417,44 @@ def _float_param(params: dict, key: str, default: float) -> float:
         return default
 
 
+def _requested_params(params: dict) -> Tuple[int, float, int]:
+    """(quality, fps, width) one viewer asked for in the URL, clamped."""
+    return clamp_request(_int_param(params, 'quality', DEFAULT_QUALITY),
+                         _float_param(params, 'fps', DEFAULT_FPS),
+                         _int_param(params, 'width', DEFAULT_WIDTH))
+
+
+def _set_tcp_user_timeout(sock, seconds: float) -> bool:
+    """Linux: abort the connection once sent data stays unacknowledged for
+    `seconds` (the laptop was closed or left the Wi-Fi), instead of after the
+    ~15 min of retransmissions of tcp_retries2. False where the OS lacks it."""
+    opt = getattr(socket, 'TCP_USER_TIMEOUT', None)
+    if opt is None:
+        return False
+    try:
+        sock.setsockopt(socket.IPPROTO_TCP, opt, int(seconds * 1000))
+    except OSError:
+        return False
+    return True
+
+
+def _is_timeout(e: BaseException) -> bool:
+    return isinstance(e, socket.timeout) or getattr(e, 'errno', None) == errno.ETIMEDOUT
+
+
 class MjpegHandler(BaseHTTPRequestHandler):
+    # StreamRequestHandler.setup() applies this with settimeout(): a send
+    # that cannot progress for 10 s (client stopped reading, or vanished and
+    # the buffers are full) raises socket.timeout and the viewer is dropped.
+    timeout = CLIENT_TIMEOUT_S
+
+    def setup(self):
+        super().setup()
+        # While a topic sends only keep-alives the tiny writes never fill the
+        # buffers, so the socket timeout alone would not notice a vanished
+        # client; with TCP_USER_TIMEOUT the next write fails with ETIMEDOUT.
+        _set_tcp_user_timeout(self.connection, CLIENT_TIMEOUT_S)
+
     def log_message(self, fmt, *args):
         pass  # suppress per-request logging
 
@@ -274,24 +468,25 @@ class MjpegHandler(BaseHTTPRequestHandler):
             return
 
         topic = topic_list[0]
-        if _node is None:
+        node = _node
+        if node is None:
             self.send_error(503, 'ROS node not ready')
             return
 
-        quality = max(1, min(100, _int_param(params, 'quality', DEFAULT_QUALITY)))
-        fps = max(0.0, _float_param(params, 'fps', DEFAULT_FPS))
-        width = max(0, _int_param(params, 'width', DEFAULT_WIDTH))
+        quality, fps, width = _requested_params(params)
+        st = node.add_client(topic, quality, fps, width)
 
-        st = _node.add_client(topic, quality, fps, width)
-
-        self.send_response(200)
-        self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=frame')
-        self.send_header('Cache-Control', 'no-cache')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-
-        seq = 0
+        reason = 'closed'
         try:
+            # Inside the try: a client gone before the headers must not stay
+            # counted as a viewer.
+            self.send_response(200)
+            self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=frame')
+            self.send_header('Cache-Control', 'no-cache')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+
+            seq = st.store.start_seq()
             while True:
                 jpeg, seq = st.store.get(seq, timeout=5.0)
                 if jpeg is None:
@@ -306,12 +501,12 @@ class MjpegHandler(BaseHTTPRequestHandler):
                     b'\r\n' + jpeg + b'\r\n'
                 )
                 self.wfile.flush()
-        except (BrokenPipeError, ConnectionResetError):
-            pass
-        except Exception:
-            pass
+        except OSError as e:     # socket.timeout, BrokenPipe, ConnectionReset, ETIMEDOUT...
+            reason = 'timeout' if _is_timeout(e) else 'closed'
+        except Exception as e:
+            reason = f'error: {e!r}'
         finally:
-            _node.remove_client(topic)
+            node.remove_client(topic, quality, fps, width, reason=reason)
 
 
 def main():
