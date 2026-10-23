@@ -95,16 +95,14 @@ public sealed class ProvisioningDialog : ContentDialog
         var headerLeft = Ui.VStack(4,
             Ui.Text("Add a drone", new FontSpec(20, new Windows.UI.Text.FontWeight(700)), ConnectPalette.Text),
             _subtitle);
-        var closeText = Ui.Text("Close", Fonts.Body, ConnectPalette.Muted);
-        var close = new Border { Child = closeText, Padding = new Thickness(6, 4, 6, 4) };
-        Ui.OnHover(close, h => closeText.Foreground = Palette.Brush(h ? ConnectPalette.Text : ConnectPalette.Muted));
-        Ui.OnTap(close, () =>
+        var close = Ui.FlatButton(Ui.Text("Close", Fonts.Body, ConnectPalette.Muted), () =>
         {
             if (_handoff.IsBusy) return;
             _closed = true;                // before Hide(): Closed comes only after the hide animation
             _handoff.Reset();
             Hide();
-        });
+        }, "Close", Colors.Transparent, Palette.WithAlpha(Colors.White, 0.06), ConnectPalette.Muted,
+            padding: new Thickness(6, 4, 6, 4));
         var header = Ui.SpaceBetween(headerLeft, close);
         Grid.SetRow(header, 0);
         root.Children.Add(header);
@@ -138,7 +136,9 @@ public sealed class ProvisioningDialog : ContentDialog
             RefreshBody();
             if (_handoff.Phase == WifiHandoff.PhaseKind.Done && _handoff.PhaseArg is string host && host.Length > 0)
             {
-                _app.Connect(host);
+                // Over a drone's hotspot (10.42.0.1 on every drone) the id must be the one in its name.
+                var expected = host == WifiHandoff.HotspotGatewayHost && _lastDrone is string d ? HotspotRow.IdOf(d) : null;
+                _app.Connect(host, expected);
                 _handoff.Reset();
                 Hide();
             }
@@ -290,7 +290,11 @@ public sealed class ProvisioningDialog : ContentDialog
                 new FontSpec(11.5, new Windows.UI.Text.FontWeight(400), Mono: true), ConnectPalette.Muted2));
         var add = Ui.AccentButton("Add", () => Add(h.Ssid));
         add.IsEnabled = _handoff.HomeSsid.Length > 0;
-        return Card(Ui.SpaceBetween(Ui.HStack(12, icon, text), add, 8), new Thickness(14, 10, 14, 10));
+        // Works without a shared WiFi (a class without a network): the PC joins the drone's own
+        // hotspot and has no internet meanwhile.
+        var direct = Ui.GhostButton("Connect directly", () => { _lastDrone = h.Ssid; Direct(h.Ssid); });
+        ToolTipService.SetToolTip(direct, "Join this drone's own WiFi. The PC has no internet while connected directly.");
+        return Card(Ui.SpaceBetween(Ui.HStack(12, icon, text), Ui.HStack(8, direct, add), 8), new Thickness(14, 10, 14, 10));
     }
 
     private static string SignalWord(int rssi) => rssi >= -55 ? "strong" : rssi >= -70 ? "good" : "weak";
@@ -453,14 +457,12 @@ public sealed class ProvisioningDialog : ContentDialog
             if (f.OfferDirect)
                 buttons.Children.Add(Ui.GhostButton("Connect directly to the drone", () => Direct(drone)));
         }
-        var backText = Ui.Text("Back", Fonts.Body, ConnectPalette.Muted);
-        var back = new Border { Child = backText, Padding = new Thickness(6, 4, 6, 4) };
-        Ui.OnHover(back, h => backText.Foreground = Palette.Brush(h ? ConnectPalette.Text : ConnectPalette.Muted));
-        Ui.OnTap(back, () =>
+        var back = Ui.FlatButton(Ui.Text("Back", Fonts.Body, ConnectPalette.Muted), () =>
         {
             _handoff.Reset();
             _ = _handoff.ScanHotspotsAsync();
-        });
+        }, "Back", Colors.Transparent, Palette.WithAlpha(Colors.White, 0.06), ConnectPalette.Muted,
+            padding: new Thickness(6, 4, 6, 4));
         stack.Children.Add(Ui.SpaceBetween(buttons, back));
 
         if (f.OfferDirect)
@@ -488,12 +490,13 @@ public sealed class ProvisioningDialog : ContentDialog
         t2.TextWrapping = TextWrapping.Wrap;
         t2.TextAlignment = TextAlignment.Center;
 
-        var openBtn = Ui.Text("Open Windows Settings", Fonts.Button, ConnectPalette.Orange);
-        var open = new Border { Child = openBtn, Padding = new Thickness(6, 4, 6, 4) };
-        Ui.OnTap(open, () => _ = Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-location")));
-        var rescanBtn = Ui.Text("Rescan", Fonts.Button, ConnectPalette.BlueSoft);
-        var rescanB = new Border { Child = rescanBtn, Padding = new Thickness(6, 4, 6, 4) };
-        Ui.OnTap(rescanB, () => _ = _handoff.ScanHotspotsAsync());
+        var open = Ui.FlatButton(Ui.Text("Open Windows Settings", Fonts.Button, ConnectPalette.Orange),
+            () => _ = Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-location")),
+            "Open Windows Settings", Colors.Transparent, Palette.WithAlpha(ConnectPalette.Orange, 0.12),
+            ConnectPalette.Orange, padding: new Thickness(6, 4, 6, 4));
+        var rescanB = Ui.FlatButton(Ui.Text("Rescan", Fonts.Button, ConnectPalette.BlueSoft),
+            () => _ = _handoff.ScanHotspotsAsync(), "Rescan", Colors.Transparent,
+            Palette.WithAlpha(ConnectPalette.Blue, 0.12), ConnectPalette.BlueSoft, padding: new Thickness(6, 4, 6, 4));
         var buttons = Ui.HStack(10, open, rescanB);
         buttons.HorizontalAlignment = HorizontalAlignment.Center;
 

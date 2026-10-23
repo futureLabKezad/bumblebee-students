@@ -110,6 +110,7 @@ public sealed class RosbridgeClient
         // .NET 9+: a PING every 2 s; no PONG within 4 s aborts the socket (silent drop).
         ws.Options.KeepAliveInterval = KeepAliveInterval;
         ws.Options.KeepAliveTimeout = KeepAliveTimeout;
+        ws.Options.Proxy = null;   // never through a system proxy: the drone is on the local network
         var host = _host;
         try
         {

@@ -17,6 +17,7 @@ using BumblebeeGcs.Services;
 using BumblebeeGcs.Theme;
 using BumblebeeGcs.Views;
 using Microsoft.UI.Windowing;
+using BumblebeeGcs.Logic;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Windows.System;
@@ -68,11 +69,15 @@ public sealed partial class MainWindow : Window
         var scale = GetDpiForWindow(hwnd) / 96.0;
         try
         {
-            appWindow.Resize(new Windows.Graphics.SizeInt32((int)(1280 * scale), (int)(820 * scale)));
+            // Fit the screen without the taskbar (150 % on 1920x1080, a 1366x768 projector).
+            var work = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.Primary).WorkArea;
+            var (w, h, minW, minH) = WindowFit.Size(1280, 820, 1100, 720, scale, work.Width, work.Height);
+            appWindow.Resize(new Windows.Graphics.SizeInt32(w, h));
+            appWindow.Move(new Windows.Graphics.PointInt32(work.X + (work.Width - w) / 2, work.Y + (work.Height - h) / 2));
             if (appWindow.Presenter is OverlappedPresenter presenter)
             {
-                presenter.PreferredMinimumWidth = (int)(1100 * scale);
-                presenter.PreferredMinimumHeight = (int)(720 * scale);
+                presenter.PreferredMinimumWidth = minW;
+                presenter.PreferredMinimumHeight = minH;
             }
         }
         catch { }

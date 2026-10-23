@@ -28,7 +28,10 @@ public sealed class MetricsClient
     public double? LastArrival { get; private set; }
     public event Action? Updated;
 
-    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(2) };
+    private static readonly HttpClient Http = new(new SocketsHttpHandler { UseProxy = false })   // мимо прокси
+    {
+        Timeout = TimeSpan.FromSeconds(2),
+    };
 
     private readonly DispatcherQueue _dq;
     private DispatcherQueueTimer? _timer;

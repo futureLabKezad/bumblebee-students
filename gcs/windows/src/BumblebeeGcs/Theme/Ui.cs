@@ -205,6 +205,27 @@ public static class Ui
         return b;
     }
 
+    /// <summary>
+    /// A real Button with custom content and colours, for what used to be a tappable Border:
+    /// Tab reaches it, Enter/Space press it, Narrator reads <paramref name="name"/>.
+    /// </summary>
+    public static Button FlatButton(UIElement content, Action onClick, string name, Color bg, Color bgHover,
+                                    Color fg, Color? border = null, Thickness? padding = null, double radius = 8)
+    {
+        var b = new Button
+        {
+            Content = content,
+            Padding = padding ?? new Thickness(0),
+            CornerRadius = new CornerRadius(radius),
+            BorderThickness = new Thickness(border is null ? 0 : 1),
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+        };
+        OverrideButtonBrushes(b, bg, bgHover, bgHover, fg, border);
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(b, name);
+        b.Click += (_, _) => onClick();
+        return b;
+    }
+
     /// <summary>Круглая иконко-кнопка поверх видео (scrim-фон) — оверлеи камеры.</summary>
     public static Button OverlayIconButton(string glyph, string tooltip, Action onClick)
     {

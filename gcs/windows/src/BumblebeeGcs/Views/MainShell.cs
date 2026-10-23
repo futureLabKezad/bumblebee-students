@@ -42,9 +42,10 @@ public sealed class MainShell : Grid
     private readonly List<(Section Id, Border Row, FontIcon Icon, TextBlock Label)> _navRows = new();
     private readonly StatusDot _connDot;
     private readonly TextBlock _connLabel;
-    private readonly Action _onConnChanged, _onTelemetry;
+    private readonly Action _onConnChanged, _onTelemetry, _onMismatch;
     // Тревоги поверх любой страницы (как AlarmBanner на Mac): FC потерян у армленного дрона, низкий заряд.
-    private readonly AlarmBanner _fcLostBanner = new(IconGlyphs.Error), _lowBatteryBanner = new(IconGlyphs.BatteryUnknown);
+    private readonly AlarmBanner _fcLostBanner = new(IconGlyphs.Error), _lowBatteryBanner = new(IconGlyphs.BatteryUnknown),
+        _hotspotBanner = new(IconGlyphs.Wifi);
 
     public MainShell(AppState app)
     {
@@ -137,7 +138,7 @@ public sealed class MainShell : Grid
         header.Children.Add(reconnect);
         header.Children.Add(rescan);
 
-        var banners = Ui.VStack(0, _fcLostBanner, _lowBatteryBanner);
+        var banners = Ui.VStack(0, _fcLostBanner, _lowBatteryBanner, _hotspotBanner);
 
         var contentCol = new Grid { Background = Palette.AppGradient() };
         contentCol.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -161,6 +162,8 @@ public sealed class MainShell : Grid
             _connLabel.Text = LinkLogic.SidebarText(t.Link, t.RosConnected);
         };
         _onTelemetry = RefreshBanners;
+        _onMismatch = () => DispatcherQueue.TryEnqueue(() => _ = AskIdentityAsync());
+        _app.IdentityMismatchFound += _onMismatch;
         _app.Telemetry.LinkChanged += _onConnChanged;
         _app.Telemetry.ConnectionChanged += _onConnChanged;
         _app.Telemetry.Updated += _onTelemetry;
@@ -169,7 +172,15 @@ public sealed class MainShell : Grid
             _app.Telemetry.LinkChanged -= _onConnChanged;
             _app.Telemetry.ConnectionChanged -= _onConnChanged;
             _app.Telemetry.Updated -= _onTelemetry;
+            _app.IdentityMismatchFound -= _onMismatch;
         };
+        // The PC's WiFi name, for the drone-hotspot banner (read every 15 s, not per message).
+        var ssidTimer = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().CreateTimer();
+        ssidTimer.Interval = TimeSpan.FromSeconds(15);
+        ssidTimer.Tick += (_, _) => { _app.Handoff.RefreshCurrentSsid(); RefreshBanners(); };
+        ssidTimer.Start();
+        Unloaded += (_, _) => ssidTimer.Stop();
+        _app.Handoff.RefreshCurrentSsid();
         _onConnChanged();
         RefreshBanners();
 
@@ -181,9 +192,33 @@ public sealed class MainShell : Grid
         var t = _app.Telemetry;
         _fcLostBanner.Set(t.FcAlarm.BannerVisible ? FcLostAlarm.Text : null);
         _lowBatteryBanner.Set(t.LowBatteryBanner);
+        // On a drone's hotspot by choice ("Connect directly") is fine; Windows staying on one is not.
+        var h = _app.Handoff;
+        _hotspotBanner.Set(h.OnDroneHotspot && _app.DroneHost != WifiHandoff.HotspotGatewayHost
+            ? $"This PC is on {h.CurrentSsid}, a drone's own WiFi: pick your classroom WiFi in the taskbar" : null);
     }
 
-    private Border NavRow(Section id, string label, string glyph)
+    /// <summary>The drone answering at the address is not the one picked: stay or disconnect.</summary>
+    private async Task AskIdentityAsync()
+    {
+        if (_app.IdentityMismatch is not string text || XamlRoot is null) return;
+        var dlg = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = "Not the drone you picked",
+            Content = text,
+            PrimaryButtonText = "Stay connected",
+            CloseButtonText = "Disconnect",
+            DefaultButton = ContentDialogButton.Close,
+            RequestedTheme = ElementTheme.Dark,
+        };
+        ContentDialogResult r;
+        try { r = await dlg.ShowAsync(); } catch { return; }
+        if (r == ContentDialogResult.Primary) _app.IdentityMismatch = null; else _app.Disconnect();
+    }
+
+    /// <summary>A sidebar entry: a real Button around the styled row (Tab, Enter, Narrator).</summary>
+    private Button NavRow(Section id, string label, string glyph)
     {
         var icon = Ui.Icon(glyph, Palette.IconLg, Palette.Muted);
         icon.Width = Palette.IconLg;
@@ -194,14 +229,14 @@ public sealed class MainShell : Grid
             Padding = new Thickness(Palette.S2, Palette.S2 + 1, Palette.S2, Palette.S2 + 1),
             Child = Ui.HStack(Palette.S2, icon, text),
         };
-        Ui.OnTap(row, () => ShowSection(id));
         Ui.OnHover(row, h =>
         {
             if (_section == id) return;
             row.Background = h ? Palette.Brush(Palette.HoverBg) : null;
         });
         _navRows.Add((id, row, icon, text));
-        return row;
+        return Ui.FlatButton(row, () => ShowSection(id), label, Colors.Transparent, Colors.Transparent, Palette.Text,
+            radius: Palette.RControl);
     }
 
     private void ShowSection(Section id)

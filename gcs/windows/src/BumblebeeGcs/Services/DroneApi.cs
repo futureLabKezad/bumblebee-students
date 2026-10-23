@@ -27,7 +27,11 @@ public sealed class DroneApi
     public const int Port = 8765;
     public string Host = "";
 
-    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(6) };
+    /// <summary>Мимо системного прокси: дрон в локальной сети, школьный прокси до него не дотянется.</summary>
+    private static readonly HttpClient Http = new(new SocketsHttpHandler { UseProxy = false })
+    {
+        Timeout = TimeSpan.FromSeconds(6),
+    };
 
     /// <summary>Transport = запрос не дошёл / связь оборвалась (а не ошибка от дрона).
     /// Code — стабильный код ошибки дронов 1.0.2+; текст уже человеческий.</summary>

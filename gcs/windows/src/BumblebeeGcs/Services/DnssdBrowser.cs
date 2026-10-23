@@ -39,6 +39,7 @@ public sealed class DnssdBrowser : IDisposable
 
     private readonly DeviceWatcher _watcher;
     private readonly Action<string, string, string?> _onFound; // (ip, name, id) — на фоновом потоке
+    private readonly Action<string>? _onLost;                  // (ip) — сервис пропал; на фоновом потоке
     private bool _started;
     // Updated-события несут только изменившиеся свойства (часто без TXT):
     // храним полную запись и накатываем на неё обновление.
@@ -47,10 +48,12 @@ public sealed class DnssdBrowser : IDisposable
 
     public DnssdBrowser(Action<string, string> onFound) : this((ip, name, _) => onFound(ip, name)) { }
 
-    /// <summary>id = null у дронов со старым ПО (нет TXT `id`).</summary>
-    public DnssdBrowser(Action<string, string, string?> onFound)
+    /// <summary>id = null у дронов со старым ПО (нет TXT `id`). onLost(ip): сервис пропал, и
+    /// по этому адресу больше никого нет (как onLost у NetServiceBrowser на Mac).</summary>
+    public DnssdBrowser(Action<string, string, string?> onFound, Action<string>? onLost = null)
     {
         _onFound = onFound;
+        _onLost = onLost;
         _watcher = DeviceInformation.CreateWatcher(Aqs, Props, DeviceInformationKind.AssociationEndpointService);
         _watcher.Added += (_, info) =>
         {
@@ -67,7 +70,17 @@ public sealed class DnssdBrowser : IDisposable
             Handle(info?.Properties ?? update.Properties);
         };
         // Пустые обработчики обязательны — иначе AEP-watcher бросает исключение.
-        _watcher.Removed += (_, update) => { lock (_lock) _known.Remove(update.Id); };
+        _watcher.Removed += (_, update) =>
+        {
+            string? ip = null;
+            var stillThere = false;
+            lock (_lock)
+            {
+                if (_known.Remove(update.Id, out var info)) ip = FirstIpv4(info.Properties);
+                if (ip is not null) stillThere = _known.Values.Any(k => FirstIpv4(k.Properties) == ip);
+            }
+            if (ip is not null && !stillThere) _onLost?.Invoke(ip);
+        };
         _watcher.EnumerationCompleted += (_, _) => { };
         _watcher.Stopped += (_, _) => { };
     }

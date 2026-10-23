@@ -16,11 +16,6 @@ using BumblebeeGcs.Logic;
 
 namespace BumblebeeGcs.Models;
 
-/// <summary>Дрон, к которому оператор уже подключался — «флот» между запусками.</summary>
-public sealed record KnownDrone(string Host, string Name)
-{
-    public string Name { get; set; } = Name;
-}
 
 /// <summary>Системные метрики Raspberry Pi (:8888 JSON).</summary>
 public struct SystemMetrics

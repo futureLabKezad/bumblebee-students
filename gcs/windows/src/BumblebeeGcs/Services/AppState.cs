@@ -61,32 +61,48 @@ public sealed class AppState
             return string.IsNullOrEmpty(DroneId) ? DroneHost : "Bumblebee-" + DroneId;
         }
     }
-    public string? LastHost => _settings.LastHost;
-    public List<KnownDrone> KnownDrones => _settings.KnownDrones;
+    /// <summary>Drones this PC connected to, most recent first (Logic/DiscoveryLogic.cs).</summary>
+    public IReadOnlyList<KnownDrone> KnownDrones => _settings.Fleet;
+    /// <summary>The last drone, for the connect screen's first card.</summary>
+    public KnownDrone? LastDrone => _settings.Fleet.FirstOrDefault();
+    /// <summary>Set when the drone answering at the address is not the one picked.</summary>
+    public string? IdentityMismatch { get; set; }
 
     public event Action? ConnectedChanged;
     /// <summary>Reconnect (Ctrl+R) was pressed: cameras reopen their streams too.</summary>
     public event Action? Reconnected;
+    /// <summary>The fleet changed (remembered or forgotten drone).</summary>
+    public event Action? FleetChanged;
+    /// <summary>IdentityMismatch was set: the shell asks whether to stay connected.</summary>
+    public event Action? IdentityMismatchFound;
 
     private readonly AppSettings _settings = AppSettings.Load();
+    private readonly DispatcherQueue _dq;
     /// <summary>Re-evaluates link/armed/alarms twice a second: staleness needs no message.</summary>
     private readonly DispatcherQueueTimer _monitor;
 
     public AppState(DispatcherQueue dq)
     {
+        _dq = dq;
+        if (_settings.MigrateFleet()) _settings.Save();
         Scanner = new DroneScanner(dq);
         Metrics = new MetricsClient(dq);
         Handoff = new WifiHandoff(dq, _settings);
         Ros = new RosbridgeClient(Telemetry, new DispatcherUiQueue(dq));
 
         Telemetry.AlarmRaised += AlertSound.Play;
+        // A drone is remembered only once it answered: a mistyped address or a device that
+        // is not a drone never becomes the "last drone".
+        Telemetry.ConnectionChanged += () => { if (Telemetry.RosConnected) RememberCurrent(); };
         _monitor = dq.CreateTimer();
         _monitor.Interval = TimeSpan.FromMilliseconds(500);
         _monitor.Tick += (_, _) => Telemetry.Evaluate(MonoClock.Now);
         _monitor.Start();
     }
 
-    public void Connect(string ip)
+    /// <param name="expectedId">The id of the drone picked (Last drone card, a DNS-SD row);
+    /// the id answering at ip is checked against it.</param>
+    public void Connect(string ip, string? expectedId = null)
     {
         ip = ip.Trim();
         if (ip.Length == 0) return;
@@ -99,31 +115,57 @@ public sealed class AppState
             Metrics.Clear();
             DroneId = null;
         }
+        IdentityMismatch = null;
         DroneHost = ip;
         Api.Host = ip;
         Ros.Connect(ip);
         Metrics.Start(ip);
         Connected = true;
-        _settings.LastHost = ip;
-        RememberDrone(ip);
-        _settings.Save();
         KeepAwake.Begin();
         ConnectedChanged?.Invoke();
+        _ = CheckIdentityAsync(ip, expectedId);
     }
 
-    /// <summary>Upsert дрона во «флот», по хосту. Bonjour-имя приоритетнее.</summary>
-    private void RememberDrone(string host)
+    /// <summary>Reads the id answering at host; remembers the drone when it answers.</summary>
+    private async Task CheckIdentityAsync(string host, string? expectedId)
     {
-        var name = Scanner.Found.FirstOrDefault(d => d.Ip == host)?.Name ?? host;
-        var existing = _settings.KnownDrones.FirstOrDefault(d => d.Host == host);
-        if (existing is not null)
+        DroneApi.WifiStatus status;
+        try { status = await Api.WifiStatusAsync(); }
+        catch { return; }
+        _dq.TryEnqueue(() =>
         {
-            if (name != host) existing.Name = name;
-        }
-        else
-        {
-            _settings.KnownDrones.Add(new KnownDrone(host, name));
-        }
+            if (host != DroneHost || !Connected) return;
+            if (status.Id is string id)
+            {
+                DroneId = id;
+                if (!string.IsNullOrEmpty(expectedId) && !string.Equals(expectedId, id, StringComparison.OrdinalIgnoreCase))
+                {
+                    var name = _settings.Fleet.FirstOrDefault(k => k.DroneId == expectedId.ToUpperInvariant())?.Name
+                               ?? "Bumblebee-" + expectedId;
+                    IdentityMismatch = ConnectIdentity.MismatchText(name, id);
+                    IdentityMismatchFound?.Invoke();
+                    return;
+                }
+            }
+            RememberCurrent();
+        });
+    }
+
+    /// <summary>Upsert the current drone into the fleet (by id when known).</summary>
+    private void RememberCurrent()
+    {
+        if (!Connected || DroneHost.Length == 0 || IdentityMismatch is not null) return;
+        _settings.Fleet = KnownFleet.Upsert(_settings.Fleet, DroneId, DroneName, DroneHost, DateTime.UtcNow);
+        _settings.Save();
+        FleetChanged?.Invoke();
+    }
+
+    /// <summary>"Forget" on the connect screen.</summary>
+    public void Forget(KnownDrone drone)
+    {
+        _settings.Fleet = KnownFleet.Forget(_settings.Fleet, drone.Key);
+        _settings.Save();
+        FleetChanged?.Invoke();
     }
 
     public void Reconnect()
@@ -140,6 +182,7 @@ public sealed class AppState
         Ros.Disconnect();
         Metrics.Stop();
         Connected = false;
+        IdentityMismatch = null;
         KeepAwake.End();
         ConnectedChanged?.Invoke();
     }

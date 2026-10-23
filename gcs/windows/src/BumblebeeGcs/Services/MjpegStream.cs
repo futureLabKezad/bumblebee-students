@@ -40,6 +40,7 @@ public sealed class MjpegStream
     private static readonly HttpClient Http = new(new SocketsHttpHandler
     {
         ConnectTimeout = TimeSpan.FromSeconds(5),
+        UseProxy = false,   // дрон в локальной сети, школьный прокси до него не дотянется
     })
     { Timeout = Timeout.InfiniteTimeSpan };
 
