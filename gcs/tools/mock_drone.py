@@ -150,12 +150,23 @@ class FakeNmcli:
         self.connections = ['netplan-wlan0-Classroom', 'bumblebee-hotspot']
         self.active = 'netplan-wlan0-Classroom'
 
-    def __call__(self, *args):
+    @staticmethod
+    def _name(ref):
+        """wifi_manager.py may name a profile by its uuid ("mock-uuid-<name>" here)."""
+        return ref[len('mock-uuid-'):] if ref.startswith('mock-uuid-') else ref
+
+    def __call__(self, *args, timeout=None):
+        if args[:1] == ('-w',):          # nmcli -w <secs> ...: the command itself
+            args = args[2:]
         say('nmcli', ' '.join(args))
         if args[:4] == ('-t', '-f', 'NAME', 'con'):
             return '\n'.join(self.connections)
         if args[:4] == ('-t', '-f', 'NAME,TYPE', 'con'):
             return '\n'.join(c + ':802-11-wireless' for c in self.connections)
+        if args[:4] == ('-t', '-f', 'UUID,NAME', 'con'):
+            return '\n'.join('mock-uuid-%s:%s' % (c, c) for c in self.connections)
+        if args[:2] == ('-g', 'connection.uuid'):
+            return 'mock-uuid-' + self._name(args[-1])
         if args[:4] == ('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device'):
             return 'wlan0:connected:%s' % self.active
         if args[:4] == ('-t', '-f', 'IP4.ADDRESS', 'device'):
@@ -166,8 +177,20 @@ class FakeNmcli:
             return '*:80:Classroom'
         if args[:2] == ('con', 'add'):
             self.connections.insert(0, args[args.index('con-name') + 1])
+        if args[:2] == ('con', 'clone'):     # a new password waits in a pending copy
+            self.connections.insert(0, args[3])
+        if args[:2] == ('con', 'modify') and 'connection.id' in args:
+            old, new = self._name(args[2]), args[args.index('connection.id') + 1]
+            self.connections = [new if c == old else c for c in self.connections]
+            self.active = new if self.active == old else self.active
+        if args[:2] == ('con', 'delete'):
+            name = self._name(args[2])
+            if name in self.connections:
+                self.connections.remove(name)
+            if self.active == name:          # the drone falls back to its hotspot
+                self.active = 'bumblebee-hotspot'
         if args[:2] in (('con', 'up'), ('connection', 'up')):
-            self.active = args[2]
+            self.active = self._name(args[2])
         return ''
 
 
@@ -258,9 +281,14 @@ def main():
     wm.nmcli = FakeNmcli()
     wm._drone, wm._LED_OK = fake_drone, True
     wm.ANIM_DIR = os.path.join(PKG, 'examples', 'animations')
-    wm.WIFI_SWITCH_MARKER = os.path.join(tmp, 'wifi-switch')
+    for marker, name in (('WIFI_SWITCH_MARKER', 'wifi-switch'), ('HOTSPOT_PIN_MARKER', 'hotspot-pinned'),
+                         ('WIFI_FAILED_LOG', 'wifi-failed'), ('LAST_ERROR_FILE', 'wifi-last-error.json')):
+        setattr(wm, marker, os.path.join(tmp, name))   # per run, not the Mac's /tmp
     wm._hotspot_ssid = lambda: 'Bumblebee-' + HWID
     wm.make_app().listen(8765, address=args.host)
+    # as the service does: FC state polled every second (a link lost while
+    # armed keeps counting as armed), pending Wi-Fi profiles settled
+    wm.start_background(tornado.ioloop.IOLoop.current())
 
     tornado.web.Application([(r'/', Rosbridge)]).listen(9090, address=args.host)
     tornado.web.Application([(r'/mock/(state|set)', ControlHandler)]).listen(

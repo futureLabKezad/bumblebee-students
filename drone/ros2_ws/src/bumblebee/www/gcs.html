@@ -874,10 +874,30 @@ connectROS();
   });
   var last = 0;
   var tail = null;
+  // A refused LED change goes to Messages, in clear text: drones from 1.0.2
+  // send a stable "code", older ones only "error". At most once in 5 s, as
+  // the wheel sends many changes while it is dragged.
+  var lastErr = '', lastErrAt = 0;
+  function ledError(xhr) {
+    var d = {};
+    try { d = JSON.parse(xhr.responseText) || {}; } catch (e) {}
+    var text;
+    switch (d.code) {
+      case 'led_unavailable': text = 'LED: the LED driver did not load on the drone (see its log)'; break;
+      case 'led_failed': text = 'LED: setting the colour failed on the drone (see its log)'; break;
+      default: text = 'LED error: ' + (d.error || ('HTTP ' + xhr.status));
+    }
+    var now = new Date().getTime();
+    if (text === lastErr && now - lastErrAt < 5000) return;
+    lastErr = text;
+    lastErrAt = now;
+    addLog(text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+  }
   function send(rgb) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/led/color', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() { if (xhr.status !== 200) ledError(xhr); };
     xhr.send(JSON.stringify({r: rgb.r, g: rgb.g, b: rgb.b}));
   }
   picker.on('color:change', function(c) {
@@ -894,6 +914,7 @@ connectROS();
   document.getElementById('ledreset').addEventListener('click', function(){
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/led/reset', true);
+    xhr.onload = function() { if (xhr.status !== 200) ledError(xhr); };
     xhr.send();
   });
 })();
