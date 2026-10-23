@@ -78,6 +78,12 @@ class RestPaths(unittest.TestCase):
     def test_doc_comment_paths_are_ignored(self):
         self.assertEqual(problems('/// `/api/wifi/*` backend'), [])
 
+    def test_star_in_a_doc_comment_does_not_hide_the_rest(self):
+        # "/api/*" holds "/*": it once opened a block comment that never closed,
+        # so nothing after it in DroneAPI.swift was checked.
+        text = '/// HTTP client for the drone\'s `/api/*` endpoints\ntry await ok("POST", "/api/fcu/arm")'
+        self.assertTrue(problems(text))
+
 
 class WholeTree(unittest.TestCase):
     def test_current_apps_pass(self):

@@ -47,7 +47,7 @@ ALLOWED_API = {
     '/api/wifi/status', '/api/wifi/scan', '/api/wifi/networks', '/api/wifi/save',
     '/api/wifi/apply-now', '/api/wifi/apply-boot', '/api/wifi/network', '/api/wifi/mode',
     '/api/led/color', '/api/led/animation', '/api/led/status', '/api/led/reset',
-    '/api/fcu/status',
+    '/api/fcu/status', '/api/info',
     '/api/sounds/play', '/api/sounds/tts',
 }
 
@@ -107,9 +107,12 @@ def check_text(path, text):
             if end < 0:
                 continue
             line, in_block = line[end + 2:], False
-        start = line.find('/*')
-        if start >= 0 and line.find('*/', start) < 0 and '"' not in line[:start]:
-            line, in_block = line[:start], True
+        # A block comment starts in code only: "/*" inside a // comment (say
+        # "`/api/*` endpoints" in a doc comment) must not hide the rest of the file.
+        head = strip_comment(line)
+        start = head.find('/*')
+        if start >= 0 and head.find('*/', start) < 0 and '"' not in head[:start]:
+            line, in_block = head[:start], True
         allowed = ALLOW_MARK in raw
         code = strip_comment(line)
         for rx in OP_PATTERNS:
