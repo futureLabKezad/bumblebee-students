@@ -14,12 +14,21 @@
 # limitations under the License.
 
 """victory — show: golden chase around the ring (+ fanfare, played by wifi_manager)."""
-import _show
-from _show import drone
+import os
+import sys
+
+sys.path.insert(0, '/home/lb/ros2_ws/src/bumblebee/examples')
+import drone  # noqa: E402
+# _show.py, the shared LED helper: next to this script, or else the copy
+# installed beside drone.py (examples/animations/) for a script copied alone.
+# sim-run (runpy.run_path) does not put this script's folder on sys.path.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(drone.__file__)), 'animations'))
+import _show  # noqa: E402
 
 GOLD = (245, 200, 66)
 DIM = (40, 28, 6)
-STEP_S = 0.12
+STEP_S = 0.2   # each strip lights every 3 steps: 1.7 flashes/s (limit 3)
 
 
 def frame(t):

@@ -11,7 +11,7 @@ Example flight scripts for the Bumblebee platform, extracted from the drone's sy
 | `flight/flight_marker_loop.py` | Loop over several markers |
 | `flight/navigate_wait.py` | Low-level `navigate_wait` usage |
 | `flight/example_flight.py` | Multi-waypoint mission |
-| `animations/` | LED strip animations (fire, police, rainbow, strobe, …). The newer LED/sound shows (party, siren, alarm, victory, rainbow theater) are in `drone/ros2_ws/src/bumblebee/examples/animations/` |
+| `animations/` | LED strip animations (fire, police, rainbow, strobe, …), with their shared helper `_show.py` (keep it next to them). None flashes more than 3 times per second, and they pause while the drone shows a "flight controller lost" or "low battery" alarm. The newer LED/sound shows (party, siren, alarm, victory, rainbow theater) are in `drone/ros2_ws/src/bumblebee/examples/animations/` |
 | `misc/` | Small utilities: telemetry, camera, ArUco check, LED, servo, tunes, preflight |
 
 ## Running
@@ -27,6 +27,13 @@ sim-run flight.py
 ```bash
 scp flight/flight.py lb@bumblebee-xxxx.local:~/
 ssh lb@bumblebee-xxxx.local python3 flight.py
+```
+
+**LED animations** (`animations/`) use the helper `_show.py`. An animation finds it in its own folder (so `sim-run animations/strobe.py`, or copy `_show.py` along with it), and otherwise uses the drone's installed copy in `~/ros2_ws/src/bumblebee/examples/animations/`, so a single animation copied to `~/` on the drone runs as it is (it runs until you stop it with Ctrl+C; `-t` passes Ctrl+C on to it):
+
+```bash
+scp animations/strobe.py lb@bumblebee-xxxx.local:~/
+ssh -t lb@bumblebee-xxxx.local python3 strobe.py
 ```
 
 Full documentation: [Programming Introduction](https://github.com/futureLabKezad/bumblebee-students/wiki/Programming‐Introduction) · [Code Examples](https://github.com/futureLabKezad/bumblebee-students/wiki/Code‐Examples)
