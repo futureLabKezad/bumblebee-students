@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using Microsoft.UI;
+using BumblebeeGcs.Logic;
 using BumblebeeGcs.Services;
 using BumblebeeGcs.Theme;
 using Microsoft.UI.Xaml;
@@ -519,8 +520,22 @@ public sealed class ProvisioningDialog : ContentDialog
         }
         _needPassword = false;
         _lastDrone = drone;
-        CredentialStore.SetPassword(_password.Password, home);
-        _ = _handoff.ProvisionAsync(drone, home, _password.Password, _ => { });
+        _ = ProvisionAndRememberAsync(drone, home, _password.Password);
+    }
+
+    /// <summary>The password is remembered only once the drone has shown it is right.</summary>
+    private async Task ProvisionAndRememberAsync(string drone, string home, string password)
+    {
+        await _handoff.ProvisionAsync(drone, home, password, _ => { });
+        string? failure;
+        if (_handoff.Phase == WifiHandoff.PhaseKind.Done) failure = null;
+        else if (_handoff.Phase == WifiHandoff.PhaseKind.Failed && _handoff.LastFailure is { } f) failure = f.Kind.ToString();
+        else return;
+        switch (PasswordMemoryRule.After(failure))
+        {
+            case PasswordMemory.Save: CredentialStore.SetPassword(password, home); break;
+            case PasswordMemory.Forget: CredentialStore.SetPassword("", home); break;
+        }
     }
 
     private void Direct(string drone) => _ = _handoff.ConnectDirectAsync(drone, _ => { });

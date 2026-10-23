@@ -84,6 +84,17 @@ final class AppState: ObservableObject {
     @Published var knownDrones: [KnownDrone] = AppState.loadKnown()
     /// Bumped by Reconnect so the camera views reopen their streams too.
     @Published var videoEpoch = 0
+    /// Id of the drone this session talks to (last 4 hex digits of its MAC, as
+    /// in Bonjour TXT and /api/wifi/status); nil until known or on drone
+    /// software without one. Settings refuses changes when another id answers.
+    @Published var droneID: String?
+
+    /// The drone's name for confirmations and messages.
+    var droneName: String {
+        if let n = scanner.found.first(where: { $0.ip == droneHost })?.name, n != droneHost { return n }
+        if let id = droneID, !id.isEmpty { return "Bumblebee-\(id)" }
+        return droneHost
+    }
 
     private var activity: NSObjectProtocol?
     private static let knownKey = "knownDrones"
@@ -96,6 +107,7 @@ final class AppState: ObservableObject {
         if ConnectKind.of(previousHost: droneHost, newHost: ip) == .newDrone {
             telemetry.resetAll()
             metrics.reset()
+            droneID = nil
         }
         droneHost = ip
         api.host = ip

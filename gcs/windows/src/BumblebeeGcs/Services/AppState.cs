@@ -30,6 +30,21 @@ public sealed class AppState
 
     public string DroneHost { get; private set; } = "";
     public bool Connected { get; private set; }
+    /// <summary>Id of the drone this session talks to (last 4 hex digits of its MAC, as in DNS-SD
+    /// TXT and /api/wifi/status); null until known or on drone software without one. Settings
+    /// refuses changes when another id answers.</summary>
+    public string? DroneId { get; set; }
+
+    /// <summary>The drone's name for confirmations and messages.</summary>
+    public string DroneName
+    {
+        get
+        {
+            var n = Scanner.Found.FirstOrDefault(d => d.Ip == DroneHost)?.Name;
+            if (!string.IsNullOrEmpty(n) && n != DroneHost) return n;
+            return string.IsNullOrEmpty(DroneId) ? DroneHost : "Bumblebee-" + DroneId;
+        }
+    }
     public string? LastHost => _settings.LastHost;
     public List<KnownDrone> KnownDrones => _settings.KnownDrones;
 
@@ -65,6 +80,7 @@ public sealed class AppState
         {
             Telemetry.ResetAll(MonoClock.Now);
             Metrics.Clear();
+            DroneId = null;
         }
         DroneHost = ip;
         Api.Host = ip;

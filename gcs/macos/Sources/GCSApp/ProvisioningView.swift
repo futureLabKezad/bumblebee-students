@@ -358,11 +358,22 @@ struct ProvisioningView: View {
         needPassword = false
         editingPassword = false
         lastDrone = drone
-        AppKeychain.setPassword(password, for: homeWifi)
         let target = homeWifi, pass = password
         Task {
             await handoff.provision(hotspotSSID: drone, targetSSID: target,
                                     targetPassword: pass, onDrone: { _ in })
+            // Remember the password only once the drone has shown it is right.
+            let failure: WifiHandoff.Failure.Kind?
+            switch handoff.phase {
+            case .done: failure = nil
+            case .failed(let f): failure = f.kind
+            default: return
+            }
+            switch PasswordMemory.after(failure: failure) {
+            case .save: AppKeychain.setPassword(pass, for: target)
+            case .forget: AppKeychain.remove(for: target)
+            case .keep: break
+            }
         }
     }
 

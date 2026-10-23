@@ -172,7 +172,10 @@ class FakeNmcli:
         if args[:4] == ('-t', '-f', 'IP4.ADDRESS', 'device'):
             return 'IP4.ADDRESS[1]:192.168.1.50/24'
         if 'IN-USE,SSID,SIGNAL,SECURITY,FREQ' in args:
-            return '*:Classroom:80:WPA2:2437 MHz\n:Office:55:WPA2:5180 MHz'
+            # a protected, an open network and another drone's hotspot (Settings shows
+            # a lock, no password field and no Connect respectively)
+            return ('*:Classroom:80:WPA2:2437 MHz\n:Office:55:WPA2:5180 MHz\n'
+                    ':Cafe:50::2462 MHz\n:Bumblebee-ABCD:60:WPA2:2412 MHz')
         if 'list' in args:
             return '*:80:Classroom'
         if args[:2] == ('con', 'add'):

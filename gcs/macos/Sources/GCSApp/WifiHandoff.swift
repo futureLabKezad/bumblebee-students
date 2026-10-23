@@ -357,11 +357,11 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
         return nil
     }
 
-    /// Wait for the provisioned drone to appear via Bonjour, returning its IP.
-    /// With an id (current drone software) only that exact drone is accepted —
-    /// never another team's drone. Without one (older drone software, no id in
-    /// its status or TXT record) the first drone without an id is taken, as before.
-    private static func waitForDrone(expectedID: String?, timeout: TimeInterval = 60) async -> String? {
+    /// Wait for the provisioned (or re-networked) drone to appear via Bonjour,
+    /// returning its IP. With an id (current drone software) only that exact
+    /// drone is accepted, never another team's drone. Without one (older drone
+    /// software) see DroneMatch: drones already on the network do not count.
+    static func waitForDrone(expectedID: String?, timeout: TimeInterval = 60) async -> String? {
         await withCheckedContinuation { cont in
             Task { @MainActor in
                 var resumed = false
@@ -370,9 +370,13 @@ final class WifiHandoff: NSObject, ObservableObject, CLLocationManagerDelegate {
                     resumed = true
                     cont.resume(returning: ip)
                 }
+                let started = Date()
                 let browser = BonjourDroneBrowser(
                     onFound: { ip, _, id in
-                        if id == expectedID { finish(ip) }
+                        if DroneMatch.accepts(expectedID: expectedID, foundID: id,
+                                              secondsSinceStart: Date().timeIntervalSince(started)) {
+                            finish(ip)
+                        }
                     },
                     // The drone's own hotspot address is a stale record from
                     // before the switch. Resolve again until the new one shows.

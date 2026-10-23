@@ -53,6 +53,8 @@ public static class IconGlyphs
     public const string Bookmark      = "\uE74E"; // bookmark.fill -> Save
     public const string Add           = "\uE710"; // plus.circle -> Add
     public const string Key           = "\uE8D7"; // key -> Permissions
+    public const string Lock          = "\uE72E"; // lock.fill -> Lock
+    public const string Unlock        = "\uE785"; // lock.open -> Unlock
     public const string ChevronRight  = "\uE76C"; // chevron.right
     public const string LocationOff   = "\uE81D"; // location.slash -> Location (text explains)
     public const string Info          = "\uE946"; // info.circle

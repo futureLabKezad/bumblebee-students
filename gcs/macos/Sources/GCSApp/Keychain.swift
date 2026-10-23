@@ -37,6 +37,16 @@ enum AppKeychain {
         return String(data: data, encoding: .utf8)
     }
 
+    static func remove(for ssid: String) {
+        guard !ssid.isEmpty else { return }
+        let account: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: ssid,
+        ]
+        SecItemDelete(account as CFDictionary)
+    }
+
     static func setPassword(_ password: String, for ssid: String) {
         guard !ssid.isEmpty else { return }
         let account: [String: Any] = [
