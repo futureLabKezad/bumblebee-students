@@ -38,7 +38,12 @@ public sealed partial class MainWindow : Window
         SetupShortcuts();
 
         App.State.ConnectedChanged += RefreshRoot;
-        Closed += (_, _) => App.State.ConnectedChanged -= RefreshRoot;
+        Closed += (_, _) =>
+        {
+            App.State.ConnectedChanged -= RefreshRoot;
+            // A show this session started stops with the app (the drone's 2-minute limit is the backstop).
+            App.State.StopOwnLedAnimation(waitMs: 1500);
+        };
 
         // Короткий статичный boot-экран; скан сети уже запущен в App.OnLaunched,
         // так что дроны успевают появиться, пока висит сплэш.

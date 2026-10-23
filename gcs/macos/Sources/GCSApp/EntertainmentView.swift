@@ -15,31 +15,31 @@
 import SwiftUI
 import AppKit
 
+/// LEDs, shows, buzzer and speech. What runs on the drone comes from
+/// GET /api/led/status (polled while this screen is open), not from what this
+/// screen last sent: switching sections, another laptop or the drone's own
+/// 2-minute limit all show up here. Decisions in EntertainmentLogic.swift.
 struct EntertainmentView: View {
     @EnvironmentObject var app: AppState
+    @EnvironmentObject var telemetry: TelemetryStore
 
     @State private var color: Color = .white
-    @State private var activeAnim: String?
     @State private var isOn = true
     @State private var lastState: LEDState = .color(255, 255, 255)
     @State private var colorTask: Task<Void, Never>?
+    @State private var led: DroneAPI.LedStatus?
+    @State private var ledMsg: (text: String, kind: StatusBanner.Kind)?
 
     @State private var customTune = ""
     @State private var customFmt = "QBASIC"
-    @State private var soundMsg = ""
+    @State private var soundMsg: (text: String, kind: StatusBanner.Kind)?
 
     @State private var ttsText = ""
     @State private var ttsLang = "en"
-    @State private var ttsOut = ""
+    @State private var ttsOut: (text: String, kind: StatusBanner.Kind)?
 
     enum LEDState { case color(Int, Int, Int); case anim(String); case none }
 
-    private let animations = ["breathing", "rainbow", "police", "strobe", "fire", "theater",
-                              "rainbow_theater"]
-    // Shows drive the LEDs and a looping PX4 buzzer melody from one process on
-    // the drone. Same /api/led/animation endpoint -- only one can run at a time,
-    // which is why they share `activeAnim` with the plain animations above.
-    private let shows = ["party", "siren", "alarm", "victory"]
     /// Each glyph describes what the strips actually do, so the grid is scannable
     /// without reading. Police and Siren share the beacon deliberately — outline
     /// for the silent one, filled for the show that adds the wail.
@@ -68,6 +68,10 @@ struct EntertainmentView: View {
     ]
     private let languages = ["en", "ru", "de", "fr", "es"]
 
+    /// The animation running on the drone now (nil: none, or not known yet).
+    private var running: String? { led?.animation }
+    private var soundBlocked: String? { SoundGate.blockedReason(armed: telemetry.armed) }
+
     var body: some View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: Theme.s4)], spacing: Theme.s4) {
@@ -82,7 +86,10 @@ struct EntertainmentView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Theme.appGradient)
+        .task { await pollLedStatus() }
     }
+
+    // MARK: - Panels
 
     private var ledPanel: some View {
         Panel(title: "LED Color", icon: "paintpalette") {
@@ -92,36 +99,53 @@ struct EntertainmentView: View {
                 Text(hexString).font(Theme.mono).foregroundStyle(Theme.muted)
                 Spacer()
                 Button(isOn ? "Off" : "On") { toggleOnOff() }.buttonStyle(GhostButtonStyle())
-                Button("Reset") { run { try await app.api.ledReset(); activeAnim = nil; lastState = .none } }
-                    .buttonStyle(GhostButtonStyle())
+                Button("Reset") { stop() }.buttonStyle(GhostButtonStyle())
+                    .help("Stop colours and animations; the drone shows its own status lights again")
             }
+            if let m = ledMsg { StatusBanner(text: m.text, kind: m.kind) }
         }
     }
 
     private var animPanel: some View {
-        Panel(title: "Animations", icon: "sparkles") {
-            animGrid(animations)
+        Panel(title: "Animations", icon: "sparkles", note: runningNote(in: LedCatalog.animations)) {
+            animGrid(LedCatalog.animations)
+            stopRow(for: LedCatalog.animations)
         }
     }
 
     private var showsPanel: some View {
-        Panel(title: "Shows (Light + Sound)", icon: "music.note.list") {
-            animGrid(shows, sound: true)
+        Panel(title: "Shows (Light + Sound)", icon: "music.note.list", note: runningNote(in: LedCatalog.shows)) {
+            animGrid(LedCatalog.shows, sound: true)
+            stopRow(for: LedCatalog.shows)
+        }
+    }
+
+    /// "rainbow · stops by itself in 1:45" while one of `names` runs.
+    private func runningNote(in names: [String]) -> String? {
+        guard let r = running, names.contains(r) else { return nil }
+        return [LedCatalog.label(r), LedText.remaining(led?.remaining)].compactMap { $0 }.joined(separator: " · ")
+    }
+
+    @ViewBuilder private func stopRow(for names: [String]) -> some View {
+        if let r = running, names.contains(r) {
+            HStack {
+                Button { stop() } label: { Label("Stop \(LedCatalog.label(r))", systemImage: "stop.fill") }
+                    .buttonStyle(GhostButtonStyle())
+                Spacer()
+            }
         }
     }
 
     private func animGrid(_ names: [String], sound: Bool = false) -> some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: Theme.s2)], spacing: Theme.s2) {
             ForEach(names, id: \.self) { name in
-                ChipButton(label: label(name),
+                ChipButton(label: LedCatalog.label(name),
                            icon: icons[name] ?? "sparkles",
-                           selected: activeAnim == name,
+                           selected: running == name,
                            fullWidth: true,
                            badge: sound ? "speaker.wave.2.fill" : nil) {
-                    run {
-                        try await app.api.ledAnimation(name)
-                        activeAnim = name; lastState = .anim(name); isOn = true
-                    }
+                    // A second click on the running one stops it.
+                    if running == name { stop() } else { start(name) }
                 }
             }
         }
@@ -129,50 +153,78 @@ struct EntertainmentView: View {
 
     private var soundsPanel: some View {
         Panel(title: "Buzzer", icon: "speaker.wave.2.fill") {
+            if let why = soundBlocked { StatusBanner(text: why, kind: .caution) }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: Theme.s2)], spacing: Theme.s2) {
                 ForEach(presets, id: \.0) { (name, tune, fmt) in
-                    Button(name) { run { _ = try await app.api.playTune(tune, format: fmt); soundMsg = "played \(name)" } }
+                    Button(name) { play(tune, fmt, label: name) }
                         .buttonStyle(GhostButtonStyle())
                         .frame(maxWidth: .infinity)
+                        .disabled(soundBlocked != nil)
                 }
             }
             GlassTextField(placeholder: "Custom tune", text: $customTune)
             HStack {
                 SegmentedTabs(options: [("QBASIC", "QBASIC"), ("MML", "MML")], selection: $customFmt)
-                Button("Play Tune") {
-                    run { let r = try await app.api.playTune(customTune, format: customFmt)
-                          soundMsg = (r["error"] as? String) ?? "played" }
-                }.buttonStyle(AccentButtonStyle()).disabled(customTune.isEmpty)
+                Button("Play Tune") { play(customTune, customFmt, label: "custom tune") }
+                    .buttonStyle(AccentButtonStyle()).disabled(customTune.isEmpty || soundBlocked != nil)
                 Spacer()
             }
-            if !soundMsg.isEmpty { StatusBanner(text: soundMsg, kind: soundMsg.hasPrefix("error") ? .error : .success) }
+            if let m = soundMsg { StatusBanner(text: m.text, kind: m.kind) }
         }
     }
 
     private var ttsPanel: some View {
         Panel(title: "Speech (TTS)", icon: "text.bubble") {
+            if let why = soundBlocked { StatusBanner(text: why, kind: .caution) }
             GlassTextField(placeholder: "Text to speak", text: $ttsText)
             SegmentedTabs(options: languages.map { (label: $0.uppercased(), value: $0) }, selection: $ttsLang)
             HStack {
-                Button("Speak") {
-                    run { let r = try await app.api.tts(text: ttsText, lang: ttsLang)
-                          let tune = (r["tune"] as? String) ?? ""
-                          let ph = (r["phonemes"] as? String).map { " · \($0)" } ?? ""
-                          ttsOut = String((tune + ph).prefix(230)) }
-                }.buttonStyle(AccentButtonStyle()).disabled(ttsText.isEmpty)
+                Button("Speak") { speak() }
+                    .buttonStyle(AccentButtonStyle()).disabled(ttsText.isEmpty || soundBlocked != nil)
                 Spacer()
             }
-            if !ttsOut.isEmpty { StatusBanner(text: ttsOut, kind: .info) }
+            if let m = ttsOut { StatusBanner(text: m.text, kind: m.kind) }
         }
     }
 
-    // MARK: - Helpers
+    // MARK: - LED actions
 
-    /// Drone-side animation names are lowercase single tokens ("rainbow_theater").
-    private func label(_ name: String) -> String {
-        name.replacingOccurrences(of: "_", with: " ").capitalized
+    private func pollLedStatus() async {
+        while !Task.isCancelled {
+            if let s = try? await app.api.ledStatus() {
+                led = s
+                if s.animation == nil { app.startedLedAnimation = false }
+            }
+            try? await Task.sleep(nanoseconds: 2_500_000_000)
+        }
     }
 
+    private func start(_ name: String) {
+        Task {
+            do {
+                try await app.api.ledAnimation(name)
+                app.startedLedAnimation = true
+                lastState = .anim(name); isOn = true
+                ledMsg = nil
+                led = (try? await app.api.ledStatus()) ?? led
+            } catch { ledMsg = (DroneAPI.describe(error), .error) }
+        }
+    }
+
+    /// Reset: stops any animation or colour; the drone's status lights return.
+    private func stop() {
+        Task {
+            do {
+                try await app.api.ledReset()
+                app.startedLedAnimation = false
+                lastState = .none
+                ledMsg = nil
+                led = (try? await app.api.ledStatus()) ?? led
+            } catch { ledMsg = (DroneAPI.describe(error), .error) }
+        }
+    }
+
+    /// Drone-side animation names are lowercase single tokens ("rainbow_theater").
     private var rgb: (Int, Int, Int) {
         let ns = NSColor(color).usingColorSpace(.sRGB) ?? .white
         return (Int((ns.redComponent * 255).rounded()),
@@ -190,28 +242,58 @@ struct EntertainmentView: View {
         colorTask = Task {
             try? await Task.sleep(nanoseconds: 120_000_000)
             if Task.isCancelled { return }
-            try? await app.api.ledColor(r: r, g: g, b: b)
-            await MainActor.run { activeAnim = nil; lastState = .color(r, g, b); isOn = true }
-        }
-    }
-
-    private func toggleOnOff() {
-        if isOn {
-            run { try await app.api.ledColor(r: 0, g: 0, b: 0); isOn = false }
-        } else {
-            isOn = true
-            switch lastState {
-            case .anim(let n): run { try await app.api.ledAnimation(n) }
-            case .color(let r, let g, let b): run { try await app.api.ledColor(r: r, g: g, b: b) }
-            case .none: run { try await app.api.ledReset() }
+            do {
+                try await app.api.ledColor(r: r, g: g, b: b)
+                // A colour replaces the animation on the drone.
+                app.startedLedAnimation = false
+                lastState = .color(r, g, b); isOn = true
+                ledMsg = nil
+                led = (try? await app.api.ledStatus()) ?? led
+            } catch {
+                ledMsg = (DroneAPI.describe(error), .error)
             }
         }
     }
 
-    private func run(_ op: @escaping () async throws -> Void) {
+    private func toggleOnOff() {
         Task {
-            do { try await op() }
-            catch { await MainActor.run { soundMsg = "error: \(error.localizedDescription)" } }
+            do {
+                if isOn {
+                    try await app.api.ledColor(r: 0, g: 0, b: 0)
+                    app.startedLedAnimation = false
+                    isOn = false
+                } else {
+                    switch lastState {
+                    case .anim(let n): try await app.api.ledAnimation(n); app.startedLedAnimation = true
+                    case .color(let r, let g, let b): try await app.api.ledColor(r: r, g: g, b: b)
+                    case .none: try await app.api.ledReset()
+                    }
+                    isOn = true
+                }
+                ledMsg = nil
+                led = (try? await app.api.ledStatus()) ?? led
+            } catch { ledMsg = (DroneAPI.describe(error), .error) }
+        }
+    }
+
+    // MARK: - Sound actions
+
+    private func play(_ tune: String, _ fmt: String, label: String) {
+        Task {
+            do {
+                try await app.api.playTune(tune, format: fmt)
+                soundMsg = (LedText.sent(label), .success)
+            } catch { soundMsg = (DroneAPI.describe(error), .error) }
+        }
+    }
+
+    private func speak() {
+        let text = ttsText, lang = ttsLang
+        Task {
+            do {
+                try await app.api.tts(text: text, lang: lang)
+                ttsOut = (LedText.sent("\"\(text)\""), .success)
+            } catch { ttsOut = (DroneAPI.describe(error), .error) }
         }
     }
 }

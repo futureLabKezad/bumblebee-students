@@ -179,31 +179,101 @@ static async Task ApiServer(SimState sim)
     {
         var ctx = await listener.GetContextAsync();
         var path = ctx.Request.Url?.AbsolutePath ?? "/";
+        var method = ctx.Request.HttpMethod;
         string reqBody = "";
         if (ctx.Request.HasEntityBody)
             using (var r = new StreamReader(ctx.Request.InputStream))
                 reqBody = await r.ReadToEndAsync();
-        Console.WriteLine($"[8765] {ctx.Request.HttpMethod} {path} {reqBody}");
+        Console.WriteLine($"[8765] {method} {path} {reqBody}");
+        JsonElement body = default;
+        try { body = JsonDocument.Parse(reqBody.Length > 0 ? reqBody : "{}").RootElement.Clone(); } catch { }
 
-        object response = path switch
-        {
-            "/api/wifi/status" => new { mode = "client", ssid = "SimNet-5G", ip = "127.0.0.1", signal = 78 },
-            "/api/wifi/scan" => new object[]
-            {
-                new { ssid = "SimNet-5G", signal = 78, in_use = true, band = "5", freq = 5300 },
-                new { ssid = "HomeWifi", signal = 55, in_use = false, band = "2.4", freq = 2412 },
-                new { ssid = "Neighbor6E", signal = 23, in_use = false, band = "6", freq = 5955 },
-            },
-            "/api/wifi/networks" => new object[] { new { name = "SimNet-5G" }, new { name = "FieldRouter" } },
-            "/api/sounds/tts" => new { tune = "MFT180L8O5CDEFG", phonemes = "k-o-t" },
-            "/api/sounds/play" => new { ok = true },
-            "/api/fcu/status" => sim.FcuStatus(),
-            _ => new { ok = true },
-        };
+        var (status, response) = Api(sim, method, path, body);
         var data = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+        ctx.Response.StatusCode = status;
         ctx.Response.ContentType = "application/json";
         await ctx.Response.OutputStream.WriteAsync(data);
         ctx.Response.Close();
+    }
+}
+
+/// <summary>
+/// The drone's REST API as image 1.0.2 answers it (wifi_manager.py): error replies carry a
+/// stable code; Wi-Fi changes and sounds need a fresh, linked, disarmed FC ("unknown = armed");
+/// the network in use is removed only with confirm_active; animations stop after 120 s.
+/// </summary>
+static (int Status, object Body) Api(SimState sim, string method, string path, JsonElement body)
+{
+    static (int, object) Fail(int status, string code, string error) => (status, new { error, code });
+    string Field(string key) =>
+        body.ValueKind == JsonValueKind.Object && body.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.String
+            ? v.GetString() ?? "" : "";
+    (int, object)? Refusal() => sim.FcuFlightState() switch
+    {
+        "disarmed" => null,
+        "armed" => Fail(409, "armed", "the drone is armed: refused until it is disarmed"),
+        _ => Fail(503, "fc_unknown", "flight controller state unknown (not linked, or no fresh state), so it counts as armed"),
+    };
+    bool Protected(string n) => n.Trim().ToLowerInvariant() is var l &&
+                                (l == "bumblebee-hotspot" || l.StartsWith("bumblebee-") || l.EndsWith(".bb-pending"));
+
+    switch (path)
+    {
+        case "/api/wifi/status":
+            return (200, new { mode = "client", ssid = "SimNet-5G", ip = "127.0.0.1", signal = 78, id = SimState.Id });
+        case "/api/info":
+            return (200, new { name = "Bumblebee-" + SimState.Id, id = SimState.Id, version = "SimDrone", ros_domain = (int?)null, contract = 1 });
+        case "/api/wifi/scan":
+            return (200, new object[]
+            {
+                new { ssid = "SimNet-5G", signal = 78, security = "WPA2", in_use = true, band = "5", freq = 5300 },
+                new { ssid = "HomeWifi", signal = 55, security = "WPA2", in_use = false, band = "2.4", freq = 2412 },
+                new { ssid = "Cafe", signal = 40, security = "", in_use = false, band = "2.4", freq = 2462 },
+                new { ssid = "Bumblebee-ABCD", signal = 60, security = "WPA2", in_use = false, band = "2.4", freq = 2437 },
+                new { ssid = "Neighbor6E", signal = 23, security = "WPA3", in_use = false, band = "6", freq = 5955 },
+            });
+        case "/api/wifi/networks":
+            return (200, new object[] { new { name = "SimNet-5G" }, new { name = "FieldRouter" } });
+        case "/api/wifi/save" or "/api/wifi/apply-now" or "/api/wifi/apply-boot":
+        {
+            var ssid = Field("ssid").Trim();
+            if (ssid.Length == 0) return Fail(400, "ssid_required", "ssid required");
+            var pass = Field("password");
+            if (path == "/api/wifi/save" && pass.Length > 0 && (Encoding.UTF8.GetByteCount(pass) is < 8 or > 64))
+                return Fail(400, "bad_password_length", "a Wi-Fi password has 8 to 63 characters (or is exactly 64 hex digits)");
+            if (Protected(ssid)) return Fail(409, "protected_network", $"'{ssid}' is the drones' own setup hotspot");
+            if (Refusal() is { } r) return r;
+            return (200, path == "/api/wifi/save" ? new { ok = true, pending = pass.Length > 0 } : new { ok = true });
+        }
+        case "/api/wifi/network":
+        {
+            var ssid = Field("ssid").Trim();
+            if (Protected(ssid)) return Fail(409, "protected_network", $"'{ssid}' is the drones' own setup hotspot");
+            if (Refusal() is { } r) return r;
+            var confirmed = body.ValueKind == JsonValueKind.Object && body.TryGetProperty("confirm_active", out var c) &&
+                            c.ValueKind == JsonValueKind.True;
+            if (ssid == "SimNet-5G" && !confirmed)
+                return Fail(409, "active_network", $"'{ssid}' is the network the drone is using right now");
+            return (200, confirmed ? new { ok = true, deferred = true } : new { ok = true });
+        }
+        case "/api/wifi/mode":
+            return Refusal() ?? (200, new { ok = true, mode = Field("mode") });
+        case "/api/led/animation":
+            sim.StartAnimation(Field("name"));
+            return (200, new { ok = true, name = Field("name"), pid = 4242, max_s = SimState.ShowMaxS });
+        case "/api/led/color" or "/api/led/reset":
+            sim.StopAnimation();
+            return (200, new { ok = true });
+        case "/api/led/status":
+            return (200, sim.LedStatus());
+        case "/api/sounds/tts":
+            return Refusal() ?? (200, new { ok = true, tune = "MFT180L8O5CDEFG", phonemes = "k-o-t" });
+        case "/api/sounds/play":
+            return Refusal() ?? (200, new { ok = true });
+        case "/api/fcu/status":
+            return (200, sim.FcuStatus());
+        default:
+            return (200, new { ok = true });
     }
 }
 
@@ -313,6 +383,43 @@ sealed class SimState
         ["fcu"] = ["auto", "disarmed", "armed", "stale", "lost"],
         ["telemetry"] = ["normal", "freeze"],
         ["battery"] = ["ok", "low"],
+    };
+
+    /// <summary>The simulated drone's id (last 4 hex digits of a MAC), as in /api/wifi/status.</summary>
+    public const string Id = "51D0";
+    /// <summary>Animations stop by themselves after this long (wifi_manager.py SHOW_MAX_S).</summary>
+    public const int ShowMaxS = 120;
+
+    string? _animation;
+    DateTime _animationEnds;
+    readonly object _ledLock = new();
+
+    public void StartAnimation(string name)
+    {
+        lock (_ledLock) { _animation = name; _animationEnds = DateTime.UtcNow.AddSeconds(ShowMaxS); }
+    }
+
+    public void StopAnimation()
+    {
+        lock (_ledLock) _animation = null;
+    }
+
+    public object LedStatus()
+    {
+        lock (_ledLock)
+        {
+            if (_animation is not null && DateTime.UtcNow >= _animationEnds) _animation = null;
+            int? remaining = _animation is null ? null : (int)Math.Ceiling((_animationEnds - DateTime.UtcNow).TotalSeconds);
+            return new { led_ok = true, animation = _animation, pid = _animation is null ? (int?)null : 4242,
+                         busy = _animation is not null, remaining_s = remaining };
+        }
+    }
+
+    /// <summary>As wifi_manager.py _fcu_flight_state: disarmed only from a fresh, linked state.</summary>
+    public string FcuFlightState() => Fcu switch
+    {
+        "auto" or "disarmed" or "armed" => Armed ? "armed" : "disarmed",
+        _ => Armed ? "armed" : "unknown",
     };
 
     double _t;

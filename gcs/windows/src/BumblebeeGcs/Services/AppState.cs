@@ -35,6 +35,22 @@ public sealed class AppState
     /// refuses changes when another id answers.</summary>
     public string? DroneId { get; set; }
 
+    /// <summary>An animation or show this session started and has not stopped since. Disconnect,
+    /// another drone and closing the app stop it (best effort); the drone itself stops every
+    /// animation after 2 minutes anyway.</summary>
+    public bool StartedLedAnimation { get; set; }
+
+    /// <summary>Stops the animation this session started on the current drone.</summary>
+    /// <param name="waitMs">Wait this long for the reply (the app is closing); 0 = do not wait.</param>
+    public void StopOwnLedAnimation(int waitMs = 0)
+    {
+        if (!StartedLedAnimation || DroneHost.Length == 0) return;
+        StartedLedAnimation = false;
+        var api = new DroneApi { Host = DroneHost };
+        var reset = Task.Run(async () => { try { await api.LedResetAsync(); } catch { } });
+        if (waitMs > 0) reset.Wait(waitMs);
+    }
+
     /// <summary>The drone's name for confirmations and messages.</summary>
     public string DroneName
     {
@@ -78,6 +94,7 @@ public sealed class AppState
         // прошлого не должны остаться на экране. Тот же дрон — журнал сохраняется.
         if (ip != DroneHost)
         {
+            StopOwnLedAnimation();
             Telemetry.ResetAll(MonoClock.Now);
             Metrics.Clear();
             DroneId = null;
@@ -119,6 +136,7 @@ public sealed class AppState
 
     public void Disconnect()
     {
+        StopOwnLedAnimation();
         Ros.Disconnect();
         Metrics.Stop();
         Connected = false;

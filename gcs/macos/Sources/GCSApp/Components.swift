@@ -230,27 +230,41 @@ struct DroneCard: View {
 // MARK: - Button styles
 
 struct AccentButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(Theme.button)
-            .padding(.horizontal, Theme.s4).padding(.vertical, Theme.s2 + 1)
-            .background(Theme.primary.opacity(configuration.isPressed ? 0.7 : 1))
-            .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: Theme.rControl))
+    func makeBody(configuration: Configuration) -> some View { Styled(configuration: configuration) }
+
+    /// A disabled button must look disabled: the screens rely on it (one change
+    /// at a time, sounds off while armed).
+    private struct Styled: View {
+        let configuration: ButtonStyleConfiguration
+        @Environment(\.isEnabled) private var isEnabled
+        var body: some View {
+            configuration.label
+                .font(Theme.button)
+                .padding(.horizontal, Theme.s4).padding(.vertical, Theme.s2 + 1)
+                .background(isEnabled ? Theme.primary.opacity(configuration.isPressed ? 0.7 : 1) : Theme.fillFaint)
+                .foregroundStyle(isEnabled ? Color.white : Theme.muted)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.rControl))
+        }
     }
 }
 
 struct GhostButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(Theme.buttonSm)
-            .padding(.horizontal, Theme.s3).padding(.vertical, Theme.s2)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Theme.rControl))
-            .foregroundStyle(Theme.text)
-            .overlay(RoundedRectangle(cornerRadius: Theme.rControl).stroke(Theme.ghostStroke, lineWidth: 1))
-            .clipShape(RoundedRectangle(cornerRadius: Theme.rControl))
-            .opacity(configuration.isPressed ? 0.7 : 1)
-            .contentShape(Rectangle())
+    func makeBody(configuration: Configuration) -> some View { Styled(configuration: configuration) }
+
+    private struct Styled: View {
+        let configuration: ButtonStyleConfiguration
+        @Environment(\.isEnabled) private var isEnabled
+        var body: some View {
+            configuration.label
+                .font(Theme.buttonSm)
+                .padding(.horizontal, Theme.s3).padding(.vertical, Theme.s2)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Theme.rControl))
+                .foregroundStyle(isEnabled ? Theme.text : Theme.muted)
+                .overlay(RoundedRectangle(cornerRadius: Theme.rControl).stroke(Theme.ghostStroke, lineWidth: 1))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.rControl))
+                .opacity(configuration.isPressed ? 0.7 : (isEnabled ? 1 : 0.5))
+                .contentShape(Rectangle())
+        }
     }
 }
 

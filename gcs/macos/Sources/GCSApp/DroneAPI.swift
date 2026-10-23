@@ -104,6 +104,16 @@ final class DroneAPI {
         try await ok("POST", "/api/led/reset")
     }
 
+    /// Reset waiting at most `timeout` (the app is quitting); best effort.
+    func ledResetNow(timeout: TimeInterval) {
+        guard !host.isEmpty, let url = url("/api/led/reset") else { return }
+        var req = URLRequest(url: url, timeoutInterval: timeout)
+        req.httpMethod = "POST"
+        let done = DispatchSemaphore(value: 0)
+        session.dataTask(with: req) { _, _, _ in done.signal() }.resume()
+        _ = done.wait(timeout: .now() + timeout)
+    }
+
     /// What the LEDs do now. `remaining` (seconds until an animation stops by
     /// itself) comes from drones 1.0.2+, nil before.
     struct LedStatus: Equatable {

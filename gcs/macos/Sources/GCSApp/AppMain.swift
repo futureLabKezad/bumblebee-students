@@ -96,8 +96,34 @@ final class AppState: ObservableObject {
         return droneHost
     }
 
+    /// An animation or show this session started and has not stopped since.
+    /// Disconnect, another drone and quitting stop it (best effort); the drone
+    /// itself stops every animation after 2 minutes anyway.
+    var startedLedAnimation = false
+
     private var activity: NSObjectProtocol?
+    private var terminateObserver: NSObjectProtocol?
     private static let knownKey = "knownDrones"
+
+    init() {
+        terminateObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.stopOwnLedAnimation(blocking: true) }
+        }
+    }
+
+    /// Stops the animation this session started on the current drone.
+    func stopOwnLedAnimation(blocking: Bool = false) {
+        guard startedLedAnimation, !droneHost.isEmpty else { return }
+        startedLedAnimation = false
+        let api = DroneAPI()
+        api.host = droneHost
+        if blocking {
+            api.ledResetNow(timeout: 1.5)
+        } else {
+            Task { try? await api.ledReset() }
+        }
+    }
 
     func connect(to ip: String) {
         let ip = ip.trimmingCharacters(in: .whitespaces)
@@ -105,6 +131,7 @@ final class AppState: ObservableObject {
         // Another drone: nothing of the previous one may stay on screen (trail,
         // charts, log, values, armed, Pi metrics). The same drone keeps its log.
         if ConnectKind.of(previousHost: droneHost, newHost: ip) == .newDrone {
+            stopOwnLedAnimation()
             telemetry.resetAll()
             metrics.reset()
             droneID = nil
@@ -149,6 +176,7 @@ final class AppState: ObservableObject {
     }
 
     func disconnect() {
+        stopOwnLedAnimation()
         ros.disconnect()
         metrics.stop()
         telemetry.stopClock()

@@ -14,6 +14,7 @@
 
 using Microsoft.UI;
 using BumblebeeGcs.Controls;
+using BumblebeeGcs.Logic;
 using BumblebeeGcs.Services;
 using BumblebeeGcs.Theme;
 using Microsoft.UI.Xaml;
@@ -22,7 +23,12 @@ using Windows.UI;
 
 namespace BumblebeeGcs.Views;
 
-/// <summary>LED, зуммер и TTS. Порт EntertainmentView.swift.</summary>
+/// <summary>
+/// LED, шоу, зуммер и TTS. Порт EntertainmentView.swift. Что идёт на дроне, берётся из
+/// GET /api/led/status (опрос, пока страница открыта), а не из того, что страница отправила
+/// последним: переход между разделами, другой ноутбук и 2-минутный лимит дрона видны здесь.
+/// Решения — в Logic/EntertainmentLogic.cs.
+/// </summary>
 public sealed class EntertainmentPage : Grid
 {
     private enum LedKind { Color, Anim, None }
@@ -30,14 +36,19 @@ public sealed class EntertainmentPage : Grid
     private readonly AppState _app;
 
     private Color _color = Colors.White;
-    private string? _activeAnim;
     private bool _isOn = true;
     private (LedKind Kind, Color Color, string Anim) _lastState = (LedKind.Color, Colors.White, "");
-    private readonly Microsoft.UI.Dispatching.DispatcherQueueTimer _colorDebounce;
+    private DroneApi.LedStatus? _led;
+    private readonly Microsoft.UI.Dispatching.DispatcherQueueTimer _colorDebounce, _ledPoll;
 
     private readonly TextBlock _hexLabel;
     private readonly Button _onOffBtn;
-    private readonly List<(string Name, ChipButton Chip)> _animChips = new();
+    private readonly StatusBanner _ledBanner = new();
+    private readonly List<(string Name, ChipButton Chip)> _chips = new();
+    private readonly PanelCard _animPanel, _showsPanel;
+    private readonly Button _stopAnimBtn, _stopShowBtn;
+    private readonly List<Button> _soundButtons = new();
+    private readonly StatusBanner _soundGate = new(), _ttsGate = new();
     private readonly GlassTextField _customTune;
     private readonly SegmentedTabs _fmtTabs;
     private readonly Button _playBtn;
@@ -46,8 +57,8 @@ public sealed class EntertainmentPage : Grid
     private readonly SegmentedTabs _langTabs;
     private readonly Button _speakBtn;
     private readonly StatusBanner _ttsBanner = new();
-
-    private static readonly string[] Animations = { "breathing", "rainbow", "police", "strobe", "fire", "theater" };
+    private readonly Action _onTelemetry;
+    private string? _gateShown = "\0";   // reason the sound buttons last showed (sentinel: never)
 
     private static readonly (string Name, string Tune, string Fmt)[] Presets =
     {
@@ -63,9 +74,13 @@ public sealed class EntertainmentPage : Grid
 
     private static readonly string[] Languages = { "en", "ru", "de", "fr", "es" };
 
+    private string? Running => _led?.Animation;
+    private string? SoundBlocked => SoundGate.BlockedReason(_app.Telemetry.Armed);
+
     public EntertainmentPage(AppState app)
     {
         _app = app;
+        var dq = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
 
         // MARK: LED panel
         var picker = new ColorPicker
@@ -79,20 +94,18 @@ public sealed class EntertainmentPage : Grid
             Width = 260,
             HorizontalAlignment = HorizontalAlignment.Left,
         };
-        _colorDebounce = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().CreateTimer();
+        _colorDebounce = dq.CreateTimer();
         _colorDebounce.Interval = TimeSpan.FromMilliseconds(120);
         _colorDebounce.IsRepeating = false;
         _colorDebounce.Tick += (_, _) =>
         {
             var (r, g, b) = Rgb;
-            Run(async () =>
+            Led(async () =>
             {
                 await _app.Api.LedColorAsync(r, g, b);
-                _activeAnim = null;
-                RefreshAnimChips();
+                _app.StartedLedAnimation = false;     // a colour replaces the animation on the drone
                 _lastState = (LedKind.Color, _color, "");
                 _isOn = true;
-                RefreshOnOff();
             });
         };
         picker.ColorChanged += (_, e) =>
@@ -105,80 +118,63 @@ public sealed class EntertainmentPage : Grid
 
         _hexLabel = Ui.Text("#FFFFFF", Fonts.Mono, Palette.Muted);
         _onOffBtn = Ui.GhostButton("Off", ToggleOnOff);
-        var resetBtn = Ui.GhostButton("Reset", () => Run(async () =>
-        {
-            await _app.Api.LedResetAsync();
-            _activeAnim = null;
-            RefreshAnimChips();
-            _lastState = (LedKind.None, default, "");
-        }));
+        var resetBtn = Ui.GhostButton("Reset", Stop);
+        ToolTipService.SetToolTip(resetBtn, "Stop colours and animations; the drone shows its own status lights again");
         var ledRow = Ui.SpaceBetween(_hexLabel, Ui.HStack(Palette.S2, _onOffBtn, resetBtn));
-        var ledPanel = new PanelCard("LED Color", IconGlyphs.LedColor, picker, ledRow);
+        var ledPanel = new PanelCard("LED Color", IconGlyphs.LedColor, picker, ledRow, _ledBanner);
 
-        // MARK: Animations panel
-        var animGrid = new AdaptiveGridPanel { MinItemWidth = 90, Spacing = Palette.S2 };
-        foreach (var name in Animations)
-        {
-            var chip = new ChipButton(Capitalize(name), false, () => Run(async () =>
-            {
-                await _app.Api.LedAnimationAsync(name);
-                _activeAnim = name;
-                RefreshAnimChips();
-                _lastState = (LedKind.Anim, default, name);
-                _isOn = true;
-                RefreshOnOff();
-            }), fullWidth: true);
-            _animChips.Add((name, chip));
-            animGrid.Children.Add(chip);
-        }
-        var animPanel = new PanelCard("Animations", IconGlyphs.Sparkles, animGrid);
+        // MARK: Animations and shows
+        _stopAnimBtn = Ui.GhostButton("Stop", Stop);
+        _stopShowBtn = Ui.GhostButton("Stop", Stop);
+        _animPanel = new PanelCard("Animations", IconGlyphs.Sparkles, ChipGrid(LedCatalog.Animations, false), _stopAnimBtn);
+        _showsPanel = new PanelCard("Shows (Light + Sound)", IconGlyphs.Speaker, ChipGrid(LedCatalog.Shows, true), _stopShowBtn);
 
         // MARK: Buzzer panel
         var presetGrid = new AdaptiveGridPanel { MinItemWidth = 80, Spacing = Palette.S2 };
         foreach (var (name, tune, fmt) in Presets)
         {
-            var b = Ui.GhostButton(name, () => Run(async () =>
+            var b = Ui.GhostButton(name, () => Sound(_soundBanner, async () =>
             {
                 await _app.Api.PlayTuneAsync(tune, fmt);
-                _soundBanner.Show($"played {name}", StatusBanner.Kind.Success);
+                return LedText.Sent(name);
             }));
             b.HorizontalAlignment = HorizontalAlignment.Stretch;
             b.HorizontalContentAlignment = HorizontalAlignment.Center;
+            _soundButtons.Add(b);
             presetGrid.Children.Add(b);
         }
         _customTune = new GlassTextField("Custom tune");
         _fmtTabs = new SegmentedTabs(new[] { ("QBASIC", "QBASIC"), ("MML", "MML") }, "QBASIC");
-        _playBtn = Ui.AccentButton("Play Tune", () => Run(async () =>
+        _playBtn = Ui.AccentButton("Play Tune", () => Sound(_soundBanner, async () =>
         {
-            var r = await _app.Api.PlayTuneAsync(_customTune.Text, _fmtTabs.Selection);
-            _soundBanner.Show(DroneApi.Str(r, "error") ?? "played",
-                DroneApi.Str(r, "error") is null ? StatusBanner.Kind.Success : StatusBanner.Kind.Error);
+            await _app.Api.PlayTuneAsync(_customTune.Text, _fmtTabs.Selection);
+            return LedText.Sent("custom tune");
         }));
-        _playBtn.IsEnabled = false;
-        _customTune.TextChanged += () => _playBtn.IsEnabled = _customTune.Text.Length > 0;
+        _customTune.TextChanged += RefreshSoundGate;
         var playRow = Ui.HStack(Palette.S2, _fmtTabs, _playBtn);
-        var soundsPanel = new PanelCard("Buzzer", IconGlyphs.Speaker, presetGrid, _customTune, playRow, _soundBanner);
+        var soundsPanel = new PanelCard("Buzzer", IconGlyphs.Speaker, _soundGate, presetGrid, _customTune, playRow, _soundBanner);
 
         // MARK: TTS panel
         _ttsText = new GlassTextField("Text to speak");
         _langTabs = new SegmentedTabs(Languages.Select(l => (l.ToUpperInvariant(), l)), "en");
-        _speakBtn = Ui.AccentButton("Speak", () => Run(async () =>
+        _speakBtn = Ui.AccentButton("Speak", () =>
         {
-            var r = await _app.Api.TtsAsync(_ttsText.Text, _langTabs.Selection);
-            var tune = DroneApi.Str(r, "tune") ?? "";
-            var ph = DroneApi.Str(r, "phonemes") is string s ? $" · {s}" : "";
-            var outText = tune + ph;
-            _ttsBanner.Show(outText.Length > 230 ? outText[..230] : outText, StatusBanner.Kind.Info);
-        }));
-        _speakBtn.IsEnabled = false;
-        _ttsText.TextChanged += () => _speakBtn.IsEnabled = _ttsText.Text.Length > 0;
-        var ttsPanel = new PanelCard("Speech (TTS)", IconGlyphs.Tts, _ttsText, _langTabs, _speakBtn);
+            var text = _ttsText.Text;
+            Sound(_ttsBanner, async () =>
+            {
+                await _app.Api.TtsAsync(text, _langTabs.Selection);
+                return LedText.Sent($"\"{text}\"");
+            });
+        });
+        _ttsText.TextChanged += RefreshSoundGate;
+        var ttsPanel = new PanelCard("Speech (TTS)", IconGlyphs.Tts, _ttsGate, _ttsText, _langTabs, _speakBtn);
         ttsPanel.Add(_ttsBanner);
 
         // MARK: Layout
         var grid = new AdaptiveGridPanel { MinItemWidth = 320, Spacing = Palette.S4, MaxWidth = 980 };
         grid.Children.Add(ledPanel);
-        grid.Children.Add(animPanel);
+        grid.Children.Add(_animPanel);
+        grid.Children.Add(_showsPanel);
         grid.Children.Add(soundsPanel);
         grid.Children.Add(ttsPanel);
         grid.HorizontalAlignment = HorizontalAlignment.Center;
@@ -188,59 +184,170 @@ public sealed class EntertainmentPage : Grid
         var scroll = new ScrollViewer { Content = host, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         Children.Add(scroll);
 
-        Unloaded += (_, _) => _colorDebounce.Stop();
+        // What runs on the drone, every 2.5 s while the page is open.
+        _ledPoll = dq.CreateTimer();
+        _ledPoll.Interval = TimeSpan.FromMilliseconds(2500);
+        _ledPoll.Tick += (_, _) => _ = PollLedAsync();
+
+        // Sound buttons follow armed/unknown from the telemetry (Updated: every message and
+        // the 500 ms clock; redrawn only when the reason changes).
+        _onTelemetry = () => { if (SoundBlocked != _gateShown) RefreshSoundGate(); };
+        Loaded += (_, _) =>
+        {
+            _app.Telemetry.Updated += _onTelemetry;
+            _ledPoll.Start();
+            _ = PollLedAsync();
+        };
+        Unloaded += (_, _) =>
+        {
+            _app.Telemetry.Updated -= _onTelemetry;
+            _colorDebounce.Stop();
+            _ledPoll.Stop();
+        };
+
+        RefreshLed();
+        RefreshSoundGate();
     }
 
-    // MARK: - Helpers
+    private AdaptiveGridPanel ChipGrid(string[] names, bool sound)
+    {
+        var grid = new AdaptiveGridPanel { MinItemWidth = 90, Spacing = Palette.S2 };
+        foreach (var name in names)
+        {
+            var label = LedCatalog.Label(name) + (sound ? " ♪" : "");
+            // A second click on the running one stops it.
+            var chip = new ChipButton(label, false, () => { if (Running == name) Stop(); else Start(name); }, fullWidth: true);
+            _chips.Add((name, chip));
+            grid.Children.Add(chip);
+        }
+        return grid;
+    }
+
+    // MARK: - LED state from the drone
+
+    private async Task PollLedAsync()
+    {
+        try
+        {
+            _led = await _app.Api.LedStatusAsync();
+            if (_led?.Animation is null) _app.StartedLedAnimation = false;
+        }
+        catch { /* keep the last known state; errors show on actions */ }
+        RefreshLed();
+    }
+
+    private void RefreshLed()
+    {
+        var running = Running;
+        foreach (var (name, chip) in _chips) chip.SetSelected(name == running);
+        SetRunning(_animPanel, _stopAnimBtn, LedCatalog.Animations, running);
+        SetRunning(_showsPanel, _stopShowBtn, LedCatalog.Shows, running);
+        ((TextBlock)_onOffBtn.Content).Text = _isOn ? "Off" : "On";
+    }
+
+    /// <summary>"Rainbow · stops by itself in 1:45" and a Stop button while one of names runs.</summary>
+    private void SetRunning(PanelCard panel, Button stop, string[] names, string? running)
+    {
+        var here = running is not null && names.Contains(running);
+        if (here)
+        {
+            var parts = new[] { LedCatalog.Label(running!), LedText.Remaining(_led?.Remaining) }.Where(p => p is not null);
+            panel.SetNote(string.Join(" · ", parts));
+            ((TextBlock)stop.Content).Text = "Stop " + LedCatalog.Label(running!);
+        }
+        else
+        {
+            panel.SetNote(null);
+        }
+        stop.Visibility = here ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    // MARK: - LED actions
 
     private (int R, int G, int B) Rgb => (_color.R, _color.G, _color.B);
     private string HexString => $"#{_color.R:X2}{_color.G:X2}{_color.B:X2}";
 
-    private static string Capitalize(string s) => s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s[1..];
-
-    private void RefreshAnimChips()
+    /// <summary>An LED request; its error shows in the LED panel, then the drone's state is re-read.</summary>
+    private void Led(Func<Task> op)
     {
-        foreach (var (name, chip) in _animChips) chip.SetSelected(name == _activeAnim);
+        _ = Core();
+        async Task Core()
+        {
+            try { await op(); _ledBanner.Hide(); }
+            catch (Exception ex) { _ledBanner.Show(DroneApi.Describe(ex), StatusBanner.Kind.Error); }
+            await PollLedAsync();
+        }
     }
 
-    private void RefreshOnOff() =>
-        ((TextBlock)_onOffBtn.Content).Text = _isOn ? "Off" : "On";
+    private void Start(string name) => Led(async () =>
+    {
+        await _app.Api.LedAnimationAsync(name);
+        _app.StartedLedAnimation = true;
+        _lastState = (LedKind.Anim, default, name);
+        _isOn = true;
+    });
+
+    /// <summary>Reset: stops any animation or colour; the drone's status lights return.</summary>
+    private void Stop() => Led(async () =>
+    {
+        await _app.Api.LedResetAsync();
+        _app.StartedLedAnimation = false;
+        _lastState = (LedKind.None, default, "");
+    });
 
     private void ToggleOnOff()
     {
         if (_isOn)
         {
-            Run(async () =>
+            Led(async () =>
             {
                 await _app.Api.LedColorAsync(0, 0, 0);
+                _app.StartedLedAnimation = false;
                 _isOn = false;
-                RefreshOnOff();
             });
         }
         else
         {
-            _isOn = true;
-            RefreshOnOff();
             var (kind, color, anim) = _lastState;
-            Run(async () =>
+            Led(async () =>
             {
                 switch (kind)
                 {
-                    case LedKind.Anim: await _app.Api.LedAnimationAsync(anim); break;
+                    case LedKind.Anim:
+                        await _app.Api.LedAnimationAsync(anim);
+                        _app.StartedLedAnimation = true;
+                        break;
                     case LedKind.Color: await _app.Api.LedColorAsync(color.R, color.G, color.B); break;
                     default: await _app.Api.LedResetAsync(); break;
                 }
+                _isOn = true;
             });
         }
     }
 
-    private void Run(Func<Task> op)
+    // MARK: - Sounds
+
+    private void RefreshSoundGate()
     {
-        _ = RunCore(op);
-        async Task RunCore(Func<Task> f)
+        var why = SoundBlocked;
+        _gateShown = why;
+        foreach (var gate in new[] { _soundGate, _ttsGate })
         {
-            try { await f(); }
-            catch (Exception ex) { _soundBanner.Show($"error: {ex.Message}", StatusBanner.Kind.Error); }
+            if (why is null) gate.Hide(); else gate.Show(why, StatusBanner.Kind.Caution);
+        }
+        foreach (var b in _soundButtons) b.IsEnabled = why is null;
+        _playBtn.IsEnabled = why is null && _customTune.Text.Length > 0;
+        _speakBtn.IsEnabled = why is null && _ttsText.Text.Length > 0;
+    }
+
+    /// <summary>A tune or speech request; "Sent to the drone" on success, the reason otherwise.</summary>
+    private void Sound(StatusBanner banner, Func<Task<string>> op)
+    {
+        _ = Core();
+        async Task Core()
+        {
+            try { banner.Show(await op(), StatusBanner.Kind.Success); }
+            catch (Exception ex) { banner.Show(DroneApi.Describe(ex), StatusBanner.Kind.Error); }
         }
     }
 }
