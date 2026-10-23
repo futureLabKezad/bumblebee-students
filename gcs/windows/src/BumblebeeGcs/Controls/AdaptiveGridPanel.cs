@@ -49,18 +49,23 @@ public sealed class AdaptiveGridPanel : Panel
     protected override Windows.Foundation.Size ArrangeOverride(Windows.Foundation.Size finalSize)
     {
         var (cols, itemW) = Layout(finalSize.Width);
-        double y = 0, rowH = 0;
+        // Все элементы строки — одной высоты (по самому высокому), как плитки в LazyVGrid.
+        var rowHeights = new List<double>();
+        var k = 0;
+        foreach (var child in Children)
+        {
+            if (k % cols == 0) rowHeights.Add(0);
+            rowHeights[^1] = Math.Max(rowHeights[^1], child.DesiredSize.Height);
+            k++;
+        }
+        double y = 0;
         var i = 0;
         foreach (var child in Children)
         {
             var col = i % cols;
-            child.Arrange(new Windows.Foundation.Rect(col * (itemW + Spacing), y, itemW, child.DesiredSize.Height));
-            rowH = Math.Max(rowH, child.DesiredSize.Height);
-            if (++i % cols == 0)
-            {
-                y += rowH + Spacing;
-                rowH = 0;
-            }
+            var rowH = rowHeights[i / cols];
+            child.Arrange(new Windows.Foundation.Rect(col * (itemW + Spacing), y, itemW, rowH));
+            if (++i % cols == 0) y += rowH + Spacing;
         }
         return finalSize;
     }

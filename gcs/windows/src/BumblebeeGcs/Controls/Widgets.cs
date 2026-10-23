@@ -32,13 +32,17 @@ namespace BumblebeeGcs.Controls;
 public sealed class PanelCard : Grid
 {
     public readonly StackPanel Content;
+    private readonly TextBlock _note;
 
     public PanelCard(string title, string? glyph = null, params UIElement[] rows)
     {
-        var header = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Palette.S2 };
+        var titleRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = Palette.S2 };
         if (glyph is not null)
-            header.Children.Add(Ui.Icon(glyph, Palette.IconSm, Palette.Muted));
-        header.Children.Add(Ui.Text(title.ToUpperInvariant(), Fonts.SectionLbl, Palette.Muted, tracking: 1.1));
+            titleRow.Children.Add(Ui.Icon(glyph, Palette.IconSm, Palette.Muted));
+        titleRow.Children.Add(Ui.Text(title.ToUpperInvariant(), Fonts.SectionLbl, Palette.Muted, tracking: 1.1));
+        // Справа в заголовке — «no data N s», когда источник панели устарел.
+        _note = Ui.Text("", Fonts.SectionLbl, Palette.Caution);
+        var header = Ui.SpaceBetween(titleRow, _note);
 
         Content = new StackPanel { Orientation = Orientation.Vertical, Spacing = Palette.S3 };
         Content.Children.Add(header);
@@ -54,6 +58,52 @@ public sealed class PanelCard : Grid
     }
 
     public void Add(UIElement row) => Content.Children.Add(row);
+
+    /// <summary>Header note ("no data 7 s"); null hides it.</summary>
+    public void SetNote(string? note) => _note.Text = note ?? "";
+}
+
+/// <summary>
+/// Persistent red strip for a safety alarm ("Flight controller link lost", low battery), as the
+/// Mac app's AlarmBanner: solid danger colour, not dismissable, stays until the condition clears.
+/// </summary>
+public sealed class AlarmBanner : Grid
+{
+    private readonly TextBlock _text;
+
+    public AlarmBanner(string glyph)
+    {
+        var icon = Ui.Icon(glyph, Palette.IconMd, Colors.White);
+        _text = Ui.Text("", Fonts.BodyStrong, Colors.White);
+        _text.TextWrapping = TextWrapping.Wrap;
+        _text.VerticalAlignment = VerticalAlignment.Center;
+        icon.VerticalAlignment = VerticalAlignment.Center;
+        Background = Palette.Brush(Palette.Danger);
+        Padding = new Thickness(Palette.S4, Palette.S2 + 2, Palette.S4, Palette.S2 + 2);
+        HorizontalAlignment = HorizontalAlignment.Stretch;
+        Children.Add(Ui.HStack(Palette.S2, icon, _text));
+        Visibility = Visibility.Collapsed;
+    }
+
+    /// <summary>Show the text, or hide the banner for null.</summary>
+    public void Set(string? text)
+    {
+        if (text is null)
+        {
+            Visibility = Visibility.Collapsed;
+            return;
+        }
+        _text.Text = text;
+        Visibility = Visibility.Visible;
+    }
+}
+
+/// <summary>Серый вид устаревших данных: панель/строка остаётся, но явно «не живая».</summary>
+public static class Stale
+{
+    public const double DimOpacity = 0.4;
+
+    public static void Dim(UIElement e, bool dim) => e.Opacity = dim ? DimOpacity : 1;
 }
 
 // MARK: - StatTile (hero-плитка)
@@ -63,6 +113,7 @@ public sealed class StatTile : Grid
     private readonly Border _iconBox;
     private readonly FontIcon _icon;
     private readonly TextBlock _value;
+    private readonly TextBlock _caption;
     private Color _color;
 
     public StatTile(string label, string glyph, Color color)
@@ -80,10 +131,16 @@ public sealed class StatTile : Grid
             VerticalAlignment = VerticalAlignment.Center,
         };
         _value = Ui.Text("—", Fonts.StatValue, Palette.Text);
+        _value.TextWrapping = TextWrapping.WrapWholeWords;
+        _value.MaxLines = 2;
+        // Короткое пояснение под значением (режим, «waiting for FC data», «no data N s»).
+        _caption = Ui.Text(" ", Fonts.MonoSmall, Palette.Muted);
+        _caption.TextTrimming = TextTrimming.CharacterEllipsis;
+        _caption.MaxLines = 1;
 
         var texts = Ui.VStack(Palette.S0 - 1,
             Ui.Text(label.ToUpperInvariant(), Fonts.SectionLbl, Palette.Muted, tracking: 0.8),
-            _value);
+            _value, _caption);
         texts.VerticalAlignment = VerticalAlignment.Center;
 
         Background = Ui.GlassBrush();
@@ -94,9 +151,13 @@ public sealed class StatTile : Grid
         Children.Add(Ui.HStack(Palette.S3, _iconBox, texts));
     }
 
-    public void Update(string value, Color? color = null, string? glyph = null)
+    /// <param name="valueColor">Colour of the value text (UNKNOWN in caution, "ARMED? link lost" in danger); default text.</param>
+    public void Update(string value, Color? color = null, string? glyph = null, Color? valueColor = null)
     {
         _value.Text = value;
+        _value.Foreground = Palette.Brush(valueColor ?? Palette.Text);
+        // Длинные значения («Telemetry frozen», «Not measured») мельче, чтобы влезть в 190 px.
+        _value.FontSize = value.Length > 10 ? Fonts.StatValue.Size - 3 : Fonts.StatValue.Size;
         if (color is Color c && c != _color)
         {
             _color = c;
@@ -104,6 +165,22 @@ public sealed class StatTile : Grid
             _iconBox.Background = Palette.Brush(Palette.WithAlpha(c, 0.15));
         }
         if (glyph is not null && _icon.Glyph != glyph) _icon.Glyph = glyph;
+    }
+
+    /// <summary>Small line under the value; tone colour (e.g. caution for "no data N s").</summary>
+    public void SetCaption(string caption, Color? color = null)
+    {
+        _caption.Text = caption.Length > 0 ? caption : " ";
+        _caption.Foreground = Palette.Brush(color ?? Palette.Muted);
+        ToolTipService.SetToolTip(this, caption.Length > 0 ? caption : null);
+    }
+
+    /// <summary>Stale source: the tile greys out (the caption says how old).</summary>
+    public void SetDimmed(bool dim)
+    {
+        var o = dim ? Stale.DimOpacity : 1;
+        _value.Opacity = o;
+        _iconBox.Opacity = o;
     }
 }
 

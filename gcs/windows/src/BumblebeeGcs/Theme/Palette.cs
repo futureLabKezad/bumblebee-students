@@ -83,6 +83,17 @@ public static class Palette
 
     public static SolidColorBrush Brush(Color c) => new(c);
 
+    /// <summary>Colour of a logic Tone (BumblebeeGcs.Logic has no UI types).</summary>
+    public static Color ForTone(Logic.Tone t) => t switch
+    {
+        Logic.Tone.Primary => Primary,
+        Logic.Tone.Ok => Ok,
+        Logic.Tone.Caution => Caution,
+        Logic.Tone.Warn => Warn,
+        Logic.Tone.Danger => Danger,
+        _ => Muted,
+    };
+
     /// <summary>Канонический фон приложения — вертикальный градиент bg → bgDeep.</summary>
     public static LinearGradientBrush AppGradient() => new()
     {

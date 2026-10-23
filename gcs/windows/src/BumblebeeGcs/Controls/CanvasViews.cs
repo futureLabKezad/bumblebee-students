@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using Microsoft.UI;
+using BumblebeeGcs.Logic;
+using BumblebeeGcs.Models;
 using BumblebeeGcs.Theme;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -29,7 +31,8 @@ namespace BumblebeeGcs.Controls;
 /// <summary>
 /// Авиагоризонт: roll вращает горизонт, pitch сдвигает его по вертикали;
 /// pitch-лесенка, roll-дуга и неподвижный маркер самолёта — конструкция 1:1
-/// с web-канвасом и AttitudeView.swift.
+/// с web-канвасом и AttitudeView.swift. Pitch в ROS-конвенции: + = нос вниз,
+/// поэтому при +pitch горизонт уходит вверх и земли становится больше.
 /// </summary>
 public sealed class AttitudeView : Grid
 {
@@ -43,6 +46,7 @@ public sealed class AttitudeView : Grid
     private readonly RotateTransform _horizonRot = new() { CenterX = C, CenterY = C };
     private readonly TranslateTransform _pitchShift = new();
     private readonly RotateTransform _arcRot = new() { CenterX = C, CenterY = C };
+    private readonly Canvas _horizon, _arc;
 
     public AttitudeView()
     {
@@ -77,12 +81,14 @@ public sealed class AttitudeView : Grid
             var label = Ui.Text(Math.Abs(deg).ToString(), Fonts.Micro, Colors.White);
             pitched.Children.Add(Place(label, C + w + 4, y - 5));
         }
-        var horizon = new Canvas { Width = S, Height = S, RenderTransform = _horizonRot };
+        // До первой ориентации горизонта нет (как на Mac): ровный горизонт заявлял бы 0°.
+        clipHost.Children.Add(new Rectangle { Width = S, Height = S, Fill = Palette.Brush(Palette.SurfaceRaised) });
+        var horizon = _horizon = new Canvas { Width = S, Height = S, RenderTransform = _horizonRot, Visibility = Visibility.Collapsed };
         horizon.Children.Add(pitched);
         clipHost.Children.Add(horizon);
 
         // Слой roll-дуги (только вращение).
-        var arc = new Canvas { Width = S, Height = S, RenderTransform = _arcRot };
+        var arc = _arc = new Canvas { Width = S, Height = S, RenderTransform = _arcRot, Visibility = Visibility.Collapsed };
         foreach (var deg in new[] { -60, -45, -30, -20, -10, 0, 10, 20, 30, 45, 60 })
         {
             var ang = deg * Math.PI / 180 - Math.PI / 2;
@@ -119,11 +125,15 @@ public sealed class AttitudeView : Grid
         Children.Add(overlay);
     }
 
-    public void Update(double roll, double pitch)
+    /// <summary>null (no attitude yet): an empty dial, no horizon.</summary>
+    public void Update(double? rollDeg, double? pitchDeg)
     {
+        var known = rollDeg is not null && pitchDeg is not null;
+        _horizon.Visibility = _arc.Visibility = known ? Visibility.Visible : Visibility.Collapsed;
+        if (rollDeg is not double roll || pitchDeg is not double pitch) return;
         _horizonRot.Angle = -roll;
         _arcRot.Angle = -roll;
-        _pitchShift.Y = pitch * PxPerDeg;
+        _pitchShift.Y = AttitudeMath.HorizonShiftPx(pitch, PxPerDeg);
     }
 
     private static FrameworkElement Place(FrameworkElement e, double x, double y)
@@ -134,22 +144,31 @@ public sealed class AttitudeView : Grid
     }
 }
 
-/// <summary>Залитый line-chart последних N сэмплов с подписью актуального значения.</summary>
+/// <summary>
+/// Залитый line-chart последних N сэмплов с подписью актуального значения.
+/// Шкала не уже minSpan (высота — 1 м, чтобы шум в 1-2 см не растягивался на весь
+/// график); её min/max подписаны у правого края.
+/// </summary>
 public sealed class ChartView : StackPanel
 {
     private readonly List<double> _data;
     private readonly double? _fixedMin, _fixedMax;
-    private readonly TextBlock _latest;
+    private readonly double _minSpan;
+    private readonly Color _color;
+    private readonly TextBlock _latest, _hiLabel, _loLabel;
     private readonly Grid _plot;
     private readonly Polygon _area;
     private readonly Polyline _line;
+    private string? _staleNote;
 
     public ChartView(string title, List<double> data, Color color,
-                     double? fixedMin = null, double? fixedMax = null)
+                     double? fixedMin = null, double? fixedMax = null, double minSpan = 1.0)
     {
         _data = data;
         _fixedMin = fixedMin;
         _fixedMax = fixedMax;
+        _minSpan = minSpan;
+        _color = color;
 
         Orientation = Orientation.Vertical;
         Spacing = Palette.S1;
@@ -167,14 +186,40 @@ public sealed class ChartView : StackPanel
         Ui.ClipRounded(_plot, (float)Palette.RSmall);
         _plot.Children.Add(_area);
         _plot.Children.Add(_line);
+        _hiLabel = Ui.Text("", Fonts.Micro, Palette.Muted);
+        _hiLabel.HorizontalAlignment = HorizontalAlignment.Right;
+        _hiLabel.VerticalAlignment = VerticalAlignment.Top;
+        _hiLabel.Margin = new Thickness(0, 1, Palette.S1, 0);
+        _loLabel = Ui.Text("", Fonts.Micro, Palette.Muted);
+        _loLabel.HorizontalAlignment = HorizontalAlignment.Right;
+        _loLabel.VerticalAlignment = VerticalAlignment.Bottom;
+        _loLabel.Margin = new Thickness(0, 0, Palette.S1, 1);
+        _plot.Children.Add(_hiLabel);
+        _plot.Children.Add(_loLabel);
         _plot.SizeChanged += (_, _) => Redraw();
         Children.Add(_plot);
     }
 
     public void Refresh()
     {
-        _latest.Text = _data.Count > 0 ? _data[^1].ToString("F2") : "—";
+        if (_staleNote is not null)
+        {
+            _latest.Text = _staleNote;
+            _latest.Foreground = Palette.Brush(Palette.Caution);
+        }
+        else
+        {
+            _latest.Text = _data.Count > 0 ? Format.Fixed(_data[^1], 2) : Format.Dash;
+            _latest.Foreground = Palette.Brush(_color);
+        }
         Redraw();
+    }
+
+    /// <summary>Source older than its limit: the chart greys out and says "no data N s".</summary>
+    public void SetStale(string? note)
+    {
+        _staleNote = note;
+        Stale.Dim(_plot, note is not null);
     }
 
     private void Redraw()
@@ -185,11 +230,12 @@ public sealed class ChartView : StackPanel
         {
             _line.Points.Clear();
             _area.Points.Clear();
+            _hiLabel.Text = _loLabel.Text = "";
             return;
         }
-        var lo = _fixedMin ?? _data.Min();
-        var hi = _fixedMax ?? _data.Max();
-        if (hi - lo < 1e-6) hi = lo + 1;
+        var (lo, hi) = ChartScale.Range(_data, _fixedMin, _fixedMax, _minSpan);
+        _hiLabel.Text = ChartScale.Label(hi, hi - lo);
+        _loLabel.Text = ChartScale.Label(lo, hi - lo);
 
         var linePts = new PointCollection();
         var areaPts = new PointCollection { new Windows.Foundation.Point(0, h) };
@@ -210,10 +256,10 @@ public sealed class ChartView : StackPanel
 /// <summary>Авто-масштабируемый трейл позиции сверху (X вправо, Y вверх), сетка 1 м.</summary>
 public sealed class PositionMapView : Grid
 {
-    private readonly List<Windows.Foundation.Point> _trail;
+    private readonly List<TrailPoint> _trail;
     private readonly Canvas _canvas = new();
 
-    public PositionMapView(List<Windows.Foundation.Point> trail)
+    public PositionMapView(List<TrailPoint> trail)
     {
         _trail = trail;
         Height = 240;
