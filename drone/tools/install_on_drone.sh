@@ -111,6 +111,31 @@ while read -r src dst owner mode; do
     say "installed $dst"
 done < "$HERE/MANIFEST"
 
+# Version stamp: GET /api/info and check_drone.sh report the first line of
+# /etc/bumblebee_version. The new first line names this update; the image's
+# own lines stay below it. Rollback puts the old file back.
+VERSION_FILE="$ROOT/etc/bumblebee_version"
+if [ -s "$HERE/VERSION" ]; then
+    NEW_VERSION="Bumblebee $(head -n 1 "$HERE/VERSION"), update installed $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    if [ -e "$VERSION_FILE" ]; then
+        mkdir -p "$BACKUP/etc"
+        $SUDO cp -p "$VERSION_FILE" "$BACKUP/etc/bumblebee_version"
+        echo "$SUDO cp -p '$BACKUP/etc/bumblebee_version' '$VERSION_FILE'" >> "$ROLLBACK"
+    else
+        echo "$SUDO rm -f '$VERSION_FILE'" >> "$ROLLBACK"
+    fi
+    {
+        echo "$NEW_VERSION"
+        [ -e "$VERSION_FILE" ] && sed 's/^\(before: \)*/before: /' "$VERSION_FILE"   # one prefix after several updates
+    } > "$BACKUP/bumblebee_version.new"
+    $SUDO mkdir -p "$(dirname "$VERSION_FILE")"
+    $SUDO install -m 0644 "$BACKUP/bumblebee_version.new" "$VERSION_FILE"
+    rm -f "$BACKUP/bumblebee_version.new"
+    say "version: $NEW_VERSION"
+else
+    say "no VERSION in the bundle: /etc/bumblebee_version left as it is"
+fi
+
 # Enable the clock-jump reaction and the per-minute domain re-check. Symlinks
 # rather than `systemctl enable`, so it works the same on a running drone and
 # on a mounted image (BB_ROOT).

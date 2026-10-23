@@ -63,6 +63,12 @@ drone/tools/make_bundle.sh                       # -> bumblebee-update.tgz
 tar -xzf bumblebee-update.tgz && bash bb-update/install_on_drone.sh
 ```
 
+The bundle carries the version in `drone/VERSION` (e.g. `1.0.2-rc1`) and the
+commit it was built from. The install writes them as the first line of
+`/etc/bumblebee_version` (the image's own lines follow, prefixed `before:`), so
+`GET /api/info` and `check_drone.sh` report the update; rollback restores the
+old file.
+
 Or do both over SSH from a laptop:
 
 ```bash
