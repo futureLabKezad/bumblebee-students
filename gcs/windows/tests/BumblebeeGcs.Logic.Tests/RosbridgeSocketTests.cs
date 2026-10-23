@@ -80,8 +80,12 @@ public class RosbridgeSocketTests
         server.Frozen = true;   // like kill -STOP: TCP stays open, nothing moves, no pongs
         var frozen = await h.WaitFor(s => s.Link == LinkState.TelemetryFrozen, 4.5, "Telemetry frozen");
         Assert.InRange(frozen, 2.5, 4.5);
+        // The screen already says so at ~3 s (above); the keep-alive (2 s ping, 4 s pong, which
+        // .NET checks on its own timer) then closes the socket. It must close after "Telemetry
+        // frozen", never before: ok -> frozen is what sounds the FC-lost alarm of an armed drone.
         var dropped = await h.WaitFor(s => !s.RosConnected, 7, "drop");
-        Assert.True(frozen + dropped <= 6.5, $"silent drop noticed after {frozen + dropped:F1} s");
+        Assert.True(dropped > 0.2, "the socket closed before the screen said Telemetry frozen");
+        Assert.True(frozen + dropped <= 7.5, $"silent drop noticed after {frozen + dropped:F1} s");
         Assert.Equal(LinkState.NoDrone, h.Read(s => s.Link));
 
         server.Frozen = false;
