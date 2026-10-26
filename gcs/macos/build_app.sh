@@ -42,7 +42,7 @@ cp Info.plist "$APP/Contents/Info.plist"
 for b in "$BIN_DIR"/*.bundle; do
   [ -e "$b" ] && cp -R "$b" "$APP/Contents/Resources/"
 done
-cp Sources/GCSApp/Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp Artwork/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"   # Finder/Dock icon; not in the SwiftPM bundle
 
 # Ad-hoc sign so it launches without a quarantine/Gatekeeper hard stop. The
 # designated requirement names only the bundle id, so macOS keeps the app's
