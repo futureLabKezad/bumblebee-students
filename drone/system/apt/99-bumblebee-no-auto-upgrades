@@ -1,0 +1,11 @@
+// Bumblebee: no automatic Ubuntu updates on the drone.
+// On 26.10.2026 unattended-upgrades installed packages on a drone in class and
+// restarted the ROS stack (MAVROS, rosbridge, video) and the Wi-Fi services
+// while it was in use. Drones get system updates with Bumblebee releases
+// instead. Installed by drone/tools/install_on_drone.sh, which also disables
+// apt-daily.timer and apt-daily-upgrade.timer; its rollback.sh restores both.
+// This file wins over 20auto-upgrades (later files override earlier ones).
+APT::Periodic::Update-Package-Lists "0";
+APT::Periodic::Download-Upgradeable-Packages "0";
+APT::Periodic::AutocleanInterval "0";
+APT::Periodic::Unattended-Upgrade "0";
