@@ -400,8 +400,15 @@ def led_solid(r, g, b, duration=None, strip=STRIP_ALL, manage_control=True):
             time.sleep(_LED_FRAME)
 
 
-def led_blink(r, g, b, freq=4.0, duration=3.0, strip=STRIP_ALL, manage_control=True):
-    """Blink a color on/off at `freq` Hz for `duration` seconds."""
+# At most this many flashes per second, whatever `freq` asks: faster flicker can
+# trigger seizures in photosensitive people (the drone's own alarms and shows
+# keep to the same limit).
+MAX_FLASH_HZ = 3.0
+
+
+def led_blink(r, g, b, freq=2.5, duration=3.0, strip=STRIP_ALL, manage_control=True):
+    """Blink a color on/off at `freq` Hz (at most MAX_FLASH_HZ) for `duration` seconds."""
+    freq = min(float(freq), MAX_FLASH_HZ)
     with _led_session(manage_control):
         t0 = time.monotonic()
         while time.monotonic() - t0 < duration:
@@ -413,8 +420,8 @@ def led_blink(r, g, b, freq=4.0, duration=3.0, strip=STRIP_ALL, manage_control=T
             time.sleep(_LED_FRAME)
 
 
-def led_strobe(r, g, b, freq=8.0, duration=3.0, strip=STRIP_ALL, manage_control=True):
-    """Fast strobe -- same as led_blink but defaults to ~8 Hz (alarm look)."""
+def led_strobe(r, g, b, freq=2.5, duration=3.0, strip=STRIP_ALL, manage_control=True):
+    """Alarm-look strobe: led_blink at 2.5 Hz by default (at most MAX_FLASH_HZ)."""
     led_blink(r, g, b, freq=freq, duration=duration, strip=strip,
               manage_control=manage_control)
 

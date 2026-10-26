@@ -1,7 +1,10 @@
 mavros:
   ros__parameters:
     fcu_url: /dev/ttyAMA0:115200
-    gcs_url: tcp-l://0.0.0.0:5760
+    # MAVLink to PX4 only for programs on the drone itself (fcu_armed.py, ros_watchdog, set_identity,
+    # set_origin.py). Owner decision 21.10.2026: no MAVLink over Wi-Fi or the hotspot, so no laptop
+    # can arm or change PX4 parameters through it; QGroundControl connects over USB.
+    gcs_url: tcp-l://127.0.0.1:5760
     gcs_quiet_mode: true
     conn.timeout: 8
     map_frame: map
