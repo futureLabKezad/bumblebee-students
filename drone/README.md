@@ -10,7 +10,7 @@ The complete on-board software of the Bumblebee drone, originally extracted from
 | `ros2_ws/src/aruco_pose/` | ArUco marker detection and map-based pose estimation |
 | `ros2_ws/src/bumblebee_bridge/` | I2C bridge to the ATtiny companion (LED strips, gripper servo, wheel) |
 | `ros2_ws/src/bumblebee_description/` | URDF model and meshes of the drone |
-| `system/systemd/` | systemd units: `bumblebee.service` (+ drop-ins), `wifi-manager`, `wifi-watchdog`, `notify-manager`, `sys_metrics`, `led-default`, `bumblebee-identity` (+ `bumblebee-identity-recheck.timer`), `bumblebee-clock-jump.timer`, `bumblebee-ros-watchdog`, I2C recovery; `ros-env.conf` (ROS domain + Fast DDS over UDP for every ROS service) |
+| `system/systemd/` | systemd units: `bumblebee.service` (+ drop-ins), `wifi-manager`, `wifi-watchdog`, `notify-manager`, `sys_metrics`, `bumblebee-identity` (+ `bumblebee-identity-recheck.timer`), `bumblebee-clock-jump.timer`, `bumblebee-ros-watchdog`, I2C recovery; `ros-env.conf` (ROS domain + Fast DDS over UDP for every ROS service) |
 | `system/start_bumblebee.sh` | Entry point started by `bumblebee.service` (waits up to 20 s for the first NTP sync, detects the flight-controller baud, reads the drone's ROS domain) |
 | `system/mavros_params.yaml` | MAVROS configuration (`/home/lb/mavros_params.yaml` on the drone); its `fcu_url` (`/dev/ttyAMA0:115200`) is only the fallback of `ros2_ws/src/bumblebee/scripts/fcu_detect.py` |
 | `system/networkmanager/` | NetworkManager hooks (hotspot fallback, identity) and Wi-Fi power save off |
