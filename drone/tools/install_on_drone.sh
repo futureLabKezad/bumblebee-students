@@ -55,7 +55,13 @@ say() { echo "[bumblebee-update] $*"; }
 # ---- 0. not during an Ubuntu package update ----------------------------------
 # unattended-upgrades restarts services after its packages; a half-installed
 # dpkg must not be cut short either. No --force for this one.
-if ${BB_PGREP:-pgrep} -x 'unattended-upgr|apt|apt-get|dpkg' >/dev/null 2>&1; then
+# Matched on the command line: unattended-upgrade-shutdown, which waits for the
+# system to shut down all the time, has the same 15-character process name.
+package_update_running() {
+    ${BB_PGREP:-pgrep} -f 'unattended-upgrade( |$)' >/dev/null 2>&1 && return 0
+    ${BB_PGREP:-pgrep} -x 'apt|apt-get|dpkg' >/dev/null 2>&1
+}
+if package_update_running; then
     say "an Ubuntu package update is running (unattended-upgrade, apt or dpkg)."
     say "Wait until it has finished - do not switch the drone off meanwhile - and run this again."
     say "Check with: systemctl is-active apt-daily-upgrade   (finished when it says inactive)"

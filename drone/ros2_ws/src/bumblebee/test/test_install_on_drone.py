@@ -43,6 +43,28 @@ def write_exe(path, body):
     os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
 
 
+# pgrep over a fake process table (FAKE_PROCS: "name|command line" per line):
+# -x matches the 15-character process name, -f the command line, like procps.
+FAKE_PGREP = r'''#!/usr/bin/env python3
+import os, re, sys
+mode, pattern = sys.argv[1], sys.argv[2]
+found = False
+for line in os.environ.get('FAKE_PROCS', '').splitlines():
+    if '|' not in line:
+        continue
+    name, cmd = line.split('|', 1)
+    if (mode == '-x' and re.fullmatch(pattern, name[:15])) or (mode == '-f' and re.search(pattern, cmd)):
+        found = True
+sys.exit(0 if found else 1)
+'''
+
+# What drone 20EC ran on 26.10: the shutdown helper is there all the time, the
+# upgrade itself only while it installs.
+SHUTDOWN_HELPER = 'unattended-upgrade-shutdown|/usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal'
+UPGRADE = 'unattended-upgrade|/usr/bin/python3 /usr/bin/unattended-upgrade'
+DPKG = 'dpkg|/usr/bin/dpkg --status-fd 3 --configure --pending'
+
+
 class InstallOnDrone(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -70,10 +92,10 @@ class InstallOnDrone(unittest.TestCase):
         self.bin = os.path.join(d, 'bin')
         os.makedirs(self.bin)
         write_exe(os.path.join(self.bin, 'systemctl'), 'echo "(fake) systemctl $*"')
-        self.not_busy = os.path.join(d, 'pgrep-idle')
-        write_exe(self.not_busy, 'exit 1')
-        self.busy = os.path.join(d, 'pgrep-busy')
-        write_exe(self.busy, 'echo 4242; exit 0')
+        self.pgrep = os.path.join(d, 'pgrep')
+        with open(self.pgrep, 'w') as f:
+            f.write(FAKE_PGREP.replace('/usr/bin/env python3', sys.executable, 1))
+        os.chmod(self.pgrep, os.stat(self.pgrep).st_mode | stat.S_IEXEC)
 
     def tearDown(self):
         self.case.cleanup()
@@ -87,10 +109,12 @@ class InstallOnDrone(unittest.TestCase):
 
     def link_apt_timers(self):
         for name, target in TIMERS.items():
-            os.symlink(target, self.path(os.path.join(WANTS, name)))
+            link = self.path(os.path.join(WANTS, name))
+            if not os.path.lexists(link):
+                os.symlink(target, link)
 
-    def install(self, pgrep):
-        env = dict(os.environ, BB_ROOT=self.root, BB_PGREP=pgrep,
+    def install(self, *procs):
+        env = dict(os.environ, BB_ROOT=self.root, BB_PGREP=self.pgrep, FAKE_PROCS='\n'.join(procs),
                    PATH=self.bin + os.pathsep + os.environ['PATH'])
         return subprocess.run(['bash', os.path.join(self.bundle, 'bb-update', 'install_on_drone.sh')],
                               env=env, capture_output=True, text=True)
@@ -109,7 +133,7 @@ class InstallOnDrone(unittest.TestCase):
 
     def test_auto_updates_are_switched_off_and_rollback_switches_them_on(self):
         self.link_apt_timers()
-        out = self.install(self.not_busy)
+        out = self.install(SHUTDOWN_HELPER)
         self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
         with open(self.path(APT_CONF)) as f:
             conf = f.read()
@@ -133,7 +157,7 @@ class InstallOnDrone(unittest.TestCase):
             self.assertEqual(f.read(), 'Bumblebee 1.0.1\n')
 
     def test_timers_already_off_stay_off_after_rollback(self):
-        out = self.install(self.not_busy)
+        out = self.install(SHUTDOWN_HELPER)
         self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
         self.assertNotIn('Ubuntu automatic updates', out.stdout)
         self.assertNotIn('systemctl stop apt-daily', out.stdout)
@@ -143,8 +167,20 @@ class InstallOnDrone(unittest.TestCase):
             self.assertFalse(os.path.lexists(self.path(os.path.join(WANTS, name))))
 
     def test_refuses_while_a_package_update_runs_and_changes_nothing(self):
+        for procs in ((SHUTDOWN_HELPER, UPGRADE), (SHUTDOWN_HELPER, DPKG)):
+            with self.subTest(procs=procs):
+                self.assert_refused(*procs)
+
+    def test_the_ever_present_shutdown_helper_is_not_an_update(self):
+        # rc3 as first built refused for ever on 20EC: the helper's process
+        # name is "unattended-upgr" too, like the upgrade's.
+        out = self.install(SHUTDOWN_HELPER)
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        self.assertNotIn('package update is running', out.stdout)
+
+    def assert_refused(self, *procs):
         self.link_apt_timers()
-        out = self.install(self.busy)
+        out = self.install(*procs)
         self.assertEqual(out.returncode, 1)
         self.assertIn('an Ubuntu package update is running', out.stdout)
         self.assertIn('do not switch the drone off', out.stdout)
@@ -156,7 +192,7 @@ class InstallOnDrone(unittest.TestCase):
             self.assertEqual(f.read(), 'Bumblebee 1.0.1\n')
 
     def test_version_stamp_names_the_bundle(self):
-        out = self.install(self.not_busy)
+        out = self.install(SHUTDOWN_HELPER)
         self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
         with open(self.path('/etc/bumblebee_version')) as f:
             lines = f.read().splitlines()
