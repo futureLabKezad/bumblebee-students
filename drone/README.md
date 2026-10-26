@@ -53,6 +53,13 @@ the ground), and only restarts the Wi-Fi / metrics / identity services and the
 ROS watchdog; it does not restart `bumblebee.service` itself. (On a drone coming
 from V1.0.0-beta, the `bumblebee-identity` run may restart the flight stack once
 to move it onto the drone's own ROS domain, only while PX4 reports disarmed.)
+It also refuses while an Ubuntu package update runs (`unattended-upgrade`,
+`apt`, `dpkg`; no `--force` for that), and switches Ubuntu's automatic updates
+off: `apt-daily.timer` and `apt-daily-upgrade.timer` are disabled and
+`/etc/apt/apt.conf.d/99-bumblebee-no-auto-upgrades` sets `APT::Periodic` to 0.
+On a drone in class they installed packages and restarted the ROS stack while
+it was in use; system updates come with Bumblebee releases instead. Rollback
+switches them back on.
 **Reboot the drone afterwards** (`sudo reboot`) to finish.
 
 Build a bundle and copy it to the drone by any means (scp, USB stick):

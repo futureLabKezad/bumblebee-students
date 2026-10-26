@@ -282,6 +282,31 @@ public class TelemetryStoreTests
     }
 
     [Fact]
+    public void SocketLost_SaysWhy()
+    {
+        var s = Linked();
+        s.SocketLost(101, DropReason.NoPong);
+        Assert.Equal("rosbridge lost (no answer to ping for 4 s) — reconnecting…", s.Messages.Entries[0].Text);
+        Assert.Equal("network error: The network connection was lost.", DropReason.Network(" The network connection was lost.\n"));
+        Assert.Equal("network error", DropReason.Network(""));
+        Assert.Equal(DropReason.NoPong, DropReason.Of(new System.Net.WebSockets.WebSocketException(
+            "The WebSocket didn't receive a Pong frame in response to a Ping frame within the configured KeepAliveTimeout.")));
+        Assert.Equal("network error: Connection refused", DropReason.Of(new Exception("outer", new Exception("Connection refused"))));
+    }
+
+    [Fact]
+    public void RawPx4ModeNumber_IsNamed_NoRawLineInTheLog()
+    {
+        var s = Linked();
+        s.ApplyState(true, false, "", 100.5);
+        s.ApplyState(true, false, "CMODE(50593792)", 101);   // 0x03040000: AUTO.LOITER
+        s.ApplyState(true, false, "AUTO.LOITER", 102);
+        Assert.Equal("AUTO.LOITER", s.Mode);
+        var modeLines = s.Messages.Entries.Select(e => e.Text).Where(t => t.StartsWith("mode → ", StringComparison.Ordinal)).ToList();
+        Assert.Equal(new[] { "mode → AUTO.LOITER", "mode → unknown" }, modeLines);
+    }
+
+    [Fact]
     public void SocketLost_IsOneCollapsingLine()
     {
         var s = Linked();

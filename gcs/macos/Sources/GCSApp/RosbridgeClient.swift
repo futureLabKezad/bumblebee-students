@@ -115,7 +115,7 @@ final class RosbridgeClient: NSObject {
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + PingWatchdog.timeout + 0.05) { [weak self] in
             guard let self = self, self.active, gen == self.generation else { return }
-            if self.watchdog.timedOut(now: Date()) { self.handleDrop(gen) }
+            if self.watchdog.timedOut(now: Date()) { self.handleDrop(gen, reason: DropReason.noPong) }
         }
     }
 
@@ -141,8 +141,10 @@ final class RosbridgeClient: NSObject {
             DispatchQueue.main.async {
                 guard let self = self, gen == self.generation else { return }
                 switch result {
-                case .failure:
-                    self.handleDrop(gen)
+                case .failure(let error):
+                    let closed = (self.task?.closeCode ?? .invalid) != .invalid
+                    self.handleDrop(gen, reason: closed ? DropReason.closedByDrone
+                                                        : DropReason.network(error.localizedDescription))
                 case .success(let message):
                     self.markLinked(gen)
                     switch message {
@@ -156,13 +158,13 @@ final class RosbridgeClient: NSObject {
         }
     }
 
-    private func handleDrop(_ gen: Int) {
+    private func handleDrop(_ gen: Int, reason: String) {
         guard active, gen == generation else { return }
         let wasLinked = linked
         generation += 1
         let next = generation
         closeSocket()
-        store.socketDropped(wasLinked: wasLinked)
+        store.socketDropped(wasLinked: wasLinked, reason: reason)
         // Reconnect after 3 s (matches web behaviour).
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
             guard let self = self, self.active, next == self.generation else { return }

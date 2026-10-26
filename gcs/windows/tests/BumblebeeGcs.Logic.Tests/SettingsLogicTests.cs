@@ -171,4 +171,66 @@ public class SettingsLogicTests
     [InlineData("Other", PasswordMemory.Keep)]
     public void PasswordIsKeptOnlyWhenItWorked(string? failure, PasswordMemory expected) =>
         Assert.Equal(expected, PasswordMemoryRule.After(failure));
+
+    // MARK: - Apply Now, followed through the drone's status (same cases as the Mac app)
+
+    static ApplyPoll Status(string mode = "client", string ssid = "Future Lab", string? error = null) =>
+        new(true, mode, ssid, error, error is null ? null : "Future Lab");
+
+    [Fact]
+    public void Apply_IsNotDone_WhileTheDroneHasNotLeftYet()
+    {
+        // The 26.10 bench bug: "is on Future Lab" right after the reply, before the switch.
+        var w = new ApplyWatch();
+        Assert.Equal(ApplyVerdictKind.Waiting, w.Step(Status(), 1, "Future Lab").Kind);
+        Assert.Equal(ApplyVerdictKind.Waiting, w.Step(Status(), 6, "Future Lab").Kind);
+        Assert.Equal(ApplyVerdictKind.Waiting, w.Step(ApplyPoll.NoAnswer, 9, "Future Lab").Kind);
+        Assert.True(w.SawGone);
+        Assert.Equal(ApplyVerdictKind.Joined, w.Step(Status(), 21, "Future Lab").Kind);
+    }
+
+    [Fact]
+    public void Apply_FastRejoinNeverSeen_CountsAfterSettling()
+    {
+        var w = new ApplyWatch();
+        Assert.Equal(ApplyVerdictKind.Waiting, w.Step(Status(), 19, "Future Lab").Kind);
+        Assert.Equal(ApplyVerdictKind.Joined, w.Step(Status(), 20, "Future Lab").Kind);
+    }
+
+    [Fact]
+    public void Apply_WrongPassword_IsReported_NotTakenForSuccess()
+    {
+        var w = new ApplyWatch();
+        w.Step(ApplyPoll.NoAnswer, 8, "Future Lab");
+        var v = w.Step(Status(error: "wrong_password"), 95, "Future Lab");
+        Assert.Equal(new ApplyVerdict(ApplyVerdictKind.Failed, "wrong_password", "Future Lab", "Future Lab"), v);
+        Assert.Equal("Bumblebee-20EC did not switch: wrong password for Future Lab. It kept its saved settings and is on Future Lab.",
+            ApplyWatch.FailedText("Bumblebee-20EC", "wrong_password", "Future Lab", "Future Lab"));
+    }
+
+    [Fact]
+    public void Apply_RefusedAtTheLastMoment_IsAFailureToo() =>
+        Assert.Equal(new ApplyVerdict(ApplyVerdictKind.Failed, "fc_unknown", "Future Lab", "Future Lab"),
+            new ApplyWatch().Step(Status(error: "fc_unknown"), 6, "Future Lab"));
+
+    [Fact]
+    public void Apply_OtherNetworkOrHotspot_IsNotJoined_AndTimesOut()
+    {
+        var w = new ApplyWatch();
+        w.Step(ApplyPoll.NoAnswer, 6, "Lab 2");
+        Assert.Equal(ApplyVerdictKind.Waiting, w.Step(Status("client", "Future Lab"), 30, "Lab 2").Kind);
+        Assert.Equal(ApplyVerdictKind.Waiting, w.Step(Status("hotspot", "bumblebee-hotspot"), 60, "Lab 2").Kind);
+        Assert.Equal(ApplyVerdictKind.NotFound, w.Step(ApplyPoll.NoAnswer, 150, "Lab 2").Kind);
+        Assert.Equal(ApplyVerdictKind.Joined, w.Step(Status("client", "netplan-wlan0-Lab 2"), 40, "Lab 2").Kind);
+    }
+
+    [Theory]
+    [InlineData("fc_unknown", LinkState.TelemetryFrozen, null, true)]
+    [InlineData("armed", LinkState.Ok, true, true)]
+    [InlineData("fc_unknown", LinkState.Ok, false, false)]
+    [InlineData("armed", LinkState.Ok, false, false)]
+    [InlineData("nmcli_failed", LinkState.Ok, false, true)]
+    [InlineData(null, LinkState.Ok, false, true)]
+    public void OldRefusalBanner_GoesOnceTheDroneIsHealthy(string? code, LinkState link, bool? armed, bool stays) =>
+        Assert.Equal(stays, RefusalBanner.StillTrue(code, link, armed));
 }

@@ -5,9 +5,9 @@ Versioning follows [SemVer](https://semver.org/); each release has a tag `vX.Y.Z
 a release page in the [wiki](https://github.com/futureLabKezad/bumblebee-students/wiki)
 and downloadable builds.
 
-## v1.0.2 — unreleased
+## v1.0.2 — 2026-10-26
 
-Drone update **1.0.2** (update bundle; release candidate `1.0.2-rc2`) and ground
+Drone update **1.0.2** (update bundle `bumblebee-update-1.0.2.tgz`, release `v1.0.2`) and ground
 station **Bumblebee GCS 1.2.0** (Mac and Windows). Theme: the screen never
 misleads about safety, one click cannot take a drone out of class, the app
 only watches. Flight code and PX4 parameters are unchanged by these items;
@@ -38,6 +38,12 @@ flight-side changes for 1.0.2 are listed separately when they land.
 - Video server: a camera's ROS subscription is released 10 s after its last
   viewer (the ArUco debug image stops rendering), a vanished viewer is dropped
   after 10 s, and stream parameters are capped and shared fairly.
+- Ubuntu's automatic updates are switched off on the drone (`apt-daily` and
+  `apt-daily-upgrade` timers disabled, `APT::Periodic` set to 0): on a drone in
+  class `unattended-upgrades` installed packages and restarted the ROS stack and
+  the Wi-Fi services while it was in use. System updates come with Bumblebee
+  releases. The installer refuses to run during a package update; rollback
+  switches the automatic updates back on.
 - The update bundle carries the version (`drone/VERSION`) and writes it as the
   first line of `/etc/bumblebee_version` (rollback restores it); it now also
   installs `notify_manager.py`, all animations, the video server and the

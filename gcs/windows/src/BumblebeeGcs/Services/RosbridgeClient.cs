@@ -117,10 +117,10 @@ public sealed class RosbridgeClient
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             await ws.ConnectAsync(new Uri($"ws://{host}:{_port}"), cts.Token);
         }
-        catch
+        catch (Exception ex)
         {
             ws.Dispose();
-            HandleDrop(gen);
+            HandleDrop(gen, DropReason.Of(ex));
             return;
         }
         if (!_active || !_generation.IsCurrent(gen)) { ws.Abort(); ws.Dispose(); return; }
@@ -136,7 +136,7 @@ public sealed class RosbridgeClient
             {
                 await ws.SendAsync(Encoding.UTF8.GetBytes(msg), WebSocketMessageType.Text, true, CancellationToken.None);
             }
-            catch { ws.Dispose(); HandleDrop(gen); return; }
+            catch (Exception ex) { ws.Dispose(); HandleDrop(gen, DropReason.Of(ex)); return; }
         }
 
         // Socket open; the Link tile stays "No drone · waiting for FC data" until the first /mavros/state.
@@ -160,13 +160,13 @@ public sealed class RosbridgeClient
             {
                 result = await ws.ReceiveAsync(chunk, CancellationToken.None);
             }
-            catch
+            catch (Exception ex)
             {
                 try { ws.Abort(); } catch { }
-                HandleDrop(gen);
+                HandleDrop(gen, DropReason.Of(ex));
                 return;
             }
-            if (result.MessageType == WebSocketMessageType.Close) { HandleDrop(gen); return; }
+            if (result.MessageType == WebSocketMessageType.Close) { HandleDrop(gen, DropReason.ClosedByDrone); return; }
             message.Write(chunk, 0, result.Count);
             if (!result.EndOfMessage) continue;
             HandleText(Encoding.UTF8.GetString(message.GetBuffer(), 0, (int)message.Length), gen);
@@ -174,11 +174,11 @@ public sealed class RosbridgeClient
         }
     }
 
-    private void HandleDrop(int gen)
+    private void HandleDrop(int gen, string reason)
     {
         if (!_active || !_generation.IsCurrent(gen)) return;
-        // One collapsing log line ("rosbridge lost — reconnecting… · attempt N"), not a line per attempt.
-        OnUiIfCurrent(gen, () => _store.SocketLost(MonoClock.Now));
+        // One collapsing log line ("rosbridge lost (why) — reconnecting… · attempt N"), not a line per attempt.
+        OnUiIfCurrent(gen, () => _store.SocketLost(MonoClock.Now, reason));
         // Реконнект через 3 с (совпадает с поведением веба/мака).
         _ = Task.Delay(ReconnectDelayMs).ContinueWith(_ =>
         {

@@ -65,3 +65,4 @@ ros2_ws/src/bumblebee/src/ros_mjpeg_server.py              /home/lb/ros2_ws/inst
 ros2_ws/src/bumblebee/www/wifi.html                        /home/lb/ros2_ws/src/bumblebee/www/wifi.html                        lb:lb 0644
 ros2_ws/src/bumblebee/www/led.html                         /home/lb/ros2_ws/src/bumblebee/www/led.html                         lb:lb 0644
 ros2_ws/src/bumblebee/www/gcs.html                         /home/lb/ros2_ws/src/bumblebee/www/gcs.html                         lb:lb 0755
+system/apt/99-bumblebee-no-auto-upgrades                   /etc/apt/apt.conf.d/99-bumblebee-no-auto-upgrades                   root:root 0644

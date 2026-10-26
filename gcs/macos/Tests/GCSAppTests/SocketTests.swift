@@ -65,7 +65,8 @@ final class SocketTests: XCTestCase {
         let silentAt = Date()
         XCTAssertTrue(spin(until: 8) { store.link == .noDrone && !store.rosConnected })
         XCTAssertLessThan(Date().timeIntervalSince(silentAt), 6.6)
-        XCTAssertTrue(store.logs.contains { $0.text == "rosbridge lost — reconnecting…" })
+        XCTAssertTrue(store.logs.contains { $0.text == "rosbridge lost (no answer to ping for 4 s) — reconnecting…" },
+                      "the drop says why: \(store.logs.map(\.text))")
 
         // The drone is back: the client reconnects by itself.
         server.answerPings = true
@@ -101,7 +102,9 @@ final class SocketTests: XCTestCase {
         let down = store.logs.filter { $0.key == "rosbridge-down" }
         XCTAssertEqual(down.count, 1)
         XCTAssertGreaterThanOrEqual(down.first?.count ?? 0, 2, "retries counted on one line")
-        XCTAssertEqual(down.first?.text, "rosbridge not reachable — retrying…")
+        let text = down.first?.text ?? ""
+        XCTAssertTrue(text.hasPrefix("rosbridge not reachable (network error") && text.hasSuffix("— retrying…"),
+                      "refused connection says why: \(text)")
     }
 
     // MARK: - MJPEG: one connection, no stale frame, reconnect

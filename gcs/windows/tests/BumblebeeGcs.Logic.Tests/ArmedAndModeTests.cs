@@ -216,4 +216,16 @@ public class ModeLogicTests
     [InlineData("", "")]
     public void EventLine_ModeWithItsExplanation(string mode, string text) =>
         Assert.Equal(text, ModeLogic.ModeWithExplanation(mode));
+
+    [Theory]
+    [InlineData("CMODE(50593792)", "AUTO.LOITER")]   // 0x03040000
+    [InlineData("CMODE(393216)", "OFFBOARD")]        // main 6
+    [InlineData("CMODE(196608)", "POSCTL")]          // main 3
+    [InlineData("CMODE(100925440)", "AUTO.LAND")]    // 0x06040000
+    [InlineData("CMODE(4096)", "CMODE(4096)")]       // unknown numbers stay as they are
+    [InlineData("CMODE(x)", "CMODE(x)")]
+    [InlineData("POSCTL", "POSCTL")]
+    [InlineData("", "")]
+    public void ModeNumbersFromMavros_AreNamed(string raw, string name) =>
+        Assert.Equal(name, ModeLogic.Normalize(raw));
 }

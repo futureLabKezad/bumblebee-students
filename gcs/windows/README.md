@@ -4,8 +4,8 @@ Native Windows port of the macOS `bumblebee_gcs_app` (SwiftUI → WinUI 3).
 Design and feature parity: the same dark glass interface, the same screens,
 the same drone protocols.
 
-**Ready-to-run build (1.1.0):** `BumblebeeGCS-1.1.0-windows-x64.zip` on the GitHub release
-[gcs-v1.1.0](https://github.com/futureLabKezad/bumblebee-students/releases/tag/gcs-v1.1.0) —
+**Ready-to-run build (1.2.0):** `BumblebeeGCS-1.2.0-windows-x64.zip` on the GitHub release
+[gcs-v1.2.0](https://github.com/futureLabKezad/bumblebee-students/releases/tag/gcs-v1.2.0) —
 Windows 10/11 x64, self-contained (no .NET needed). Unzip, run `BumblebeeGcs.exe`
 (if SmartScreen warns: *More info* → *Run anyway*, once) and allow Location
 (Settings → Privacy & security → Location) so the app can scan Wi-Fi and find new drones.

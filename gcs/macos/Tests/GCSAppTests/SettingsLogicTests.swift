@@ -159,4 +159,68 @@ final class SettingsLogicTests: XCTestCase {
         XCTAssertEqual(PasswordMemory.after(failure: .droneSilent), .keep)
         XCTAssertEqual(PasswordMemory.after(failure: .other), .keep)
     }
+
+    // MARK: - Apply Now, followed through the drone's status
+
+    private func status(_ mode: String = "client", _ ssid: String = "Future Lab",
+                        error reason: String? = nil) -> ApplyWatch.Poll {
+        .status(mode: mode, ssid: ssid,
+                lastError: reason.map { DroneAPI.JoinError(ssid: "Future Lab", reason: $0, message: "") })
+    }
+
+    func testApplyIsNotDoneWhileTheDroneHasNotLeftYet() {
+        // The 26.10 bench bug: "is on Future Lab" right after the reply, before the switch.
+        var st = ApplyWatch.State()
+        XCTAssertEqual(ApplyWatch.step(&st, poll: status(), elapsed: 1, target: "Future Lab"), .waiting,
+                       "too early to ask")
+        XCTAssertEqual(ApplyWatch.step(&st, poll: status(), elapsed: 6, target: "Future Lab"), .waiting,
+                       "still there and never gone: not decided yet")
+        XCTAssertEqual(ApplyWatch.step(&st, poll: .noAnswer, elapsed: 9, target: "Future Lab"), .waiting)
+        XCTAssertTrue(st.sawGone)
+        XCTAssertEqual(ApplyWatch.step(&st, poll: status(), elapsed: 21, target: "Future Lab"), .joined)
+    }
+
+    func testAFastRejoinThatWasNeverSeenCountsAfterSettling() {
+        var st = ApplyWatch.State()
+        XCTAssertEqual(ApplyWatch.step(&st, poll: status(), elapsed: 19, target: "Future Lab"), .waiting)
+        XCTAssertEqual(ApplyWatch.step(&st, poll: status(), elapsed: 20, target: "Future Lab"), .joined)
+    }
+
+    func testWrongPasswordIsReportedNotTakenForSuccess() {
+        // The drone came back on its old password and says why (5.4 on the bench).
+        var st = ApplyWatch.State()
+        _ = ApplyWatch.step(&st, poll: .noAnswer, elapsed: 8, target: "Future Lab")
+        let v = ApplyWatch.step(&st, poll: status(error: "wrong_password"), elapsed: 95, target: "Future Lab")
+        XCTAssertEqual(v, .failed(reason: "wrong_password", triedSSID: "Future Lab", currentSSID: "Future Lab"))
+        XCTAssertEqual(ApplyWatch.failedText(drone: "Bumblebee-20EC", reason: "wrong_password",
+                                             triedSSID: "Future Lab", currentSSID: "Future Lab"),
+                       "Bumblebee-20EC did not switch: wrong password for Future Lab. "
+                       + "It kept its saved settings and is on Future Lab.")
+    }
+
+    func testRefusedAtTheLastMomentIsAFailureToo() {
+        var st = ApplyWatch.State()
+        let v = ApplyWatch.step(&st, poll: status(error: "fc_unknown"), elapsed: 6, target: "Future Lab")
+        XCTAssertEqual(v, .failed(reason: "fc_unknown", triedSSID: "Future Lab", currentSSID: "Future Lab"))
+    }
+
+    func testOtherNetworkOrHotspotIsNotJoinedAndTimesOut() {
+        var st = ApplyWatch.State()
+        _ = ApplyWatch.step(&st, poll: .noAnswer, elapsed: 6, target: "Lab 2")
+        XCTAssertEqual(ApplyWatch.step(&st, poll: status("client", "Future Lab"), elapsed: 30, target: "Lab 2"), .waiting)
+        XCTAssertEqual(ApplyWatch.step(&st, poll: status("hotspot", "bumblebee-hotspot"), elapsed: 60, target: "Lab 2"),
+                       .waiting)
+        XCTAssertEqual(ApplyWatch.step(&st, poll: .noAnswer, elapsed: 150, target: "Lab 2"), .notFound)
+        XCTAssertEqual(ApplyWatch.step(&st, poll: status("client", "netplan-wlan0-Lab 2"), elapsed: 40, target: "Lab 2"),
+                       .joined, "a netplan profile of the target counts")
+    }
+
+    func testOldRefusalBannerGoesOnceTheDroneIsHealthy() {
+        XCTAssertTrue(RefusalBanner.stillTrue(code: "fc_unknown", link: .telemetryFrozen, armed: nil))
+        XCTAssertTrue(RefusalBanner.stillTrue(code: "armed", link: .ok, armed: true))
+        XCTAssertFalse(RefusalBanner.stillTrue(code: "fc_unknown", link: .ok, armed: false))
+        XCTAssertFalse(RefusalBanner.stillTrue(code: "armed", link: .ok, armed: false))
+        XCTAssertTrue(RefusalBanner.stillTrue(code: "nmcli_failed", link: .ok, armed: false), "other errors stay")
+        XCTAssertTrue(RefusalBanner.stillTrue(code: nil, link: .ok, armed: false))
+    }
 }

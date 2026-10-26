@@ -223,6 +223,23 @@ enum ModeText {
         }
     }
 
+    /// MAVROS names a PX4 mode it cannot decode yet (the first seconds after a
+    /// boot) "CMODE(<custom_mode>)". PX4 packs the main mode into bits 16–23
+    /// and the AUTO sub-mode into bits 24–31: CMODE(50593792) = 0x03040000 is
+    /// AUTO.LOITER. Known numbers become their name; others stay as they are.
+    static func normalize(_ raw: String) -> String {
+        let t = raw.trimmingCharacters(in: .whitespaces)
+        guard t.hasPrefix("CMODE("), t.hasSuffix(")"),
+              let n = UInt32(t.dropFirst(6).dropLast()) else { return raw }
+        let main = (n >> 16) & 0xFF, sub = (n >> 24) & 0xFF
+        let mains: [UInt32: String] = [1: "MANUAL", 2: "ALTCTL", 3: "POSCTL", 5: "ACRO", 6: "OFFBOARD", 7: "STABILIZED"]
+        if let name = mains[main] { return name }
+        let autos: [UInt32: String] = [1: "AUTO.READY", 2: "AUTO.TAKEOFF", 3: "AUTO.LOITER", 4: "AUTO.MISSION",
+                                       5: "AUTO.RTL", 6: "AUTO.LAND", 8: "AUTO.FOLLOW_TARGET", 9: "AUTO.PRECLAND"]
+        if main == 4, let name = autos[sub] { return name }
+        return raw
+    }
+
     /// The Mode tile's value: "—" until a State with a mode arrives.
     static func display(_ mode: String?) -> String {
         let m = (mode ?? "").trimmingCharacters(in: .whitespaces).uppercased()
@@ -527,6 +544,24 @@ struct AttitudeSource {
 
 /// A WebSocket ping every 2 s; a ping without a pong for 4 s means the link
 /// died silently (drone switched off, out of Wi-Fi range).
+/// Why the rosbridge socket was given up, for the Messages panel and "Copy
+/// diagnostics": a silent link (ping), the drone closing it, or a network error.
+enum DropReason {
+    static let noPong = "no answer to ping for \(Int(PingWatchdog.timeout)) s"
+    static let closedByDrone = "closed by the drone"
+
+    static func network(_ detail: String) -> String {
+        let d = detail.trimmingCharacters(in: .whitespacesAndNewlines)
+        return d.isEmpty ? "network error" : "network error: \(d)"
+    }
+
+    /// "rosbridge lost (no answer to ping for 4 s) — reconnecting…"
+    static func line(wasLinked: Bool, reason: String?) -> String {
+        let why = reason.map { " (\($0))" } ?? ""
+        return wasLinked ? "rosbridge lost\(why) — reconnecting…" : "rosbridge not reachable\(why) — retrying…"
+    }
+}
+
 struct PingWatchdog {
     static let interval: TimeInterval = 2.0
     static let timeout: TimeInterval = 4.0

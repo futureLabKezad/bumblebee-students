@@ -36,6 +36,7 @@ struct SettingsView: View {
     @State private var addSSID = ""
     @State private var addPass = ""
     @State private var msg: (text: String, kind: StatusBanner.Kind)?
+    @State private var msgCode: String?           // the drone's code behind an error banner
     @State private var busy = false
     @State private var confirmMode: String?
     @State private var confirmRemove: String?
@@ -70,6 +71,12 @@ struct SettingsView: View {
         .background(Theme.appGradient)
         .task { await refreshStatusLoop() }
         .task { info = await app.api.info(); await loadSaved() }
+        .onReceive(app.telemetry.$link) { link in
+            // an old "refused: counts as armed" goes once the drone is linked and disarmed
+            if !RefusalBanner.stillTrue(code: msgCode, link: link, armed: app.telemetry.stateArmed) {
+                msg = nil; msgCode = nil
+            }
+        }
         .confirmationDialog(confirmModeTitle, isPresented: Binding(
             get: { confirmMode != nil }, set: { if !$0 { confirmMode = nil } })) {
             Button("Switch to \(confirmMode ?? "")", role: .destructive) {
@@ -246,7 +253,12 @@ struct SettingsView: View {
 
     // MARK: - Actions
 
-    private func show(_ text: String, _ kind: StatusBanner.Kind) { msg = (text, kind) }
+    private func show(_ text: String, _ kind: StatusBanner.Kind) { msg = (text, kind); msgCode = nil }
+
+    private func showError(_ error: Error) {
+        msg = (DroneAPI.describe(error), .error)
+        msgCode = DroneAPI.code(error)
+    }
 
     private func applyStatus(_ s: DroneAPI.WifiStatus) {
         status = s
@@ -286,7 +298,7 @@ struct SettingsView: View {
             return s
         } catch {
             statusError = DroneAPI.describe(error)
-            show(DroneAPI.describe(error), .error)
+            showError(error)
             return nil
         }
     }
@@ -296,6 +308,7 @@ struct SettingsView: View {
         guard !busy else { return }
         busy = true
         msg = nil
+        msgCode = nil
         Task { await op(); busy = false }
     }
 
@@ -307,7 +320,7 @@ struct SettingsView: View {
                 show(mode == "hotspot"
                      ? "\(droneLabel) is switching to its hotspot Bumblebee-\(droneID ?? "XXXX")."
                      : "\(droneLabel) is leaving its hotspot for a saved network (~60 s).", .success)
-            } catch { show(DroneAPI.describe(error), .error) }
+            } catch { showError(error) }
         }
     }
 
@@ -328,7 +341,7 @@ struct SettingsView: View {
                 }
             } catch where DroneAPI.code(error) == "active_network" {
                 confirmRemove = name           // the drone says it is in use: ask first
-            } catch { show(DroneAPI.describe(error), .error) }
+            } catch { showError(error) }
         }
     }
 
@@ -342,7 +355,7 @@ struct SettingsView: View {
                 show("Saved \(ssid) on \(droneLabel): it is used at the next start-up, "
                      + "or when the current network goes away. This password could not be tested now.", .success)
                 await loadSaved()
-            } catch { show(DroneAPI.describe(error), .error) }
+            } catch { showError(error) }
         }
     }
 
@@ -358,21 +371,61 @@ struct SettingsView: View {
             } catch where DroneAPI.isLinkDrop(error) {
                 // Drone software before 1.0.1 switches before replying: it is on its way.
             } catch {
-                show(DroneAPI.describe(error), .error)
+                showError(error)
                 return
             }
             handoff.refreshCurrentSSID()
             let next = ApplyFollowUp.decide(target: ssid, computerSSID: handoff.currentSSID, droneID: id)
             show(next.text(drone: drone, target: ssid), .info)
             guard next == .waitHere, let id else { return }
-            if let host = await WifiHandoff.waitForDrone(expectedID: id, timeout: 90) {
-                if host != app.droneHost { app.connect(to: host) } else { app.reconnect() }
-                app.droneID = id
-                show("\(drone) is on \(ssid) (\(host)).", .success)
-            } else {
-                show(ApplyFollowUp.notFoundText(drone: drone, id: id, target: ssid), .caution)
-            }
+            await watchApply(target: ssid, droneID: id, drone: drone)
         }
+    }
+
+    /// Follows an Apply Now through the drone's status until it is decided
+    /// (ApplyWatch); the buttons stay disabled meanwhile, so a second press
+    /// cannot meet the drone while it switches.
+    private func watchApply(target: String, droneID id: String, drone: String) async {
+        let started = Date()
+        var state = ApplyWatch.State()
+        var host = app.droneHost
+        while !Task.isCancelled {
+            let elapsed = Date().timeIntervalSince(started)
+            if elapsed >= ApplyWatch.firstCheck {
+                let poll = await pollStatus(host: host)
+                switch ApplyWatch.step(&state, poll: poll, elapsed: elapsed, target: target) {
+                case .waiting:
+                    break
+                case .joined:
+                    if host != app.droneHost { app.connect(to: host) }   // same address: rosbridge reconnects by itself
+                    app.droneID = id
+                    show(ApplyWatch.joinedText(drone: drone, target: target, host: host), .success)
+                    await refreshStatus()
+                    await loadSaved()
+                    return
+                case .failed(let reason, let tried, let current):
+                    show(ApplyWatch.failedText(drone: drone, reason: reason, triedSSID: tried,
+                                               currentSSID: current), .caution)
+                    await refreshStatus()
+                    return
+                case .notFound:
+                    show(ApplyFollowUp.notFoundText(drone: drone, id: id, target: target), .caution)
+                    return
+                }
+                if state.sawGone, poll == .noAnswer,
+                   let h = await WifiHandoff.waitForDrone(expectedID: id, timeout: 2) {
+                    host = h                                   // it may have a new address on the target
+                }
+            }
+            try? await Task.sleep(nanoseconds: UInt64(ApplyWatch.interval * 1_000_000_000))
+        }
+    }
+
+    private func pollStatus(host: String) async -> ApplyWatch.Poll {
+        let probe = DroneAPI()
+        probe.host = host
+        guard let s = try? await probe.wifiStatus() else { return .noAnswer }
+        return .status(mode: s.mode, ssid: s.ssid, lastError: s.lastError)
     }
 
     private func doScan() {

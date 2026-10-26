@@ -28,6 +28,7 @@
 #     --force       skip the "is it armed?" check (only if ROS is not running)
 #
 # BB_ROOT=/some/dir runs against a fake root for testing (no sudo/systemctl).
+# BB_PGREP=/path/to/pgrep replaces pgrep for the "package update running" check (tests).
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -50,6 +51,22 @@ else
 fi
 
 say() { echo "[bumblebee-update] $*"; }
+
+# ---- 0. not during an Ubuntu package update ----------------------------------
+# unattended-upgrades restarts services after its packages; a half-installed
+# dpkg must not be cut short either. No --force for this one.
+# Matched on the command line: unattended-upgrade-shutdown, which waits for the
+# system to shut down all the time, has the same 15-character process name.
+package_update_running() {
+    ${BB_PGREP:-pgrep} -f 'unattended-upgrade( |$)' >/dev/null 2>&1 && return 0
+    ${BB_PGREP:-pgrep} -x 'apt|apt-get|dpkg' >/dev/null 2>&1
+}
+if package_update_running; then
+    say "an Ubuntu package update is running (unattended-upgrade, apt or dpkg)."
+    say "Wait until it has finished - do not switch the drone off meanwhile - and run this again."
+    say "Check with: systemctl is-active apt-daily-upgrade   (finished when it says inactive)"
+    exit 1
+fi
 
 # ---- 1. safety: never while armed -------------------------------------------
 if [ -z "$ROOT" ] && [ "$FORCE" -eq 0 ]; then
@@ -149,6 +166,24 @@ for t in bumblebee-clock-jump.timer bumblebee-identity-recheck.timer; do
     fi
 done
 
+# Ubuntu's automatic updates installed packages on a drone in class and
+# restarted the ROS stack and the Wi-Fi services while it was in use (bench,
+# 26.10.2026). Drones get system updates with Bumblebee releases instead: the
+# two apt timers are disabled (their symlinks removed, like the enabling above)
+# and 99-bumblebee-no-auto-upgrades (MANIFEST) sets APT::Periodic to 0 in case
+# they come back. Rollback restores the symlinks and starts the timers again.
+APT_TIMERS_OFF=""
+for t in apt-daily.timer apt-daily-upgrade.timer; do
+    link="$WANTS/$t"
+    if [ -L "$link" ] || [ -e "$link" ]; then
+        target=$(readlink "$link" || true)
+        $SUDO rm -f "$link"
+        echo "$SUDO ln -sf '${target:-/usr/lib/systemd/system/$t}' '$link'" >> "$ROLLBACK"
+        APT_TIMERS_OFF="$APT_TIMERS_OFF $t"
+        say "disabled $t (Ubuntu automatic updates)"
+    fi
+done
+
 MU_WANTS="$ROOT/etc/systemd/system/multi-user.target.wants"
 if [ ! -e "$MU_WANTS/bumblebee-ros-watchdog.service" ]; then
     $SUDO mkdir -p "$MU_WANTS"
@@ -188,6 +223,7 @@ fi
 {
     echo "systemctl stop bumblebee-clock-jump.timer bumblebee-identity-recheck.timer bumblebee-ros-watchdog || true"
     echo "systemctl daemon-reload || true"
+    [ -n "$APT_TIMERS_OFF" ] && echo "systemctl start$APT_TIMERS_OFF || true"
     echo "systemctl restart wifi-manager wifi-watchdog sys_metrics notify-manager bumblebee-identity || true"
     echo "echo 'rolled back to the state before $TS'"
     echo "echo 'Reboot the drone now (sudo reboot): the flight stack still runs with the update until then.'"
@@ -211,6 +247,8 @@ fi
 # ---- 5. restart only the non-flight services that changed ------------------
 $SUDO systemctl daemon-reload            # unit files and drop-ins may have changed
 $SUDO systemctl start bumblebee-clock-jump.timer bumblebee-identity-recheck.timer || true
+# stops the timers only: an update that is already running is never cut short
+[ -n "$APT_TIMERS_OFF" ] && { $SUDO systemctl stop $APT_TIMERS_OFF || true; }
 $SUDO systemctl restart bumblebee-ros-watchdog || true
 [ -z "$ROOT" ] && $SUDO sysctl --system >/dev/null 2>&1 || true   # bigger DDS socket buffers
 $SUDO systemctl restart wifi-manager wifi-watchdog sys_metrics
