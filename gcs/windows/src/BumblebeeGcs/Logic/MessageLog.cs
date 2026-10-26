@@ -109,8 +109,8 @@ public sealed class LinkLog
         return ($"rosbridge back ({host}) · lost {_drops}×", Key);
     }
 
-    /// <summary>The socket dropped or a connect attempt failed.</summary>
-    public (string Text, string? Key) Failed()
+    /// <summary>The socket dropped or a connect attempt failed (reason: see DropReason).</summary>
+    public (string Text, string? Key) Failed(string? reason = null)
     {
         if (_connected)
         {
@@ -119,7 +119,8 @@ public sealed class LinkLog
             _attempts = 0;
         }
         _attempts++;
-        var text = _everConnected ? "rosbridge lost — reconnecting…" : "rosbridge not reachable — retrying…";
+        var why = reason is null ? "" : $" ({reason})";
+        var text = _everConnected ? $"rosbridge lost{why} — reconnecting…" : $"rosbridge not reachable{why} — retrying…";
         if (_drops > 1) text += $" · lost {_drops}×";
         if (_attempts > 1) text += $" · attempt {_attempts}";
         return (text, Key);
@@ -129,5 +130,39 @@ public sealed class LinkLog
     {
         _connected = _everConnected = false;
         _drops = _attempts = 0;
+    }
+}
+
+/// <summary>
+/// Why the rosbridge socket was given up, for the Messages panel and "Copy diagnostics":
+/// a silent link (no pong), the drone closing it, or a network error (same texts as the Mac app).
+/// </summary>
+public static class DropReason
+{
+    public const string NoPong = "no answer to ping for 4 s";
+    public const string ClosedByDrone = "closed by the drone";
+
+    public static string Network(string? detail)
+    {
+        var d = (detail ?? "").Trim();
+        return d.Length == 0 ? "network error" : $"network error: {d}";
+    }
+
+    /// <summary>
+    /// A failed connect or receive: the keep-alive timeout (.NET aborts the socket when no pong
+    /// came within KeepAliveTimeout and says so in the message) is a silent link, anything else
+    /// a network error with the innermost message.
+    /// </summary>
+    public static string Of(Exception ex)
+    {
+        for (Exception? e = ex; e is not null; e = e.InnerException)
+        {
+            if (e.Message.Contains("Pong", StringComparison.OrdinalIgnoreCase)
+                || e.Message.Contains("KeepAlive", StringComparison.OrdinalIgnoreCase))
+                return NoPong;
+        }
+        var inner = ex;
+        while (inner.InnerException is not null) inner = inner.InnerException;
+        return Network(inner.Message);
     }
 }

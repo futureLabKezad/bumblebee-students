@@ -157,6 +157,30 @@ final class TelemetryStoreTests: XCTestCase {
         XCTAssertNotEqual(s.link, .ok)
     }
 
+    func testDropLineSaysWhy() {
+        let s = makeStore()
+        s.socketOpened(host: "h", now: at(0))
+        s.socketDropped(wasLinked: true, reason: DropReason.noPong, now: at(1))
+        XCTAssertEqual(s.logs.first?.text, "rosbridge lost (no answer to ping for 4 s) — reconnecting…")
+        XCTAssertEqual(DropReason.line(wasLinked: false, reason: DropReason.closedByDrone),
+                       "rosbridge not reachable (closed by the drone) — retrying…")
+        XCTAssertEqual(DropReason.network("  The network connection was lost.\n"),
+                       "network error: The network connection was lost.")
+        XCTAssertEqual(DropReason.network(""), "network error")
+    }
+
+    func testRawPX4ModeNumberIsNamed() {
+        let s = makeStore()
+        s.socketOpened(host: "h", now: at(0))
+        state(s, armed: false, mode: "", at: at(0.5))
+        state(s, armed: false, mode: "CMODE(50593792)", at: at(1))       // 0x03040000: AUTO.LOITER
+        state(s, armed: false, mode: "AUTO.LOITER", at: at(2))
+        XCTAssertEqual(s.mode, "AUTO.LOITER")
+        let modeLines = s.logs.map(\.text).filter { $0.hasPrefix("mode → ") }
+        XCTAssertEqual(modeLines, ["mode → AUTO.LOITER (PX4 holding)", "mode → unknown"],
+                       "no raw CMODE line, and no second AUTO.LOITER line")
+    }
+
     func testReconnectKeepsTheLogButNotTheArmedFlag() {
         let s = makeStore()
         fill(s)

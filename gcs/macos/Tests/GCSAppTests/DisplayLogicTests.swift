@@ -222,4 +222,15 @@ final class DisplayLogicTests: XCTestCase {
         XCTAssertEqual(VideoStatus.of(lastFrameAt: at(5), startedAt: at(0), now: at(8.0)), .live, "3.0 s old is still live")
         XCTAssertEqual(VideoStatus.of(lastFrameAt: at(5), startedAt: at(0), now: at(12.4)), .lost(seconds: 7))
     }
+
+    func testModeNumbersFromMAVROS() {
+        XCTAssertEqual(ModeText.normalize("CMODE(50593792)"), "AUTO.LOITER")
+        XCTAssertEqual(ModeText.normalize("CMODE(393216)"), "OFFBOARD")       // main 6
+        XCTAssertEqual(ModeText.normalize("CMODE(196608)"), "POSCTL")         // main 3
+        XCTAssertEqual(ModeText.normalize("CMODE(100925440)"), "AUTO.LAND")   // 0x06040000
+        XCTAssertEqual(ModeText.normalize("CMODE(4096)"), "CMODE(4096)", "unknown numbers stay as they are")
+        XCTAssertEqual(ModeText.normalize("CMODE(x)"), "CMODE(x)")
+        XCTAssertEqual(ModeText.normalize("POSCTL"), "POSCTL")
+        XCTAssertEqual(ModeText.normalize(""), "")
+    }
 }

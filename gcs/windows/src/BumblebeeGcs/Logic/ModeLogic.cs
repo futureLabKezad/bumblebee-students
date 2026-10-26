@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Globalization;
+
 namespace BumblebeeGcs.Logic;
 
 /// <summary>Armed is tri-state: true, false or null (unknown).</summary>
@@ -63,6 +65,35 @@ public static class ModeLogic
         var m when m.StartsWith("AUTO.", StringComparison.Ordinal) => "PX4 automatic",
         _ => "",
     };
+
+    static readonly Dictionary<uint, string> MainModes = new()
+    {
+        [1] = "MANUAL", [2] = "ALTCTL", [3] = "POSCTL", [5] = "ACRO", [6] = "OFFBOARD", [7] = "STABILIZED",
+    };
+
+    static readonly Dictionary<uint, string> AutoModes = new()
+    {
+        [1] = "AUTO.READY", [2] = "AUTO.TAKEOFF", [3] = "AUTO.LOITER", [4] = "AUTO.MISSION",
+        [5] = "AUTO.RTL", [6] = "AUTO.LAND", [8] = "AUTO.FOLLOW_TARGET", [9] = "AUTO.PRECLAND",
+    };
+
+    /// <summary>
+    /// MAVROS names a PX4 mode it cannot decode yet (the first seconds after a boot)
+    /// "CMODE(&lt;custom_mode&gt;)". PX4 packs the main mode into bits 16–23 and the AUTO sub-mode
+    /// into bits 24–31: CMODE(50593792) = 0x03040000 is AUTO.LOITER. Known numbers become their
+    /// name; others stay as they are (same as the Mac app).
+    /// </summary>
+    public static string Normalize(string raw)
+    {
+        var t = raw.Trim();
+        if (!t.StartsWith("CMODE(", StringComparison.Ordinal) || !t.EndsWith(')')
+            || !uint.TryParse(t[6..^1], NumberStyles.None, CultureInfo.InvariantCulture, out var n))
+            return raw;
+        uint main = (n >> 16) & 0xFF, sub = (n >> 24) & 0xFF;
+        if (MainModes.TryGetValue(main, out var name)) return name;
+        if (main == 4 && AutoModes.TryGetValue(sub, out var auto)) return auto;
+        return raw;
+    }
 
     /// <summary>The mode as shown on the tile: "—" until a state with a mode arrives.</summary>
     public static string DisplayMode(string? mode) => Norm(mode) is { Length: > 0 } m ? m : Format.Dash;

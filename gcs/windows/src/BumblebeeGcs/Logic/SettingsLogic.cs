@@ -176,6 +176,79 @@ public readonly record struct ApplyFollowUp(FollowUpKind Kind, string? ComputerS
         $"Bumblebee-{id} in the drone list.";
 }
 
+/// <summary>One read of the drone's status while an Apply Now is followed (Answered false: no reply).</summary>
+public readonly record struct ApplyPoll(bool Answered, string Mode = "", string Ssid = "",
+                                        string? ErrorReason = null, string? ErrorSsid = null)
+{
+    public static readonly ApplyPoll NoAnswer = new(false);
+}
+
+public enum ApplyVerdictKind { Waiting, Joined, Failed, NotFound }
+
+public readonly record struct ApplyVerdict(ApplyVerdictKind Kind, string? Reason = null,
+                                           string? TriedSsid = null, string? CurrentSsid = null);
+
+/// <summary>
+/// What happened after Apply Now, read from the drone's own status rather than from DNS-SD:
+/// the drone answers its reply first and switches 1.5 s later, and its DNS-SD record stays
+/// cached, so "found it" right after the reply only meant "it has not left yet".
+/// The drone deletes last_error when it gets an Apply Now, so a last_error in any later status
+/// belongs to this attempt (a wrong password: it came back on its saved one and says why).
+/// Without one it counts as joined once it is on the target after having been away, or after
+/// SettleSeconds if it never dropped (a fast re-join can stay unnoticed between two polls).
+/// Same rules as the Mac app (ApplyWatch).
+/// </summary>
+public sealed class ApplyWatch
+{
+    public const double FirstCheckSeconds = 5;   // reply, 1.5 s, then the join starts
+    public const double IntervalSeconds = 3;
+    public const double SettleSeconds = 20;
+    public const double TimeoutSeconds = 150;    // wrong password: ~40 s join, hotspot, ≤ 60 s, back
+
+    public bool SawGone { get; private set; }
+
+    public ApplyVerdict Step(ApplyPoll poll, double elapsed, string target)
+    {
+        if (elapsed < FirstCheckSeconds) return new(ApplyVerdictKind.Waiting);
+        if (!poll.Answered)
+        {
+            SawGone = true;
+        }
+        else if (poll.ErrorReason is string reason)
+        {
+            var current = poll.Mode == "client" && poll.Ssid.Length > 0 ? poll.Ssid : null;
+            var tried = string.IsNullOrEmpty(poll.ErrorSsid) ? target : poll.ErrorSsid;
+            return new(ApplyVerdictKind.Failed, reason, tried, current);
+        }
+        else if (poll.Mode == "client" && WifiNames.Same(target, poll.Ssid)    // status.ssid is a profile name
+                 && (SawGone || elapsed >= SettleSeconds))
+        {
+            return new(ApplyVerdictKind.Joined);
+        }
+        return new(elapsed >= TimeoutSeconds ? ApplyVerdictKind.NotFound : ApplyVerdictKind.Waiting);
+    }
+
+    public static string JoinedText(string drone, string target, string host) => $"{drone} is on {target} ({host}).";
+
+    public static string FailedText(string drone, string reason, string triedSsid, string? currentSsid)
+    {
+        var why = JoinReasonText.Text(reason, triedSsid);
+        return currentSsid is null
+            ? $"{drone} did not switch: {why}."
+            : $"{drone} did not switch: {why}. It kept its saved settings and is on {currentSsid}.";
+    }
+}
+
+/// <summary>
+/// A refusal shown in Settings that only held while the flight controller was armed or unknown:
+/// cleared once the drone is linked and disarmed again (same rule as the Mac app).
+/// </summary>
+public static class RefusalBanner
+{
+    public static bool StillTrue(string? code, LinkState link, bool? armed) =>
+        code is not ("armed" or "fc_unknown") || !(link == LinkState.Ok && armed == false);
+}
+
 /// <summary>
 /// Whether a drone DNS-SD reports is the one we wait for. With an id only that id counts.
 /// Without one (drone software before 1.0.1) a drone without an id counts only after

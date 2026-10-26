@@ -206,6 +206,78 @@ enum ApplyFollowUp: Equatable {
     }
 }
 
+// MARK: - Watching an Apply Now
+
+/// What happened after Apply Now, read from the drone's own status rather than
+/// from Bonjour: the drone answers its reply first and switches 1.5 s later,
+/// and its Bonjour record stays cached for minutes, so "found it" right after
+/// the reply only meant "it has not left yet".
+///
+/// The drone deletes `last_error` when it gets an Apply Now, so a `last_error`
+/// in any later status belongs to this attempt (a wrong password: it tried the
+/// new password, came back on its saved one and says why). Without one, the
+/// drone counts as joined once it is on the target after having been away, or
+/// after `settle` seconds if it never dropped (a fast re-join of the same
+/// network can stay unnoticed between two polls).
+enum ApplyWatch {
+    static let firstCheck: TimeInterval = 5    // reply, 1.5 s, then the join starts
+    static let interval: TimeInterval = 3
+    static let settle: TimeInterval = 20
+    static let timeout: TimeInterval = 150     // wrong password: ~40 s join, hotspot, ≤60 s, back
+
+    enum Poll: Equatable {
+        case noAnswer
+        case status(mode: String, ssid: String, lastError: DroneAPI.JoinError?)
+    }
+
+    enum Verdict: Equatable {
+        case waiting
+        case joined
+        case failed(reason: String, triedSSID: String, currentSSID: String?)
+        case notFound
+    }
+
+    struct State: Equatable { var sawGone = false }
+
+    static func step(_ state: inout State, poll: Poll, elapsed: TimeInterval, target: String) -> Verdict {
+        if elapsed < firstCheck { return .waiting }
+        switch poll {
+        case .noAnswer:
+            state.sawGone = true
+        case .status(let mode, let ssid, let lastError):
+            if let e = lastError {
+                let current = mode == "client" && !ssid.isEmpty ? ssid : nil
+                return .failed(reason: e.reason, triedSSID: e.ssid.isEmpty ? target : e.ssid, currentSSID: current)
+            }
+            if mode == "client", WifiNames.same(ssid: target, profile: ssid),   // status.ssid is a profile name
+               state.sawGone || elapsed >= settle {
+                return .joined
+            }
+        }
+        return elapsed >= timeout ? .notFound : .waiting
+    }
+
+    static func joinedText(drone: String, target: String, host: String) -> String {
+        "\(drone) is on \(target) (\(host))."
+    }
+
+    static func failedText(drone: String, reason: String, triedSSID: String, currentSSID: String?) -> String {
+        let why = JoinReasonText.text(reason: reason, ssid: triedSSID)
+        guard let now = currentSSID else { return "\(drone) did not switch: \(why)." }
+        return "\(drone) did not switch: \(why). It kept its saved settings and is on \(now)."
+    }
+}
+
+/// A refusal shown in Settings that only held while the flight controller was
+/// armed or unknown: it is cleared once the drone is linked and disarmed again,
+/// so an old "Refused: … counts as armed" does not stay under a healthy drone.
+enum RefusalBanner {
+    static func stillTrue(code: String?, link: LinkState, armed: Bool?) -> Bool {
+        guard let c = code, c == "armed" || c == "fc_unknown" else { return true }
+        return !(link == .ok && armed == false)
+    }
+}
+
 // MARK: - Finding the drone again
 
 /// Whether a drone Bonjour reports is the one we wait for. With an id only

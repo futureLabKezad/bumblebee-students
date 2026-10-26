@@ -87,6 +87,8 @@ public class RosbridgeSocketTests
         Assert.True(dropped > 0.2, "the socket closed before the screen said Telemetry frozen");
         Assert.True(frozen + dropped <= 7.5, $"silent drop noticed after {frozen + dropped:F1} s");
         Assert.Equal(LinkState.NoDrone, h.Read(s => s.Link));
+        var lost = h.Read(s => s.Messages.Entries.First(e => e.Key == LinkLog.Key).Text);
+        Assert.StartsWith("rosbridge lost (no answer to ping for 4 s) — reconnecting…", lost);
 
         server.Frozen = false;
         await h.WaitFor(s => s.Link == LinkState.Ok, 8, "OK again after the reconnect");
@@ -152,7 +154,9 @@ public class RosbridgeSocketTests
         await h.WaitFor(s => s.Messages.Entries.Count == 1 && s.Messages.Entries[0].Text.Contains("attempt 3"), 9,
             "three failed attempts in one line");
         Assert.Equal(LinkState.NoDrone, h.Read(s => s.Link));
-        Assert.StartsWith("rosbridge not reachable — retrying…", h.Read(s => s.Messages.Entries[0].Text));
+        var text = h.Read(s => s.Messages.Entries[0].Text);
+        Assert.StartsWith("rosbridge not reachable (network error", text);
+        Assert.Contains("— retrying…", text);
     }
 
     [Fact]

@@ -326,13 +326,12 @@ final class TelemetryStore: ObservableObject {
         refreshLink(now: now)
     }
 
-    /// The socket closed or stopped answering. Repeated failures collapse into
-    /// one line with a counter.
-    func socketDropped(wasLinked: Bool, now: Date = Date()) {
+    /// The socket closed or stopped answering (`reason`, see DropReason).
+    /// Repeated failures collapse into one line with a counter.
+    func socketDropped(wasLinked: Bool, reason: String? = nil, now: Date = Date()) {
         rosConnected = false
         socketOpenedAt = nil
-        log(wasLinked ? "rosbridge lost — reconnecting…" : "rosbridge not reachable — retrying…",
-            key: "rosbridge-down")
+        log(DropReason.line(wasLinked: wasLinked, reason: reason), key: "rosbridge-down")
         refreshLink(now: now)
     }
 
@@ -362,7 +361,7 @@ final class TelemetryStore: ObservableObject {
             stateAt = now
             stateConnected = msg["connected"] as? Bool
             stateArmed = msg["armed"] as? Bool
-            if let m = msg["mode"] as? String, m != mode {
+            if let raw = msg["mode"] as? String, case let m = ModeText.normalize(raw), m != mode {
                 mode = m
                 log(ModeText.changeLine(m))
             }

@@ -131,13 +131,13 @@ public sealed class TelemetryStore
         Evaluate(now);
     }
 
-    /// <summary>The socket dropped or a connect attempt failed (one collapsing log line).</summary>
-    public void SocketLost(double now)
+    /// <summary>The socket dropped or a connect attempt failed (one collapsing log line, with why).</summary>
+    public void SocketLost(double now, string? reason = null)
     {
         var wasOpen = RosConnected;
         RosConnected = false;
         SocketOpenedAt = null;
-        var (text, key) = LinkLog.Failed();
+        var (text, key) = LinkLog.Failed(reason);
         Messages.AddApp(text, TimeString(), key);
         if (wasOpen) ConnectionChanged?.Invoke();
         Evaluate(now);
@@ -226,6 +226,7 @@ public sealed class TelemetryStore
         StateArmed = armed;
         // MAVROS reports armed=false when the FC is gone: only a connected FC sets the last known value.
         if (connected == true && armed is bool a) LastKnownArmed = a;
+        if (mode is not null) mode = ModeLogic.Normalize(mode);
         if (mode is not null && mode != Mode)
         {
             Mode = mode;

@@ -41,6 +41,7 @@ public sealed class SettingsPage : Grid
     private List<string>? _saved;
     private string? _savedError;
     private bool _busy;
+    private string? _msgCode;   // the drone's code behind the error banner
     private bool _scanning;
 
     private readonly StatusBanner _identityBanner = new();
@@ -113,6 +114,9 @@ public sealed class SettingsPage : Grid
         _statusTimer.Tick += (_, _) => _ = RefreshStatusAsync();
         _statusTimer.Start();
         Unloaded += (_, _) => _statusTimer.Stop();
+        // An old "refused: counts as armed" goes once the drone is linked and disarmed again.
+        _app.Telemetry.LinkChanged += OnLinkChanged;
+        Unloaded += (_, _) => _app.Telemetry.LinkChanged -= OnLinkChanged;
 
         _ = RefreshStatusAsync();
         _ = LoadInfoAndSavedAsync();
@@ -360,7 +364,24 @@ public sealed class SettingsPage : Grid
 
     // MARK: - Actions
 
-    private void Show(string text, StatusBanner.Kind kind) => _msg.Show(text, kind);
+    private void Show(string text, StatusBanner.Kind kind)
+    {
+        _msg.Show(text, kind);
+        _msgCode = null;
+    }
+
+    private void ShowError(Exception ex)
+    {
+        _msg.Show(DroneApi.Describe(ex), StatusBanner.Kind.Error);
+        _msgCode = DroneApi.CodeOf(ex);
+    }
+
+    private void OnLinkChanged()
+    {
+        if (RefusalBanner.StillTrue(_msgCode, _app.Telemetry.Link, _app.Telemetry.StateArmed)) return;
+        _msg.Hide();
+        _msgCode = null;
+    }
 
     /// <summary>One change at a time; the buttons stay disabled until it is over.</summary>
     private void Run(Func<Task> op)
@@ -369,12 +390,13 @@ public sealed class SettingsPage : Grid
         _busy = true;
         _busyRing.Visibility = Visibility.Visible;
         _msg.Hide();
+        _msgCode = null;
         RefreshAll();
         _ = Core();
         async Task Core()
         {
             try { await op(); }
-            catch (Exception ex) { Show(DroneApi.Describe(ex), StatusBanner.Kind.Error); }
+            catch (Exception ex) { ShowError(ex); }
             finally
             {
                 _busy = false;
@@ -410,7 +432,7 @@ public sealed class SettingsPage : Grid
         catch (Exception ex)
         {
             _statusError = DroneApi.Describe(ex);
-            Show(DroneApi.Describe(ex), StatusBanner.Kind.Error);
+            ShowError(ex);
             return null;
         }
     }
@@ -529,17 +551,61 @@ public sealed class SettingsPage : Grid
             var next = ApplyFollowUp.Decide(ssid, _app.Handoff.CurrentSsid, id);
             Show(next.Text(drone, ssid), StatusBanner.Kind.Info);
             if (next.Kind != FollowUpKind.WaitHere || id is null) return;
-            if (await WifiHandoff.WaitForDroneAsync(id, 90) is string host)
-            {
-                if (host != _app.DroneHost) _app.Connect(host); else _app.Reconnect();
-                _app.DroneId = id;
-                Show($"{drone} is on {ssid} ({host}).", StatusBanner.Kind.Success);
-            }
-            else
-            {
-                Show(ApplyFollowUp.NotFoundText(drone, id, ssid), StatusBanner.Kind.Caution);
-            }
+            await WatchApplyAsync(ssid, id, drone);
         });
+    }
+
+    /// <summary>
+    /// Follows an Apply Now through the drone's status until it is decided (ApplyWatch); the
+    /// buttons stay disabled meanwhile, so a second press cannot meet the drone while it switches.
+    /// </summary>
+    private async Task WatchApplyAsync(string target, string id, string drone)
+    {
+        var started = MonoClock.Now;
+        var watch = new ApplyWatch();
+        var host = _app.DroneHost;
+        while (true)
+        {
+            var elapsed = MonoClock.Now - started;
+            if (elapsed >= ApplyWatch.FirstCheckSeconds)
+            {
+                var poll = await PollStatusAsync(host);
+                var v = watch.Step(poll, elapsed, target);
+                switch (v.Kind)
+                {
+                    case ApplyVerdictKind.Joined:
+                        if (host != _app.DroneHost) _app.Connect(host);   // same address: rosbridge reconnects by itself
+                        _app.DroneId = id;
+                        Show(ApplyWatch.JoinedText(drone, target, host), StatusBanner.Kind.Success);
+                        await RefreshStatusAsync();
+                        await LoadSavedAsync();
+                        return;
+                    case ApplyVerdictKind.Failed:
+                        Show(ApplyWatch.FailedText(drone, v.Reason!, v.TriedSsid!, v.CurrentSsid), StatusBanner.Kind.Caution);
+                        await RefreshStatusAsync();
+                        return;
+                    case ApplyVerdictKind.NotFound:
+                        Show(ApplyFollowUp.NotFoundText(drone, id, target), StatusBanner.Kind.Caution);
+                        return;
+                }
+                if (watch.SawGone && !poll.Answered && await WifiHandoff.WaitForDroneAsync(id, 2) is string h)
+                    host = h;                                    // it may have a new address on the target
+            }
+            await Task.Delay(TimeSpan.FromSeconds(ApplyWatch.IntervalSeconds));
+        }
+    }
+
+    private static async Task<ApplyPoll> PollStatusAsync(string host)
+    {
+        try
+        {
+            var s = await new DroneApi { Host = host }.WifiStatusAsync();
+            return new ApplyPoll(true, s.Mode, s.Ssid, s.LastError?.Reason, s.LastError?.Ssid);
+        }
+        catch
+        {
+            return ApplyPoll.NoAnswer;
+        }
     }
 
     private static Color BandColor(string b) =>
