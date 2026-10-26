@@ -50,6 +50,7 @@
     .band-5{background:rgba(34,197,94,.15);color:var(--ok);border:1px solid rgba(34,197,94,.4)}
     .band-6{background:rgba(59,130,246,.15);color:var(--accent2);border:1px solid rgba(59,130,246,.4)}
     .net-actions{display:flex;gap:6px}
+    .in-use{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--ok);border:1px solid rgba(34,197,94,.4);border-radius:3px;padding:1px 5px;margin-left:8px;text-transform:uppercase}
     .add-form{display:flex;flex-direction:column;gap:10px}
     .add-form-row{display:flex;gap:10px;flex-wrap:wrap}
     .add-form-row input{flex:1;min-width:160px}
@@ -173,10 +174,64 @@
     el.textContent = text;
     el.className = 'msg ' + (isErr ? 'msg-err' : 'msg-ok');
     el.classList.remove('hidden');
-    setTimeout(function() { el.classList.add('hidden'); }, 4000);
+    clearTimeout(el.hideTimer);
+    el.hideTimer = setTimeout(function() { el.classList.add('hidden'); }, isErr ? 10000 : 6000);
+  }
+
+  var globalMsg = document.getElementById('msg-global');
+
+  // A drone API call with a JSON body. Resolves to the reply's JSON object
+  // (an error reply without one becomes {ok: false, error: 'HTTP <status>'});
+  // rejects only when no reply arrived at all.
+  function api(method, url, body) {
+    return fetch(url, {
+      method: method,
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    }).then(function(r) {
+      return r.json().catch(function() { return {}; }).then(function(d) {
+        if (!d || typeof d !== 'object') d = {};
+        if (!r.ok) {
+          d.ok = false;
+          if (!d.error) d.error = 'HTTP ' + r.status;
+        }
+        return d;
+      });
+    });
+  }
+
+  // Clear text for a refusal. Drones from 1.0.2 send a stable "code" with
+  // each error; older ones only "error", which is then shown as it is.
+  function explain(d, what) {
+    d = d || {};
+    switch (d.code) {
+      case 'armed':
+        return what + ' refused: the drone is ARMED. Wi-Fi cannot be changed until it is disarmed.';
+      case 'fc_unknown':
+        return what + ' refused: the flight controller is not answering, so the drone counts as armed. ' +
+          'Check that the flight controller is powered and connected. Setting up a network still ' +
+          'works while the drone shows its own Bumblebee-XXXX hotspot.';
+      case 'protected_network':
+        return 'That is a drone\u2019s own setup hotspot (bumblebee-hotspot / Bumblebee-XXXX): ' +
+          'it cannot be saved over, joined, changed or removed here.';
+      case 'active_network':
+        return 'The drone is using this network right now: removing it needs a confirmation.';
+      case 'unknown_network':
+        return 'The drone has no saved network with this name. Save it first.';
+      case 'bad_password_length':
+        return 'A Wi-Fi password has 8 to 63 characters (or is exactly 64 hex digits).';
+      case 'ssid_required':
+        return 'Enter the network name (SSID).';
+      case 'nmcli_timeout':
+        return what + ' timed out on the drone (NetworkManager is busy). Try again in a moment.';
+      case 'nmcli_failed':
+        return what + ' failed on the drone (NetworkManager error; the details are in the drone\u2019s log).';
+    }
+    return what + ' failed: ' + (d.error || 'unknown error');
   }
 
   var currentMode = '';
+  var currentSsid = null;
 
   function updateModeButton() {
     var btn = document.getElementById('mode-btn');
@@ -202,6 +257,10 @@
         modeEl.className = 'stat-value ' +
           (mode === 'hotspot' ? 'mode-hotspot' : (mode === 'client' ? 'mode-client' : ''));
         document.getElementById('s-ssid').textContent = d.ssid || '\u2014';
+        if (d.ssid !== currentSsid) {      // the "in use" mark follows the status
+          currentSsid = d.ssid || '';
+          loadSaved();
+        }
         document.getElementById('s-ip').textContent = d.ip || '\u2014';
         var sig = d.signal || 0;
         document.getElementById('s-signal').textContent = sig + '%';
@@ -225,25 +284,18 @@
     var btn = document.getElementById('mode-btn');
     btn.disabled = true;
     btn.textContent = 'Switching\u2026';
-    fetch('/api/wifi/mode', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({mode: target}),
-    }).then(function(r) { return r.json(); }).then(function(d) {
+    api('POST', '/api/wifi/mode', {mode: target}).then(function(d) {
       btn.disabled = false;
       if (!d.ok) {
-        showMsg(document.getElementById('msg-global'),
-          'Mode switch failed: ' + (d.error || ''), true);
+        showMsg(globalMsg, explain(d, 'Mode switch'), true);
         updateModeButton();
         return;
       }
-      showMsg(document.getElementById('msg-global'),
-        'Switching to ' + target + '\u2026 status will update shortly', false);
+      showMsg(globalMsg, 'Switching to ' + target + '\u2026 status will update shortly', false);
       setTimeout(loadStatus, 4000);
     }).catch(function() {
       btn.disabled = false;
-      showMsg(document.getElementById('msg-global'),
-        'Mode switch request lost (likely network change)', true);
+      showMsg(globalMsg, 'Mode switch request lost (likely network change)', true);
     });
   });
 
@@ -388,33 +440,28 @@
           var row = document.createElement('div');
           row.className = 'net-row';
 
+          var inUse = !!currentSsid && n.name === currentSsid;
           var name = document.createElement('div');
           name.className = 'net-name';
           name.textContent = n.name;
+          if (inUse) {
+            var tag = document.createElement('span');
+            tag.className = 'in-use';
+            tag.textContent = 'in use';
+            name.appendChild(tag);
+          }
 
           var actions = document.createElement('div');
           actions.className = 'net-actions';
           var delBtn = document.createElement('button');
           delBtn.className = 'btn btn-danger btn-sm';
           delBtn.textContent = 'Remove';
-          (function(ssid) {
-            delBtn.addEventListener('click', function() {
-              if (!confirm('Remove network "' + ssid + '"?')) return;
-              fetch('/api/wifi/network', {
-                method: 'DELETE',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ssid: ssid}),
-              }).then(function(r) { return r.json(); }).then(function(d) {
-                if (d.ok) {
-                  loadSaved();
-                } else {
-                  showMsg(document.getElementById('msg-global'), 'Delete failed: ' + (d.error || ''), true);
-                }
-              }).catch(function() {
-                showMsg(document.getElementById('msg-global'), 'Delete request failed', true);
-              });
+          (function(ssid, active, btn) {
+            btn.addEventListener('click', function() {
+              if (!confirm(active ? activeQuestion(ssid) : 'Remove network "' + ssid + '"?')) return;
+              removeNetwork(ssid, active, btn);
             });
-          }(n.name));
+          }(n.name, inUse, delBtn));
           actions.appendChild(delBtn);
 
           row.appendChild(name);
@@ -431,28 +478,61 @@
       });
   }
 
+  function activeQuestion(ssid) {
+    return '"' + ssid + '" is the network the drone is using right now.\n\n' +
+      'Removing it disconnects the drone, and this page with it. The drone then joins ' +
+      'another saved network, or shows its own Bumblebee-XXXX hotspot.\n\nRemove it anyway?';
+  }
+
+  // Safe Remove: the network in use goes only with confirm_active, and the
+  // drone replies before it deletes it. A drone older than 1.0.2 ignores
+  // confirm_active and deletes at once (its reply may then be lost).
+  function removeNetwork(ssid, confirmed, btn) {
+    btn.disabled = true;
+    var body = confirmed ? {ssid: ssid, confirm_active: true} : {ssid: ssid};
+    api('DELETE', '/api/wifi/network', body).then(function(d) {
+      btn.disabled = false;
+      if (d.ok) {
+        if (confirmed || d.deferred) {
+          showMsg(globalMsg, 'Removed "' + ssid + '". The drone is leaving this network now; find it ' +
+            'on another saved network or on its own Bumblebee-XXXX hotspot.', false);
+        } else {
+          showMsg(globalMsg, 'Removed "' + ssid + '"', false);
+          loadSaved();
+        }
+        return;
+      }
+      if (d.code === 'active_network' && !confirmed) {   // the status shown was out of date
+        if (confirm(activeQuestion(ssid))) removeNetwork(ssid, true, btn);
+        return;
+      }
+      showMsg(globalMsg, explain(d, 'Remove'), true);
+    }).catch(function() {
+      btn.disabled = false;
+      showMsg(globalMsg, confirmed
+        ? 'No reply: the drone has probably left this network already.'
+        : 'Remove request failed (no reply from the drone)', true);
+    });
+  }
+
   document.getElementById('btn-apply-now').addEventListener('click', function() {
     var ssid = document.getElementById('add-ssid').value.trim();
     var pass = document.getElementById('add-pass').value;
     var msgEl = document.getElementById('add-msg');
     if (!ssid) { showMsg(msgEl, 'SSID is required', true); return; }
-    fetch('/api/wifi/save', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ssid: ssid, password: pass}),
-    }).then(function(r) { return r.json(); }).then(function(d) {
-      if (!d.ok) { showMsg(msgEl, 'Save failed: ' + (d.error || ''), true); return; }
-      return fetch('/api/wifi/apply-now', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ssid: ssid}),
-      }).then(function(r) { return r.json(); }).then(function(d2) {
+    api('POST', '/api/wifi/save', {ssid: ssid, password: pass}).then(function(d) {
+      if (!d.ok) { showMsg(msgEl, explain(d, 'Save'), true); return; }
+      return api('POST', '/api/wifi/apply-now', {ssid: ssid}).then(function(d2) {
         if (d2.ok) {
-          showMsg(msgEl, 'Saved and connecting\u2026 (status updates in ~5s)', false);
+          // from 1.0.2 a new password is tried first; the old one stays if it fails
+          showMsg(msgEl, d.pending
+            ? 'Trying the new settings for "' + ssid + '"\u2026 The old ones stay until the drone ' +
+              'has joined; with a wrong password it comes back on them (or its hotspot).'
+            : 'Saved and connecting\u2026 (status updates in ~5s)', false);
           setTimeout(loadStatus, 5000);
           loadSaved();
         } else {
-          showMsg(msgEl, 'Saved but connect failed: ' + (d2.error || ''), true);
+          showMsg(msgEl, explain(d2, 'Connect'), true);
         }
       });
     }).catch(function() { showMsg(msgEl, 'Request failed', true); });
@@ -463,19 +543,12 @@
     var pass = document.getElementById('add-pass').value;
     var msgEl = document.getElementById('add-msg');
     if (!ssid) { showMsg(msgEl, 'SSID is required', true); return; }
-    fetch('/api/wifi/save', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ssid: ssid, password: pass}),
-    }).then(function(r) { return r.json(); }).then(function(d) {
-      if (!d.ok) { showMsg(msgEl, 'Save failed: ' + (d.error || ''), true); return; }
-      return fetch('/api/wifi/apply-boot', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ssid: ssid}),
-      }).then(function(r) { return r.json(); }).then(function(d2) {
+    api('POST', '/api/wifi/save', {ssid: ssid, password: pass}).then(function(d) {
+      if (!d.ok) { showMsg(msgEl, explain(d, 'Save'), true); return; }
+      return api('POST', '/api/wifi/apply-boot', {ssid: ssid}).then(function(d2) {
         showMsg(msgEl,
-          d2.ok ? 'Saved \u2014 will connect on next boot' : ('Error: ' + (d2.error || '')),
+          d2.ok ? 'Saved \u2014 will connect on next boot (the password is not tested until then)'
+                : explain(d2, 'Save for next boot'),
           !d2.ok);
         if (d2.ok) loadSaved();
       });
@@ -483,6 +556,7 @@
   });
 
   loadStatus();
+  loadSaved();
   setInterval(loadStatus, 15000);
 }());
 </script>

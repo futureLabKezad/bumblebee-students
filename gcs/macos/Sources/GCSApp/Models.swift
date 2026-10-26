@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import SwiftUI
+import AppKit
 
 // MARK: - Theme (parity with the web dashboard)
 
@@ -109,6 +110,19 @@ enum Theme {
     static let shadowColor: Color = .black.opacity(0.3)
     static let shadowRadius: CGFloat = 8
     static let shadowY: CGFloat = 3
+
+    /// The colour of a Tone decided in TelemetryLogic.swift.
+    static func color(_ tone: Tone) -> Color {
+        switch tone {
+        case .plain: return text
+        case .primary: return primary
+        case .ok: return ok
+        case .warn: return warn
+        case .caution: return caution
+        case .danger: return danger
+        case .neutral: return muted
+        }
+    }
 }
 
 // MARK: - Connect / Splash palette (scoped to the startup screens only)
@@ -178,44 +192,72 @@ struct SystemMetrics: Equatable {
     var memPct: Double?
 }
 
-// MARK: - Log + alerts
-
-struct LogEntry: Identifiable {
-    let id = UUID()
-    let time: String
-    let text: String
-}
-
 // MARK: - Telemetry store (fed by RosbridgeClient on the main thread)
 
+/// One "who is in control" event, shown as its own line under the tiles.
+struct ControlEventLine: Equatable {
+    let time: String
+    let text: String
+    let mode: String
+}
+
+/// Everything the dashboard shows, plus the arrival time of every source so a
+/// panel can tell live data from a frozen link. Values are nil until their
+/// first message: the screen shows "—", never a made-up 0. All methods run on
+/// the main thread; the decisions live in TelemetryLogic.swift.
 final class TelemetryStore: ObservableObject {
-    // Connection / state
-    @Published var rosConnected = false
-    @Published var mode = "—"
-    @Published var armed = false
+    // Link
+    @Published var rosConnected = false                 // the socket answered (pong or message)
+    @Published private(set) var socketOpenedAt: Date?
+    @Published private(set) var link: LinkState = .noDrone
+    @Published private(set) var now = Date()            // clock for "no data N s"
+
+    // /mavros/state
+    @Published private(set) var stateAt: Date?
+    @Published private(set) var stateConnected: Bool?
+    @Published private(set) var stateArmed: Bool?
+    @Published private(set) var mode: String?
+    @Published private(set) var lastKnownArmed: Bool?   // from the last OK link; kept for "ARMED? link lost"
+    @Published private(set) var controlEvent: ControlEventLine?
+    @Published private(set) var fcLost = false          // "Flight controller link lost" banner
+
+    /// Armed as the screen may show it: nil (unknown) unless the link is OK.
+    var armed: Bool? { ArmedDisplay.known(link: link, reported: stateArmed) }
+    var armedDisplay: ArmedDisplay { ArmedDisplay(armed: armed, lastKnownArmed: lastKnownArmed) }
+    var owner: ControlOwner { ControlOwner(armed: armed, mode: mode) }
 
     // Battery
-    @Published var batteryVoltage: Double?
-    @Published var batteryPct: Double?
+    @Published private(set) var battery: BatteryReading?
+    @Published private(set) var batteryAt: Date?
+    @Published private(set) var lowBattery: String?     // red banner text while latched
 
-    // Pose
-    @Published var posX = 0.0
-    @Published var posY = 0.0
-    @Published var posZ = 0.0
-    @Published var roll = 0.0
-    @Published var pitch = 0.0
-    @Published var yaw = 0.0
+    // Pose (local position estimate)
+    @Published private(set) var posX: Double?
+    @Published private(set) var posY: Double?
+    @Published private(set) var posZ: Double?
+    @Published private(set) var poseAt: Date?
+
+    // Attitude (IMU orientation, or the pose when the IMU has none)
+    @Published private(set) var roll: Double?
+    @Published private(set) var pitch: Double?
+    @Published private(set) var yaw: Double?
+    @Published private(set) var attitudeAt: Date?
 
     // Velocity
-    @Published var vx = 0.0
-    @Published var vy = 0.0
-    @Published var vz = 0.0
-    var speedH: Double { (vx * vx + vy * vy).squareRoot() }
-    var speedV: Double { abs(vz) }
+    @Published private(set) var vx: Double?
+    @Published private(set) var vy: Double?
+    @Published private(set) var vz: Double?
+    @Published private(set) var velocityAt: Date?
+    var speedH: Double? {
+        guard let vx = vx, let vy = vy else { return nil }
+        return (vx * vx + vy * vy).squareRoot()
+    }
+    var speedV: Double? { vz.map { abs($0) } }
 
     // IMU
-    @Published var gyroMag = 0.0   // deg/s
-    @Published var accelMag = 0.0  // m/s²
+    @Published private(set) var gyroMag: Double?   // deg/s
+    @Published private(set) var accelMag: Double?  // m/s²
+    @Published private(set) var imuAt: Date?
 
     // Trails / charts
     @Published var posTrail: [CGPoint] = []
@@ -223,17 +265,45 @@ final class TelemetryStore: ObservableObject {
     @Published var chartSpd: [Double] = []
     @Published var chartBat: [Double] = []
 
-    @Published var logs: [LogEntry] = []
-    @Published var lastUpdate = "—"
+    @Published private(set) var logBook = LogBook()
+    var logs: [LogEntry] { logBook.entries }
+
+    /// Plays the system alert sound; tests replace it.
+    var playAlert: () -> Void = { NSSound.beep() }
 
     private let posMax = 200
     private let chartMax = 120
+    private var attitudeSource = AttitudeSource()
+    private var lowBatteryLatch = LowBatteryLatch()
+    private var alarm = FcLostAlarm()
+    private var controlEvents = ControlEvents()
+    private var clock: Timer?
 
-    func touched() { lastUpdate = Self.timeString() }
+    // MARK: Clock
 
-    func log(_ msg: String) {
-        logs.insert(LogEntry(time: Self.timeString(), text: msg), at: 0)
-        if logs.count > 20 { logs.removeLast(logs.count - 20) }
+    /// Re-checks the link twice a second while connected, so a silent State
+    /// turns into "Telemetry frozen" and the captions count up.
+    func startClock() {
+        guard clock == nil else { return }
+        let t = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in self?.tick() }
+        RunLoop.main.add(t, forMode: .common)
+        clock = t
+    }
+
+    func stopClock() {
+        clock?.invalidate()
+        clock = nil
+    }
+
+    func tick(now: Date = Date()) {
+        self.now = now
+        refreshLink(now: now)
+    }
+
+    // MARK: Log
+
+    func log(_ msg: String, key: String? = nil) {
+        logBook.add(msg, key: key, time: Self.timeString())
     }
 
     func pushTrail(_ x: Double, _ y: Double) {
@@ -247,15 +317,157 @@ final class TelemetryStore: ObservableObject {
         if arr.count > chartMax { self[keyPath: kp].removeFirst(arr.count - chartMax) }
     }
 
-    func resetForReconnect() {
-        rosConnected = false
-        mode = "—"; armed = false
-        batteryVoltage = nil; batteryPct = nil
+    // MARK: Socket
+
+    func socketOpened(host: String, now: Date = Date()) {
+        rosConnected = true
+        socketOpenedAt = now
+        log("rosbridge connected (\(host))")
+        refreshLink(now: now)
     }
 
-    static func timeString() -> String {
+    /// The socket closed or stopped answering (`reason`, see DropReason).
+    /// Repeated failures collapse into one line with a counter.
+    func socketDropped(wasLinked: Bool, reason: String? = nil, now: Date = Date()) {
+        rosConnected = false
+        socketOpenedAt = nil
+        log(DropReason.line(wasLinked: wasLinked, reason: reason), key: "rosbridge-down")
+        refreshLink(now: now)
+    }
+
+    /// Link, armed, alarm and control events from the current State and socket.
+    func refreshLink(now: Date) {
+        let l = LinkState.evaluate(socketOpenedAt: socketOpenedAt, stateAt: stateAt,
+                                   stateConnected: stateConnected, now: now)
+        if l != link { link = l }
+        if l == .ok, let a = stateArmed, a != lastKnownArmed { lastKnownArmed = a }
+        if alarm.update(link: l, lastKnownArmed: lastKnownArmed) {
+            playAlert()
+            log(FcLostAlarm.text)
+        }
+        if alarm.active != fcLost { fcLost = alarm.active }
+        let m = mode ?? ""
+        if let ev = controlEvents.update(owner: owner, mode: m) {
+            controlEvent = ControlEventLine(time: Self.timeString(), text: ev, mode: m)
+            log(ev)
+        }
+    }
+
+    // MARK: Messages
+
+    func ingest(topic: String, msg: [String: Any], now: Date = Date()) {
+        switch topic {
+        case "/mavros/state":
+            stateAt = now
+            stateConnected = msg["connected"] as? Bool
+            stateArmed = msg["armed"] as? Bool
+            if let raw = msg["mode"] as? String, case let m = ModeText.normalize(raw), m != mode {
+                mode = m
+                log(ModeText.changeLine(m))
+            }
+            refreshLink(now: now)
+
+        case "/mavros/statustext/recv":
+            let sev = (msg["severity"] as? Int) ?? 99
+            if sev <= 4, let txt = msg["text"] as? String {
+                logBook.add("[FCU] \(txt)", source: .fcu, time: Self.timeString())
+            }
+
+        case "/mavros/battery":
+            let r = BatteryReading.classify(voltage: msg["voltage"] as? Double,
+                                            percentage: msg["percentage"] as? Double)
+            battery = r
+            batteryAt = now
+            if case .measured(let v, let p?) = r {
+                pushChart(\.chartBat, p)
+                if lowBatteryLatch.update(percent: p) {
+                    log(String(format: "WARNING LOW BATTERY: %.2f V (%.0f%%)", v, p))
+                }
+                lowBattery = lowBatteryLatch.active ? String(format: "Low battery: %.2f V · %.0f%%", v, p) : nil
+            }
+
+        case "/mavros/mavros/pose":
+            guard let pose = msg["pose"] as? [String: Any],
+                  let p = pose["position"] as? [String: Any],
+                  let x = p["x"] as? Double, let y = p["y"] as? Double, let z = p["z"] as? Double
+            else { return }
+            posX = x; posY = y; posZ = z
+            poseAt = now
+            if let o = pose["orientation"] as? [String: Any],
+               let e = attitudeSource.fromPose(x: (o["x"] as? Double) ?? 0, y: (o["y"] as? Double) ?? 0,
+                                               z: (o["z"] as? Double) ?? 0, w: (o["w"] as? Double) ?? 1, now: now) {
+                setAttitude(e, now: now)
+            }
+            pushTrail(x, y)
+            pushChart(\.chartAlt, z)
+
+        case "/mavros/mavros/velocity_local":
+            guard let twist = msg["twist"] as? [String: Any],
+                  let l = twist["linear"] as? [String: Any] else { return }
+            vx = (l["x"] as? Double) ?? 0
+            vy = (l["y"] as? Double) ?? 0
+            vz = (l["z"] as? Double) ?? 0
+            velocityAt = now
+            if let s = speedH { pushChart(\.chartSpd, s) }
+
+        case "/mavros/mavros/data":
+            guard let av = msg["angular_velocity"] as? [String: Any],
+                  let la = msg["linear_acceleration"] as? [String: Any] else { return }
+            let gx = (av["x"] as? Double) ?? 0, gy = (av["y"] as? Double) ?? 0, gz = (av["z"] as? Double) ?? 0
+            let ax = (la["x"] as? Double) ?? 0, ay = (la["y"] as? Double) ?? 0, az = (la["z"] as? Double) ?? 0
+            gyroMag = (gx * gx + gy * gy + gz * gz).squareRoot() * 180 / Double.pi
+            accelMag = (ax * ax + ay * ay + az * az).squareRoot()
+            imuAt = now
+            if let o = msg["orientation"] as? [String: Any],
+               let qx = o["x"] as? Double, let qy = o["y"] as? Double,
+               let qz = o["z"] as? Double, let qw = o["w"] as? Double {
+                let cov0 = (msg["orientation_covariance"] as? [Any])?.first as? Double
+                if let e = attitudeSource.fromIMU(x: qx, y: qy, z: qz, w: qw, covariance0: cov0, now: now) {
+                    setAttitude(e, now: now)
+                }
+            }
+
+        default: break
+        }
+    }
+
+    private func setAttitude(_ e: Euler, now: Date) {
+        roll = e.roll; pitch = e.pitch; yaw = e.yaw
+        attitudeAt = now
+    }
+
+    // MARK: Resets
+
+    /// Reconnect (same drone) or disconnect: armed becomes unknown until a new
+    /// State arrives on the new socket. The log and the last values stay; their
+    /// panels grey out by age.
+    func resetForReconnect() {
+        rosConnected = false
+        socketOpenedAt = nil
+        stateAt = nil; stateConnected = nil; stateArmed = nil
+        mode = nil
+        refreshLink(now: Date())
+    }
+
+    /// Connect to a different drone: nothing of the previous one stays.
+    func resetAll() {
+        alarm.reset(); controlEvents.reset(); lowBatteryLatch.reset(); attitudeSource.reset()
+        resetForReconnect()
+        lastKnownArmed = nil; controlEvent = nil; fcLost = false
+        battery = nil; batteryAt = nil; lowBattery = nil
+        posX = nil; posY = nil; posZ = nil; poseAt = nil
+        roll = nil; pitch = nil; yaw = nil; attitudeAt = nil
+        vx = nil; vy = nil; vz = nil; velocityAt = nil
+        gyroMag = nil; accelMag = nil; imuAt = nil
+        posTrail = []; chartAlt = []; chartSpd = []; chartBat = []
+        logBook.clear()
+    }
+
+    private static let timeFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "HH:mm:ss"
-        return f.string(from: Date())
-    }
+        return f
+    }()
+
+    static func timeString() -> String { timeFormatter.string(from: Date()) }
 }

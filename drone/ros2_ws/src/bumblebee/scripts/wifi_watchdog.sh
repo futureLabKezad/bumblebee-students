@@ -70,6 +70,13 @@ clients_on_hotspot() {
         | awk '{print $4}' | grep -q '^10\.42\.'
 }
 
+# wifi_manager.py keeps new, untested credentials in "<name>.bb-pending" until a
+# join it asked for proves them (autoconnect off, priority 0). Not a saved
+# network yet: never joined, counted or given autoconnect here. NAME is the last
+# field of the nmcli -t lines below, so a ':' in a name cannot shift it.
+PENDING_SUFFIX=".bb-pending"
+is_pending() { case "$1" in *"$PENDING_SUFFIX") return 0 ;; esac; return 1; }
+
 hotspot_uuid() {
     nmcli -t -f UUID,NAME con show 2>/dev/null | awk -F: -v hs="$HOTSPOT_CONN" '$2 == hs {print $1; exit}'
 }
@@ -78,13 +85,14 @@ hotspot_uuid() {
 # networks in range, then autoconnect-priority, then most recently used.
 # UUIDs never contain ':' (names may), so they are safe in nmcli -t output.
 ranked_client_conns() {
-    local hs visible uuid kind prio ts ssid vis
+    local hs visible uuid kind prio ts name ssid vis
     hs=$(hotspot_uuid)
     visible=$(nmcli -t -f SSID dev wifi list --rescan no 2>/dev/null)
-    nmcli -t -f UUID,TYPE,AUTOCONNECT-PRIORITY,TIMESTAMP con show 2>/dev/null |
-    while IFS=: read -r uuid kind prio ts; do
+    nmcli -t -f UUID,TYPE,AUTOCONNECT-PRIORITY,TIMESTAMP,NAME con show 2>/dev/null |
+    while IFS=: read -r uuid kind prio ts name; do
         [ "$kind" = "802-11-wireless" ] || continue
         [ "$uuid" = "$hs" ] && continue
+        is_pending "$name" && continue
         # -g escapes ':' and '\' like `dev wifi list -t`, so compare escaped forms
         ssid=$(nmcli -g 802-11-wireless.ssid con show "$uuid" 2>/dev/null)
         vis=0
@@ -161,8 +169,9 @@ try_join() {
 has_client_profiles() {
     local hs
     hs=$(hotspot_uuid)
-    nmcli -t -f UUID,TYPE con show 2>/dev/null |
-        awk -F: -v hs="$hs" '$2 == "802-11-wireless" && $1 != hs {found = 1} END {exit !found}'
+    nmcli -t -f UUID,TYPE,NAME con show 2>/dev/null |
+        awk -F: -v hs="$hs" -v sfx="$PENDING_SUFFIX" '$2 == "802-11-wireless" && $1 != hs &&
+            substr($0, length($0) - length(sfx) + 1) != sfx {found = 1} END {exit !found}'
 }
 
 raise_hotspot() {
@@ -251,8 +260,9 @@ while true; do
     # Re-enable autoconnect on known wifi connections that lost it. Only touch
     # profiles that need it: every modify rewrites a netplan file and reloads NM.
     hs=$(hotspot_uuid)
-    nmcli -t -f UUID,TYPE,AUTOCONNECT con show 2>/dev/null | while IFS=: read -r uuid kind auto; do
+    nmcli -t -f UUID,TYPE,AUTOCONNECT,NAME con show 2>/dev/null | while IFS=: read -r uuid kind auto name; do
         [ "$kind" = "802-11-wireless" ] && [ "$uuid" != "$hs" ] && [ "$auto" = "no" ] || continue
+        is_pending "$name" && continue   # wifi_manager.py keeps it off on purpose
         nmcli connection modify "$uuid" connection.autoconnect yes 2>/dev/null
     done
 

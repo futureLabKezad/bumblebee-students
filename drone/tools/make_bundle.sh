@@ -17,14 +17,20 @@
 # and the listed files. Copy it to a drone by any means (scp, USB stick) and
 # run it there:
 #
-#   drone/tools/make_bundle.sh [OUT.tgz]          # default: ./bumblebee-update.tgz
+#   drone/tools/make_bundle.sh [OUT.tgz [VERSION]]  # default: ./bumblebee-update.tgz, drone/VERSION
 #   # on the drone, as user lb:
 #   tar -xzf bumblebee-update.tgz && bash bb-update/install_on_drone.sh [--reset-name]
+#
+# bb-update/VERSION holds "<version> (repo <commit>)"; install_on_drone.sh
+# writes it into /etc/bumblebee_version, which GET /api/info and
+# check_drone.sh report.
 set -euo pipefail
 
 TOOLS="$(cd "$(dirname "$0")" && pwd)"
 DRONE_DIR="$(dirname "$TOOLS")"
 OUT="${1:-$PWD/bumblebee-update.tgz}"
+VERSION="${2:-$(tr -d '[:space:]' < "$DRONE_DIR/VERSION")}"
+[ -n "$VERSION" ] || { echo "no version: pass one or fill $DRONE_DIR/VERSION" >&2; exit 2; }
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
@@ -35,8 +41,9 @@ while read -r src _; do
     mkdir -p "$STAGE/bb-update/payload/$(dirname "$src")"
     cp "$DRONE_DIR/$src" "$STAGE/bb-update/payload/$src"
 done < "$TOOLS/MANIFEST"
-# Record which commit the bundle was built from.
-git -c safe.directory='*' -C "$DRONE_DIR" describe --always --dirty > "$STAGE/bb-update/VERSION" 2>/dev/null || echo unknown > "$STAGE/bb-update/VERSION"
+# Record the version and the commit the bundle was built from.
+COMMIT=$(git -c safe.directory='*' -C "$DRONE_DIR" describe --always --dirty 2>/dev/null || echo unknown)
+echo "$VERSION (repo $COMMIT)" > "$STAGE/bb-update/VERSION"
 # macOS (bsdtar): keep extended attributes / AppleDouble files out of the
 # archive, otherwise GNU tar on the drone warns about unknown headers.
 TAR_OPTS=()

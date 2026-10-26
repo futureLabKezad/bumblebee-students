@@ -50,3 +50,20 @@ system/systemd/bumblebee-identity-recheck.service          /etc/systemd/system/b
 system/systemd/bumblebee-identity-recheck.timer            /etc/systemd/system/bumblebee-identity-recheck.timer                root:root 0644
 # FCU/battery freshness on monotonic time (imported by wifi_manager, notify_manager)
 ros2_ws/src/bumblebee/examples/drone.py                    /home/lb/ros2_ws/src/bumblebee/examples/drone.py                    lb:lb 0644
+# Image 1.0.2: LED alarms over GCS colours and shows (restarted by install_on_drone.sh)
+ros2_ws/src/bumblebee/scripts/notify_manager.py            /home/lb/ros2_ws/src/bumblebee/scripts/notify_manager.py            lb:lb 0644
+# Image 1.0.2: every animation at most 3 flashes/s and paused under an alarm
+ros2_ws/src/bumblebee/examples/animations/breathing.py       /home/lb/ros2_ws/src/bumblebee/examples/animations/breathing.py       lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/rainbow.py         /home/lb/ros2_ws/src/bumblebee/examples/animations/rainbow.py         lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/police.py          /home/lb/ros2_ws/src/bumblebee/examples/animations/police.py          lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/strobe.py          /home/lb/ros2_ws/src/bumblebee/examples/animations/strobe.py          lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/fire.py            /home/lb/ros2_ws/src/bumblebee/examples/animations/fire.py            lb:lb 0755
+ros2_ws/src/bumblebee/examples/animations/theater.py         /home/lb/ros2_ws/src/bumblebee/examples/animations/theater.py         lb:lb 0755
+# Image 1.0.2: video server releases idle topics (runs in the flight stack: next reboot)
+ros2_ws/src/bumblebee/src/ros_mjpeg_server.py              /home/lb/ros2_ws/src/bumblebee/src/ros_mjpeg_server.py              lb:lb 0755
+ros2_ws/src/bumblebee/src/ros_mjpeg_server.py              /home/lb/ros2_ws/install/bumblebee/lib/bumblebee/ros_mjpeg_server.py lb:lb 0755
+# Image 1.0.2: the drone's own pages explain the API's error codes (nginx root)
+ros2_ws/src/bumblebee/www/wifi.html                        /home/lb/ros2_ws/src/bumblebee/www/wifi.html                        lb:lb 0644
+ros2_ws/src/bumblebee/www/led.html                         /home/lb/ros2_ws/src/bumblebee/www/led.html                         lb:lb 0644
+ros2_ws/src/bumblebee/www/gcs.html                         /home/lb/ros2_ws/src/bumblebee/www/gcs.html                         lb:lb 0755
+system/apt/99-bumblebee-no-auto-upgrades                   /etc/apt/apt.conf.d/99-bumblebee-no-auto-upgrades                   root:root 0644

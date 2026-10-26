@@ -30,6 +30,7 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        CrashLog.Install(this);               // журнал падений для «Скопировать диагностику»
         State = new AppState(DispatcherQueue.GetForCurrentThread());
         State.Scanner.StartDiscovery();       // непрерывный DNS-SD
         State.Scanner.Scan();                 // разовый субнет-фолбэк

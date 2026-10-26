@@ -14,7 +14,8 @@
 
 import SwiftUI
 
-/// Filled line chart of the last N samples with a latest-value label.
+/// Filled line chart of the last N samples with a latest-value label and the
+/// scale's top and bottom at the right edge.
 struct ChartView: View {
     let title: String
     let data: [Double]
@@ -22,20 +23,30 @@ struct ChartView: View {
     var fixedMin: Double? = nil
     var fixedMax: Double? = nil
     var unit: String = ""
+    /// Smallest vertical range without fixed bounds (altitude: 1 m, so noise
+    /// of a resting drone stays flat).
+    var minSpan: Double = 1.0
+    /// "no data N s" when the source went quiet; the chart greys out.
+    var staleNote: String? = nil
+
+    private var scale: (lo: Double, hi: Double) {
+        ChartScale.range(data, fixedMin: fixedMin, fixedMax: fixedMax, minSpan: minSpan)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.s1) {
             HStack {
                 Text(title).font(Theme.monoSmall).foregroundStyle(Theme.muted)
                 Spacer()
+                if let note = staleNote {
+                    Text(note).font(Theme.monoSmall).foregroundStyle(Theme.caution)
+                }
                 Text(latestLabel).font(Theme.monoSmall).foregroundStyle(color)
             }
             Canvas { ctx, size in
                 ctx.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Theme.bg))
                 guard data.count > 1 else { return }
-                let lo = fixedMin ?? (data.min() ?? 0)
-                var hi = fixedMax ?? (data.max() ?? 1)
-                if hi - lo < 1e-6 { hi = lo + 1 }
+                let (lo, hi) = scale
                 let n = data.count
                 func pt(_ i: Int) -> CGPoint {
                     let x = size.width * CGFloat(i) / CGFloat(n - 1)
@@ -56,7 +67,24 @@ struct ChartView: View {
                 ctx.stroke(line, with: .color(color), lineWidth: 1.5)
             }
             .frame(height: 56)
+            .overlay(alignment: .trailing) { scaleLabels }
             .clipShape(RoundedRectangle(cornerRadius: Theme.rSmall))
+            .opacity(staleNote == nil ? 1 : 0.4)
+            .saturation(staleNote == nil ? 1 : 0)
+        }
+    }
+
+    @ViewBuilder private var scaleLabels: some View {
+        if let labels = ChartScale.axisLabels(data, fixedMin: fixedMin, fixedMax: fixedMax, minSpan: minSpan) {
+            VStack(alignment: .trailing) {
+                Text(labels.top)
+                Spacer(minLength: 0)
+                Text(labels.bottom)
+            }
+            .font(Theme.micro)
+            .foregroundStyle(Theme.muted)
+            .padding(.vertical, Theme.s0)
+            .padding(.trailing, Theme.s1)
         }
     }
 

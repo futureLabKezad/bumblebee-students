@@ -4,8 +4,8 @@ Native Windows port of the macOS `bumblebee_gcs_app` (SwiftUI → WinUI 3).
 Design and feature parity: the same dark glass interface, the same screens,
 the same drone protocols.
 
-**Ready-to-run build (1.1.0):** `BumblebeeGCS-1.1.0-windows-x64.zip` on the GitHub release
-[gcs-v1.1.0](https://github.com/futureLabKezad/bumblebee-students/releases/tag/gcs-v1.1.0) —
+**Ready-to-run build (1.2.0):** `BumblebeeGCS-1.2.0-windows-x64.zip` on the GitHub release
+[gcs-v1.2.0](https://github.com/futureLabKezad/bumblebee-students/releases/tag/gcs-v1.2.0) —
 Windows 10/11 x64, self-contained (no .NET needed). Unzip, run `BumblebeeGcs.exe`
 (if SmartScreen warns: *More info* → *Run anyway*, once) and allow Location
 (Settings → Privacy & security → Location) so the app can scan Wi-Fi and find new drones.
@@ -49,11 +49,28 @@ dotnet run --project tools\SimDrone
 
 Test hook: `BumblebeeGcs.exe --connect localhost` connects right away, skipping the selection screen.
 
+## Unit and socket tests (any OS with the .NET 10 SDK)
+
+```powershell
+dotnet test tests\BumblebeeGcs.Logic.Tests            # ~30 s
+python3 tools/mac_compile_check.py                     # on a Mac/Linux: compiles all app C# (no XAML)
+```
+
+`Logic\` holds every decision the dashboard makes (link state, freshness, armed, mode
+text, who is in control, battery, charts, log, alarms, video status) without WinUI. The
+test project compiles it together with `Models.cs`, `RosbridgeClient.cs` and
+`MjpegStream.cs`; the socket tests run the real clients against fake servers on
+127.0.0.1 (frozen drone, rosbridge without data, FC lost while armed, one video
+connection per view, video back after a server restart or a half-open connection).
+The rules are the same as in the Mac app (`gcs/macos/Sources/GCSApp/TelemetryLogic.swift`).
+
 ## Structure
 
 ```
 src\BumblebeeGcs\
   Theme\      Palette/ConnectPalette (colors 1:1 with mac), Fonts, IconGlyphs, UI factories
+  Logic\      dashboard decisions without WinUI (unit-tested): LinkLogic, Freshness, ArmedLogic,
+              ModeLogic, BatteryLogic, MessageLog, RosMessages, DisplayMath
   Models\     TelemetryStore, SystemMetrics, KnownDrone, QuatToEuler
   Services\   RosbridgeClient, MjpegStream, MetricsClient, DroneApi,
               DroneScanner (+DnssdBrowser), WifiHandoff, AppSettings,
@@ -63,6 +80,7 @@ src\BumblebeeGcs\
   Views\      Splash, Launch, ProvisioningDialog, MainShell, Dashboard,
               Entertainment, Settings
 tools\SimDrone\   drone mock for end-to-end testing
+tests\BumblebeeGcs.Logic.Tests\   unit + socket tests (dotnet test)
 ```
 
 Hotkeys: `Ctrl+R` Reconnect · `Ctrl+K` Rescan · `Ctrl+Shift+D` Disconnect.

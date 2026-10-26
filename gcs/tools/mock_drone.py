@@ -25,13 +25,34 @@ also advertises the _bumblebee._tcp Bonjour service like set_identity.sh.
 
 Ports: 8765 REST API, 8888 metrics, 9090 rosbridge (telemetry stub).
 Every LED / buzzer / nmcli action is printed to stdout.
+
+Flight-controller states, for testing what the apps show and what the drone
+refuses (the real wifi_manager.py reads the same fake state):
+
+    --fcu disarmed   FC linked, disarmed (default)
+    --fcu armed      FC linked, armed in OFFBOARD
+    --fcu stale      /mavros/state stops arriving (last known state kept)
+    --fcu lost       MAVROS reports connected=false (FC cable out)
+    --telemetry freeze   rosbridge stays open but publishes nothing
+    --battery low        12 %, 20.4 V
+
+Change them while running, from the same machine only:
+
+    curl 'http://127.0.0.1:8799/mock/set?fcu=armed&battery=low'
+    curl  http://127.0.0.1:8799/mock/state
+
+A silent link drop (drone switched off, out of Wi-Fi range) is not a state:
+pause the whole process with `kill -STOP <pid>` and resume with `kill -CONT`.
+Use --host 127.0.0.1 to keep the mock off the classroom network.
 """
+import argparse
 import importlib.util
 import json
 import logging
 import math
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -49,6 +70,52 @@ HWID = 'M0CK'
 
 def say(*a):
     print('[mock-drone]', *a, flush=True)
+
+
+# ---- fake flight-controller state, shared by REST and rosbridge -------------
+CHOICES = {
+    'fcu': ('disarmed', 'armed', 'stale', 'lost'),
+    'telemetry': ('normal', 'freeze'),
+    'battery': ('ok', 'low'),
+}
+STATE = {'fcu': 'disarmed', 'telemetry': 'normal', 'battery': 'ok', 'last_armed': False}
+
+
+def set_state(**changes):
+    """Validate and apply; returns an error string or None."""
+    for key, value in changes.items():
+        if key not in CHOICES or value not in CHOICES[key]:
+            return 'bad %s=%s (choose %s)' % (key, value, '|'.join(CHOICES.get(key, ())))
+    for key, value in changes.items():
+        if key == 'fcu' and value in ('disarmed', 'armed'):
+            STATE['last_armed'] = value == 'armed'
+        STATE[key] = value
+    say('state', {k: STATE[k] for k in CHOICES})
+    return None
+
+
+def fcu_status(max_age=3.0):
+    """Same shape and meaning as drone.get_fcu_status() on the real drone."""
+    fcu = STATE['fcu']
+    if fcu == 'stale':   # no fresh State: not ok, not connected, last armed flag and mode
+        return {'connected': False, 'armed': STATE['last_armed'],
+                'mode': 'OFFBOARD' if STATE['last_armed'] else 'POSCTL', 'cell': float('nan'), 'ok': False}
+    if fcu == 'lost':    # fresh State from MAVROS saying the FC link is down
+        return {'connected': False, 'armed': False, 'mode': '', 'cell': float('nan'), 'ok': True}
+    armed = fcu == 'armed'
+    return {'connected': True, 'armed': armed, 'mode': 'OFFBOARD' if armed else 'POSCTL',
+            'cell': 3.4 if STATE['battery'] == 'low' else 4.0, 'ok': True}
+
+
+class ControlHandler(tornado.web.RequestHandler):
+    def get(self, what):
+        if what == 'set':
+            err = set_state(**{k: self.get_argument(k) for k in self.request.arguments})
+            if err:
+                self.set_status(400)
+                self.finish({'error': err})
+                return
+        self.finish({k: STATE[k] for k in CHOICES})
 
 
 # ---- fake hardware: drone.py (LEDs over I2C, PX4 buzzer) --------------------
@@ -83,32 +150,65 @@ class FakeNmcli:
         self.connections = ['netplan-wlan0-Classroom', 'bumblebee-hotspot']
         self.active = 'netplan-wlan0-Classroom'
 
-    def __call__(self, *args):
+    @staticmethod
+    def _name(ref):
+        """wifi_manager.py may name a profile by its uuid ("mock-uuid-<name>" here)."""
+        return ref[len('mock-uuid-'):] if ref.startswith('mock-uuid-') else ref
+
+    def __call__(self, *args, timeout=None):
+        if args[:1] == ('-w',):          # nmcli -w <secs> ...: the command itself
+            args = args[2:]
         say('nmcli', ' '.join(args))
         if args[:4] == ('-t', '-f', 'NAME', 'con'):
             return '\n'.join(self.connections)
         if args[:4] == ('-t', '-f', 'NAME,TYPE', 'con'):
             return '\n'.join(c + ':802-11-wireless' for c in self.connections)
+        if args[:4] == ('-t', '-f', 'UUID,NAME', 'con'):
+            return '\n'.join('mock-uuid-%s:%s' % (c, c) for c in self.connections)
+        if args[:2] == ('-g', 'connection.uuid'):
+            return 'mock-uuid-' + self._name(args[-1])
         if args[:4] == ('-t', '-f', 'DEVICE,STATE,CONNECTION', 'device'):
             return 'wlan0:connected:%s' % self.active
         if args[:4] == ('-t', '-f', 'IP4.ADDRESS', 'device'):
             return 'IP4.ADDRESS[1]:192.168.1.50/24'
         if 'IN-USE,SSID,SIGNAL,SECURITY,FREQ' in args:
-            return '*:Classroom:80:WPA2:2437 MHz\n:Office:55:WPA2:5180 MHz'
+            # a protected, an open network and another drone's hotspot (Settings shows
+            # a lock, no password field and no Connect respectively)
+            return ('*:Classroom:80:WPA2:2437 MHz\n:Office:55:WPA2:5180 MHz\n'
+                    ':Cafe:50::2462 MHz\n:Bumblebee-ABCD:60:WPA2:2412 MHz')
         if 'list' in args:
             return '*:80:Classroom'
         if args[:2] == ('con', 'add'):
             self.connections.insert(0, args[args.index('con-name') + 1])
+        if args[:2] == ('con', 'clone'):     # a new password waits in a pending copy
+            self.connections.insert(0, args[3])
+        if args[:2] == ('con', 'modify') and 'connection.id' in args:
+            old, new = self._name(args[2]), args[args.index('connection.id') + 1]
+            self.connections = [new if c == old else c for c in self.connections]
+            self.active = new if self.active == old else self.active
+        if args[:2] == ('con', 'delete'):
+            name = self._name(args[2])
+            if name in self.connections:
+                self.connections.remove(name)
+            if self.active == name:          # the drone falls back to its hotspot
+                self.active = 'bumblebee-hotspot'
         if args[:2] in (('con', 'up'), ('connection', 'up')):
-            self.active = args[2]
+            self.active = self._name(args[2])
         return ''
 
 
 # ---- rosbridge stub on :9090 ------------------------------------------------
 def telemetry(topic, t):
     if topic == '/mavros/state':
-        return {'connected': True, 'armed': False, 'mode': 'POSCTL'}
+        fcu = STATE['fcu']
+        if fcu == 'stale':
+            return None
+        if fcu == 'lost':
+            return {'connected': False, 'armed': False, 'mode': ''}
+        return {'connected': True, 'armed': fcu == 'armed', 'mode': 'OFFBOARD' if fcu == 'armed' else 'POSCTL'}
     if topic == '/mavros/battery':
+        if STATE['battery'] == 'low':
+            return {'voltage': 20.4, 'percentage': 0.12}
         return {'voltage': 24.1, 'percentage': 0.83}
     if topic == '/mavros/mavros/pose':
         yaw = 0.3 * t
@@ -139,6 +239,8 @@ class Rosbridge(tornado.websocket.WebSocketHandler):
             self.topics.add(msg['topic'])
 
     def tick(self):
+        if STATE['telemetry'] == 'freeze':
+            return
         t = time.time() - self.t0
         for topic in list(self.topics):
             m = telemetry(topic, t)
@@ -150,7 +252,20 @@ class Rosbridge(tornado.websocket.WebSocketHandler):
         say('rosbridge client disconnected')
 
 
+def parse_args(argv=None):
+    p = argparse.ArgumentParser(description='Mock Bumblebee drone for GCS testing.')
+    p.add_argument('--host', default='0.0.0.0',
+                   help='address for the drone ports (default 0.0.0.0, so the apps can scan for it)')
+    p.add_argument('--control-port', type=int, default=8799,
+                   help='port of the /mock/* control API, always on 127.0.0.1')
+    for key, values in CHOICES.items():
+        p.add_argument('--' + key, choices=values, default=STATE[key])
+    return p.parse_args(argv)
+
+
 def main():
+    args = parse_args()
+    set_state(fcu=args.fcu, telemetry=args.telemetry, battery=args.battery)
     tmp = tempfile.mkdtemp(prefix='mock-drone-')
     with open(os.path.join(tmp, 'drone.py'), 'w') as f:
         f.write(FAKE_DRONE)
@@ -165,24 +280,36 @@ def main():
     wm = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(wm)
     import drone as fake_drone
+    fake_drone.get_fcu_status = fcu_status
     wm.nmcli = FakeNmcli()
     wm._drone, wm._LED_OK = fake_drone, True
     wm.ANIM_DIR = os.path.join(PKG, 'examples', 'animations')
-    wm.WIFI_SWITCH_MARKER = os.path.join(tmp, 'wifi-switch')
+    for marker, name in (('WIFI_SWITCH_MARKER', 'wifi-switch'), ('HOTSPOT_PIN_MARKER', 'hotspot-pinned'),
+                         ('WIFI_FAILED_LOG', 'wifi-failed'), ('LAST_ERROR_FILE', 'wifi-last-error.json')):
+        setattr(wm, marker, os.path.join(tmp, name))   # per run, not the Mac's /tmp
     wm._hotspot_ssid = lambda: 'Bumblebee-' + HWID
-    wm.make_app().listen(8765, address='0.0.0.0')
+    wm.make_app().listen(8765, address=args.host)
+    # as the service does: FC state polled every second (a link lost while
+    # armed keeps counting as armed), pending Wi-Fi profiles settled
+    wm.start_background(tornado.ioloop.IOLoop.current())
 
-    tornado.web.Application([(r'/', Rosbridge)]).listen(9090, address='0.0.0.0')
+    tornado.web.Application([(r'/', Rosbridge)]).listen(9090, address=args.host)
+    tornado.web.Application([(r'/mock/(state|set)', ControlHandler)]).listen(
+        args.control_port, address='127.0.0.1')
 
     procs = [subprocess.Popen([sys.executable, os.path.join(PKG, 'scripts', 'sys_metrics.py')])]
-    if shutil.which('dns-sd'):
+    if shutil.which('dns-sd') and args.host not in ('127.0.0.1', 'localhost'):
         procs.append(subprocess.Popen(
             ['dns-sd', '-R', NAME.lower(), '_bumblebee._tcp', 'local', '9090',
              'name=' + NAME, 'rosbridge=9090', 'mjpeg=8080', 'metrics=8888',
              'api=8765', 'id=' + HWID], stdout=subprocess.DEVNULL))
-    say('up: REST :8765 (real wifi_manager.py), metrics :8888, rosbridge :9090, Bonjour "%s"' % NAME)
+    say('up on %s: REST :8765 (real wifi_manager.py), metrics :8888, rosbridge :9090; control 127.0.0.1:%d' % (args.host, args.control_port))
     try:
-        tornado.ioloop.IOLoop.current().start()
+        # SIGTERM (a test runner, `kill`) must stop the loop too, so the
+        # finally block below also stops sys_metrics.py and dns-sd.
+        loop = tornado.ioloop.IOLoop.current()
+        loop.asyncio_loop.add_signal_handler(signal.SIGTERM, loop.stop)
+        loop.start()
     except KeyboardInterrupt:
         pass
     finally:

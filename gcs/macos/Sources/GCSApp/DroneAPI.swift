@@ -22,9 +22,25 @@ final class DroneAPI {
     /// Backend port that `wifi_manager.py` binds (previously behind nginx :80).
     static let port = 8765
     var host = ""
-    private let session = URLSession(configuration: .ephemeral)
+    private let session = URLSession(configuration: .drone)
 
-    struct APIError: LocalizedError { let message: String; var errorDescription: String? { message } }
+    /// An error reply of the drone (or "no drone"). `code` is the stable code
+    /// drones from 1.0.2 send; the message is already in plain words.
+    struct APIError: LocalizedError {
+        let message: String
+        var code: String? = nil
+        var errorDescription: String? { message }
+    }
+
+    /// Plain words for any error of a request: the drone's reply, or no answer.
+    static func describe(_ error: Error) -> String {
+        if let e = error as? APIError { return e.message }
+        if let e = error as? URLError { return DroneErrorText.noAnswer(e.localizedDescription) }
+        return error.localizedDescription
+    }
+
+    /// The stable code of an error reply, if the drone sent one.
+    static func code(_ error: Error) -> String? { (error as? APIError)?.code }
 
     /// True when a request died because the network under it went away (not
     /// because the drone refused it). Drones before the reply-first fix switch
@@ -52,20 +68,27 @@ final class DroneAPI {
         return (data, status)
     }
 
-    @discardableResult
-    private func ok(_ method: String, _ path: String, json: [String: Any]? = nil) async throws -> Bool {
-        let (data, status) = try await request(method, path, json: json)
-        if status == 200 { return true }
-        if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let err = obj["error"] as? String {
-            throw APIError(message: err)
-        }
-        throw APIError(message: "HTTP \(status)")
+    /// The APIError for a reply that is not 200.
+    private static func failure(_ data: Data, _ status: Int) -> APIError {
+        let obj = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+        let code = obj?["code"] as? String
+        return APIError(message: DroneErrorText.text(code: code, error: obj?["error"] as? String, status: status),
+                        code: code)
     }
 
+    /// The reply object of a request that must answer 200.
+    @discardableResult
+    private func ok(_ method: String, _ path: String, json: [String: Any]? = nil) async throws -> [String: Any] {
+        let (data, status) = try await request(method, path, json: json)
+        guard status == 200 else { throw Self.failure(data, status) }
+        return ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any]) ?? [:]
+    }
+
+    /// The JSON reply of a GET that must answer 200 (an error reply is not data).
     private func jsonObject(_ method: String, _ path: String,
                             json: [String: Any]? = nil) async throws -> Any {
-        let (data, _) = try await request(method, path, json: json)
+        let (data, status) = try await request(method, path, json: json)
+        guard status == 200 else { throw Self.failure(data, status) }
         return try JSONSerialization.jsonObject(with: data)
     }
 
@@ -81,25 +104,43 @@ final class DroneAPI {
         try await ok("POST", "/api/led/reset")
     }
 
+    /// Reset waiting at most `timeout` (the app is quitting); best effort.
+    func ledResetNow(timeout: TimeInterval) {
+        guard !host.isEmpty, let url = url("/api/led/reset") else { return }
+        var req = URLRequest(url: url, timeoutInterval: timeout)
+        req.httpMethod = "POST"
+        let done = DispatchSemaphore(value: 0)
+        session.dataTask(with: req) { _, _, _ in done.signal() }.resume()
+        _ = done.wait(timeout: .now() + timeout)
+    }
+
+    /// What the LEDs do now. `remaining` (seconds until an animation stops by
+    /// itself) comes from drones 1.0.2+, nil before.
+    struct LedStatus: Equatable {
+        var ledOK: Bool
+        var animation: String?
+        var busy: Bool
+        var remaining: Int?
+    }
+    func ledStatus() async throws -> LedStatus {
+        let o = (try await jsonObject("GET", "/api/led/status")) as? [String: Any] ?? [:]
+        return LedStatus(ledOK: o["led_ok"] as? Bool ?? false,
+                         animation: (o["animation"] as? String).flatMap { $0.isEmpty ? nil : $0 },
+                         busy: o["busy"] as? Bool ?? false,
+                         remaining: o["remaining_s"] as? Int)
+    }
+
     // MARK: - Sounds / TTS
 
     /// Returns the server response object (may contain "tune"/"phonemes").
     @discardableResult
     func playTune(_ tune: String, format: String) async throws -> [String: Any] {
-        let (data, status) = try await request("POST", "/api/sounds/play",
-                                               json: ["tune": tune, "format": format])
-        let obj = (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
-        if status != 200 { throw APIError(message: (obj["error"] as? String) ?? "HTTP \(status)") }
-        return obj
+        try await ok("POST", "/api/sounds/play", json: ["tune": tune, "format": format])
     }
 
     @discardableResult
     func tts(text: String, lang: String) async throws -> [String: Any] {
-        let (data, status) = try await request("POST", "/api/sounds/tts",
-                                               json: ["text": text, "lang": lang])
-        let obj = (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
-        if status != 200 { throw APIError(message: (obj["error"] as? String) ?? "HTTP \(status)") }
-        return obj
+        try await ok("POST", "/api/sounds/tts", json: ["text": text, "lang": lang])
     }
 
     // MARK: - WiFi / auth
@@ -112,9 +153,25 @@ final class DroneAPI {
         var lastError: JoinError? = nil
     }
     /// Reported by the drone in /api/wifi/status after a failed apply-now.
-    /// `reason`: wrong_password | not_found | no_ip | timeout | failed.
-    struct JoinError: Equatable { var ssid: String; var reason: String; var message: String }
-    struct ScanNet: Identifiable { let id = UUID(); var ssid: String; var signal: Int; var inUse: Bool; var band: String; var freq: Int }
+    /// `reason`: wrong_password | not_found | no_ip | timeout | failed (1.0.2:
+    /// also armed | fc_unknown when it refused at the last moment).
+    struct JoinError: Equatable {
+        var ssid: String; var reason: String; var message: String
+        var time: Date? = nil
+    }
+    struct ScanNet: Identifiable {
+        let id = UUID(); var ssid: String; var signal: Int; var inUse: Bool; var band: String; var freq: Int
+        var security: String = ""
+        var secured: Bool { WifiNames.isSecured(security) }
+    }
+
+    /// Who the drone is (GET /api/info, drones 1.0.2+; nil from older ones).
+    struct DroneInfo: Equatable { var name: String; var id: String; var version: String }
+    func info() async -> DroneInfo? {
+        guard let o = (try? await jsonObject("GET", "/api/info")) as? [String: Any],
+              let name = o["name"] as? String else { return nil }
+        return DroneInfo(name: name, id: o["id"] as? String ?? "", version: o["version"] as? String ?? "")
+    }
 
     func wifiStatus() async throws -> WifiStatus {
         let obj = (try await jsonObject("GET", "/api/wifi/status")) as? [String: Any] ?? [:]
@@ -126,7 +183,8 @@ final class DroneAPI {
                           lastError: (obj["last_error"] as? [String: Any]).map {
                               JoinError(ssid: $0["ssid"] as? String ?? "",
                                         reason: $0["reason"] as? String ?? "failed",
-                                        message: $0["message"] as? String ?? "")
+                                        message: $0["message"] as? String ?? "",
+                                        time: ($0["time"] as? Double).map { Date(timeIntervalSince1970: $0) })
                           })
     }
     func wifiSetMode(_ mode: String) async throws { try await ok("POST", "/api/wifi/mode", json: ["mode": mode]) }
@@ -143,15 +201,32 @@ final class DroneAPI {
                     signal: $0["signal"] as? Int ?? 0,
                     inUse: $0["in_use"] as? Bool ?? false,
                     band: $0["band"] as? String ?? "",
-                    freq: $0["freq"] as? Int ?? 0)
+                    freq: $0["freq"] as? Int ?? 0,
+                    security: $0["security"] as? String ?? "")
         }
     }
     func savedNetworks() async throws -> [String] {
         let arr = (try await jsonObject("GET", "/api/wifi/networks")) as? [[String: Any]] ?? []
         return arr.compactMap { $0["name"] as? String }
     }
-    func removeNetwork(_ ssid: String) async throws { try await ok("DELETE", "/api/wifi/network", json: ["ssid": ssid]) }
+    /// `confirmActive`: the user confirmed removing the network the drone uses
+    /// now (drones 1.0.2+ refuse it otherwise with code active_network).
+    func removeNetwork(_ ssid: String, confirmActive: Bool = false) async throws {
+        var body: [String: Any] = ["ssid": ssid]
+        if confirmActive { body["confirm_active"] = true }
+        try await ok("DELETE", "/api/wifi/network", json: body)
+    }
     func saveNetwork(ssid: String, password: String) async throws { try await ok("POST", "/api/wifi/save", json: ["ssid": ssid, "password": password]) }
     func applyNow(ssid: String) async throws { try await ok("POST", "/api/wifi/apply-now", json: ["ssid": ssid]) }
     func applyBoot(ssid: String) async throws { try await ok("POST", "/api/wifi/apply-boot", json: ["ssid": ssid]) }
+}
+
+extension URLSessionConfiguration {
+    /// Ephemeral and never through a proxy: the drone is on the local network,
+    /// and a school's HTTP proxy cannot reach it (requests time out there).
+    static var drone: URLSessionConfiguration {
+        let c = URLSessionConfiguration.ephemeral
+        c.connectionProxyDictionary = [:]
+        return c
+    }
 }

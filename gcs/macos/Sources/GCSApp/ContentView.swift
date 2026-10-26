@@ -43,6 +43,7 @@ struct RootView: View {
 struct MainShell: View {
     @EnvironmentObject var app: AppState
     @EnvironmentObject var telemetry: TelemetryStore
+    @EnvironmentObject var handoff: WifiHandoff
     @State private var section: Section? = .dashboard
 
     var body: some View {
@@ -50,17 +51,41 @@ struct MainShell: View {
             sidebar
                 .navigationSplitViewColumnWidth(min: 210, ideal: 224, max: 260)
         } detail: {
-            // Inline switch (not a computed property) so the detail column
-            // reliably re-renders when `section` changes.
-            Group {
-                switch section ?? .dashboard {
-                case .dashboard: DashboardView()
-                case .entertainment: EntertainmentView()
-                case .settings: SettingsView()
+            VStack(spacing: 0) {
+                // Safety banners stay on top of every section until they clear.
+                if telemetry.fcLost { AlarmBanner(text: FcLostAlarm.text, icon: "exclamationmark.octagon.fill") }
+                if let low = telemetry.lowBattery { AlarmBanner(text: low, icon: "battery.25percent") }
+                // On a drone's hotspot by choice ("Connect directly") is fine; macOS
+                // hopping onto one by itself is not.
+                if handoff.onDroneHotspot && app.droneHost != kHotspotGatewayHost {
+                    OnDroneHotspotBanner(ssid: handoff.currentSSID).padding(Theme.s2)
                 }
+                // Inline switch (not a computed property) so the detail column
+                // reliably re-renders when `section` changes.
+                Group {
+                    switch section ?? .dashboard {
+                    case .dashboard: DashboardView()
+                    case .entertainment: EntertainmentView()
+                    case .settings: SettingsView()
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .navigationTitle(app.droneHost)
             .toolbar { toolbarContent }
+            .task {
+                while !Task.isCancelled {
+                    handoff.refreshCurrentSSID()
+                    try? await Task.sleep(nanoseconds: 15_000_000_000)
+                }
+            }
+            .alert("Not the drone you picked", isPresented: Binding(
+                get: { app.identityMismatch != nil }, set: { if !$0 { app.identityMismatch = nil } })) {
+                Button("Disconnect", role: .cancel) { app.disconnect() }
+                Button("Stay connected") { app.identityMismatch = nil }
+            } message: {
+                Text(app.identityMismatch ?? "")
+            }
         }
     }
 
@@ -76,6 +101,7 @@ struct MainShell: View {
                         .clipShape(RoundedRectangle(cornerRadius: Theme.rMedia, style: .continuous))
                 }
                 Text("Bumblebee GCS").font(Theme.brand)
+                Text(AppVersion.short).font(Theme.label).foregroundStyle(Theme.muted)
             }
             .padding(.horizontal, Theme.s4).padding(.top, Theme.s7).padding(.bottom, Theme.s3)
 
@@ -122,10 +148,10 @@ struct MainShell: View {
 
     private var connectionCard: some View {
         HStack(spacing: Theme.s2) {
-            StatusDot(color: telemetry.rosConnected ? Theme.ok : Theme.warn, pulsing: !telemetry.rosConnected)
+            StatusDot(color: Theme.color(telemetry.link.tone), pulsing: telemetry.link != .ok)
             VStack(alignment: .leading, spacing: Theme.s0 - 1) {
                 Text(app.droneHost).font(Theme.hostMono)
-                Text(telemetry.rosConnected ? "linked" : "linking…")
+                Text(telemetry.link.sidebarText(socketAnswered: telemetry.rosConnected))
                     .font(Theme.sectionLbl).foregroundStyle(Theme.muted)
             }
             Spacer(minLength: 0)

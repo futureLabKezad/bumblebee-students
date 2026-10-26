@@ -16,6 +16,14 @@
 // Порты: rosbridge WS :9090, метрики :8888, API :8765, MJPEG :8080.
 // HttpListener с префиксами localhost не требует прав администратора,
 // поэтому в приложении подключаться нужно к хосту "localhost".
+//
+// Состояния полётного контроллера — те же, что у gcs/tools/mock_drone.py:
+//   --fcu auto|disarmed|armed|stale|lost   (auto: ARMED/DISARMED каждые 30 с)
+//   --telemetry normal|freeze              (freeze: сокет открыт, данных нет)
+//   --battery ok|low
+// Менять на ходу: http://localhost:8799/mock/set?fcu=armed&battery=low,
+// посмотреть: http://localhost:8799/mock/state. Тихий обрыв связи — пауза
+// процесса (Монитор ресурсов → «Приостановить процесс»).
 
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -26,7 +34,13 @@ using System.Text;
 using System.Text.Json;
 
 var sim = new SimState();
+for (var i = 0; i + 1 < args.Length; i += 2)
+{
+    var err = sim.Set(args[i].TrimStart('-'), args[i + 1]);
+    if (err != null) { Console.Error.WriteLine(err); return 2; }
+}
 Console.WriteLine("SimDrone: connect the GCS to host \"localhost\"");
+_ = Task.Run(() => ControlServer(sim));
 _ = Task.Run(() => RosbridgeServer(sim));
 _ = Task.Run(() => JsonServer(8888, MetricsJson));
 _ = Task.Run(() => ApiServer(sim));
@@ -86,7 +100,7 @@ static async Task RosbridgeServer(SimState sim)
                 var lastStatus = DateTime.UtcNow;
                 while (ws.State == WebSocketState.Open)
                 {
-                    foreach (var (topic, payload) in sim.Publications())
+                    foreach (var (topic, payload) in sim.Telemetry == "freeze" ? [] : sim.Publications())
                     {
                         if (!topics.ContainsKey(topic)) continue;
                         var msg = JsonSerializer.Serialize(new Dictionary<string, object?>
@@ -97,7 +111,7 @@ static async Task RosbridgeServer(SimState sim)
                         });
                         await ws.SendAsync(Encoding.UTF8.GetBytes(msg), WebSocketMessageType.Text, true, CancellationToken.None);
                     }
-                    if ((DateTime.UtcNow - lastStatus).TotalSeconds > 12)
+                    if (sim.Telemetry != "freeze" && (DateTime.UtcNow - lastStatus).TotalSeconds > 12)
                     {
                         lastStatus = DateTime.UtcNow;
                         var msg = JsonSerializer.Serialize(new
@@ -165,27 +179,130 @@ static async Task ApiServer(SimState sim)
     {
         var ctx = await listener.GetContextAsync();
         var path = ctx.Request.Url?.AbsolutePath ?? "/";
+        var method = ctx.Request.HttpMethod;
         string reqBody = "";
         if (ctx.Request.HasEntityBody)
             using (var r = new StreamReader(ctx.Request.InputStream))
                 reqBody = await r.ReadToEndAsync();
-        Console.WriteLine($"[8765] {ctx.Request.HttpMethod} {path} {reqBody}");
+        Console.WriteLine($"[8765] {method} {path} {reqBody}");
+        JsonElement body = default;
+        try { body = JsonDocument.Parse(reqBody.Length > 0 ? reqBody : "{}").RootElement.Clone(); } catch { }
 
-        object response = path switch
-        {
-            "/api/wifi/status" => new { mode = "client", ssid = "SimNet-5G", ip = "127.0.0.1", signal = 78 },
-            "/api/wifi/scan" => new object[]
-            {
-                new { ssid = "SimNet-5G", signal = 78, in_use = true, band = "5", freq = 5300 },
-                new { ssid = "HomeWifi", signal = 55, in_use = false, band = "2.4", freq = 2412 },
-                new { ssid = "Neighbor6E", signal = 23, in_use = false, band = "6", freq = 5955 },
-            },
-            "/api/wifi/networks" => new object[] { new { name = "SimNet-5G" }, new { name = "FieldRouter" } },
-            "/api/sounds/tts" => new { tune = "MFT180L8O5CDEFG", phonemes = "k-o-t" },
-            "/api/sounds/play" => new { ok = true },
-            _ => new { ok = true },
-        };
+        var (status, response) = Api(sim, method, path, body);
         var data = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+        ctx.Response.StatusCode = status;
+        ctx.Response.ContentType = "application/json";
+        await ctx.Response.OutputStream.WriteAsync(data);
+        ctx.Response.Close();
+    }
+}
+
+/// <summary>
+/// The drone's REST API as image 1.0.2 answers it (wifi_manager.py): error replies carry a
+/// stable code; Wi-Fi changes and sounds need a fresh, linked, disarmed FC ("unknown = armed");
+/// the network in use is removed only with confirm_active; animations stop after 120 s.
+/// </summary>
+static (int Status, object Body) Api(SimState sim, string method, string path, JsonElement body)
+{
+    static (int, object) Fail(int status, string code, string error) => (status, new { error, code });
+    string Field(string key) =>
+        body.ValueKind == JsonValueKind.Object && body.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.String
+            ? v.GetString() ?? "" : "";
+    (int, object)? Refusal() => sim.FcuFlightState() switch
+    {
+        "disarmed" => null,
+        "armed" => Fail(409, "armed", "the drone is armed: refused until it is disarmed"),
+        _ => Fail(503, "fc_unknown", "flight controller state unknown (not linked, or no fresh state), so it counts as armed"),
+    };
+    bool Protected(string n) => n.Trim().ToLowerInvariant() is var l &&
+                                (l == "bumblebee-hotspot" || l.StartsWith("bumblebee-") || l.EndsWith(".bb-pending"));
+
+    switch (path)
+    {
+        case "/api/wifi/status":
+            return (200, new { mode = "client", ssid = "SimNet-5G", ip = "127.0.0.1", signal = 78, id = SimState.Id });
+        case "/api/info":
+            return (200, new { name = "Bumblebee-" + SimState.Id, id = SimState.Id, version = "SimDrone", ros_domain = (int?)null, contract = 1 });
+        case "/api/wifi/scan":
+            return (200, new object[]
+            {
+                new { ssid = "SimNet-5G", signal = 78, security = "WPA2", in_use = true, band = "5", freq = 5300 },
+                new { ssid = "HomeWifi", signal = 55, security = "WPA2", in_use = false, band = "2.4", freq = 2412 },
+                new { ssid = "Cafe", signal = 40, security = "", in_use = false, band = "2.4", freq = 2462 },
+                new { ssid = "Bumblebee-ABCD", signal = 60, security = "WPA2", in_use = false, band = "2.4", freq = 2437 },
+                new { ssid = "Neighbor6E", signal = 23, security = "WPA3", in_use = false, band = "6", freq = 5955 },
+            });
+        case "/api/wifi/networks":
+            return (200, new object[] { new { name = "SimNet-5G" }, new { name = "FieldRouter" } });
+        case "/api/wifi/save" or "/api/wifi/apply-now" or "/api/wifi/apply-boot":
+        {
+            var ssid = Field("ssid").Trim();
+            if (ssid.Length == 0) return Fail(400, "ssid_required", "ssid required");
+            var pass = Field("password");
+            if (path == "/api/wifi/save" && pass.Length > 0 && (Encoding.UTF8.GetByteCount(pass) is < 8 or > 64))
+                return Fail(400, "bad_password_length", "a Wi-Fi password has 8 to 63 characters (or is exactly 64 hex digits)");
+            if (Protected(ssid)) return Fail(409, "protected_network", $"'{ssid}' is the drones' own setup hotspot");
+            if (Refusal() is { } r) return r;
+            return (200, path == "/api/wifi/save" ? new { ok = true, pending = pass.Length > 0 } : new { ok = true });
+        }
+        case "/api/wifi/network":
+        {
+            var ssid = Field("ssid").Trim();
+            if (Protected(ssid)) return Fail(409, "protected_network", $"'{ssid}' is the drones' own setup hotspot");
+            if (Refusal() is { } r) return r;
+            var confirmed = body.ValueKind == JsonValueKind.Object && body.TryGetProperty("confirm_active", out var c) &&
+                            c.ValueKind == JsonValueKind.True;
+            if (ssid == "SimNet-5G" && !confirmed)
+                return Fail(409, "active_network", $"'{ssid}' is the network the drone is using right now");
+            return (200, confirmed ? new { ok = true, deferred = true } : new { ok = true });
+        }
+        case "/api/wifi/mode":
+            return Refusal() ?? (200, new { ok = true, mode = Field("mode") });
+        case "/api/led/animation":
+            sim.StartAnimation(Field("name"));
+            return (200, new { ok = true, name = Field("name"), pid = 4242, max_s = SimState.ShowMaxS });
+        case "/api/led/color" or "/api/led/reset":
+            sim.StopAnimation();
+            return (200, new { ok = true });
+        case "/api/led/status":
+            return (200, sim.LedStatus());
+        case "/api/sounds/tts":
+            return Refusal() ?? (200, new { ok = true, tune = "MFT180L8O5CDEFG", phonemes = "k-o-t" });
+        case "/api/sounds/play":
+            return Refusal() ?? (200, new { ok = true });
+        case "/api/fcu/status":
+            return (200, sim.FcuStatus());
+        default:
+            return (200, new { ok = true });
+    }
+}
+
+// ---------------------------------------------------------------- управление :8799
+
+static async Task ControlServer(SimState sim)
+{
+    var listener = new HttpListener();
+    listener.Prefixes.Add("http://localhost:8799/");
+    listener.Start();
+    Console.WriteLine("[8799] control up: /mock/state, /mock/set?fcu=...&telemetry=...&battery=...");
+    while (true)
+    {
+        var ctx = await listener.GetContextAsync();
+        var path = ctx.Request.Url?.AbsolutePath ?? "/";
+        string? err = null;
+        if (path == "/mock/set")
+        {
+            foreach (string? key in ctx.Request.QueryString.AllKeys)
+            {
+                if (key != null) err ??= sim.Set(key, ctx.Request.QueryString[key] ?? "");
+            }
+        }
+        else if (path != "/mock/state")
+        {
+            err = $"unknown path {path}";
+        }
+        ctx.Response.StatusCode = err == null ? 200 : 400;
+        var data = Encoding.UTF8.GetBytes(err == null ? sim.StateJson() : JsonSerializer.Serialize(new { error = err }));
         ctx.Response.ContentType = "application/json";
         await ctx.Response.OutputStream.WriteAsync(data);
         ctx.Response.Close();
@@ -261,10 +378,86 @@ static byte[] RenderFrame(string topic, int n, SimState sim)
 
 sealed class SimState
 {
+    static readonly Dictionary<string, string[]> Choices = new()
+    {
+        ["fcu"] = ["auto", "disarmed", "armed", "stale", "lost"],
+        ["telemetry"] = ["normal", "freeze"],
+        ["battery"] = ["ok", "low"],
+    };
+
+    /// <summary>The simulated drone's id (last 4 hex digits of a MAC), as in /api/wifi/status.</summary>
+    public const string Id = "51D0";
+    /// <summary>Animations stop by themselves after this long (wifi_manager.py SHOW_MAX_S).</summary>
+    public const int ShowMaxS = 120;
+
+    string? _animation;
+    DateTime _animationEnds;
+    readonly object _ledLock = new();
+
+    public void StartAnimation(string name)
+    {
+        lock (_ledLock) { _animation = name; _animationEnds = DateTime.UtcNow.AddSeconds(ShowMaxS); }
+    }
+
+    public void StopAnimation()
+    {
+        lock (_ledLock) _animation = null;
+    }
+
+    public object LedStatus()
+    {
+        lock (_ledLock)
+        {
+            if (_animation is not null && DateTime.UtcNow >= _animationEnds) _animation = null;
+            int? remaining = _animation is null ? null : (int)Math.Ceiling((_animationEnds - DateTime.UtcNow).TotalSeconds);
+            return new { led_ok = true, animation = _animation, pid = _animation is null ? (int?)null : 4242,
+                         busy = _animation is not null, remaining_s = remaining };
+        }
+    }
+
+    /// <summary>As wifi_manager.py _fcu_flight_state: disarmed only from a fresh, linked state.</summary>
+    public string FcuFlightState() => Fcu switch
+    {
+        "auto" or "disarmed" or "armed" => Armed ? "armed" : "disarmed",
+        _ => Armed ? "armed" : "unknown",
+    };
+
     double _t;
     public double X, Y, Z, Roll, Pitch, Yaw, Vx, Vy, Vz;
     public double Voltage = 25.2;
-    public bool Armed;
+    public volatile bool Armed;
+    public volatile string Fcu = "auto", Telemetry = "normal", Battery = "ok";
+
+    /// <summary>Validates and applies one setting; returns an error or null.</summary>
+    public string? Set(string key, string value)
+    {
+        if (!Choices.TryGetValue(key, out var allowed) || !allowed.Contains(value))
+            return $"bad {key}={value} (choose {(allowed == null ? "fcu|telemetry|battery" : string.Join("|", allowed))})";
+        switch (key)
+        {
+            case "fcu": Fcu = value; break;
+            case "telemetry": Telemetry = value; break;
+            case "battery": Battery = value; break;
+        }
+        if (value is "armed" or "disarmed") Armed = value == "armed";
+        if (value == "lost") Armed = false;
+        Console.WriteLine($"[sim] {StateJson()}");
+        return null;
+    }
+
+    public string StateJson() => JsonSerializer.Serialize(new { fcu = Fcu, telemetry = Telemetry, battery = Battery });
+
+    /// <summary>Same meaning as /api/fcu/status on the drone (wifi_manager.py over
+    /// drone.get_fcu_status): stale keeps the last armed flag and mode, lost
+    /// (MAVROS says connected=false) reports disarmed.</summary>
+    public object FcuStatus()
+    {
+        var connected = Fcu is "auto" or "disarmed" or "armed";
+        var lost = Fcu == "lost";
+        return new { ok = connected, connected, armed = !lost && Armed, mode = lost ? "" : Mode };
+    }
+
+    string Mode => Armed ? "OFFBOARD" : "STABILIZED";
 
     public void Tick(double t)
     {
@@ -278,8 +471,8 @@ sealed class SimState
         Roll = 10 * Math.Sin(t * 0.5);
         Pitch = 8 * Math.Cos(t * 0.4);
         Yaw = (t * 12) % 360 - 180;
-        Voltage = Math.Max(19.8, 25.2 - t * 0.01);
-        Armed = (int)(t / 30) % 2 == 1;
+        Voltage = Battery == "low" ? 20.4 : Math.Max(19.8, 25.2 - t * 0.01);
+        if (Fcu == "auto") Armed = (int)(t / 30) % 2 == 1;
     }
 
     static object Quat(double rollDeg, double pitchDeg, double yawDeg)
@@ -298,7 +491,10 @@ sealed class SimState
     public IEnumerable<(string Topic, object Msg)> Publications()
     {
         var pct = Math.Clamp((Voltage / 6 - 3.3) / (4.2 - 3.3), 0, 1);
-        yield return ("/mavros/state", new { mode = Armed ? "OFFBOARD" : "STABILIZED", armed = Armed });
+        if (Fcu == "lost")
+            yield return ("/mavros/state", new { connected = false, mode = "", armed = false });
+        else if (Fcu != "stale")   // stale: no fresh State at all
+            yield return ("/mavros/state", new { connected = true, mode = Mode, armed = Armed });
         yield return ("/mavros/battery", new { voltage = Voltage, percentage = pct });
         yield return ("/mavros/mavros/pose", new
         {

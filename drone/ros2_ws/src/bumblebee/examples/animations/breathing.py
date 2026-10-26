@@ -15,12 +15,19 @@
 
 """breathing — white sin-pulse on all strips until SIGTERM."""
 import math
+import os
 import signal
 import sys
 import time
 
 sys.path.insert(0, '/home/lb/ros2_ws/src/bumblebee/examples')
 import drone
+# _show.py, the shared LED helper: next to this script, or else the copy
+# installed beside drone.py (examples/animations/) for a script copied alone.
+# sim-run (runpy.run_path) does not put this script's folder on sys.path.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(drone.__file__)), 'animations'))
+import _show  # noqa: E402
 
 PERIOD = 3.0
 FPS = 25
@@ -37,7 +44,7 @@ def _stop(*_):
 signal.signal(signal.SIGTERM, _stop)
 signal.signal(signal.SIGINT, _stop)
 
-drone.led_take_control()
+_show.take_control()
 try:
     t0 = time.time()
     while _running:
@@ -47,8 +54,4 @@ try:
         drone.set_led(drone.STRIP_ALL, drone.LED_ALL, c, c, c)
         time.sleep(FRAME)
 finally:
-    try:
-        drone.led_off()
-    except OSError:
-        pass
-    drone.led_release_control()
+    _show.release_control()

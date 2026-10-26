@@ -32,6 +32,10 @@ public static class IconGlyphs
     public const string Armed         = "\uE945"; // bolt.fill -> LightningBolt
     public const string Disarmed      = "\uE945"; // bolt.slash - differs by color
     public const string Battery       = "\uE859"; // battery.75 -> Battery8
+    public const string BatteryUnknown = "\uE996"; // battery not measured / no data -> BatteryUnknown
+    public const string Unknown       = "\uE9CE"; // questionmark -> Unknown
+    public const string Pilot         = "\uE7FC"; // gamecontroller.fill -> Game
+    public const string Flag          = "\uE7C1"; // flag.fill -> Flag
     public const string Altitude      = "\uE74A"; // arrow.up.to.line -> Up
     public const string Link          = "\uE701"; // dot.radiowaves.up.forward -> Wifi
     public const string Attitude      = "\uE7AD"; // gyroscope -> Rotate
@@ -49,6 +53,8 @@ public static class IconGlyphs
     public const string Bookmark      = "\uE74E"; // bookmark.fill -> Save
     public const string Add           = "\uE710"; // plus.circle -> Add
     public const string Key           = "\uE8D7"; // key -> Permissions
+    public const string Lock          = "\uE72E"; // lock.fill -> Lock
+    public const string Unlock        = "\uE785"; // lock.open -> Unlock
     public const string ChevronRight  = "\uE76C"; // chevron.right
     public const string LocationOff   = "\uE81D"; // location.slash -> Location (text explains)
     public const string Info          = "\uE946"; // info.circle

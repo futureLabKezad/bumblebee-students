@@ -13,33 +13,45 @@
 // limitations under the License.
 
 using System.Text.Json;
+using BumblebeeGcs.Logic;
 using BumblebeeGcs.Models;
 using Microsoft.UI.Dispatching;
 
 namespace BumblebeeGcs.Services;
 
-/// <summary>Опрашивает системные метрики дрона (http://host:8888/) каждые 2 с.</summary>
+/// <summary>Опрашивает системные метрики дрона (http://host:8888/) каждые 2 с.
+/// Ошибка запроса не стирает прошлые значения: панель сереет по LastArrival (6 с).</summary>
 public sealed class MetricsClient
 {
     public SystemMetrics Metrics;
+    /// <summary>Monotonic time of the last good answer; null = none from this drone yet.</summary>
+    public double? LastArrival { get; private set; }
     public event Action? Updated;
 
-    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(2) };
+    private static readonly HttpClient Http = new(new SocketsHttpHandler { UseProxy = false })   // мимо прокси
+    {
+        Timeout = TimeSpan.FromSeconds(2),
+    };
 
     private readonly DispatcherQueue _dq;
     private DispatcherQueueTimer? _timer;
     private string _host = "";
+    /// <summary>A late answer of an earlier Start (another drone) is dropped on the UI thread.</summary>
+    private readonly ConnectionGeneration _generation = new();
 
     public MetricsClient(DispatcherQueue dq) => _dq = dq;
 
+    /// <summary>Call on the UI thread. A different host starts from empty metrics.</summary>
     public void Start(string host)
     {
         Stop();
+        if (host != _host) Clear();
         _host = host;
-        _ = FetchAsync();
+        var gen = _generation.Current;
+        _ = FetchAsync(host, gen);
         var t = _dq.CreateTimer();
         t.Interval = TimeSpan.FromSeconds(2);
-        t.Tick += (_, _) => _ = FetchAsync();
+        t.Tick += (_, _) => _ = FetchAsync(host, gen);
         t.Start();
         _timer = t;
     }
@@ -48,11 +60,19 @@ public sealed class MetricsClient
     {
         _timer?.Stop();
         _timer = null;
+        _generation.Advance();
     }
 
-    private async Task FetchAsync()
+    /// <summary>Forget the previous drone's metrics ("—" until the new one answers).</summary>
+    public void Clear()
     {
-        var host = _host;
+        Metrics = default;
+        LastArrival = null;
+        Updated?.Invoke();
+    }
+
+    private async Task FetchAsync(string host, int gen)
+    {
         JsonDocument doc;
         try
         {
@@ -79,8 +99,9 @@ public sealed class MetricsClient
             };
             _dq.TryEnqueue(() =>
             {
-                if (_host != host) return;
+                if (_host != host || !_generation.IsCurrent(gen)) return;
                 Metrics = m;
+                LastArrival = MonoClock.Now;
                 Updated?.Invoke();
             });
         }

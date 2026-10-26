@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Security;
+using BumblebeeGcs.Logic;
 using ManagedNativeWifi;
 using Microsoft.UI.Dispatching;
 using Windows.Devices.Geolocation;
@@ -445,19 +446,20 @@ public sealed class WifiHandoff
     }
 
     /// <summary>
-    /// Ждём настроенный дрон по DNS-SD и возвращаем его IP. С id (текущее ПО
-    /// дрона) подходит только этот самый дрон — никогда не дрон соседней
-    /// команды. Без id (старое ПО: нет id ни в статусе, ни в TXT) берём первый
-    /// дрон без id, как раньше.
+    /// Ждём настроенный (или переведённый в другую сеть) дрон по DNS-SD и
+    /// возвращаем его IP. С id (текущее ПО дрона) подходит только этот самый
+    /// дрон — никогда не дрон соседней команды. Без id (старое ПО) — см.
+    /// DroneMatch: дроны, которые уже были в сети, не считаются.
     /// </summary>
-    private static async Task<string?> WaitForDroneAsync(string? expectedId, double timeoutSeconds = 60)
+    public static async Task<string?> WaitForDroneAsync(string? expectedId, double timeoutSeconds = 60)
     {
         var tcs = new TaskCompletionSource<string?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var started = MonoClock.Now;
         using var browser = new DnssdBrowser((ip, _, id) =>
         {
             // Адрес хотспота — устаревшая запись дрона до переключения.
             if (ip == HotspotGatewayHost) return;
-            if (id == expectedId) tcs.TrySetResult(ip);
+            if (DroneMatch.Accepts(expectedId, id, MonoClock.Now - started)) tcs.TrySetResult(ip);
         });
         browser.Start();
         var done = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(timeoutSeconds)));

@@ -14,6 +14,7 @@
 
 using Microsoft.UI;
 using BumblebeeGcs.Controls;
+using BumblebeeGcs.Logic;
 using BumblebeeGcs.Services;
 using BumblebeeGcs.Theme;
 using Microsoft.UI.Xaml;
@@ -41,7 +42,10 @@ public sealed class MainShell : Grid
     private readonly List<(Section Id, Border Row, FontIcon Icon, TextBlock Label)> _navRows = new();
     private readonly StatusDot _connDot;
     private readonly TextBlock _connLabel;
-    private readonly Action _onConnChanged;
+    private readonly Action _onConnChanged, _onTelemetry, _onMismatch;
+    // Тревоги поверх любой страницы (как AlarmBanner на Mac): FC потерян у армленного дрона, низкий заряд.
+    private readonly AlarmBanner _fcLostBanner = new(IconGlyphs.Error), _lowBatteryBanner = new(IconGlyphs.BatteryUnknown),
+        _hotspotBanner = new(IconGlyphs.Wifi);
 
     public MainShell(AppState app)
     {
@@ -69,7 +73,8 @@ public sealed class MainShell : Grid
                     _connLabel)),
         };
 
-        var brand = Ui.HStack(Palette.S2, Ui.AppLogo(22, Palette.RMedia), Ui.Text("Bumblebee GCS", Fonts.Brand, Palette.Text));
+        var brand = Ui.HStack(Palette.S2, Ui.AppLogo(22, Palette.RMedia), Ui.Text("Bumblebee GCS", Fonts.Brand, Palette.Text),
+            Ui.Text(AppVersion.Short, Fonts.Label, Palette.Muted));
         brand.Margin = new Thickness(Palette.S4, Palette.S5, Palette.S4, Palette.S3);
 
         var nav = new StackPanel { Spacing = 2, Margin = new Thickness(Palette.S2, 0, Palette.S2, 0) };
@@ -133,31 +138,87 @@ public sealed class MainShell : Grid
         header.Children.Add(reconnect);
         header.Children.Add(rescan);
 
+        var banners = Ui.VStack(0, _fcLostBanner, _lowBatteryBanner, _hotspotBanner);
+
         var contentCol = new Grid { Background = Palette.AppGradient() };
+        contentCol.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         contentCol.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         contentCol.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         Grid.SetRow(header, 0);
-        Grid.SetRow(_pageHost, 1);
+        Grid.SetRow(banners, 1);
+        Grid.SetRow(_pageHost, 2);
         contentCol.Children.Add(header);
+        contentCol.Children.Add(banners);
         contentCol.Children.Add(_pageHost);
         Grid.SetColumn(contentCol, 1);
         Children.Add(contentCol);
 
+        // Точка и подпись в сайдбаре следуют за Link (а не только за сокетом), как на Mac.
         _onConnChanged = () =>
         {
-            var ok = _app.Telemetry.RosConnected;
-            _connDot.SetColor(ok ? Palette.Ok : Palette.Warn);
-            _connDot.SetPulsing(!ok);
-            _connLabel.Text = ok ? "linked" : "linking…";
+            var t = _app.Telemetry;
+            _connDot.SetColor(Palette.ForTone(LinkLogic.ToneOf(t.Link)));
+            _connDot.SetPulsing(t.Link != LinkState.Ok);
+            _connLabel.Text = LinkLogic.SidebarText(t.Link, t.RosConnected);
         };
+        _onTelemetry = RefreshBanners;
+        _onMismatch = () => DispatcherQueue.TryEnqueue(() => _ = AskIdentityAsync());
+        _app.IdentityMismatchFound += _onMismatch;
+        _app.Telemetry.LinkChanged += _onConnChanged;
         _app.Telemetry.ConnectionChanged += _onConnChanged;
-        Unloaded += (_, _) => _app.Telemetry.ConnectionChanged -= _onConnChanged;
+        _app.Telemetry.Updated += _onTelemetry;
+        Unloaded += (_, _) =>
+        {
+            _app.Telemetry.LinkChanged -= _onConnChanged;
+            _app.Telemetry.ConnectionChanged -= _onConnChanged;
+            _app.Telemetry.Updated -= _onTelemetry;
+            _app.IdentityMismatchFound -= _onMismatch;
+        };
+        // The PC's WiFi name, for the drone-hotspot banner (read every 15 s, not per message).
+        var ssidTimer = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().CreateTimer();
+        ssidTimer.Interval = TimeSpan.FromSeconds(15);
+        ssidTimer.Tick += (_, _) => { _app.Handoff.RefreshCurrentSsid(); RefreshBanners(); };
+        ssidTimer.Start();
+        Unloaded += (_, _) => ssidTimer.Stop();
+        _app.Handoff.RefreshCurrentSsid();
         _onConnChanged();
+        RefreshBanners();
 
         ShowSection(Section.Dashboard);
     }
 
-    private Border NavRow(Section id, string label, string glyph)
+    private void RefreshBanners()
+    {
+        var t = _app.Telemetry;
+        _fcLostBanner.Set(t.FcAlarm.BannerVisible ? FcLostAlarm.Text : null);
+        _lowBatteryBanner.Set(t.LowBatteryBanner);
+        // On a drone's hotspot by choice ("Connect directly") is fine; Windows staying on one is not.
+        var h = _app.Handoff;
+        _hotspotBanner.Set(h.OnDroneHotspot && _app.DroneHost != WifiHandoff.HotspotGatewayHost
+            ? $"This PC is on {h.CurrentSsid}, a drone's own WiFi: pick your classroom WiFi in the taskbar" : null);
+    }
+
+    /// <summary>The drone answering at the address is not the one picked: stay or disconnect.</summary>
+    private async Task AskIdentityAsync()
+    {
+        if (_app.IdentityMismatch is not string text || XamlRoot is null) return;
+        var dlg = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = "Not the drone you picked",
+            Content = text,
+            PrimaryButtonText = "Stay connected",
+            CloseButtonText = "Disconnect",
+            DefaultButton = ContentDialogButton.Close,
+            RequestedTheme = ElementTheme.Dark,
+        };
+        ContentDialogResult r;
+        try { r = await dlg.ShowAsync(); } catch { return; }
+        if (r == ContentDialogResult.Primary) _app.IdentityMismatch = null; else _app.Disconnect();
+    }
+
+    /// <summary>A sidebar entry: a real Button around the styled row (Tab, Enter, Narrator).</summary>
+    private Button NavRow(Section id, string label, string glyph)
     {
         var icon = Ui.Icon(glyph, Palette.IconLg, Palette.Muted);
         icon.Width = Palette.IconLg;
@@ -168,14 +229,14 @@ public sealed class MainShell : Grid
             Padding = new Thickness(Palette.S2, Palette.S2 + 1, Palette.S2, Palette.S2 + 1),
             Child = Ui.HStack(Palette.S2, icon, text),
         };
-        Ui.OnTap(row, () => ShowSection(id));
         Ui.OnHover(row, h =>
         {
             if (_section == id) return;
             row.Background = h ? Palette.Brush(Palette.HoverBg) : null;
         });
         _navRows.Add((id, row, icon, text));
-        return row;
+        return Ui.FlatButton(row, () => ShowSection(id), label, Colors.Transparent, Colors.Transparent, Palette.Text,
+            radius: Palette.RControl);
     }
 
     private void ShowSection(Section id)
