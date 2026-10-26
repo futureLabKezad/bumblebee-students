@@ -5,9 +5,9 @@ Versioning follows [SemVer](https://semver.org/); each release has a tag `vX.Y.Z
 a release page in the [wiki](https://github.com/futureLabKezad/bumblebee-students/wiki)
 and downloadable builds.
 
-## v1.0.2 — unreleased
+## v1.0.2 — 2026-10-26
 
-Drone update **1.0.2** (update bundle; release candidate `1.0.2-rc3`) and ground
+Drone update **1.0.2** (update bundle `bumblebee-update-1.0.2.tgz`, release `v1.0.2`) and ground
 station **Bumblebee GCS 1.2.0** (Mac and Windows). Theme: the screen never
 misleads about safety, one click cannot take a drone out of class, the app
 only watches. Flight code and PX4 parameters are unchanged by these items;
