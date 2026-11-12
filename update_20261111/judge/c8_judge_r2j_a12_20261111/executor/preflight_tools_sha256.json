@@ -1,0 +1,12 @@
+{
+  "sitl_setup.original.py": "eab756c2be535a439b1a9d3f455a3e6d0c673efbaf029424a8615cd294811554",
+  "run_sim.snapshot.sh": "6a919b5ec74e7d0e25b8110c79c38d49db1d466a42aec27e4b06c8617af5c68a",
+  "rc_emulator.py": "768899e7a4c7191ca950d1aa8a10919e816db91bb1ddf80b3c8ebf362b5dd621",
+  "supervisor.py": "330bfd532fb2825f12d90310c6c1402abe182196a20fbc8db704f2e3be52ea77",
+  "sitl_setup.py": "a826e55999476a7eb1a40c25c84ed2be85550a0782089342890c832723c7f0fe",
+  "run.sh": "655b6440410969de1d78f7dd3f80c4843bc526a1d0a0be86f0e0807f6a3c73a6",
+  "gate.py": "65de373f4d2fe5ff9fe0cf2475dc1334d4efc84097e1eda4494fcc7c100716a2",
+  "package1b_gate.original.py": "7cb59e8131f6c6b7b7f72ba9eac19bb4640823610aad4a45462c6c4524a699cc",
+  "vpe_diagnostic_entry.py": "7016a7ffc9590da145a5d16be56d019248c13fd3d6051c181436c88f87ccef95",
+  "flight.launch.py": "c8d08802926656ddde09b3bcdde87d3b8c829a85c3b7f873bd3bf19ce0c45153"
+}

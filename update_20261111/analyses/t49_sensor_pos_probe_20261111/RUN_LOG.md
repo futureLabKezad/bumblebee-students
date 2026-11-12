@@ -1,0 +1,10 @@
+- 2026-11-11T13:08:22+04:00 t49A_c5_01 start (PROBE, NOT scored, variant A AF 4072, c5)
+- 2026-11-11T13:12:09+04:00 t49A_c5_01 params A: {'EKF2_RNG_POS_Z': 0.05, 'EKF2_OF_POS_Z': 0.05, 'EKF2_MIN_RNG': 0.23, 'EKF2_IMU_POS_Z': 0.0} ok
+- 2026-11-11T13:12:10+04:00 t49A_c5_01 eval rc 0 (C5 PASS  failed: -); touchdown 155.916 s, motors off 158.312 s, delay 2.396 s (need <=3.0); IMU VALID: max gap sensor_combined 8.0 ms (0 over 
+- 2026-11-11T13:12:30+04:00 t49A_c5_02 start (PROBE, NOT scored, variant A AF 4072, c5)
+- 2026-11-11T13:16:12+04:00 t49A_c5_02 params A: {'EKF2_RNG_POS_Z': 0.05, 'EKF2_OF_POS_Z': 0.05, 'EKF2_MIN_RNG': 0.23, 'EKF2_IMU_POS_Z': 0.0} ok
+- 2026-11-11T13:16:12+04:00 t49A_c5_02 eval rc 0 (C5 PASS  failed: -); touchdown 151.632 s, motors off 154.0 s, delay 2.368 s (need <=3.0); IMU VALID: max gap sensor_combined 8.0 ms (0 over 
+- 2026-11-11T13:16:32+04:00 t49A_flow_01 start (PROBE, NOT scored, variant A AF 4072, flow)
+- 2026-11-11T13:21:55+04:00 t49A_flow_01 params A: {'EKF2_RNG_POS_Z': 0.05, 'EKF2_OF_POS_Z': 0.05, 'EKF2_MIN_RNG': 0.23, 'EKF2_IMU_POS_Z': 0.0} ok
+- 2026-11-11T13:21:56+04:00 t49A_flow_01 eval rc 0 (C8 new check flow: PASS  (t49A_flow_01, 09_17_26.ulg));   drift: touchdown 0.03 m, max 0.069 m (limit 1.0); window to touchdown; IMU VALID: max gap sensor_combined 8.0 ms (0 over 
+- 2026-11-11T13:22:16+04:00 STOP: t49 sums

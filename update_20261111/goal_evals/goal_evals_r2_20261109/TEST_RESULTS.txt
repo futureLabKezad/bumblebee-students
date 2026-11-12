@@ -1,0 +1,176 @@
+# TEST_RESULTS r2 2026-11-09T10:47:11+04:00 Python 3.12.3 numpy 1.26.4
+## C5/C7 synthetic tests
+test_clean_passes (__main__.C5Tests.test_clean_passes) ... ok
+test_emergencies (__main__.C5Tests.test_emergencies) ... ok
+test_failsafe_flags (__main__.C5Tests.test_failsafe_flags) ... ok
+test_height_limit_inclusive (__main__.C5Tests.test_height_limit_inclusive) ... ok
+test_height_max_not_mean (__main__.C5Tests.test_height_max_not_mean) ... ok
+test_hold (__main__.C5Tests.test_hold) ... ok
+test_land_not_requested (__main__.C5Tests.test_land_not_requested) ... ok
+test_motors_off_limit (__main__.C5Tests.test_motors_off_limit) ... ok
+test_never_armed (__main__.C5Tests.test_never_armed) ... ok
+test_no_motors_off (__main__.C5Tests.test_no_motors_off) ... ok
+test_no_touchdown (__main__.C5Tests.test_no_touchdown) ... ok
+test_script_height_from_code (__main__.C5Tests.test_script_height_from_code) ... ok
+test_stand_ended_exit (__main__.C5Tests.test_stand_ended_exit) ... ok
+test_touchdown_first_contact_of_a_bounce (__main__.C5Tests.test_touchdown_first_contact_of_a_bounce) ... ok
+test_touchdown_is_contact_not_5cm (__main__.C5Tests.test_touchdown_is_contact_not_5cm) ... ok
+test_wrong_script_height (__main__.C5Tests.test_wrong_script_height) ... ok
+test_clean_passes_with_offset_ekf_frame (__main__.C7Tests.test_clean_passes_with_offset_ekf_frame) ... ok
+test_emergencies (__main__.C7Tests.test_emergencies) ... ok
+test_extra_stop_cannot_match (__main__.C7Tests.test_extra_stop_cannot_match) ... ok
+test_flown_shorter_than_code (__main__.C7Tests.test_flown_shorter_than_code) ... ok
+test_intervention (__main__.C7Tests.test_intervention) ... ok
+test_landing (__main__.C7Tests.test_landing) ... ok
+test_never_lands (__main__.C7Tests.test_never_lands) ... ok
+test_point_error (__main__.C7Tests.test_point_error) ... ok
+test_point_limit_inclusive (__main__.C7Tests.test_point_limit_inclusive) ... ok
+test_point_not_reached (__main__.C7Tests.test_point_not_reached) ... ok
+test_route_of_the_image_examples (__main__.C7Tests.test_route_of_the_image_examples) ... ok
+test_route_patterns (__main__.C7Tests.test_route_patterns) ... ok
+test_setpoints_not_the_coded_route (__main__.C7Tests.test_setpoints_not_the_coded_route) ... ok
+test_fingerprint_ignores_date (__main__.FileTests.test_fingerprint_ignores_date) ... ok
+test_main_no_ulog_and_no_overwrite (__main__.FileTests.test_main_no_ulog_and_no_overwrite) ... ok
+test_numbers (__main__.FileTests.test_numbers) ... ok
+test_script_exit (__main__.FileTests.test_script_exit) ... ok
+test_script_source_product (__main__.FileTests.test_script_source_product) ... ok
+test_script_source_sha (__main__.FileTests.test_script_source_sha) ... ok
+test_both_scripts_both_need_ten (__main__.SeriesTests.test_both_scripts_both_need_ten) ... ok
+test_change_restarts (__main__.SeriesTests.test_change_restarts) ... ok
+test_fail_resets (__main__.SeriesTests.test_fail_resets) ... ok
+test_only_one_script (__main__.SeriesTests.test_only_one_script) ... ok
+test_ten_in_a_row_both (__main__.SeriesTests.test_ten_in_a_row_both) ... ok
+
+----------------------------------------------------------------------
+Ran 40 tests in 0.042s
+
+OK
+## C6 synthetic tests
+test_clean_hover_passes (__main__.Clean.test_clean_hover_passes) ... ok
+test_invalid_run_fails (__main__.Clean.test_invalid_run_fails) ... ok
+test_missing_line_is_not_a_pass (__main__.Clean.test_missing_line_is_not_a_pass) ... ok
+test_window_starts_at_end_of_climb (__main__.Clean.test_window_starts_at_end_of_climb) ... ok
+test_main_no_ulog_fails_and_never_overwrites (__main__.Files.test_main_no_ulog_fails_and_never_overwrites) ... ok
+test_numbers_are_the_approved_ones (__main__.Files.test_numbers_are_the_approved_ones) ... ok
+test_world_to_map_rotation_and_shift (__main__.Files.test_world_to_map_rotation_and_shift) ... ok
+test_height_err_above_10cm (__main__.Height.test_height_err_above_10cm) ... ok
+test_height_inside (__main__.Height.test_height_inside) ... ok
+test_never_reaches_height (__main__.Height.test_never_reaches_height) ... ok
+test_overshoot_hover_too_high (__main__.Height.test_overshoot_hover_too_high) ... ok
+test_a_estimate_fast_ramp (__main__.Jumps.test_a_estimate_fast_ramp) ... ok
+test_a_estimate_slow_ramp_ok (__main__.Jumps.test_a_estimate_slow_ramp_ok) ... ok
+test_a_estimate_step (__main__.Jumps.test_a_estimate_step) ... ok
+test_a_reset_outside_window_ok (__main__.Jumps.test_a_reset_outside_window_ok) ... ok
+test_a_xy_reset_big (__main__.Jumps.test_a_xy_reset_big) ... ok
+test_a_xy_reset_small_ok (__main__.Jumps.test_a_xy_reset_small_ok) ... ok
+test_a_z_reset_big (__main__.Jumps.test_a_z_reset_big) ... ok
+test_b_truth_jump (__main__.Jumps.test_b_truth_jump) ... ok
+test_b_truth_slow_ok (__main__.Jumps.test_b_truth_slow_ok) ... ok
+test_b_vertical_counts (__main__.Jumps.test_b_vertical_counts) ... ok
+test_emergency_list_fails (__main__.Landing.test_emergency_list_fails) ... ok
+test_emergency_not_evaluated_fails (__main__.Landing.test_emergency_not_evaluated_fails) ... ok
+test_no_disarm (__main__.Landing.test_no_disarm) ... ok
+test_shared_list_with_c5_c7 (__main__.Landing.test_shared_list_with_c5_c7)
+r2: C6 uses goal_common.emergencies, the same function as c5_eval.py and c7_eval.py. ... ok
+test_limits_inclusive (__main__.Offsets.test_limits_inclusive) ... ok
+test_max_above_20cm (__main__.Offsets.test_max_above_20cm) ... ok
+test_offset_is_from_marker0_not_takeoff_point (__main__.Offsets.test_offset_is_from_marker0_not_takeoff_point) ... ok
+test_share_95_ok (__main__.Offsets.test_share_95_ok) ... ok
+test_share_below_95 (__main__.Offsets.test_share_below_95) ... ok
+test_pilot_takeover_ends_window (__main__.Window.test_pilot_takeover_ends_window) ... ok
+test_settling_reported_not_forgiven (__main__.Window.test_settling_reported_not_forgiven) ... ok
+test_short_hover (__main__.Window.test_short_hover) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.128s
+
+OK
+## mutation check C5/C7
+CAUGHT   C5 height tol 0.15
+CAUGHT   C5 motors 3.5 s
+CAUGHT   C5 mean instead of max
+CAUGHT   C5 touchdown at 5 cm
+CAUGHT   C5 height from default
+CAUGHT   C5 touchdown waits for low speed (r1)
+CAUGHT   failsafe_flags ignored
+CAUGHT   any flag allowed after landing
+CAUGHT   Hold not an emergency
+CAUGHT   AUTO.LAND always counted as landing
+CAUGHT   script.log not needed for landing
+CAUGHT   landing command window 10 s
+CAUGHT   C5 emergencies ignored
+CAUGHT   exit code ignored
+CAUGHT   unknown exit passes
+CAUGHT   DESCEND not an emergency
+CAUGHT   took-over ignored
+CAUGHT   missing line passes
+CAUGHT   sha not checked
+CAUGHT   date in fingerprint
+CAUGHT   C7 point 0.30
+CAUGHT   C7 landing 0.20
+CAUGHT   C7 9 in a row
+CAUGHT   C7 only the moment of the next command
+CAUGHT   C7 flown not compared
+CAUGHT   C7 intervention ignored
+CAUGHT   C7 leg check off
+CAUGHT   C7 fail does not reset
+CAUGHT   C7 change does not restart
+CAUGHT   C7 one script enough
+30/30 mutations caught
+## mutation check C6
+CAUGHT   share 0.90
+CAUGHT   max offset 0.25
+CAUGHT   height tol 0.15
+CAUGHT   hover 50 s
+CAUGHT   jump b horizontal only
+CAUGHT   jump a neighbours only
+CAUGHT   z resets ignored
+CAUGHT   offset from takeoff point
+CAUGHT   window ignores leaving OFFBOARD
+CAUGHT   emergency list ignored
+CAUGHT   emergency not computed passes
+CAUGHT   own short list instead of the shared one
+CAUGHT   missing line counts as pass
+CAUGHT   settling forgiven
+14/14 mutations caught
+## real runs
+### check_runs/b01_4035_flight/c5_eval.txt
+C5 FAIL  failed: took_off, not evaluated: height_window_found, not evaluated: height_within_0p10, not evaluated: touchdown_found, not evaluated: motors_off_found, not evaluated: motors_off_le_3s, not evaluated: no_emergency
+run b01_4035_flight; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py H=1.5 ; exit 3 (2026-11-09T10:08:45+04:00 exited by itself, code 3)
+emergencies: not evaluated
+no ULog: the vehicle never armed
+### check_runs/b01_4035_flight/c6_eval.txt
+C6 FAIL  failed: took_off, not evaluated: hover_window_found, not evaluated: hover_60s, not evaluated: share_10cm_ge_95pct, not evaluated: offset_max_le_20cm, not evaluated: height_err_le_10cm, not evaluated: no_jump_a_ekf, not evaluated: no_jump_b_truth, not evaluated: landed_and_disarmed_after_hover, not evaluated: no_emergency
+run b01_4035_flight; valid True []; ulog None
+trial deviations: ['trial-aruco-always (F1): aruco_detect gate_by_flight_state=False, detector works before arming']
+verdict lines: {'took_off': False, 'run_valid': True}
+emergencies: not evaluated
+no ULog: the vehicle never armed
+script: PREFLIGHT FAIL: only 7/13 profile params applied (<90%). Refusing takeoff -- PX4 would fly on defaults, not INDOOR_ARUCO_SLOW. Check /tmp/bumblebee.log for vpe_fix gate state.
+### check_runs/b01_4035_flight/c7_eval.txt
+C7 FAIL  failed: route_from_code, not evaluated: route_flown_as_coded, not evaluated: holds_match_route, not evaluated: all_points_reached, not evaluated: points_within_0p25, not evaluated: landing_found, not evaluated: landing_within_0p15, not evaluated: offboard_until_land, not evaluated: no_emergency
+run b01_4035_flight; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py no drone.fly_to() call found; exit 3 (2026-11-09T10:08:45+04:00 exited by itself, code 3)
+route (code): None; flown (log): []
+emergencies: not evaluated; modes before land: None
+no ULog: the vehicle never armed
+### check_runs/s04_4035_flight_arucoalways/c5_eval.txt
+C5 FAIL  failed: height_within_0p10, motors_off_le_3s, no_emergency
+run s04_4035_flight_arucoalways; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py H=1.5 ; exit 137 (None)
+window 14.1..21.56 s (left OFFBOARD (nav_state 18)); height dev max 0.104 m at 21.54 s (need <=0.10), mean 1.54 m
+touchdown 27.144 s, motors off 30.896 s, delay 3.752 s (need <=3.0)
+emergencies: ['script exit code 137 (launcher.log) = ended by the stand']
+### check_runs/s04_4035_flight_arucoalways/c6_eval.txt
+C6 FAIL  failed: hover_60s, share_10cm_ge_95pct, offset_max_le_20cm, height_err_le_10cm, no_emergency
+run s04_4035_flight_arucoalways; valid True []; ulog /work/goal_step5_20261106/runs/s04_4035_flight_arucoalways/rootfs/log/2026-11-06/12_08_47.ulg
+trial deviations: None
+window 9.65..21.56 s (11.9 s, ends: left OFFBOARD (nav_state 18)); settling None s
+offset to marker 0: <=10 cm 0.0 % of the time (need >=95), max 0.412 m (need <=0.20); height err max 0.604 m (need <=0.10)
+jump a (EKF): resets >0.10 m []; max move <0.2 s 0.025 m at [9.66, 9.86]
+jump b (truth): max move in 0.5 s 0.077 m at [9.65, 10.15] (horizontal only 0.024 m, information)
+verdict lines: {'took_off': True, 'hover_window_found': True, 'hover_60s': False, 'share_10cm_ge_95pct': False, 'offset_max_le_20cm': False, 'height_err_le_10cm': False, 'no_jump_a_ekf': True, 'no_jump_b_truth': True, 'landed_and_disarmed_after_hover': True, 'no_emergency': False, 'run_valid': True}
+emergencies: ['script exit code 137 (launcher.log) = ended by the stand']
+### check_runs/s04_4035_flight_arucoalways/c7_eval.txt
+C7 FAIL  failed: route_from_code, not evaluated: route_flown_as_coded, not evaluated: holds_match_route, not evaluated: all_points_reached, not evaluated: points_within_0p25, not evaluated: landing_found, not evaluated: landing_within_0p15, not evaluated: offboard_until_land, not evaluated: no_emergency
+run s04_4035_flight_arucoalways; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py no drone.fly_to() call found; exit 137 (None)
+route (code): None; flown (log): []
+emergencies: not evaluated; modes before land: None

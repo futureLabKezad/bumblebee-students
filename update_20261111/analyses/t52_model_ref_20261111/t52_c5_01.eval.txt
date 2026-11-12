@@ -1,0 +1,5 @@
+C5 PASS  failed: -
+run t52_c5_01; valid True []; script /work/fixed_image_r2h_20261110/src/bumblebee/examples/flight/flight.py H=0.8 ; exit 0 (2026-11-11T13:30:35+04:00 exited by itself, code 0)
+window 144.97..150.73 s (left OFFBOARD (nav_state 18)); height dev max 0.1 m at 144.97 s (need <=0.10), mean 0.747 m
+touchdown 153.488 s, motors off 155.888 s, delay 2.4 s (need <=3.0)
+emergencies: -

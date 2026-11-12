@@ -1,0 +1,110 @@
+--- /work/parallel_work/20261015/integration/flight_verification_03/verify_flight.py	2026-10-19 17:26:20.524172035 +0400
++++ verify_flight_c8.py	2026-11-09 16:58:55.856227401 +0400
+@@ -1,5 +1,12 @@
+ #!/usr/bin/env python3
+-"""Host-only, fail-closed review of one saved combined SITL scenario."""
++"""Host-only, fail-closed review of one saved combined SITL scenario.
++
++C8 COPY (T28, 09.11.2026, owner variant B) of flight_verification_03/verify_flight.py (sha d7f96939).
++Changed only: expected airframe, profile names and (c8_4061, owner 09.11 variant A) the pinned expectation files of
++real_parameters_before_arm come from the fixed IDENTITIES table (--identity, required); reports are written only into
++this folder's reviews/; the legacy verifier is this folder's copy (legacy/).
++'rel3_4030' = the accepted judge's values (bit-for-bit proof on rel3: tools/compare_rel3.py).
++"""
+ import argparse
+ import hashlib
+ import importlib.util
+@@ -11,10 +18,31 @@
+ 
+ sys.dont_write_bytecode = True
+ HERE = Path(__file__).resolve().parent
+-ROOT = HERE.parents[3]
+-LEGACY = ROOT / 'analysis/exp_scripts/verify_package1b_gates.py'
+-LEGACY_SHA = '1f6e2b0bf4b4885f370591d303951eed2cfe10de40ab8a711527378a40ff3e88'
+-NAMES = set('COM_DISARM_PRFLT COM_SPOOLUP_TIME MPC_ACC_HOR MPC_JERK_MAX MPC_LAND_SPEED MPC_TKO_SPEED MPC_VEL_MANUAL MPC_VEL_MAN_BACK MPC_VEL_MAN_SIDE MPC_XY_CRUISE MPC_XY_P MPC_XY_VEL_D_ACC MPC_XY_VEL_I_ACC MPC_XY_VEL_MAX MPC_XY_VEL_P_ACC MPC_Z_VEL_MAX_DN MPC_Z_VEL_MAX_UP MPC_Z_V_AUTO_DN MPC_Z_V_AUTO_UP'.split())
++ROOT = HERE.parent   # /work (the accepted judge: HERE.parents[3] of flight_verification_03 = /work)
++LEGACY = HERE / 'legacy/verify_package1b_gates_c8.py'
++LEGACY_SHA = '8bcef313758277da8c9bc05ec25f0b2f5c618d0e65704a0e1ac98f4553d0360e'
++NAMES_REL3 = set('COM_DISARM_PRFLT COM_SPOOLUP_TIME MPC_ACC_HOR MPC_JERK_MAX MPC_LAND_SPEED MPC_TKO_SPEED MPC_VEL_MANUAL MPC_VEL_MAN_BACK MPC_VEL_MAN_SIDE MPC_XY_CRUISE MPC_XY_P MPC_XY_VEL_D_ACC MPC_XY_VEL_I_ACC MPC_XY_VEL_MAX MPC_XY_VEL_P_ACC MPC_Z_VEL_MAX_DN MPC_Z_VEL_MAX_UP MPC_Z_V_AUTO_DN MPC_Z_V_AUTO_UP'.split())
++# C8 identity table (fixed; no free values on the command line).
++#  rel3_4030: the accepted judge (airframe 4030, 19 names = combined_13 profile 14 + closure 5).
++#  c8_4061:   airframe 4061 (candidate set 09.11), image r2e: its flight_profile.py DEFAULT has 13 names
++#             (no COM_SPOOLUP_TIME: the drone's own value), + the same closure 5 = 18 names.
++#             real_parameters_before_arm expects expect/*_4061.json (owner 09.11 «да», variant A): the sim/ros_stack
++#             files with only the 5 values of 4061 (NAV_RCL_ACT 3, COM_RCL_EXCEPT 0, COM_DISARM_LAND 0.5,
++#             COM_SPOOLUP_TIME 1.0, BAT1_SOURCE 1; A5); pinned here by sha.
++IDENTITIES = {
++    'rel3_4030': dict(autostart=4030, names=frozenset(NAMES_REL3), real_params=None),
++    'c8_4061': dict(autostart=4061, names=frozenset(NAMES_REL3 - {'COM_SPOOLUP_TIME'}), real_params={
++        'flight_real_params.json': (HERE / 'expect/flight_real_params_4061.json', '5c00730133462a0b831ddf82dedeb43dc66ab2f98c629d8044aadf8b344d6444'),
++        'rc_real_params.json': (HERE / 'expect/rc_real_params_4061.json', '99002dc26d073659b2ba567b8d6c67122bb710b896c8c05499b9e65bcc0c1d9c')}),
++}
++IDENTITY = None
++NAMES = None
++
++
++def use_identity(key):
++    global IDENTITY, NAMES
++    IDENTITY = key
++    NAMES = set(IDENTITIES[key]['names'])
+ # flight_verification_03: the owner's field candidate (sheets 30x42) is pinned here because the frozen pins do not list it.
+ FIELD_SUMS = ROOT / 'parallel_work/20261015/integration/field_measurements_01/SHA256SUMS.json'
+ FIELD_SUMS_SHA = '49229a96c2681a3d98238233a477cdf97180c48e7f5a592b3dace617d9314c51'
+@@ -59,6 +87,13 @@
+     spec = importlib.util.spec_from_file_location('flight_verification_legacy', LEGACY)
+     module = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(module)
++    module.AUTOSTART = IDENTITIES[IDENTITY]['autostart']   # C8 copy: identity values passed to the legacy copy
++    real = IDENTITIES[IDENTITY]['real_params']
++    if real is not None:
++        for name, (path, sha) in real.items():
++            if not path.is_file() or digest(path) != sha:
++                raise ValueError('Pinned real-parameter expectation changed: ' + str(path))
++        module.REAL_PARAMS = {name: str(path) for name, (path, sha) in real.items()}
+     return module
+ 
+ 
+@@ -180,7 +215,7 @@
+     baseline = journal.get('baseline', {})
+     checks['journal_restored'] = condition(journal.get('status') == 'restored' and journal.get('pending') is None
+         if journal else None, journal_status=journal.get('status'))
+-    checks['journal_names'] = condition(set(baseline) == NAMES and all(finite(v) for v in baseline.values()) if baseline else None, expected_count=19, actual_count=len(baseline))
++    checks['journal_names'] = condition(set(baseline) == NAMES and all(finite(v) for v in baseline.values()) if baseline else None, expected_count=len(NAMES), actual_count=len(baseline))
+     details = {}; intervals = {}
+     for phase in phases:
+         samples = flight.get(phase)
+@@ -249,7 +284,7 @@
+     checks['final_connected_disarmed'] = condition(states[-1].get('connected') is True and states[-1].get('armed') is False if states else None)
+     checks['profile_restored_flag'] = condition(flight.get('profile_restored') if type(flight.get('profile_restored')) is bool else None)
+     return dict(status=verdict(checks.values()), checks=checks, independent_scans=details,
+-        limits=['PARAM has no nonce and reads are not an atomic snapshot.', 'Only these 19 known dependencies are covered.'])
++        limits=['PARAM has no nonce and reads are not an atomic snapshot.', 'Only these %d known dependencies are covered.' % len(NAMES)])
+ 
+ 
+ def scenario_measurements(scenario, events, packets, complete, log, old, criteria):
+@@ -419,10 +454,12 @@
+     parser.add_argument('--out', type=Path, required=True)
+     parser.add_argument('--origin-evidence', type=Path)
+     parser.add_argument('--criteria', type=Path)
++    parser.add_argument('--identity', required=True, choices=sorted(IDENTITIES))
+     args = parser.parse_args()
++    use_identity(args.identity)
+     out = args.out.resolve()
+-    if not out.is_relative_to(HERE) or out.exists():
+-        raise SystemExit('Write a new report only inside flight_verification_03')
++    if not out.is_relative_to(HERE / 'reviews') or out.exists():
++        raise SystemExit('Write a new report only inside c8_judge_r2e_20261109/reviews')
+     origin = None
+     if args.origin_evidence:
+         data = json.loads(args.origin_evidence.read_text())
+@@ -446,6 +483,10 @@
+     report['review_input_sha256'] = dict(frozen_pins=digest(args.frozen_pins), verifier=digest(Path(__file__)),
+         expected_manifest=digest(args.expected_manifest), criteria=digest(args.criteria) if args.criteria else None,
+         origin_evidence=digest(args.origin_evidence) if args.origin_evidence else None)
++    report['judge_identity'] = dict(identity=IDENTITY, autostart=IDENTITIES[IDENTITY]['autostart'],
++                                    names=sorted(NAMES), legacy=str(LEGACY),
++                                    real_params=({n: [str(p), s] for n, (p, s) in IDENTITIES[IDENTITY]['real_params'].items()}
++                                                 if IDENTITIES[IDENTITY]['real_params'] else None))
+     report['evidence_sha256'] = {str(p.relative_to(args.run)):digest(p) for p in args.run.rglob('*')
+         if p.is_file() and p.name in ('flight_result.json','gate_result.json','gate_events.json','profile_journal.json',
+             'combined_manifest.json','flight_source.sha256','flight.ulg','groundtruth.json','mavlink_proxy.jsonl','ulog_copy_status.json')}

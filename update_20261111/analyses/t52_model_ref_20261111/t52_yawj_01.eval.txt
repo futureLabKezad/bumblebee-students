@@ -1,0 +1,1 @@
+C6 HOVER RESULT: OK held=20.0s reason=full time landed=True

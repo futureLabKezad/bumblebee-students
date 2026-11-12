@@ -1,0 +1,62 @@
+{
+ "run": "/work/goal_step5_20261106/runs/s04_4035_flight_arucoalways",
+ "criteria": "C5 approved 09.11 + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "height_tol_m": 0.1,
+  "motors_off_s": 3.0,
+  "touch_h_m": 0.01
+ },
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.99,
+  "clock_ok": true
+ },
+ "script": {
+  "path": "/work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py",
+  "problem": null
+ },
+ "script_height_m": 1.5,
+ "script_exit": {
+  "code": 137,
+  "how": null
+ },
+ "ulog": "/work/goal_step5_20261106/runs/s04_4035_flight_arucoalways/rootfs/log/2026-11-06/12_08_47.ulg",
+ "h_max_m": 1.606,
+ "failsafe_flags_on_at_start": [
+  "auto_mission_missing",
+  "global_position_invalid",
+  "home_position_invalid"
+ ],
+ "emergencies": [
+  "script exit code 137 (launcher.log) = ended by the stand"
+ ],
+ "window": {
+  "from_s": 14.1,
+  "to_s": 21.56,
+  "ends_because": "left OFFBOARD (nav_state 18)"
+ },
+ "height_dev_max_m": 0.104,
+ "height_mean_m": 1.54,
+ "height_dev_max_at_s": 21.54,
+ "touchdown_s": 27.144,
+ "motors_off_s": 30.896,
+ "motors_off_after_touchdown_s": 3.752,
+ "verdict_lines": {
+  "run_valid": true,
+  "script_height_known": true,
+  "took_off": true,
+  "no_emergency": false,
+  "height_window_found": true,
+  "height_within_0p10": false,
+  "touchdown_found": true,
+  "motors_off_found": true,
+  "motors_off_le_3s": false
+ },
+ "failed": [
+  "height_within_0p10",
+  "motors_off_le_3s",
+  "no_emergency"
+ ],
+ "C5": "FAIL"
+}

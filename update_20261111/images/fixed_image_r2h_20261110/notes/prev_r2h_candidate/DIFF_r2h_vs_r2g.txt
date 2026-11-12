@@ -1,0 +1,280 @@
+diff -ruN /work/fixed_image_r2g_20261110/src/bumblebee/examples/drone.py src/bumblebee/examples/drone.py
+--- /work/fixed_image_r2g_20261110/src/bumblebee/examples/drone.py	2026-11-10 10:04:00.108779116 +0400
++++ src/bumblebee/examples/drone.py	2026-11-10 16:42:53.923270951 +0400
+@@ -579,6 +579,11 @@
+ # r2g (S4): time.monotonic() when drone.py first saw this flight armed (/mavros/state); cleared on the disarm edge.
+ # Until the first vpe_fix pose, the watchdogs count "no vision" from it.
+ _vision_arm_t = None
++# r2h (W): the same two moments as watchdog stamps on simple_offboard's hold clock (_wd_stamp()); vision_pose_age()
++# keeps time.monotonic(). The vision watchdog is looked at every _VISION_WD_PERIOD s inside navigate_wait's wait.
++_vpe_pose_wd = None
++_vision_arm_wd = None
++_VISION_WD_PERIOD = 0.1
+ _aruco_yaw_locked        = False
+ _aruco_yaw_locked_last_true_time = None  # rclpy Time of last True observation
+ 
+@@ -945,7 +950,7 @@
+ def _on_fcu_state(msg):
+     """/mavros/state callback: cache for get_fcu_status; end of flight on disarm."""
+     global _fcu_state_msg, _fcu_state_time, _arm_ref_z, _own_auto_land, _auto_arm_ok_t
+-    global _vision_arm_t
++    global _vision_arm_t, _vision_arm_wd
+     prev = _fcu_state_msg
+     # Armed -> disarmed with the link up: this flight is over, so its floor
+     # reference must not leak into the next one (a link-loss State has
+@@ -955,9 +960,11 @@
+         _own_auto_land = False
+         _auto_arm_ok_t = None
+         _vision_arm_t = None   # r2g (S4)
++        _vision_arm_wd = None  # r2h (W)
+     # r2g (S4): the first armed State of this flight starts the no-vision count (until the first vpe_fix pose)
+     if msg.connected and msg.armed and _vision_arm_t is None:
+-        _vision_arm_t = time.monotonic()
++        _vision_arm_wd = _wd_stamp()            # r2h (W): one reading for both clocks
++        _vision_arm_t = _vision_arm_wd[2]
+     # Out of AUTO.LAND (e.g. the pilot took over): a later one is not ours
+     if prev is not None and prev.mode == 'AUTO.LAND' and msg.connected \
+             and msg.mode != 'AUTO.LAND':
+@@ -1732,12 +1739,13 @@
+ 
+ def _on_vpe_pose(msg):
+     """r2f (T35): /mavros/mavros/pose_cov callback; only a pose different from the last one counts."""
+-    global _vpe_pose_time, _vpe_pose_last
++    global _vpe_pose_time, _vpe_pose_last, _vpe_pose_wd
+     p, o = msg.pose.pose.position, msg.pose.pose.orientation
+     key = (p.x, p.y, p.z, o.x, o.y, o.z, o.w)
+     if key != _vpe_pose_last:
+         _vpe_pose_last = key
+-        _vpe_pose_time = time.monotonic()
++        _vpe_pose_wd = _wd_stamp()              # r2h (W): one reading for both clocks
++        _vpe_pose_time = _vpe_pose_wd[2]
+ 
+ 
+ def vision_pose_age():
+@@ -1752,19 +1760,67 @@
+     return time.monotonic() - _vpe_pose_time
+ 
+ 
++def _wd_stamp():
++    """r2h (W): a vision-watchdog stamp (sim, hold-clock seconds, monotonic seconds).
++
++    The hold clock is simple_offboard's (_hold_now()): the ROS clock under use_sim_time (SITL), else monotonic.
++    A ROS clock that reads 0 (no /clock yet) counts as monotonic."""
++    m = time.monotonic()
++    try:
++        clock = _node.get_clock()
++        if clock.ros_time_is_active:
++            t = clock.now().nanoseconds * 1e-9
++            if t > 0.0:
++                return (True, t, m)
++    except Exception:
++        pass
++    return (False, m, m)
++
++
++def _wd_age(stamp):
++    """r2h (W): seconds since a _wd_stamp() on the same kind of clock (monotonic if the kind changed in between);
++    a negative age (the clock went back) is +inf, so the watchdog fails toward landing."""
++    now = _wd_stamp()
++    age = now[1] - stamp[1] if now[0] == stamp[0] else now[2] - stamp[2]
++    return age if age >= 0.0 else float('inf')
++
++
+ def _vision_silence_age():
+     """r2g (S4): seconds without vision for the flight watchdogs (navigate_wait, safe_land).
+ 
+     Since the last new vpe_fix pose; if none has come yet, since drone.py saw this flight armed. None while
+     neither is known (disarmed and no pose yet): no watchdog. vision_pose_age() is unchanged.
++    r2h (W): measured on simple_offboard's hold clock (_wd_stamp(), _wd_since()).
+     """
+     if _vpe_pose_time is not None:
+-        return time.monotonic() - _vpe_pose_time
++        return _wd_since(_vpe_pose_time, _vpe_pose_wd)
+     if _vision_arm_t is not None:
+-        return time.monotonic() - _vision_arm_t
++        return _wd_since(_vision_arm_t, _vision_arm_wd)
+     return None
+ 
+ 
++def _wd_since(mono_t, stamp):
++    """r2h (W): the moment is mono_t (time.monotonic(), as in r2g); its hold-clock stamp is used only when it was
++    taken at that same moment (else -- e.g. the moment was set by other code -- monotonic, exactly as r2g)."""
++    if stamp is None or stamp[2] != mono_t:
++        return time.monotonic() - mono_t
++    return _wd_age(stamp)
++
++
++def _wait_watching_vision(seconds, vision_timeout):
++    """r2h (W): sleep `seconds` in slices of _VISION_WD_PERIOD; return early once the vision silence passes
++    vision_timeout (or should_land is set), so the caller's loop runs its checks at once."""
++    end = time.monotonic() + seconds
++    while not should_land:
++        left = end - time.monotonic()
++        if left <= 0.0:
++            return
++        time.sleep(min(_VISION_WD_PERIOD, left))
++        silence = _vision_silence_age()
++        if silence is not None and silence > vision_timeout:
++            return
++
++
+ # ---------------------------------------------------------------------------
+ # F1 (09.11.2026, r2b): keep the marker detector awake during the preflight
+ # ---------------------------------------------------------------------------
+@@ -2285,7 +2341,8 @@
+         if time.time() > deadline:
+             _node.get_logger().warn('Navigate timed out after %.0fs (dist=%.2f)' % (timeout, dist))
+             return False
+-        time.sleep(0.5)
++        # r2h (W): the same 0.5 s step, the vision watchdog looked at every 0.1 s
++        _wait_watching_vision(0.5, vision_timeout)
+     return False
+ 
+ 
+diff -ruN /work/fixed_image_r2g_20261110/src/bumblebee/src/python/vpe_fix.py src/bumblebee/src/python/vpe_fix.py
+--- /work/fixed_image_r2g_20261110/src/bumblebee/src/python/vpe_fix.py	2026-11-02 09:56:15.000000000 +0400
++++ src/bumblebee/src/python/vpe_fix.py	2026-11-10 16:42:53.922420400 +0400
+@@ -162,6 +162,16 @@
+ 
+ _GATE_HYSTERESIS = 0.5
+ 
++# r2h (B2): re-entry after a publish pause. PX4 EKF2 stops EV fusion after 0.4 s without a sample and on the
++# return resets its xy onto ONE sample (ev_pos_control.cpp startEvPosFusion); the first samples after a pause are
++# the medoid of the last _REENTRY_N accepted poses (none older than _POSE_TIMEOUT), for _REENTRY_HOLD seconds.
++_REENTRY_GAP  = 0.3
++_REENTRY_N    = 3
++_REENTRY_HOLD = 0.5
++# review M1: a slow detector (e.g. ~6 Hz, or empty frames) may not give _REENTRY_N poses within _POSE_TIMEOUT; then
++# the wait ends once the oldest fresh pose is _REENTRY_MAX_WAIT old and the medoid is taken of the poses at hand.
++_REENTRY_MAX_WAIT = 0.3
++
+ # FCU-state knowledge for the VPE gate (P1/P1b fix, 2026-10-21); the numbers
+ # are simple_offboard's. MAVROS publishes /mavros/state once per FCU heartbeat
+ # (1 Hz; largest gap over 77 recorded SITL flights 1.24 s).
+@@ -322,7 +332,14 @@
+         self.markers_used = 0
+         self.markers_used_time = None
+         self.markers_used_multi_time = None
++        # r2h (B1): last time markers_used was >= 1 (an empty frame publishes 0 and must not end "fresh")
++        self.markers_pos_time = None
+         self.yaw_locked = False
++        # r2h (B2): accepted poses (receipt time, pose) and the re-entry state after a publish pause
++        self._recent_poses = deque(maxlen=_REENTRY_N)
++        self._last_publish_time = None
++        self._reentry_wait = False
++        self._reentry_until = None
+ 
+         self._last_vision_ok_time = None
+ 
+@@ -756,9 +773,10 @@
+         return age <= _QUALITY_MULTI_TIMEOUT
+ 
+     def _single_marker_fresh(self):
+-        if self.markers_used_time is None or not self.yaw_locked or self.markers_used < 1:
++        # r2h (B1): >= 1 marker within the last _QUALITY_SINGLE_TIMEOUT, not "the last message was >= 1"
++        if self.markers_pos_time is None or not self.yaw_locked:
+             return False
+-        age = (self.get_clock().now() - self.markers_used_time).nanoseconds / 1e9
++        age = (self.get_clock().now() - self.markers_pos_time).nanoseconds / 1e9
+         return age <= _QUALITY_SINGLE_TIMEOUT
+ 
+     def _vision_quality_ok(self):
+@@ -915,6 +933,8 @@
+         self.last_cov = None
+         self._consec_rejects = 0
+         self._reseed_candidates.clear()
++        self._recent_poses.clear()               # r2h (B2, review S2)
++        self._recent_poses.append((now, seed))
+         self.get_logger().warn(
+             'vpe_fix: gate RESEEDED (%s%s) age=%.2fs new_xyz=(%.3f,%.3f,%.3f)'
+             % (reason, ' FORCED' if forced and not consistent else '', age,
+@@ -981,6 +1001,7 @@
+                         return
+         self.last_pose = msg.pose.pose
+         self.last_pose_time = now
++        self._recent_poses.append((now, msg.pose.pose))   # r2h (B2)
+         self._consec_rejects = 0
+         self._reseed_candidates.clear()
+         if any(msg.pose.covariance):
+@@ -996,9 +1017,17 @@
+         self.markers_used_time = self.get_clock().now()
+         if self.markers_used >= 2:
+             self.markers_used_multi_time = self.markers_used_time
++        if self.markers_used >= 1:
++            self.markers_pos_time = self.markers_used_time   # r2h (B1)
++        # r2h (B1): decide on every detector frame, not only at the 1 Hz tick
++        self._apply_gate()
+ 
+     def yaw_locked_callback(self, msg):
+-        self.yaw_locked = bool(msg.data)
++        locked = bool(msg.data)
++        changed = locked != self.yaw_locked
++        self.yaw_locked = locked
++        if changed:
++            self._apply_gate()   # r2h (B1)
+ 
+     def _gate_tick(self):
+         self._apply_gate()
+@@ -1018,6 +1047,36 @@
+             self.get_logger().info(
+                 'vpe_fix: soft-fallback SUPPRESSED (age=%.2fs, armed=%s)' % (age, armed))
+ 
++    def _reentry_pose(self, now):
++        """r2h (B2): the pose to publish now, or None to stay silent.
++
++        After more than _REENTRY_GAP s without a publish (or before the first one): wait until _REENTRY_N accepted
++        poses not older than _POSE_TIMEOUT are at hand, or until the oldest of them is _REENTRY_MAX_WAIT old (a slow
++        detector, review M1); then for _REENTRY_HOLD s publish the medoid of the fresh poses at hand (1.._REENTRY_N;
++        one missing frame does not silence it, review S1); else the latest pose, as before."""
++        last = self._last_publish_time
++        gap = None if last is None else (now - last).nanoseconds / 1e9
++        if self._reentry_until is not None and now.nanoseconds >= self._reentry_until:
++            self._reentry_until = None
++        if self._reentry_until is None and not self._reentry_wait and (gap is None or gap > _REENTRY_GAP):
++            self._reentry_wait = True
++            self.get_logger().info(
++                'vpe_fix: resume after %s without a publish: waiting for %d fresh poses (medoid)'
++                % ('start' if gap is None else '%.2fs' % gap, _REENTRY_N))
++        if not self._reentry_wait and self._reentry_until is None:
++            return self.last_pose
++        fresh = [(t, p) for (t, p) in self._recent_poses
++                 if (now - t).nanoseconds / 1e9 <= _POSE_TIMEOUT]
++        if not fresh:
++            return None
++        if self._reentry_wait:
++            waited = (now - fresh[0][0]).nanoseconds / 1e9
++            if len(fresh) < _REENTRY_N and waited < _REENTRY_MAX_WAIT:
++                return None
++            self._reentry_wait = False
++            self._reentry_until = now.nanoseconds + int(_REENTRY_HOLD * 1e9)
++        return self._medoid([p for (_t, p) in fresh])
++
+     def publish_timer(self):
+         if self.vpe_active and self._fcu_state_unknown() is not None:
+             # P1b: no sample on an unknown FCU state, whatever the timer order.
+@@ -1054,10 +1113,15 @@
+             else:
+                 self.get_logger().info('vpe_fix: soft-fallback EXIT (fresh pose)')
+ 
++        # r2h (B2): after a pause, the medoid of the last fresh poses first
++        now = self.get_clock().now()
++        pose = self._reentry_pose(now)
++        if pose is None:
++            return
+         out = PoseWithCovarianceStamped()
+-        out.header.stamp = self.get_clock().now().to_msg()
++        out.header.stamp = now.to_msg()
+         out.header.frame_id = 'map'
+-        out.pose.pose = self.last_pose
++        out.pose.pose = pose
+ 
+         if self.last_cov is not None and not soft:
+             out.pose.covariance = self.last_cov
+@@ -1074,6 +1138,7 @@
+             out.pose.covariance = cov
+ 
+         self.vpe_pub.publish(out)
++        self._last_publish_time = now   # r2h (B2)
+         self.published += 1
+         if self.published % 90 == 1:
+             self.get_logger().info(

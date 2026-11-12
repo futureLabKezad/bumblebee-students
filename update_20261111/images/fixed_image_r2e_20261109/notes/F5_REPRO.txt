@@ -1,0 +1,12 @@
+# F5: воспроизведение без симулятора — 09.11.2026 (чат «Разборы и правки кода»)
+Окружение: /opt/ros/jazzy + install r2b, ROS_DOMAIN_ID=77, ROS_AUTOMATIC_DISCOVERY_RANGE=OFF, без сервера /navigate.
+Скрипт: тот же путь, что drone.navigate(): srv.Navigate.Request(), setattr по полям, client.call_async(req).
+  x=0.0 (float)        -> rc 0
+  x=0 (int)            -> rc 134: _navigate_s.c:61: bumblebee__srv__navigate__request__convert_from_py: Assertion PyFloat_Check(field) failed, core dump
+  x=nan                -> rc 0
+  x=numpy.float64(0.5) -> rc 0 (подкласс float)
+  x=numpy.float32(0.5) -> rc 134, то же падение
+Почему Python не ловит: _navigate.py проверяет тип только при ROS_PYTHON_CHECK_FIELDS=1, по умолчанию выключено (Jazzy).
+Почему C падает: assert не вырезан, CMAKE_BUILD_TYPE пустой (r2, ws_sitl, ws_package1b_port_02 — одинаково).
+Кто передаёт int: flight_marker.py:170/178/184 fly_to(x=0, ...); flight_marker.py:187 и flight_marker_loop.py:136 safe_land(x=0, y=0)
+  -> navigate_wait(x=0) -> navigate(x=0). Так же example_flight.py:48 fly_to(x=0, y=0). Ошибка старая: те же строки есть в r1.

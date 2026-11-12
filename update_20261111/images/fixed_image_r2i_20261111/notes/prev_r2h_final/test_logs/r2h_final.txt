@@ -1,0 +1,14 @@
+test_camera_fix_is_r2g_and_its_row_stays_pending (__main__.FinalVsCandidate.test_camera_fix_is_r2g_and_its_row_stays_pending) ... ok
+test_candidate_is_the_reviewed_one (__main__.FinalVsCandidate.test_candidate_is_the_reviewed_one) ... ok
+test_cmake_only_the_vpe_fix_pins_block (__main__.FinalVsCandidate.test_cmake_only_the_vpe_fix_pins_block) ... ok
+test_drone_py_is_the_candidate_bytes (__main__.FinalVsCandidate.test_drone_py_is_the_candidate_bytes) ... ok
+test_old_pins_file_not_edited (__main__.FinalVsCandidate.test_old_pins_file_not_edited) ... ok
+test_reentry_pose_differs_in_the_docstring_and_the_final_return_only (__main__.FinalVsCandidate.test_reentry_pose_differs_in_the_docstring_and_the_final_return_only) ... ok
+test_ref_copy_is_r2g_bytes (__main__.FinalVsCandidate.test_ref_copy_is_r2g_bytes) ... ok
+test_src_differs_from_the_candidate_only_in_the_declared_files (__main__.FinalVsCandidate.test_src_differs_from_the_candidate_only_in_the_declared_files) ... ok
+test_vpe_fix_only_reentry_pose_differs (__main__.FinalVsCandidate.test_vpe_fix_only_reentry_pose_differs) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.066s
+
+OK

@@ -1,0 +1,1 @@
+c8_4070 vs c8_4061 on rel3 kill: only candidate4030 / real_parameters_before_arm differ; 4070 mismatches {'BAT1_SOURCE': (-1, 0), 'COM_DISARM_LAND': (2.0, 0.5), 'COM_RCL_EXCEPT': (4, 0.0), 'COM_SPOOLUP_TIME': (0.0, 1.0), 'NAV_RCL_ACT': (0, 3.0)}

@@ -1,0 +1,165 @@
+{
+ "manifest": "/work/goal_20261106/image_manifest.tsv",
+ "manifest_sha256": "f54cb91d96d3631b329e589ba91906f4a9cbdafa608fd16087fce193e9141e4b",
+ "product": "/work/ws_package1b_port_03",
+ "rows": [
+  {
+   "file": "examples/drone.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/examples/drone.py",
+   "sha_sim": "e6ed9cf30bd77d9dd70b22422a1a82dec03b9eeb23493f07d580a5207e1e2898",
+   "sha_fixed_image": "e6ed9cf30bd77d9dd70b22422a1a82dec03b9eeb23493f07d580a5207e1e2898",
+   "sha_on_drone": "d9db7e7860a5a1e6d3c7ea32ab20a701d264de03160118f14eebc17909328ffb",
+   "status": "same",
+   "manifest_note": "changed"
+  },
+  {
+   "file": "examples/flight_profile.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/examples/flight_profile.py",
+   "sha_sim": "ce5263e73a61162984272e4a2a3ea8cdb2eabc90c46075d7badaa4cc9b5a56ae",
+   "sha_fixed_image": "ce5263e73a61162984272e4a2a3ea8cdb2eabc90c46075d7badaa4cc9b5a56ae",
+   "sha_on_drone": "ce5263e73a61162984272e4a2a3ea8cdb2eabc90c46075d7badaa4cc9b5a56ae",
+   "status": "same",
+   "manifest_note": "same"
+  },
+  {
+   "file": "examples/flight/flight.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py",
+   "sha_sim": "7093e4840778b5ddfea3573323876b2c1d88deb6ab9c82f17769bc687691f9b1",
+   "sha_fixed_image": "7093e4840778b5ddfea3573323876b2c1d88deb6ab9c82f17769bc687691f9b1",
+   "sha_on_drone": "7093e4840778b5ddfea3573323876b2c1d88deb6ab9c82f17769bc687691f9b1",
+   "status": "same",
+   "manifest_note": "same"
+  },
+  {
+   "file": "src/python/aruco_detect.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/src/python/aruco_detect.py",
+   "sha_sim": "25ec291e639e80a07de70c4abe3fa104e00239e48bed0c028a35a0728569ad6c",
+   "sha_fixed_image": "25ec291e639e80a07de70c4abe3fa104e00239e48bed0c028a35a0728569ad6c",
+   "sha_on_drone": "25ec291e639e80a07de70c4abe3fa104e00239e48bed0c028a35a0728569ad6c",
+   "status": "same",
+   "manifest_note": "same"
+  },
+  {
+   "file": "src/python/camera_fix.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/src/python/camera_fix.py",
+   "sha_sim": "4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310",
+   "sha_fixed_image": "dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83",
+   "sha_on_drone": "4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310",
+   "status": "DIFFERS",
+   "manifest_note": "changed (PENDING: Pi load check at the bench)"
+  },
+  {
+   "file": "src/python/vpe_fix.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/src/python/vpe_fix.py",
+   "sha_sim": "3b8a93d4d08983694186766b0259fa6fa6b4167079c4078cf402a908d02e9725",
+   "sha_fixed_image": "3b8a93d4d08983694186766b0259fa6fa6b4167079c4078cf402a908d02e9725",
+   "sha_on_drone": "c33a52bf1b10bc064ca102bdc720ed03afaa08c691d9c5c34b1d7fadf859b8b9",
+   "status": "same",
+   "manifest_note": "changed"
+  },
+  {
+   "file": "src/python/setpoint_freshness.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/src/python/setpoint_freshness.py",
+   "sha_sim": "2cc14a41eb77e4d9548f1fd5e0bade3e3f73d3032d17be48cea7f6e75eacc2dd",
+   "sha_fixed_image": "2cc14a41eb77e4d9548f1fd5e0bade3e3f73d3032d17be48cea7f6e75eacc2dd",
+   "sha_on_drone": "-",
+   "status": "same",
+   "manifest_note": "new"
+  },
+  {
+   "file": "src/cpp/simple_offboard.cpp",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/src/cpp/simple_offboard.cpp",
+   "sha_sim": "85328f0dfd6616d9f60dfd677e8d55aeaac15ad4e13f5407438844e6f6aa6add",
+   "sha_fixed_image": "85328f0dfd6616d9f60dfd677e8d55aeaac15ad4e13f5407438844e6f6aa6add",
+   "sha_on_drone": "c8c180d172d37f671a52f7aff04b4e4372c2db86207d8d10311b8f90b9263168",
+   "status": "same",
+   "manifest_note": "changed"
+  },
+  {
+   "file": "launch/mavros_scoped_config.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/launch/mavros_scoped_config.py",
+   "sha_sim": "c4f578a0c9630b8ab375a97b04ccb1df352c2402a81e21fab48678f67ee3b5da",
+   "sha_fixed_image": "c4f578a0c9630b8ab375a97b04ccb1df352c2402a81e21fab48678f67ee3b5da",
+   "sha_on_drone": "-",
+   "status": "same",
+   "manifest_note": "new"
+  },
+  {
+   "file": "launch/bumblebee.launch.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/launch/bumblebee.launch.py",
+   "sha_sim": "b398d312136252f82321938a7dbd74ff59c15d0e1007e5aabc9a4ce22e6248d6",
+   "sha_fixed_image": "b398d312136252f82321938a7dbd74ff59c15d0e1007e5aabc9a4ce22e6248d6",
+   "sha_on_drone": "b5276e5011c2a0e1e669598c542b6de6e06306087edf967cf74e758e9cca522a",
+   "status": "same",
+   "manifest_note": "changed"
+  },
+  {
+   "file": "launch/aruco.launch.py",
+   "sim_path": "/work/ws_package1b_port_03/src/bumblebee/launch/aruco.launch.py",
+   "sha_sim": "9b146360c193cbcd8791c17d6a9ab97333267d93e11efae4484d47fdac21af9e",
+   "sha_fixed_image": "9b146360c193cbcd8791c17d6a9ab97333267d93e11efae4484d47fdac21af9e",
+   "sha_on_drone": "9b146360c193cbcd8791c17d6a9ab97333267d93e11efae4484d47fdac21af9e",
+   "status": "same",
+   "manifest_note": "same"
+  },
+  {
+   "file": "install/lib/bumblebee/aruco_detect.py",
+   "sim_path": "/work/ws_package1b_port_03/install/bumblebee/lib/bumblebee/aruco_detect.py",
+   "sha_sim": "25ec291e639e80a07de70c4abe3fa104e00239e48bed0c028a35a0728569ad6c",
+   "sha_fixed_image": "25ec291e639e80a07de70c4abe3fa104e00239e48bed0c028a35a0728569ad6c",
+   "status": "same",
+   "manifest_note": "installed copy vs its source"
+  },
+  {
+   "file": "install/lib/bumblebee/camera_fix.py",
+   "sim_path": "/work/ws_package1b_port_03/install/bumblebee/lib/bumblebee/camera_fix.py",
+   "sha_sim": "4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310",
+   "sha_fixed_image": "4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310",
+   "status": "same",
+   "manifest_note": "installed copy vs its source"
+  },
+  {
+   "file": "install/lib/bumblebee/vpe_fix.py",
+   "sim_path": "/work/ws_package1b_port_03/install/bumblebee/lib/bumblebee/vpe_fix.py",
+   "sha_sim": "3b8a93d4d08983694186766b0259fa6fa6b4167079c4078cf402a908d02e9725",
+   "sha_fixed_image": "3b8a93d4d08983694186766b0259fa6fa6b4167079c4078cf402a908d02e9725",
+   "status": "same",
+   "manifest_note": "installed copy vs its source"
+  },
+  {
+   "file": "install/lib/bumblebee/setpoint_freshness.py",
+   "sim_path": "/work/ws_package1b_port_03/install/bumblebee/lib/bumblebee/setpoint_freshness.py",
+   "sha_sim": "2cc14a41eb77e4d9548f1fd5e0bade3e3f73d3032d17be48cea7f6e75eacc2dd",
+   "sha_fixed_image": "2cc14a41eb77e4d9548f1fd5e0bade3e3f73d3032d17be48cea7f6e75eacc2dd",
+   "status": "same",
+   "manifest_note": "installed copy vs its source"
+  },
+  {
+   "file": "aruco_pose/map/map.txt",
+   "sim_path": "/work/sim/worlds/aruco_map/map.input.txt",
+   "sha_sim": "528b5adb467dc91e819e0c4cb9a5ff44439319fff23c3293799b8ee3fe43e611",
+   "sha_fixed_image": "528b5adb467dc91e819e0c4cb9a5ff44439319fff23c3293799b8ee3fe43e611",
+   "status": "same",
+   "manifest_note": "same"
+  },
+  {
+   "file": "simple_offboard binary (PC build of the same source)",
+   "sim_path": "/work/ws_package1b_port_03/install/bumblebee/lib/bumblebee/simple_offboard",
+   "sha_sim": "cef424263561ace517305cf8d37ba1266b718563d926a61d4c22b378088c177d",
+   "sha_fixed_image": null,
+   "status": "recorded",
+   "manifest_note": "binary for x86; compare by source"
+  },
+  {
+   "file": "mavros_node binary (bp02 PC build)",
+   "sim_path": "/work/ws_mavros214_bp02_rel/install/mavros/lib/mavros/mavros_node",
+   "sha_sim": "7d4b25f7fc67f47477c2b63c90f094f60459e9b93dd51ed19b83c3017abe7521",
+   "sha_fixed_image": null,
+   "status": "recorded",
+   "manifest_note": "binary for x86; compare by source"
+  }
+ ],
+ "differs": [
+  "src/python/camera_fix.py"
+ ]
+}

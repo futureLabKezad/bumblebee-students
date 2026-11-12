@@ -1,0 +1,10 @@
+[vpe_fix.py-20] [INFO 1793344392.000000000] [vpe_publisher]: vpe_fix ready: VPE gate=FCU_state_known&(DISARMED|(OFFBOARD&vision_ok)), state timeout 4.5s; PX4-param gate exposes /vpe_fix/set_param (per-param restore, no EEPROM reload)
+[vpe_fix.py-20] [INFO 1793344392.750000000] [vpe_publisher]: vpe_fix gate: cache HOT (800 params)
+[vpe_fix.py-20] [INFO 1793344393.150000095] [vpe_publisher]: vpe_fix: FCU state known: armed=False mode=STABILIZED
+[vpe_fix.py-20] [INFO 1793344393.150000095] [vpe_publisher]: vpe_fix: disarmed (warm-up) -> publish=True
+[vpe_fix.py-20] [INFO 1793344394.150000095] [vpe_publisher]: vpe_fix: OFFBOARD + vision_bad (publish suspended) -> publish=False
+[vpe_fix.py-20] [INFO 1793344401.150000095] [vpe_publisher]: vpe_fix: disarmed (warm-up) -> publish=True
+[vpe_fix.py-20] [INFO 1793344401.150000095] [vpe_publisher]: vpe_fix gate: reverting 1 non-persistent overrides (disarmed): ['MPC_TKO_SPEED']
+[vpe_fix.py-20] [INFO 1793344401.150000095] [vpe_publisher]: vpe_fix gate: restored MPC_TKO_SPEED=0.8 (disarmed)
+[vpe_fix.py-20] [WARN 1793344401.150000095] [vpe_publisher]: vpe_fix gate: set MPC_TKO_SPEED=0.3 failed (attempt 1, future timeout after 6.0s); retrying in 0.3 s
+[vpe_fix.py-20] [WARN 1793344407.150000095] [vpe_publisher]: vpe_fix gate: set MPC_TKO_SPEED=0.3 failed, outcome unknown (future timeout after 6.0s); override kept UNCONFIRMED (orig=0.8): restored on disarm, revert_all or TTL, never while armed

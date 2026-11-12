@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee T49 probe A «честные числа» (4070 v2 + EKF2_RNG_POS_Z 0.05, EKF2_OF_POS_Z 0.05, EKF2_MIN_RNG 0.23)
+#
+# @type Quadrotor x
+#
+# Claude «Симулятор» 11.11.2026, T49 (chat 1): PROBE ONLY, not scored. Sensor positions from the owner's 1:1 model
+#   (Documents/Claude local/model_measure_20261111/ЗАМЕР_ПО_МОДЕЛИ_RU.md). Base 4070 v2 (0224deec) unchanged.
+#
+
+. ${R}etc/init.d-posix/airframes/4070_gz_bumblebee_final_4061_bat0_sdlog1_ofqmin50
+
+param set-default EKF2_RNG_POS_Z 0.05
+param set-default EKF2_OF_POS_Z 0.05
+param set-default EKF2_MIN_RNG 0.23

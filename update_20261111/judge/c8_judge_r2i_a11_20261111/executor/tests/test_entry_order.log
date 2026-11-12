@@ -1,0 +1,5 @@
+a10_order {"mro": ["ProfileVpe", "VpeFix", "Node", "object"], "same_class": true, "gate_is_wrapper": true, "sha_is_target": true, "mixin_in_mro": false, "profile_pose_overrides": []}
+PASS a10_order
+freshness_refuses_r2h_control {"refused": "c33 VPE source PIN mismatch"}
+PASS freshness_refuses_r2h_control
+ALL OK

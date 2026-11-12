@@ -1,0 +1,49 @@
+--- /work/sim/ros_stack/flight_real_params.json	2026-10-14 17:40:34.298621700 +0400
++++ expect/flight_real_params_4061.json	2026-11-09 16:58:55.856083005 +0400
+@@ -6,7 +6,7 @@
+       "type": 6
+     },
+     "BAT1_SOURCE": {
+-      "value": -1,
++      "value": 1,
+       "type": 6
+     },
+     "BAT1_V_CHARGED": {
+@@ -22,7 +22,7 @@
+       "type": 6
+     },
+     "COM_DISARM_LAND": {
+-      "value": 2.0,
++      "value": 0.5,
+       "type": 9
+     },
+     "COM_DISARM_PRFLT": {
+@@ -46,7 +46,7 @@
+       "type": 6
+     },
+     "COM_SPOOLUP_TIME": {
+-      "value": 0.0,
++      "value": 1.0,
+       "type": 9
+     },
+     "IMU_GYRO_CAL_EN": {
+--- /work/sim/ros_stack/rc_real_params.json	2026-10-14 16:17:24.638821800 +0400
++++ expect/rc_real_params_4061.json	2026-11-09 16:58:55.856110516 +0400
+@@ -26,7 +26,7 @@
+       "type": 6
+     },
+     "COM_RCL_EXCEPT": {
+-      "value": 4.0,
++      "value": 0.0,
+       "type": 6
+     },
+     "COM_RC_IN_MODE": {
+@@ -38,7 +38,7 @@
+       "type": 6
+     },
+     "NAV_RCL_ACT": {
+-      "value": 0.0,
++      "value": 3.0,
+       "type": 6
+     },
+     "RC1_DZ": {

@@ -1,0 +1,15 @@
+C7 FAIL  failed: points_within_0p25, no_emergency
+run e1_r2c_4056_loop; valid True []; script /work/fixed_image_r2d_20261109/notes/prev_r2c/flight_marker_loop.py ; exit 2 (2026-11-09T12:14:08+04:00 exited by itself, code 2)
+route (code): [(0.0, 0.7), (0.0, 1.4), (0.0, 2.1), (-0.36, 2.1), (-0.72, 2.1), (-0.72, 1.4), (-0.72, 0.7), (-0.36, 0.7), (0.0, 0.7), (0.0, 0.0)]; flown (log): [(0.0, 0.7), (0.0, 1.4), (0.0, 2.1), (-0.36, 2.1), (-0.72, 2.1), (-0.72, 1.4), (-0.72, 0.7), (-0.36, 0.7), (0.0, 0.7), (0.0, 0.0)]
+  point 1 [0.0, 0.7]: err 0.265 m (at next command 0.198, max in wait 0.265), height 0.97 m
+  point 2 [0.0, 1.4]: err 0.248 m (at next command 0.151, max in wait 0.248), height 0.97 m
+  point 3 [0.0, 2.1]: err 0.255 m (at next command 0.144, max in wait 0.255), height 0.97 m
+  point 4 [-0.36, 2.1]: err 0.241 m (at next command 0.159, max in wait 0.241), height 0.97 m
+  point 5 [-0.72, 2.1]: err 0.251 m (at next command 0.164, max in wait 0.251), height 0.97 m
+  point 6 [-0.72, 1.4]: err 0.249 m (at next command 0.149, max in wait 0.249), height 0.97 m
+  point 7 [-0.72, 0.7]: err 0.261 m (at next command 0.168, max in wait 0.261), height 0.97 m
+  point 8 [-0.36, 0.7]: err 0.285 m (at next command 0.186, max in wait 0.285), height 0.97 m
+  point 9 [0.0, 0.7]: err 0.289 m (at next command 0.213, max in wait 0.289), height 0.97 m
+  point 10 [0.0, 0.0]: err 0.264 m (at next command 0.061, max in wait 0.264), height 0.97 m
+landing: 0.105 m from marker 0 (need <=0.15)
+emergencies: ['script exit code 2 (2026-11-09T12:14:08+04:00 exited by itself, code 2)']; modes before land: []

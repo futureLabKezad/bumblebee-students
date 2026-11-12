@@ -1,0 +1,41 @@
+test_r3_aruco_map_callback_one_added_statement (__main__.PinsR3.test_r3_aruco_map_callback_one_added_statement) ... ok
+test_r3_constants (__main__.PinsR3.test_r3_constants) ... ok
+test_r3_declared_parts_are_the_accepted_final (__main__.PinsR3.test_r3_declared_parts_are_the_accepted_final) ... FAIL
+test_r3_only_the_declared_parts_differ_from_r2g (__main__.PinsR3.test_r3_only_the_declared_parts_differ_from_r2g) ... FAIL
+test_r3_p1_gate_h2_and_guard_code_unchanged (__main__.PinsR3.test_r3_p1_gate_h2_and_guard_code_unchanged) ... FAIL
+test_r3_reference_is_r2g (__main__.PinsR3.test_r3_reference_is_r2g) ... ok
+
+======================================================================
+FAIL: test_r3_declared_parts_are_the_accepted_final (__main__.PinsR3.test_r3_declared_parts_are_the_accepted_final)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2j_20261111/src/bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py", line 117, in test_r3_declared_parts_are_the_accepted_final
+    self.assertEqual(hashlib.sha256(b[k].encode()).hexdigest(), v, k)
+AssertionError: 'c86e039fdc23c401a1e22e73faf99e9058ae329f578817327c53ffcdaf6bca1b' != 'f7bfb962bb3258f8cb5b3f31730a61d4cf9a639c1a379eff14d721b979a5ea4b'
+- c86e039fdc23c401a1e22e73faf99e9058ae329f578817327c53ffcdaf6bca1b
++ f7bfb962bb3258f8cb5b3f31730a61d4cf9a639c1a379eff14d721b979a5ea4b
+ : VpeFix.__init__
+
+======================================================================
+FAIL: test_r3_only_the_declared_parts_differ_from_r2g (__main__.PinsR3.test_r3_only_the_declared_parts_differ_from_r2g)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2j_20261111/src/bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py", line 109, in test_r3_only_the_declared_parts_differ_from_r2g
+    self.assertEqual({k for k in a if k in b and a[k] != b[k]}, CHANGED)
+AssertionError: Items in the first set but not the second:
+'VpeFix.state_callback'
+'VpeFix._evaluate_gate'
+
+======================================================================
+FAIL: test_r3_p1_gate_h2_and_guard_code_unchanged (__main__.PinsR3.test_r3_p1_gate_h2_and_guard_code_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2j_20261111/src/bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py", line 132, in test_r3_p1_gate_h2_and_guard_code_unchanged
+    self.assertEqual(ast.dump(method(R2G, m)), ast.dump(method(TARGET, m)), m)
+AssertionError: "Func[868 chars]rand=Attribute(value=Name(id='self', ctx=Load([1967 chars]=[])" != "Func[868 chars]rand=BoolOp(op=Or(), values=[Attribute(value=N[2436 chars]=[])"
+Diff is 6254 characters long. Set self.maxDiff to None to see it. : _evaluate_gate
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.070s
+
+FAILED (failures=3)

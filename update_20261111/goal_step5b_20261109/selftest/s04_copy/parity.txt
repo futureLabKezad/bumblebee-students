@@ -1,0 +1,2 @@
+airframe 4035: drone params 1107; {"equal": 775, "absent": 230, "sim_only": 101, "control": 1}; sim-only that really differ 61 {"S2": 48, "S6": 2, "S8": 1, "S7": 1, "S5": 4, "S3": 2, "S3b": 1, "S4": 1, "S1": 1}
+UNEXPLAINED 0

@@ -1,0 +1,149 @@
+{
+ "all_identical": true,
+ "runs": 13,
+ "rows": [
+  {
+   "run": "INT_flight_pc_rel3_kill_01",
+   "old": "pass",
+   "new": "pass",
+   "exit_old": 0,
+   "exit_new": 0,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "pass",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_freeze_02",
+   "old": "pass",
+   "new": "pass",
+   "exit_old": 0,
+   "exit_new": 0,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "pass",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_mavros_restart_03",
+   "old": "pass",
+   "new": "pass",
+   "exit_old": 0,
+   "exit_new": 0,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "pass",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_pilot_04",
+   "old": "pass",
+   "new": "pass",
+   "exit_old": 0,
+   "exit_new": 0,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "pass",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_cancel_before_05",
+   "old": "pass",
+   "new": "pass",
+   "exit_old": 0,
+   "exit_new": 0,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "pass",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_ack_cancel_06",
+   "old": "pass",
+   "new": "pass",
+   "exit_old": 0,
+   "exit_new": 0,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "pass",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_cancel_off0_07",
+   "old": "unknown",
+   "new": "unknown",
+   "exit_old": 2,
+   "exit_new": 2,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "unknown",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_cancel_off50_08",
+   "old": "unknown",
+   "new": "unknown",
+   "exit_old": 2,
+   "exit_new": 2,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "unknown",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_cancel_off200_09",
+   "old": "unknown",
+   "new": "unknown",
+   "exit_old": 2,
+   "exit_new": 2,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "unknown",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_cancel_off500_10",
+   "old": "pass",
+   "new": "pass",
+   "exit_old": 0,
+   "exit_new": 0,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "pass",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_cancel_off900_11",
+   "old": "pass",
+   "new": "pass",
+   "exit_old": 0,
+   "exit_new": 0,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "pass",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_cancel_off980_12",
+   "old": "pass",
+   "new": "pass",
+   "exit_old": 0,
+   "exit_new": 0,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "pass",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  },
+  {
+   "run": "INT_flight_pc_rel3_heartbeat_13",
+   "old": "unknown",
+   "new": "unknown",
+   "exit_old": 2,
+   "exit_new": 2,
+   "identical_except_verifier_sha": true,
+   "saved_2610": "unknown",
+   "saved_2610_same_check_statuses": true,
+   "new_identity": "rel3_4030"
+  }
+ ]
+}

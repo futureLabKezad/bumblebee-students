@@ -1,0 +1,105 @@
+{
+ "run": "/work/goal_step5b_20261109/runs/c03b_r2b_4045_loop",
+ "criteria": "C6 approved 09.11 (КРИТЕРИИ_УТВЕРЖДЕНЫ_20261109.md) + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "height_m": 1.0,
+  "height_tol_m": 0.1,
+  "hover_s": 60.0,
+  "offset_10cm_m": 0.1,
+  "share_min": 0.95,
+  "offset_max_m": 0.2,
+  "jump_m": 0.1,
+  "jump_ekf_dt_s": 0.2,
+  "jump_truth_dt_s": 0.5
+ },
+ "ulog": "/work/goal_step5b_20261109/runs/c03b_r2b_4045_loop/rootfs/log/2026-11-09/07_39_35.ulg",
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.999,
+  "clock_ok": true
+ },
+ "trial_deviations": [
+  "trial-map-file (F2): drone.MAP_FILE -> RUN/aruco_map_written/map.txt instead of /home/lb/...",
+  "pkill stand-in (F2): `pkill` in the script PATH acts only inside the script session (rule 13)"
+ ],
+ "script_events": [
+  "[ERROR] [1794210033.142767846] [flight]: Vision lost for 6.5s (markers_used=0, limit 6.0s) -- EKF is coasting, landing",
+  "hover: pilot/failsafe has control (armed, mode=AUTO.LAND) -- stopped"
+ ],
+ "script": {
+  "path": "/work/ws_package1b_port_03/src/bumblebee/examples/flight/flight_marker_loop.py",
+  "problem": "script sha256 fd94839ab735... differs from versions.txt cade97b5fc96... (file changed after the run)"
+ },
+ "world_to_map": {
+  "n_markers": 20,
+  "max_residual_m": 0.0,
+  "marker0_map_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "script_exit": {
+  "code": 0,
+  "how": "2026-11-09T11:40:43+04:00 exited by itself, code 0"
+ },
+ "failsafe_flags_on_at_start": [
+  "auto_mission_missing",
+  "global_position_invalid",
+  "home_position_invalid"
+ ],
+ "h_max_m": 1.248,
+ "window": {
+  "from_s": 11.41,
+  "to_s": 57.26,
+  "len_s": 45.84,
+  "ends_because": "left OFFBOARD (nav_state 18)"
+ },
+ "offset_share_le_10cm": 0.0654,
+ "offset_max_m": 1.879,
+ "offset_mean_m": 0.979,
+ "height_err_max_m": 0.248,
+ "height_mean_m": 1.182,
+ "settling_s": null,
+ "settling_note": "never settled until the window end",
+ "jump_a_ekf_resets": [],
+ "jump_a_ekf_max_move_lt_0p2s_m": 0.019,
+ "jump_a_ekf_at_s": [
+  21.92,
+  22.12
+ ],
+ "jump_b_truth_max_move_0p5s_m": 0.051,
+ "jump_b_truth_at_s": [
+  11.41,
+  11.91
+ ],
+ "jump_b_truth_max_move_0p5s_xy_only_m": 0.042,
+ "motors_off_s": 65.32,
+ "emergencies": [
+  "drone.py emergency landing: [ERROR] [1794210033.142767846] [flight]: Vision lost for 6.5s (markers_used=0, limit 6.0s) -- EKF is coasting, landing",
+  "script emergency landing / abort: Waypoint (-0.72, 1.40) failed -- aborting mission"
+ ],
+ "verdict_lines": {
+  "took_off": true,
+  "hover_window_found": true,
+  "hover_60s": false,
+  "share_10cm_ge_95pct": false,
+  "offset_max_le_20cm": false,
+  "height_err_le_10cm": false,
+  "no_jump_a_ekf": true,
+  "no_jump_b_truth": true,
+  "landed_and_disarmed_after_hover": true,
+  "no_emergency": false,
+  "script_matches_versions": false,
+  "run_valid": true
+ },
+ "failed": [
+  "hover_60s",
+  "share_10cm_ge_95pct",
+  "offset_max_le_20cm",
+  "height_err_le_10cm",
+  "no_emergency",
+  "script_matches_versions"
+ ],
+ "C6": "FAIL"
+}

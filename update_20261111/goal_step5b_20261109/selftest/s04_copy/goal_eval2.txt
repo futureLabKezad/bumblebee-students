@@ -1,0 +1,13 @@
+criteria: PROPOSED 05.11, not approved (question 3); trial run: пробно, не в зачёт
+valid: True []; RTF min 0.99 median 1.0; clock ok True; C2 parity unexplained 0
+profile: INDOOR_ARUCO_SLOW 12/13; missing: ['MPC_XY_VEL_P_ACC']
+world->marker map: rot 0.000 deg, shift [0.0, 0.0], max residual 0.0000 m, dz -0.324 m, markers 20
+script end: None
+took off True; h max 1.606 m; air 24.9 s; flight height 1.527 m (err 0.027 vs 1.5); start (marker map) [-0.078, 0.0]
+EKF at arm [-0.0, 1.531, -0.05]; EKF frame offset to marker map at arm [-0.077, -1.531]; EKF->map rotation in air -100.6 deg
+landing {"touchdown_marker_map_xy": [-0.2, 0.057], "intended_xy": [-0.078, 0.0], "intended_is": "start point", "error_m": 0.135}
+touchdown 27.02 s, motors off 30.9 s, delay 3.87 s; arm->disarm 30.9 s; failsafe while armed False; kill False
+nav: OFFBOARD@-0.0 -> LAND@21.55 -> OFFBOARD@30.9
+PX4 warnings: []
+script events: ["[WARN] [1793967181.312016215] [flight]: Interrupt received -- cancelling takeoff / landing"]
+verdict vs PROPOSED (пробно, не в зачёт): {"C5_height": true, "C5_motors_off": false, "C5_no_failsafe": true}

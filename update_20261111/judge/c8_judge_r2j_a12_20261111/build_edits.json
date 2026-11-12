@@ -1,0 +1,186 @@
+[
+ [
+  "executor/run.sh",
+  "Paths -> A12 (1), image -> r2j (1), builder -> make_a12.py (0)."
+ ],
+ [
+  "executor/sitl_setup.py",
+  "Paths -> A12 (0), image -> r2j (1), builder -> make_a12.py (0)."
+ ],
+ [
+  "executor/vision_c8.launch.py",
+  "Paths -> A12 (2), image -> r2j (0), builder -> make_a12.py (0)."
+ ],
+ [
+  "executor/tests/test_entry_order.py",
+  "Paths -> A12 (1), image -> r2j (0), builder -> make_a12.py (0)."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Paths -> A12 (4), image -> r2j (2), builder -> make_a12.py (0)."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Paths -> A12 (2), image -> r2j (6), builder -> make_a12.py (0)."
+ ],
+ [
+  "tests/d1_check.py",
+  "Paths -> A12 (1), image -> r2j (0), builder -> make_a12.py (0)."
+ ],
+ [
+  "tests/ledger_check.py",
+  "Paths -> A12 (1), image -> r2j (2), builder -> make_a12.py (0)."
+ ],
+ [
+  "tests/a6_apply_order.py",
+  "Paths -> A12 (1), image -> r2j (0), builder -> make_a12.py (0)."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "Paths -> A12 (3), image -> r2j (0), builder -> make_a12.py (0)."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Paths -> A12 (4), image -> r2j (4), builder -> make_a12.py (2)."
+ ],
+ [
+  "tests/a8_judge_effect.py",
+  "Paths -> A12 (1), image -> r2j (0), builder -> make_a12.py (1)."
+ ],
+ [
+  "tests/a8_judge_on_a7_run.py",
+  "Paths -> A12 (1), image -> r2j (0), builder -> make_a12.py (1)."
+ ],
+ [
+  "tests/a9_logger_restart.py",
+  "Paths -> A12 (1), image -> r2j (0), builder -> make_a12.py (0)."
+ ],
+ [
+  "tests/a10_vpe_as_drone.py",
+  "Paths -> A12 (1), image -> r2j (1), builder -> make_a12.py (0)."
+ ],
+ [
+  "candidate/manifest.json:scope",
+  "Scope."
+ ],
+ [
+  "candidate/manifest.json:scope",
+  "Scope."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/flight_profile.py",
+  "Origin r2i -> r2j (same bytes)."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/vpe_fix.py",
+  "Origin r2i -> r2j (same bytes)."
+ ],
+ [
+  "candidate/manifest.json:origins:vision/aruco_detect.py",
+  "Origin r2i -> r2j (same bytes)."
+ ],
+ [
+  "candidate/README.md",
+  "One line appended."
+ ],
+ [
+  "executor/PRODUCT_SHA256SUMS.txt",
+  "Regenerated from the r2j install (the same 505 paths, same order)."
+ ],
+ [
+  "executor/run.sh",
+  "Own folder."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "A12: product sums of the r2j install."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/sitl_setup.py",
+  "Comment."
+ ],
+ [
+  "executor/vision_c8.launch.py",
+  "A12 (T53): down-camera TF translation per the 20EC reference."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Header."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Version strings."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Comment."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Pins runner."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Tests use pins A12."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d2 comment."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Control: the A11 pins are refused by the A12 launcher."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "a11_checks -> a12_checks."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A12: the r2j MANIFEST."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Pins A12."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Accepted pins A12."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "A12: the TF line removed."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "A12: 8 added lines."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "A12: the TF line added."
+ ],
+ [
+  "tests/a12_checks.py",
+  "New test (A12)."
+ ],
+ [
+  "pins/frozen_inputs_c8_r2j_a12_01.json",
+  "Changed entries: ['c8_judge_r2j_a12_20261111/executor/PRODUCT_SHA256SUMS.txt', 'c8_judge_r2j_a12_20261111/executor/run.sh', 'c8_judge_r2j_a12_20261111/executor/sitl_setup.py', 'c8_judge_r2j_a12_20261111/executor/vision_c8.launch.py', 'fixed_image_r2j_20261111/MANIFEST_SHA256.txt', 'fixed_image_r2j_20261111/image_manifest_r2.tsv', 'fixed_image_r2j_20261111/install/bumblebee/lib/bumblebee/simple_offboard', 'run_files:run.sh', 'run_files:sitl_setup.py', 'run_files:vision_c8.launch.py']"
+ ]
+]

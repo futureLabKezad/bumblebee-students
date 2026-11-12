@@ -1,0 +1,7 @@
+[WARN] [1794288557.834481131] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1794288557.834502627] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[WARN] [1794288560.977424912] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1794288560.977444032] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[WARN] [1794288560.977726861] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1794288560.977738064] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+R2F_FLAG_ROS_PASS expect=r2f [{"kind": "race", "first": "", "second": "Navigating from current setpoint", "mode_requests": ["OFFBOARD"]}, {"kind": "race", "first": "", "second": "Navigating from current setpoint", "mode_requests": ["OFFBOARD"]}, {"kind": "race", "first": "", "second": "Navigating from current setpoint", "mode_requests": ["OFFBOARD"]}, {"kind": "plain", "first": "", "second": "Navigating from current setpoint", "mode_requests": ["OFFBOARD"]}]

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="js/roslib.js"></script>
+</head>
+<body>
+    <div id="status">Connecting...</div>
+    <div id="topics"></div>
+    <script>
+        const ros = new ROSLIB.Ros({ url: 'ws://' + location.hostname + ':9090' });
+        ros.on('connection', function() {
+            document.getElementById('status').innerHTML = 'Connected!';
+            ros.getTopics(function(result) {
+                document.getElementById('topics').innerHTML = 
+                    'Topics: ' + result.topics.length + '<br>' + 
+                    result.topics.slice(0, 10).join('<br>');
+            });
+        });
+        ros.on('error', function(error) {
+            document.getElementById('status').innerHTML = 'Error: ' + error;
+        });
+        ros.on('close', function() {
+            document.getElementById('status').innerHTML = 'Closed';
+        });
+    </script>
+</body>
+</html>

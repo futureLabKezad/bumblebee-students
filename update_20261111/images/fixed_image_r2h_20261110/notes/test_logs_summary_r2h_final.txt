@@ -1,0 +1,24 @@
+# r2h FINAL tests (no ROS) 10.11.2026 18:37
+## final vs candidate (T44)
+r2h_final.txt exit=0 | Ran 9 tests in 0.066s OK 
+## r2h
+r2h_drone.txt exit=0 | Ran 39 tests in 0.436s OK 
+r2h_vpe.txt exit=0 | Ran 19 tests in 0.150s OK 
+r2h_pins.txt exit=0 | Ran 5 tests in 0.130s OK 
+## carried over from r2g
+test_q6_fixes.txt exit=0 | Ran 17 tests in 3.176s OK 
+test_r2b_wake.txt exit=0 | Ran 5 tests in 3.257s OK 
+test_r2c_navigate_float.txt exit=0 | Ran 6 tests in 0.040s OK (skipped=2) 
+test_r2d.txt exit=0 | Ran 14 tests in 0.996s OK 
+test_r2e.txt exit=0 | Ran 2 tests in 0.417s OK 
+guards.txt exit=0 | Ran 87 tests in 1.091s OK (skipped=2) 
+notify.txt exit=0 | Ran 37 tests in 0.499s OK (skipped=2) 
+script_lease.txt exit=0 | test_script_lease: 19 cases OK
+## vpe_fix suites as CMake registers them (r2h)
+h2_r2.txt exit=0 | Ran 33 tests in 2.540s OK 
+h2_in_air.txt exit=0 | Ran 1 test in 3.462s OK 
+pins_r2_on_r2g_copy.txt exit=0 | Ran 5 tests in 0.075s OK 
+pins_r3.txt exit=0 | Ran 6 tests in 0.148s OK 
+## controls (EXPECTED to fail): r3 pins on r2g itself; the round-2 pins on r2h
+pins_r3_on_r2g_EXPECTED_FAIL.txt exit=1 | Ran 6 tests in 0.141s FAILED (failures=3, errors=1) 
+pins_r2_on_r2h_EXPECTED_FAIL.txt exit=1 | Ran 5 tests in 0.109s FAILED (failures=4) 

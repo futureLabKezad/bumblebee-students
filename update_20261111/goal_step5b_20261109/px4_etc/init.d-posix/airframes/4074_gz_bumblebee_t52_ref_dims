@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee T52 reference dimensions (4070 v2 + sensor positions by the owner's 1:1 model)
+#
+# @type Quadrotor x
+#
+# Claude «Симулятор» 11.11.2026, T52 (chat 1; owner 11.11). Values: ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1 (PX4 axes).
+#
+
+. ${R}etc/init.d-posix/airframes/4070_gz_bumblebee_final_4061_bat0_sdlog1_ofqmin50
+
+param set-default EKF2_IMU_POS_X -0.059
+param set-default EKF2_IMU_POS_Y 0.007
+param set-default EKF2_IMU_POS_Z -0.016
+param set-default EKF2_RNG_POS_X 0.082
+param set-default EKF2_RNG_POS_Y -0.028
+param set-default EKF2_RNG_POS_Z 0.034
+param set-default EKF2_OF_POS_X 0.082
+param set-default EKF2_OF_POS_Y -0.028
+param set-default EKF2_OF_POS_Z 0.034
+param set-default EKF2_MIN_RNG 0.23

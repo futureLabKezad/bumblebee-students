@@ -1,0 +1,1 @@
+{"run": "t52_c6_01", "stand_raw_range_m": 0.1805, "stand_dist_bottom_m": 0.2346, "flow_hover": {"n": 4429, "inn_mean": [0.0002, -0.0001], "inn_rms": [0.0042, 0.0063], "test_ratio_mean": [0.0, 0.0]}, "flow_turn": null, "range_hover": {"n": 3542, "inn_mean": 0.0001, "inn_rms": 0.0104, "test_ratio_mean": 0.0}, "range_turn": null}

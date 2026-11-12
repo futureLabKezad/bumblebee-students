@@ -1,0 +1,169 @@
+{
+ "run": "s04_copy",
+ "script": "flight.py",
+ "script_height_m": 1.5,
+ "criteria_status": "PROPOSED 05.11, not approved (question 3); trial run: пробно, не в зачёт",
+ "proposed_criteria": {
+  "C5_height_tol_m": 0.1,
+  "C5_motors_off_s": 3.0,
+  "C7_point_m": 0.25,
+  "C7_landing_m": 0.15
+ },
+ "rtf": {
+  "samples": 45,
+  "min": 0.99,
+  "median": 1.0
+ },
+ "clock_ok": true,
+ "c2_parity_unexplained": 0,
+ "valid": true,
+ "invalid_reasons": [],
+ "run_options": null,
+ "trial_runner": null,
+ "script_end": null,
+ "pkill_standin_calls": [],
+ "profile": {
+  "name": "INDOOR_ARUCO_SLOW",
+  "applied": 12,
+  "total": 13
+ },
+ "profile_missing": [
+  {
+   "name": "MPC_XY_VEL_P_ACC",
+   "why": "rejected (final): param not in PX4 cache after 3 ParamPull rounds"
+  }
+ ],
+ "script_events": [
+  "[WARN] [1793967181.312016215] [flight]: Interrupt received -- cancelling takeoff / landing"
+ ],
+ "fly_to_targets_ekf": [],
+ "world_to_map": {
+  "dz": -0.324,
+  "n_markers": 20,
+  "rot_deg": 0.0,
+  "shift_m": [
+   0.0,
+   0.0
+  ],
+  "max_residual_m": 0.0,
+  "max_marker_yaw_diff_rad": 0.0,
+  "only_in_world": [],
+  "only_in_map": []
+ },
+ "ulog": "12_08_47.ulg",
+ "start_marker_map_xy": [
+  -0.078,
+  0.0
+ ],
+ "start_base_link_z_marker_map": -0.105,
+ "h_max_m": 1.606,
+ "took_off": true,
+ "air_s": 24.9,
+ "ekf_at_arm_xyz": [
+  -0.0,
+  1.531,
+  -0.05
+ ],
+ "ekf_frame_offset_at_arm_xy": [
+  -0.077,
+  -1.531
+ ],
+ "ekf_to_marker_map_rotation_deg_in_air": -100.6,
+ "ekf_vs_truth_xy_rms_after_best_fit_m": 0.058,
+ "ekf_minus_truth_max_xy_m_in_air": 0.378,
+ "main_hover": {
+  "from_s": 12.8,
+  "len_s": 9.0,
+  "h_mean_m": 1.527,
+  "h_std_m": 0.057,
+  "xy_max_dev_m": 0.064
+ },
+ "flight_height_m": 1.527,
+ "flight_height_err_m": 0.027,
+ "takeoff": {
+  "target_h_m": 1.5,
+  "reached_s": 14.56,
+  "h_at_reach_m": 1.436
+ },
+ "waypoints": [],
+ "waypoints_planned_in_log": 0,
+ "touchdown_s": 27.02,
+ "motors_off_s": 30.9,
+ "motors_off_after_touchdown_s": 3.87,
+ "arm_to_disarm_s": 30.9,
+ "landing": {
+  "touchdown_marker_map_xy": [
+   -0.2,
+   0.057
+  ],
+  "intended_xy": [
+   -0.078,
+   0.0
+  ],
+  "intended_is": "start point",
+  "error_m": 0.135
+ },
+ "nav_sequence": [
+  {
+   "t_s": -0.0,
+   "nav": "OFFBOARD",
+   "failsafe": false
+  },
+  {
+   "t_s": 21.55,
+   "nav": "LAND",
+   "failsafe": false
+  },
+  {
+   "t_s": 30.9,
+   "nav": "OFFBOARD",
+   "failsafe": false
+  }
+ ],
+ "failsafe_while_armed": false,
+ "px4_warnings": [],
+ "kill_engaged": false,
+ "px4_messages_all": [
+  {
+   "t_s": -0.0,
+   "text": "[commander] Armed by external command"
+  },
+  {
+   "t_s": 0.0,
+   "text": "[logger] Start file log (type: full)"
+  },
+  {
+   "t_s": 0.0,
+   "text": "[logger] [logger] ./log/2026-11-06/12_08_47.ulg"
+  },
+  {
+   "t_s": 0.0,
+   "text": "[logger] Opened full log file: ./log/2026-11-06/12_08_47.ulg"
+  },
+  {
+   "t_s": 0.2,
+   "text": "[tone_alarm] arming warning"
+  },
+  {
+   "t_s": 3.96,
+   "text": "[commander] Takeoff detected"
+  },
+  {
+   "t_s": 28.89,
+   "text": "[commander] Landing detected"
+  },
+  {
+   "t_s": 30.9,
+   "text": "[commander] Disarmed by landing"
+  },
+  {
+   "t_s": 30.9,
+   "text": "[tone_alarm] notify neutral"
+  }
+ ],
+ "verdict_vs_proposed_trial": {
+  "C5_height": true,
+  "C5_motors_off": false,
+  "C5_no_failsafe": true
+ }
+}

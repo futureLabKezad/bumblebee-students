@@ -1,0 +1,22 @@
+test_armed_in_manual_never_publishes (__main__.B1Gate.test_armed_in_manual_never_publishes) ... ok
+test_blinking_single_marker_keeps_the_gate_open (__main__.B1Gate.test_blinking_single_marker_keeps_the_gate_open)
+T42: one marker seen 0.4 s, missed 0.3 s (empty frames). r2h: no publish pause > 0.4 s; r2g (control): ... ok
+test_disarmed_warm_up_unchanged (__main__.B1Gate.test_disarmed_warm_up_unchanged) ... ok
+test_gate_opens_on_the_first_frame_not_at_the_tick (__main__.B1Gate.test_gate_opens_on_the_first_frame_not_at_the_tick)
+markers come back at t=2.3 s: r2h opens on that frame (+ <= one 30 Hz tick), r2g waits for the 1 Hz tick. ... ok
+test_gate_still_closes_when_markers_stay_away (__main__.B1Gate.test_gate_still_closes_when_markers_stay_away)
+markers stop at t=3 s (empty frames continue): the gate closes after 1.5 s + 0.5 s hysteresis (+1 frame) ... ok
+test_single_marker_without_yaw_lock_stays_closed (__main__.B1Gate.test_single_marker_without_yaw_lock_stays_closed) ... ok
+test_unknown_fcu_state_closes_whatever_the_markers (__main__.B1Gate.test_unknown_fcu_state_closes_whatever_the_markers)
+P1 kept: connected=False closes at once and a marker frame does not reopen; no State for > 4.5 s closes ... ok
+test_after_a_pause_the_first_samples_are_the_medoid_of_3 (__main__.B2Reentry.test_after_a_pause_the_first_samples_are_the_medoid_of_3)
+after the pause the 3rd fresh pose is an outlier (+0.05): r2h sends nothing before 3 fresh poses, then the ... ok
+test_after_the_hold_the_latest_pose_again (__main__.B2Reentry.test_after_the_hold_the_latest_pose_again) ... ok
+test_no_pause_no_medoid (__main__.B2Reentry.test_no_pause_no_medoid)
+a continuous stream: after the start, every sample is the latest pose (B2 is idle) ... ok
+test_short_gap_below_0p3_is_not_a_pause (__main__.B2Reentry.test_short_gap_below_0p3_is_not_a_pause) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.055s
+
+OK

@@ -1,0 +1,886 @@
+colcon list: 1
+Starting >>> bumblebee
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 2.5.6 (/opt/ros/jazzy/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+-- Found rclcpp: 28.1.22 (/opt/ros/jazzy/share/rclcpp/cmake)
+-- Found rosidl_generator_c: 4.6.9 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+-- Found rosidl_generator_cpp: 4.6.9 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 7.3.4 (/opt/ros/jazzy/share/rmw_implementation_cmake/cmake)
+-- Found rmw_fastrtps_cpp: 8.4.4 (/opt/ros/jazzy/share/rmw_fastrtps_cpp/cmake)
+-- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.13")  
+-- Found FastRTPS: /opt/ros/jazzy/include (Required is at least version "2.13") 
+-- Using RMW implementation 'rmw_fastrtps_cpp' as default
+-- Found rclcpp_components: 28.1.22 (/opt/ros/jazzy/share/rclcpp_components/cmake)
+-- Found rclpy: 7.1.12 (/opt/ros/jazzy/share/rclpy/cmake)
+-- Found rosidl_default_generators: 1.6.1 (/opt/ros/jazzy/share/rosidl_default_generators/cmake)
+-- Found rosidl_adapter: 4.6.9 (/opt/ros/jazzy/share/rosidl_adapter/cmake)
+-- Found std_msgs: 5.3.8 (/opt/ros/jazzy/share/std_msgs/cmake)
+-- Found std_srvs: 5.3.8 (/opt/ros/jazzy/share/std_srvs/cmake)
+-- Found geometry_msgs: 5.3.8 (/opt/ros/jazzy/share/geometry_msgs/cmake)
+-- Found sensor_msgs: 5.3.8 (/opt/ros/jazzy/share/sensor_msgs/cmake)
+-- Found visualization_msgs: 5.3.8 (/opt/ros/jazzy/share/visualization_msgs/cmake)
+-- Found mavros_msgs: 2.16.0 (/opt/ros/jazzy/share/mavros_msgs/cmake)
+-- Found tf2: 0.36.23 (/opt/ros/jazzy/share/tf2/cmake)
+-- Found tf2_ros: 0.36.23 (/opt/ros/jazzy/share/tf2_ros/cmake)
+-- Found tf2_geometry_msgs: 0.36.23 (/opt/ros/jazzy/share/tf2_geometry_msgs/cmake)
+-- Found eigen3_cmake_module: 0.3.1 (/opt/ros/jazzy/share/eigen3_cmake_module/cmake)
+-- Found Eigen3: TRUE (found version "3.4.0") 
+-- Ensuring Eigen3 include directory is part of orocos-kdl CMake target
+-- Found cv_bridge: 4.1.0 (/opt/ros/jazzy/share/cv_bridge/cmake)
+-- Found image_transport: 5.1.8 (/opt/ros/jazzy/share/image_transport/cmake)
+-- Found image_geometry: 4.1.0 (/opt/ros/jazzy/share/image_geometry/cmake)
+-- Found OpenCV: /usr (found version "4.6.0") found components: core imgproc calib3d 
+-- Found GeographicLib: /usr/lib/x86_64-linux-gnu  
+-- Found ament_cmake_ros: 0.12.2 (/opt/ros/jazzy/share/ament_cmake_ros/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found python_cmake_module: 0.11.1 (/opt/ros/jazzy/share/python_cmake_module/cmake)
+-- Found PythonExtra: /usr/bin/python3  
+-- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter Development NumPy Development.Module Development.Embed 
+-- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+CMake Warning at CMakeLists.txt:104 (message):
+  led_msgs not found — skipping led node (install led_msgs to enable)
+
+
+-- Found launch_testing_ament_cmake: 3.4.12 (/opt/ros/jazzy/share/launch_testing_ament_cmake/cmake)
+-- Found gtest sources under '/opt/ros/jazzy/src/gtest_vendor': C++ tests using 'Google Test' will be built
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done (8.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /work/fixed_image_r2_20261109/build/bumblebee
+[  0%] Generating Rust code for ROS interfaces
+[  1%] Generating type hashes for ROS interfaces
+[  1%] Built target bumblebee__rosidl_generator_type_description
+[  1%] Built target bumblebee__rs
+[  1%] Building CXX object CMakeFiles/optical_flow.dir/src/cpp/optical_flow.cpp.o
+[  1%] Built target ament_cmake_python_copy_bumblebee
+[  2%] Building CXX object CMakeFiles/optical_flow_node.dir/rclcpp_components/node_main_optical_flow_node.cpp.o
+[  2%] Linking CXX executable optical_flow_node
+[  2%] Built target optical_flow_node
+[  2%] Building CXX object CMakeFiles/camera_markers.dir/src/cpp/camera_markers.cpp.o
+[  3%] Linking CXX executable camera_markers
+[  3%] Built target camera_markers
+[  4%] Building CXX object CMakeFiles/vpe_publisher.dir/src/cpp/vpe_publisher.cpp.o
+[  5%] Linking CXX shared library liboptical_flow.so
+[  5%] Built target optical_flow
+[  5%] Building CXX object gtest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[  6%] Linking CXX static library libgtest_main.a
+[  6%] Built target gtest_main
+[  6%] Building CXX object gtest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[  7%] Linking CXX static library libgtest.a
+[  7%] Built target gtest
+[  7%] Generating C code for ROS interfaces
+[  8%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/msg/detail/state__description.c.o
+[  8%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/msg/detail/state__functions.c.o
+[  9%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/msg/detail/state__type_support.c.o
+[  9%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/get_telemetry__description.c.o
+[ 10%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/get_telemetry__functions.c.o
+[ 10%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/get_telemetry__type_support.c.o
+[ 11%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/navigate__description.c.o
+[ 11%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/navigate__functions.c.o
+[ 12%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/navigate__type_support.c.o
+[ 13%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/navigate_global__description.c.o
+[ 13%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/navigate_global__functions.c.o
+[ 14%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/navigate_global__type_support.c.o
+[ 14%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_altitude__description.c.o
+[ 15%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_altitude__functions.c.o
+[ 15%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_altitude__type_support.c.o
+[ 16%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_yaw__description.c.o
+[ 16%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_yaw__functions.c.o
+[ 17%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_yaw__type_support.c.o
+[ 17%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_yaw_rate__description.c.o
+[ 18%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_yaw_rate__functions.c.o
+[ 18%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_yaw_rate__type_support.c.o
+[ 19%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_position__description.c.o
+[ 20%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_position__functions.c.o
+[ 20%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_position__type_support.c.o
+[ 21%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_velocity__description.c.o
+[ 21%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_velocity__functions.c.o
+[ 22%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_velocity__type_support.c.o
+[ 22%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_attitude__description.c.o
+[ 23%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_attitude__functions.c.o
+[ 23%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_attitude__type_support.c.o
+[ 24%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_rates__description.c.o
+[ 24%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_rates__functions.c.o
+[ 25%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_rates__type_support.c.o
+[ 26%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_led_effect__description.c.o
+[ 26%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_led_effect__functions.c.o
+[ 27%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_led_effect__type_support.c.o
+[ 27%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/execute__description.c.o
+[ 28%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/execute__functions.c.o
+[ 28%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/execute__type_support.c.o
+[ 29%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_param__description.c.o
+[ 29%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_param__functions.c.o
+[ 30%] Building C object CMakeFiles/bumblebee__rosidl_generator_c.dir/rosidl_generator_c/bumblebee/srv/detail/set_param__type_support.c.o
+[ 30%] Linking C shared library libbumblebee__rosidl_generator_c.so
+[ 31%] Linking CXX executable vpe_publisher
+[ 31%] Built target bumblebee__rosidl_generator_c
+[ 31%] Generating C++ code for ROS interfaces
+[ 31%] Built target vpe_publisher
+[ 31%] Generating C introspection for ROS interfaces
+[ 32%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/msg/detail/state__type_support.c.o
+[ 32%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/get_telemetry__type_support.c.o
+[ 33%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/navigate__type_support.c.o
+[ 33%] Built target bumblebee__cpp
+[ 34%] Generating C type support dispatch for ROS interfaces
+[ 34%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/navigate_global__type_support.c.o
+[ 35%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/set_altitude__type_support.c.o
+[ 35%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/set_yaw__type_support.c.o
+[ 36%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/set_yaw_rate__type_support.c.o
+[ 36%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/set_position__type_support.c.o
+[ 37%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/set_velocity__type_support.c.o
+[ 38%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/set_attitude__type_support.c.o
+[ 38%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/set_rates__type_support.c.o
+[ 39%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/set_led_effect__type_support.c.o
+[ 39%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/execute__type_support.c.o
+[ 40%] Building C object CMakeFiles/bumblebee__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/bumblebee/srv/detail/set_param__type_support.c.o
+[ 40%] Linking C shared library libbumblebee__rosidl_typesupport_introspection_c.so
+[ 40%] Built target bumblebee__rosidl_typesupport_introspection_c
+[ 41%] Generating C++ introspection for ROS interfaces
+[ 41%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/msg/state__type_support.cpp.o
+[ 42%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/get_telemetry__type_support.cpp.o
+[ 42%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/navigate__type_support.cpp.o
+[ 43%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/navigate_global__type_support.cpp.o
+[ 43%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/set_altitude__type_support.cpp.o
+[ 44%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/set_yaw__type_support.cpp.o
+[ 44%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/set_yaw_rate__type_support.cpp.o
+[ 45%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/set_position__type_support.cpp.o
+[ 45%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/set_velocity__type_support.cpp.o
+[ 46%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/set_attitude__type_support.cpp.o
+[ 47%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/set_rates__type_support.cpp.o
+[ 47%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/set_led_effect__type_support.cpp.o
+[ 48%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/execute__type_support.cpp.o
+[ 48%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_c.dir/rosidl_typesupport_c/bumblebee/srv/set_param__type_support.cpp.o
+[ 49%] Linking CXX shared library libbumblebee__rosidl_typesupport_c.so
+[ 49%] Built target bumblebee__rosidl_typesupport_c
+[ 49%] Generating C++ type support dispatch for ROS interfaces
+[ 49%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/msg/detail/state__type_support.cpp.o
+[ 50%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/get_telemetry__type_support.cpp.o
+[ 51%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/msg/state__type_support.cpp.o
+[ 51%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/navigate__type_support.cpp.o
+[ 51%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/get_telemetry__type_support.cpp.o
+[ 52%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/navigate_global__type_support.cpp.o
+[ 53%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/navigate__type_support.cpp.o
+[ 54%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/set_altitude__type_support.cpp.o
+[ 54%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/navigate_global__type_support.cpp.o
+[ 54%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/set_yaw__type_support.cpp.o
+[ 55%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/set_altitude__type_support.cpp.o
+[ 56%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/set_yaw_rate__type_support.cpp.o
+[ 56%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/set_yaw__type_support.cpp.o
+[ 56%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/set_position__type_support.cpp.o
+[ 57%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/set_yaw_rate__type_support.cpp.o
+[ 58%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/set_velocity__type_support.cpp.o
+[ 59%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/set_position__type_support.cpp.o
+[ 59%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/set_attitude__type_support.cpp.o
+[ 59%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/set_velocity__type_support.cpp.o
+[ 60%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/set_attitude__type_support.cpp.o
+[ 61%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/set_rates__type_support.cpp.o
+[ 61%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/set_rates__type_support.cpp.o
+[ 61%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/set_led_effect__type_support.cpp.o
+[ 62%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/set_led_effect__type_support.cpp.o
+[ 63%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/execute__type_support.cpp.o
+[ 63%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/execute__type_support.cpp.o
+[ 63%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/bumblebee/srv/detail/set_param__type_support.cpp.o
+[ 64%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/bumblebee/srv/set_param__type_support.cpp.o
+[ 65%] Linking CXX shared library libbumblebee__rosidl_typesupport_introspection_cpp.so
+[ 65%] Linking CXX shared library libbumblebee__rosidl_typesupport_cpp.so
+[ 65%] Built target bumblebee__rosidl_typesupport_introspection_cpp
+running egg_info
+creating bumblebee.egg-info
+writing bumblebee.egg-info/PKG-INFO
+writing dependency_links to bumblebee.egg-info/dependency_links.txt
+writing top-level names to bumblebee.egg-info/top_level.txt
+writing manifest file 'bumblebee.egg-info/SOURCES.txt'
+[ 65%] Built target bumblebee__rosidl_typesupport_cpp
+[ 66%] Generating C type support for eProsima Fast-RTPS
+reading manifest file 'bumblebee.egg-info/SOURCES.txt'
+writing manifest file 'bumblebee.egg-info/SOURCES.txt'
+[ 66%] Built target ament_cmake_python_build_bumblebee_egg
+[ 67%] Generating C++ type support for eProsima Fast-RTPS
+[ 67%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/msg/detail/dds_fastrtps/state__type_support.cpp.o
+[ 67%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/msg/detail/state__type_support_c.cpp.o
+[ 68%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/get_telemetry__type_support.cpp.o
+[ 69%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/get_telemetry__type_support_c.cpp.o
+[ 69%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/navigate__type_support_c.cpp.o
+[ 69%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/navigate__type_support.cpp.o
+[ 70%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/navigate_global__type_support_c.cpp.o
+[ 71%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/navigate_global__type_support.cpp.o
+[ 72%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/set_altitude__type_support_c.cpp.o
+[ 72%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/set_altitude__type_support.cpp.o
+[ 72%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/set_yaw__type_support_c.cpp.o
+[ 73%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/set_yaw__type_support.cpp.o
+[ 74%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/set_yaw_rate__type_support_c.cpp.o
+[ 74%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/set_position__type_support_c.cpp.o
+[ 74%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/set_yaw_rate__type_support.cpp.o
+[ 75%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/set_velocity__type_support_c.cpp.o
+[ 76%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/set_position__type_support.cpp.o
+[ 76%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/set_attitude__type_support_c.cpp.o
+[ 76%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/set_velocity__type_support.cpp.o
+[ 77%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/set_rates__type_support_c.cpp.o
+[ 78%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/set_attitude__type_support.cpp.o
+[ 78%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/set_led_effect__type_support_c.cpp.o
+[ 79%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/execute__type_support_c.cpp.o
+[ 79%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/set_rates__type_support.cpp.o
+[ 79%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/bumblebee/srv/detail/set_param__type_support_c.cpp.o
+[ 80%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/set_led_effect__type_support.cpp.o
+[ 81%] Linking CXX shared library libbumblebee__rosidl_typesupport_fastrtps_c.so
+[ 81%] Built target bumblebee__rosidl_typesupport_fastrtps_c
+[ 82%] Building CXX object CMakeFiles/simple_offboard.dir/src/cpp/simple_offboard.cpp.o
+[ 83%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/execute__type_support.cpp.o
+[ 83%] Building CXX object CMakeFiles/bumblebee__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/bumblebee/srv/detail/dds_fastrtps/set_param__type_support.cpp.o
+[ 84%] Linking CXX shared library libbumblebee__rosidl_typesupport_fastrtps_cpp.so
+[ 84%] Built target bumblebee__rosidl_typesupport_fastrtps_cpp
+[ 85%] Building CXX object CMakeFiles/rc.dir/src/cpp/rc.cpp.o
+[ 85%] Linking CXX executable rc
+[ 85%] Built target rc
+[ 86%] Building CXX object CMakeFiles/shell.dir/src/cpp/shell.cpp.o
+[ 86%] Linking CXX executable shell
+[ 86%] Built target shell
+[ 87%] Building CXX object CMakeFiles/test_simple_offboard.dir/test/test_simple_offboard.cpp.o
+[ 87%] Linking CXX executable test_simple_offboard
+[ 87%] Built target test_simple_offboard
+[ 87%] Built target bumblebee
+[ 88%] Generating Python code for ROS interfaces
+[ 88%] Built target bumblebee__py
+[ 89%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/msg/_state_s.c.o
+[ 89%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_get_telemetry_s.c.o
+[ 90%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_navigate_s.c.o
+[ 91%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_navigate_global_s.c.o
+[ 91%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_set_altitude_s.c.o
+[ 92%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_set_yaw_s.c.o
+[ 92%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_set_yaw_rate_s.c.o
+[ 93%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_set_position_s.c.o
+[ 93%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_set_velocity_s.c.o
+[ 94%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_set_attitude_s.c.o
+[ 94%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_set_rates_s.c.o
+[ 95%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_set_led_effect_s.c.o
+[ 95%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_execute_s.c.o
+[ 96%] Building C object CMakeFiles/bumblebee__rosidl_generator_py.dir/rosidl_generator_py/bumblebee/srv/_set_param_s.c.o
+[ 96%] Linking C shared library libbumblebee__rosidl_generator_py.so
+[ 96%] Built target bumblebee__rosidl_generator_py
+[ 96%] Building C object CMakeFiles/bumblebee_s__rosidl_typesupport_fastrtps_c.dir/rosidl_generator_py/bumblebee/_bumblebee_s.ep.rosidl_typesupport_fastrtps_c.c.o
+[ 97%] Linking C shared module rosidl_generator_py/bumblebee/bumblebee_s__rosidl_typesupport_fastrtps_c.so
+[ 97%] Built target bumblebee_s__rosidl_typesupport_fastrtps_c
+[ 97%] Building C object CMakeFiles/bumblebee_s__rosidl_typesupport_introspection_c.dir/rosidl_generator_py/bumblebee/_bumblebee_s.ep.rosidl_typesupport_introspection_c.c.o
+[ 98%] Linking C shared module rosidl_generator_py/bumblebee/bumblebee_s__rosidl_typesupport_introspection_c.so
+[ 98%] Built target bumblebee_s__rosidl_typesupport_introspection_c
+[ 99%] Building C object CMakeFiles/bumblebee_s__rosidl_typesupport_c.dir/rosidl_generator_py/bumblebee/_bumblebee_s.ep.rosidl_typesupport_c.c.o
+[100%] Linking C shared module rosidl_generator_py/bumblebee/bumblebee_s__rosidl_typesupport_c.so
+[100%] Built target bumblebee_s__rosidl_typesupport_c
+[100%] Linking CXX executable simple_offboard
+[100%] Built target simple_offboard
+-- Install configuration: ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/ament_index/resource_index/rosidl_interfaces/bumblebee
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/msg/State.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/GetTelemetry.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/Navigate.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/NavigateGlobal.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetAltitude.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetYaw.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetYawRate.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetPosition.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetVelocity.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetAttitude.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetRates.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetLEDEffect.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/Execute.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetParam.json
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/state.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/rosidl_generator_c__visibility_control.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_altitude.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/navigate_global.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/get_telemetry.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_param.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_yaw.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_velocity.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_rates.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_led_effect.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__type_support.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__description.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__functions.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__functions.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__struct.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_yaw_rate.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_position.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/navigate.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_attitude.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/execute.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/environment/library_path.sh
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/environment/library_path.dsv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_generator_c.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_generator_c.so" to ""
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__rosidl_typesupport_fastrtps_c.h
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__rosidl_typesupport_fastrtps_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_fastrtps_c.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_fastrtps_c.so" to ""
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/rosidl_generator_cpp__visibility_control.hpp
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/state.hpp
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_led_effect.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/get_telemetry.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_yaw_rate.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_position.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_velocity.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_yaw.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_altitude.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_attitude.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/navigate.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_param.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/navigate_global.hpp
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__traits.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__builder.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__struct.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__type_support.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/set_rates.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/execute.hpp
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/dds_fastrtps
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/dds_fastrtps
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_fastrtps_cpp.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_fastrtps_cpp.so" to ""
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/rosidl_typesupport_introspection_c__visibility_control.h
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__rosidl_typesupport_introspection_c.h
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__type_support.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_introspection_c.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_introspection_c.so" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_c.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_c.so" to ""
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/msg/detail/state__type_support.cpp
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_attitude__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw_rate__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate_global__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_altitude__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_yaw__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_rates__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_position__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_led_effect__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_param__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/set_velocity__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/navigate__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/get_telemetry__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/include/bumblebee/bumblebee/srv/detail/execute__type_support.cpp
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_introspection_cpp.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_introspection_cpp.so" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_cpp.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_typesupport_cpp.so" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/environment/pythonpath.sh
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/environment/pythonpath.dsv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee-0.24.0-py3.12.egg-info
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee-0.24.0-py3.12.egg-info/top_level.txt
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee-0.24.0-py3.12.egg-info/PKG-INFO
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee-0.24.0-py3.12.egg-info/SOURCES.txt
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee-0.24.0-py3.12.egg-info/dependency_links.txt
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/__init__.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/bumblebee_s__rosidl_typesupport_c.so
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/msg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/msg/__init__.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/msg/_state.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/msg/_state_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/_bumblebee_s.ep.rosidl_typesupport_fastrtps_c.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/bumblebee_s__rosidl_typesupport_introspection_c.so
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/_bumblebee_s.ep.rosidl_typesupport_c.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/_bumblebee_s.ep.rosidl_typesupport_introspection_c.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/__init__.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_param.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_yaw_rate.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_get_telemetry_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_navigate_global.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_attitude.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_yaw.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_position_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_attitude_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_rates.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_velocity.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_rates_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_led_effect.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_led_effect_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_altitude_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_yaw_rate_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_navigate_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_param_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_execute_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_velocity_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_position.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_altitude.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_navigate.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_yaw_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_execute.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_get_telemetry.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_navigate_global_s.c
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/bumblebee_s__rosidl_typesupport_fastrtps_c.so
+Listing '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/__init__.py'...
+Listing '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/msg'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/msg/__init__.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/msg/_state.py'...
+Listing '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/__init__.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_execute.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_get_telemetry.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_navigate.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_navigate_global.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_altitude.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_attitude.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_led_effect.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_param.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_position.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_rates.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_velocity.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_yaw.py'...
+Compiling '/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/srv/_set_yaw_rate.py'...
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/bumblebee_s__rosidl_typesupport_fastrtps_c.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/bumblebee_s__rosidl_typesupport_fastrtps_c.so" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/bumblebee_s__rosidl_typesupport_introspection_c.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/bumblebee_s__rosidl_typesupport_introspection_c.so" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/bumblebee_s__rosidl_typesupport_c.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/python3.12/site-packages/bumblebee/bumblebee_s__rosidl_typesupport_c.so" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_generator_py.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/libbumblebee__rosidl_generator_py.so" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/build.rs
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/Cargo.toml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/src
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/src/msg.rs
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/src/msg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/src/msg/rmw.rs
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/src/srv.rs
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/src/lib.rs
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/src/srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/rust/src/srv/rmw.rs
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/msg/State.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/GetTelemetry.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/Navigate.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/NavigateGlobal.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetAltitude.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetYaw.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetYawRate.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetPosition.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetVelocity.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetAttitude.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetRates.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetLEDEffect.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/Execute.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetParam.idl
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/msg/State.msg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/GetTelemetry.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/Navigate.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/NavigateGlobal.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetAltitude.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetYaw.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetYawRate.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetPosition.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetVelocity.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetAttitude.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetRates.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetLEDEffect.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/Execute.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/srv/SetParam.srv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/optical_flow_node
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/optical_flow_node" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/liboptical_flow.so
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/liboptical_flow.so" to ""
+-- Up-to-date: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/optical_flow_node
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/simple_offboard
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/simple_offboard" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/camera_markers
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/camera_markers" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/vpe_publisher
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/vpe_publisher" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/rc
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/rc" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/shell
+-- Set non-toolchain portion of runtime path of "/work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/shell" to ""
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/selfcheck.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/vpe_fix.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/set_params.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/camera_fix.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/aruco_detect.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/qos_relay.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/setpoint_freshness.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/ros_mjpeg_server.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/servo_rc.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/lib/bumblebee/wheel_rc.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/launch
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/launch/bumblebee.launch.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/launch/aruco.launch.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/launch/mavros_scoped_config.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/launch/led.launch.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/launch/second_camera.launch.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/launch/simulator.launch.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/launch/main_camera.launch.py
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info/fisheye_cam_640x480.yaml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info/fisheye_cam_800x600.yaml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info/fisheye_cam_2592x1944.yaml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info/fisheye_cam_3840x2160.yaml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info/fisheye_cam_320x240.yaml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info/fisheye_cam.yaml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info/fisheye_cam_4056x3040.yaml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info/fisheye_cam_1280x720.yaml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/camera_info/fisheye_cam_1920x1080.yaml
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/CATKIN_IGNORE
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/gcs.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/led.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/console.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/test_ws.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/index.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/wifi.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/nginx_bumblebee.conf
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/viz.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/ros.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/roslib.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/index.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/main.css
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/highlight
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/highlight/styles
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/highlight/styles/monokai-sublime.css
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/highlight/highlight.pack.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/msg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/msg/js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/msg/js/en.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/blocks_compressed.js.map
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/python_compressed.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/blocks_compressed.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/LICENSE
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/handopen.cur
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/delete.wav
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/click.mp3
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/disconnect.ogg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/quote1.png
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/handdelete.cur
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/quote0.png
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/disconnect.wav
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/1x1.gif
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/click.ogg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/sprites.png
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/handclosed.cur
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/dropdown-arrow.svg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/pilcrow.png
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/delete.ogg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/disconnect.mp3
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/click.wav
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/sprites.svg
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/media/delete.mp3
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/blockly_compressed.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/README.md
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/python_compressed.js.map
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blockly/blockly_compressed.js.map
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/python.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/main.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/bumblebee_blocks/blocks.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/vendor
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/vendor/iro.min.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js/viz.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js/roslib.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js/three.min.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js/gcs.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js/json-to-pretty-yaml.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js/eventemitter2.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js/topics.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js/topics.js.backup
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/js/ros3d.js
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/aruco_map.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/sys_metrics.service
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/www/topics.html
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/ament_index/resource_index/package_run_dependencies/bumblebee
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/ament_index/resource_index/parent_prefix_path/bumblebee
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/environment/ament_prefix_path.sh
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/environment/ament_prefix_path.dsv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/environment/path.sh
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/environment/path.dsv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/local_setup.bash
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/local_setup.sh
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/local_setup.zsh
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/local_setup.dsv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/package.dsv
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/ament_index/resource_index/packages/bumblebee
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/ament_index/resource_index/rclcpp_components/bumblebee
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/export_bumblebee__rosidl_generator_cExport.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/export_bumblebee__rosidl_generator_cExport-noconfig.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/export_bumblebee__rosidl_typesupport_fastrtps_cExport.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/export_bumblebee__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/export_bumblebee__rosidl_generator_cppExport.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/export_bumblebee__rosidl_typesupport_fastrtps_cppExport.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/export_bumblebee__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebee__rosidl_typesupport_introspection_cExport.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebee__rosidl_typesupport_introspection_cExport-noconfig.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebee__rosidl_typesupport_cExport.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebee__rosidl_typesupport_cExport-noconfig.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebee__rosidl_typesupport_introspection_cppExport.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebee__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebee__rosidl_typesupport_cppExport.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebee__rosidl_typesupport_cppExport-noconfig.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/export_bumblebee__rosidl_generator_pyExport.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/export_bumblebee__rosidl_generator_pyExport-noconfig.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/rosidl_cmake-extras.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/ament_cmake_export_include_directories-extras.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/ament_cmake_export_libraries-extras.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/ament_cmake_export_targets-extras.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/rosidl_cmake_aggregate_target-extras.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebeeConfig.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/cmake/bumblebeeConfig-version.cmake
+-- Installing: /work/fixed_image_r2_20261109/install/bumblebee/share/bumblebee/package.xml
+--- stderr: bumblebee
+CMake Warning at CMakeLists.txt:104 (message):
+  led_msgs not found — skipping led node (install led_msgs to enable)
+
+
+---
+Finished <<< bumblebee [1min 15s]
+
+Summary: 1 package finished [1min 15s]
+  1 package had stderr output: bumblebee
+build exit=0 seconds=75

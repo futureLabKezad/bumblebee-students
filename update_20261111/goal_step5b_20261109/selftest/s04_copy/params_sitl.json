@@ -1,0 +1,6325 @@
+{
+ "count_reported": 1052,
+ "listed": 1053,
+ "params": {
+  "ASPD_SCALE_1": {
+   "count": 1052,
+   "index": 0,
+   "type": 9,
+   "value": 1.0
+  },
+  "ATT_EN": {
+   "count": 1052,
+   "index": 1,
+   "type": 6,
+   "value": 0
+  },
+  "BAT1_N_CELLS": {
+   "count": 1052,
+   "index": 2,
+   "type": 6,
+   "value": 6
+  },
+  "BAT1_SOURCE": {
+   "count": 1052,
+   "index": 3,
+   "type": 6,
+   "value": 1
+  },
+  "BAT1_V_CHARGED": {
+   "count": 1052,
+   "index": 4,
+   "type": 9,
+   "value": 4.199999809265137
+  },
+  "BAT_CRIT_THR": {
+   "count": 1052,
+   "index": 5,
+   "type": 9,
+   "value": 0.07000000029802322
+  },
+  "BAT_EMERGEN_THR": {
+   "count": 1052,
+   "index": 6,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "BAT_LOW_THR": {
+   "count": 1052,
+   "index": 7,
+   "type": 9,
+   "value": 0.15000000596046448
+  },
+  "CAL_ACC0_ID": {
+   "count": 1052,
+   "index": 8,
+   "type": 6,
+   "value": 1310988
+  },
+  "CAL_ACC0_PRIO": {
+   "count": 1052,
+   "index": 9,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_ACC0_ROT": {
+   "count": 1052,
+   "index": 10,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_ACC0_XOFF": {
+   "count": 1052,
+   "index": 11,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_ACC0_XSCALE": {
+   "count": 1052,
+   "index": 12,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_ACC0_YOFF": {
+   "count": 1052,
+   "index": 13,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_ACC0_YSCALE": {
+   "count": 1052,
+   "index": 14,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_ACC0_ZOFF": {
+   "count": 1052,
+   "index": 15,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_ACC0_ZSCALE": {
+   "count": 1052,
+   "index": 16,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_ACC1_ID": {
+   "count": 1052,
+   "index": 17,
+   "type": 6,
+   "value": 1310996
+  },
+  "CAL_ACC1_PRIO": {
+   "count": 1052,
+   "index": 18,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_ACC1_ROT": {
+   "count": 1052,
+   "index": 19,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_ACC1_XOFF": {
+   "count": 1052,
+   "index": 20,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_ACC1_XSCALE": {
+   "count": 1052,
+   "index": 21,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_ACC1_YOFF": {
+   "count": 1052,
+   "index": 22,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_ACC1_YSCALE": {
+   "count": 1052,
+   "index": 23,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_ACC1_ZOFF": {
+   "count": 1052,
+   "index": 24,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_ACC1_ZSCALE": {
+   "count": 1052,
+   "index": 25,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_ACC2_ID": {
+   "count": 1052,
+   "index": 26,
+   "type": 6,
+   "value": 1311004
+  },
+  "CAL_ACC2_PRIO": {
+   "count": 1052,
+   "index": 27,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_ACC2_ROT": {
+   "count": 1052,
+   "index": 28,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_ACC2_XOFF": {
+   "count": 1052,
+   "index": 29,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_ACC2_XSCALE": {
+   "count": 1052,
+   "index": 30,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_ACC2_YOFF": {
+   "count": 1052,
+   "index": 31,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_ACC2_YSCALE": {
+   "count": 1052,
+   "index": 32,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_ACC2_ZOFF": {
+   "count": 1052,
+   "index": 33,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_ACC2_ZSCALE": {
+   "count": 1052,
+   "index": 34,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_ACC3_ID": {
+   "count": 1052,
+   "index": 35,
+   "type": 6,
+   "value": 0
+  },
+  "CAL_AIR_CMODEL": {
+   "count": 1052,
+   "index": 36,
+   "type": 6,
+   "value": 0
+  },
+  "CAL_AIR_TUBED_MM": {
+   "count": 1052,
+   "index": 37,
+   "type": 9,
+   "value": 1.5
+  },
+  "CAL_AIR_TUBELEN": {
+   "count": 1052,
+   "index": 38,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "CAL_BARO0_ID": {
+   "count": 1052,
+   "index": 39,
+   "type": 6,
+   "value": 6619404
+  },
+  "CAL_BARO0_OFF": {
+   "count": 1052,
+   "index": 40,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_BARO0_PRIO": {
+   "count": 1052,
+   "index": 41,
+   "type": 6,
+   "value": 50
+  },
+  "CAL_BARO1_ID": {
+   "count": 1052,
+   "index": 42,
+   "type": 6,
+   "value": 0
+  },
+  "CAL_BARO2_ID": {
+   "count": 1052,
+   "index": 43,
+   "type": 6,
+   "value": 0
+  },
+  "CAL_BARO3_ID": {
+   "count": 1052,
+   "index": 44,
+   "type": 6,
+   "value": 0
+  },
+  "CAL_GYRO0_ID": {
+   "count": 1052,
+   "index": 45,
+   "type": 6,
+   "value": 1310988
+  },
+  "CAL_GYRO0_PRIO": {
+   "count": 1052,
+   "index": 46,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_GYRO0_ROT": {
+   "count": 1052,
+   "index": 47,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_GYRO0_XOFF": {
+   "count": 1052,
+   "index": 48,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_GYRO0_YOFF": {
+   "count": 1052,
+   "index": 49,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_GYRO0_ZOFF": {
+   "count": 1052,
+   "index": 50,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_GYRO1_ID": {
+   "count": 1052,
+   "index": 51,
+   "type": 6,
+   "value": 1310996
+  },
+  "CAL_GYRO1_PRIO": {
+   "count": 1052,
+   "index": 52,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_GYRO1_ROT": {
+   "count": 1052,
+   "index": 53,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_GYRO1_XOFF": {
+   "count": 1052,
+   "index": 54,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_GYRO1_YOFF": {
+   "count": 1052,
+   "index": 55,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_GYRO1_ZOFF": {
+   "count": 1052,
+   "index": 56,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_GYRO2_ID": {
+   "count": 1052,
+   "index": 57,
+   "type": 6,
+   "value": 1311004
+  },
+  "CAL_GYRO2_PRIO": {
+   "count": 1052,
+   "index": 58,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_GYRO2_ROT": {
+   "count": 1052,
+   "index": 59,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_GYRO2_XOFF": {
+   "count": 1052,
+   "index": 60,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_GYRO2_YOFF": {
+   "count": 1052,
+   "index": 61,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_GYRO2_ZOFF": {
+   "count": 1052,
+   "index": 62,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_GYRO3_ID": {
+   "count": 1052,
+   "index": 63,
+   "type": 6,
+   "value": 0
+  },
+  "CAL_MAG0_ID": {
+   "count": 1052,
+   "index": 64,
+   "type": 6,
+   "value": 197388
+  },
+  "CAL_MAG0_PITCH": {
+   "count": 1052,
+   "index": 65,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_PRIO": {
+   "count": 1052,
+   "index": 66,
+   "type": 6,
+   "value": 50
+  },
+  "CAL_MAG0_ROLL": {
+   "count": 1052,
+   "index": 67,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_ROT": {
+   "count": 1052,
+   "index": 68,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_MAG0_XCOMP": {
+   "count": 1052,
+   "index": 69,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_XODIAG": {
+   "count": 1052,
+   "index": 70,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_XOFF": {
+   "count": 1052,
+   "index": 71,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_XSCALE": {
+   "count": 1052,
+   "index": 72,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_MAG0_YAW": {
+   "count": 1052,
+   "index": 73,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_YCOMP": {
+   "count": 1052,
+   "index": 74,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_YODIAG": {
+   "count": 1052,
+   "index": 75,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_YOFF": {
+   "count": 1052,
+   "index": 76,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_YSCALE": {
+   "count": 1052,
+   "index": 77,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_MAG0_ZCOMP": {
+   "count": 1052,
+   "index": 78,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_ZODIAG": {
+   "count": 1052,
+   "index": 79,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_ZOFF": {
+   "count": 1052,
+   "index": 80,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG0_ZSCALE": {
+   "count": 1052,
+   "index": 81,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_MAG1_ID": {
+   "count": 1052,
+   "index": 82,
+   "type": 6,
+   "value": 197644
+  },
+  "CAL_MAG1_PITCH": {
+   "count": 1052,
+   "index": 83,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_PRIO": {
+   "count": 1052,
+   "index": 84,
+   "type": 6,
+   "value": 50
+  },
+  "CAL_MAG1_ROLL": {
+   "count": 1052,
+   "index": 85,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_ROT": {
+   "count": 1052,
+   "index": 86,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_MAG1_XCOMP": {
+   "count": 1052,
+   "index": 87,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_XODIAG": {
+   "count": 1052,
+   "index": 88,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_XOFF": {
+   "count": 1052,
+   "index": 89,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_XSCALE": {
+   "count": 1052,
+   "index": 90,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_MAG1_YAW": {
+   "count": 1052,
+   "index": 91,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_YCOMP": {
+   "count": 1052,
+   "index": 92,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_YODIAG": {
+   "count": 1052,
+   "index": 93,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_YOFF": {
+   "count": 1052,
+   "index": 94,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_YSCALE": {
+   "count": 1052,
+   "index": 95,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_MAG1_ZCOMP": {
+   "count": 1052,
+   "index": 96,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_ZODIAG": {
+   "count": 1052,
+   "index": 97,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_ZOFF": {
+   "count": 1052,
+   "index": 98,
+   "type": 9,
+   "value": 0.0
+  },
+  "CAL_MAG1_ZSCALE": {
+   "count": 1052,
+   "index": 99,
+   "type": 9,
+   "value": 1.0
+  },
+  "CAL_MAG2_ID": {
+   "count": 1052,
+   "index": 100,
+   "type": 6,
+   "value": 0
+  },
+  "CAL_MAG2_ROT": {
+   "count": 1052,
+   "index": 101,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_MAG3_ID": {
+   "count": 1052,
+   "index": 102,
+   "type": 6,
+   "value": 0
+  },
+  "CAL_MAG3_ROT": {
+   "count": 1052,
+   "index": 103,
+   "type": 6,
+   "value": -1
+  },
+  "CAL_MAG_COMP_TYP": {
+   "count": 1052,
+   "index": 104,
+   "type": 6,
+   "value": 0
+  },
+  "CAL_MAG_SIDES": {
+   "count": 1052,
+   "index": 105,
+   "type": 6,
+   "value": 63
+  },
+  "CA_AIRFRAME": {
+   "count": 1052,
+   "index": 106,
+   "type": 6,
+   "value": 0
+  },
+  "CA_FAILURE_MODE": {
+   "count": 1052,
+   "index": 107,
+   "type": 6,
+   "value": 0
+  },
+  "CA_METHOD": {
+   "count": 1052,
+   "index": 108,
+   "type": 6,
+   "value": 2
+  },
+  "CA_R0_SLEW": {
+   "count": 1052,
+   "index": 109,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R10_SLEW": {
+   "count": 1052,
+   "index": 110,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R11_SLEW": {
+   "count": 1052,
+   "index": 111,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R1_SLEW": {
+   "count": 1052,
+   "index": 112,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R2_SLEW": {
+   "count": 1052,
+   "index": 113,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R3_SLEW": {
+   "count": 1052,
+   "index": 114,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R4_SLEW": {
+   "count": 1052,
+   "index": 115,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R5_SLEW": {
+   "count": 1052,
+   "index": 116,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R6_SLEW": {
+   "count": 1052,
+   "index": 117,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R7_SLEW": {
+   "count": 1052,
+   "index": 118,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R8_SLEW": {
+   "count": 1052,
+   "index": 119,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_R9_SLEW": {
+   "count": 1052,
+   "index": 120,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR0_AX": {
+   "count": 1052,
+   "index": 121,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR0_AY": {
+   "count": 1052,
+   "index": 122,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR0_AZ": {
+   "count": 1052,
+   "index": 123,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR0_CT": {
+   "count": 1052,
+   "index": 124,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR0_KM": {
+   "count": 1052,
+   "index": 125,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR0_PX": {
+   "count": 1052,
+   "index": 126,
+   "type": 9,
+   "value": 0.25
+  },
+  "CA_ROTOR0_PY": {
+   "count": 1052,
+   "index": 127,
+   "type": 9,
+   "value": 0.25
+  },
+  "CA_ROTOR0_PZ": {
+   "count": 1052,
+   "index": 128,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR10_AX": {
+   "count": 1052,
+   "index": 129,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR10_AY": {
+   "count": 1052,
+   "index": 130,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR10_AZ": {
+   "count": 1052,
+   "index": 131,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR10_CT": {
+   "count": 1052,
+   "index": 132,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR10_KM": {
+   "count": 1052,
+   "index": 133,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR10_PX": {
+   "count": 1052,
+   "index": 134,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR10_PY": {
+   "count": 1052,
+   "index": 135,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR10_PZ": {
+   "count": 1052,
+   "index": 136,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR11_AX": {
+   "count": 1052,
+   "index": 137,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR11_AY": {
+   "count": 1052,
+   "index": 138,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR11_AZ": {
+   "count": 1052,
+   "index": 139,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR11_CT": {
+   "count": 1052,
+   "index": 140,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR11_KM": {
+   "count": 1052,
+   "index": 141,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR11_PX": {
+   "count": 1052,
+   "index": 142,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR11_PY": {
+   "count": 1052,
+   "index": 143,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR11_PZ": {
+   "count": 1052,
+   "index": 144,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR1_AX": {
+   "count": 1052,
+   "index": 145,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR1_AY": {
+   "count": 1052,
+   "index": 146,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR1_AZ": {
+   "count": 1052,
+   "index": 147,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR1_CT": {
+   "count": 1052,
+   "index": 148,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR1_KM": {
+   "count": 1052,
+   "index": 149,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR1_PX": {
+   "count": 1052,
+   "index": 150,
+   "type": 9,
+   "value": -0.25
+  },
+  "CA_ROTOR1_PY": {
+   "count": 1052,
+   "index": 151,
+   "type": 9,
+   "value": -0.25
+  },
+  "CA_ROTOR1_PZ": {
+   "count": 1052,
+   "index": 152,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR2_AX": {
+   "count": 1052,
+   "index": 153,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR2_AY": {
+   "count": 1052,
+   "index": 154,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR2_AZ": {
+   "count": 1052,
+   "index": 155,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR2_CT": {
+   "count": 1052,
+   "index": 156,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR2_KM": {
+   "count": 1052,
+   "index": 157,
+   "type": 9,
+   "value": -0.05000000074505806
+  },
+  "CA_ROTOR2_PX": {
+   "count": 1052,
+   "index": 158,
+   "type": 9,
+   "value": 0.25
+  },
+  "CA_ROTOR2_PY": {
+   "count": 1052,
+   "index": 159,
+   "type": 9,
+   "value": -0.25
+  },
+  "CA_ROTOR2_PZ": {
+   "count": 1052,
+   "index": 160,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR3_AX": {
+   "count": 1052,
+   "index": 161,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR3_AY": {
+   "count": 1052,
+   "index": 162,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR3_AZ": {
+   "count": 1052,
+   "index": 163,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR3_CT": {
+   "count": 1052,
+   "index": 164,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR3_KM": {
+   "count": 1052,
+   "index": 165,
+   "type": 9,
+   "value": -0.05000000074505806
+  },
+  "CA_ROTOR3_PX": {
+   "count": 1052,
+   "index": 166,
+   "type": 9,
+   "value": -0.25
+  },
+  "CA_ROTOR3_PY": {
+   "count": 1052,
+   "index": 167,
+   "type": 9,
+   "value": 0.25
+  },
+  "CA_ROTOR3_PZ": {
+   "count": 1052,
+   "index": 168,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR4_AX": {
+   "count": 1052,
+   "index": 169,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR4_AY": {
+   "count": 1052,
+   "index": 170,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR4_AZ": {
+   "count": 1052,
+   "index": 171,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR4_CT": {
+   "count": 1052,
+   "index": 172,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR4_KM": {
+   "count": 1052,
+   "index": 173,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR4_PX": {
+   "count": 1052,
+   "index": 174,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR4_PY": {
+   "count": 1052,
+   "index": 175,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR4_PZ": {
+   "count": 1052,
+   "index": 176,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR5_AX": {
+   "count": 1052,
+   "index": 177,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR5_AY": {
+   "count": 1052,
+   "index": 178,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR5_AZ": {
+   "count": 1052,
+   "index": 179,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR5_CT": {
+   "count": 1052,
+   "index": 180,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR5_KM": {
+   "count": 1052,
+   "index": 181,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR5_PX": {
+   "count": 1052,
+   "index": 182,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR5_PY": {
+   "count": 1052,
+   "index": 183,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR5_PZ": {
+   "count": 1052,
+   "index": 184,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR6_AX": {
+   "count": 1052,
+   "index": 185,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR6_AY": {
+   "count": 1052,
+   "index": 186,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR6_AZ": {
+   "count": 1052,
+   "index": 187,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR6_CT": {
+   "count": 1052,
+   "index": 188,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR6_KM": {
+   "count": 1052,
+   "index": 189,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR6_PX": {
+   "count": 1052,
+   "index": 190,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR6_PY": {
+   "count": 1052,
+   "index": 191,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR6_PZ": {
+   "count": 1052,
+   "index": 192,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR7_AX": {
+   "count": 1052,
+   "index": 193,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR7_AY": {
+   "count": 1052,
+   "index": 194,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR7_AZ": {
+   "count": 1052,
+   "index": 195,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR7_CT": {
+   "count": 1052,
+   "index": 196,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR7_KM": {
+   "count": 1052,
+   "index": 197,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR7_PX": {
+   "count": 1052,
+   "index": 198,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR7_PY": {
+   "count": 1052,
+   "index": 199,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR7_PZ": {
+   "count": 1052,
+   "index": 200,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR8_AX": {
+   "count": 1052,
+   "index": 201,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR8_AY": {
+   "count": 1052,
+   "index": 202,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR8_AZ": {
+   "count": 1052,
+   "index": 203,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR8_CT": {
+   "count": 1052,
+   "index": 204,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR8_KM": {
+   "count": 1052,
+   "index": 205,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR8_PX": {
+   "count": 1052,
+   "index": 206,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR8_PY": {
+   "count": 1052,
+   "index": 207,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR8_PZ": {
+   "count": 1052,
+   "index": 208,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR9_AX": {
+   "count": 1052,
+   "index": 209,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR9_AY": {
+   "count": 1052,
+   "index": 210,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR9_AZ": {
+   "count": 1052,
+   "index": 211,
+   "type": 9,
+   "value": -1.0
+  },
+  "CA_ROTOR9_CT": {
+   "count": 1052,
+   "index": 212,
+   "type": 9,
+   "value": 6.5
+  },
+  "CA_ROTOR9_KM": {
+   "count": 1052,
+   "index": 213,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "CA_ROTOR9_PX": {
+   "count": 1052,
+   "index": 214,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR9_PY": {
+   "count": 1052,
+   "index": 215,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR9_PZ": {
+   "count": 1052,
+   "index": 216,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_ROTOR_COUNT": {
+   "count": 1052,
+   "index": 217,
+   "type": 6,
+   "value": 4
+  },
+  "CA_R_REV": {
+   "count": 1052,
+   "index": 218,
+   "type": 6,
+   "value": 0
+  },
+  "CA_SV0_SLEW": {
+   "count": 1052,
+   "index": 219,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_SV1_SLEW": {
+   "count": 1052,
+   "index": 220,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_SV2_SLEW": {
+   "count": 1052,
+   "index": 221,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_SV3_SLEW": {
+   "count": 1052,
+   "index": 222,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_SV4_SLEW": {
+   "count": 1052,
+   "index": 223,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_SV5_SLEW": {
+   "count": 1052,
+   "index": 224,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_SV6_SLEW": {
+   "count": 1052,
+   "index": 225,
+   "type": 9,
+   "value": 0.0
+  },
+  "CA_SV7_SLEW": {
+   "count": 1052,
+   "index": 226,
+   "type": 9,
+   "value": 0.0
+  },
+  "CBRK_BUZZER": {
+   "count": 1052,
+   "index": 227,
+   "type": 6,
+   "value": 0
+  },
+  "CBRK_FLIGHTTERM": {
+   "count": 1052,
+   "index": 228,
+   "type": 6,
+   "value": 121212
+  },
+  "CBRK_IO_SAFETY": {
+   "count": 1052,
+   "index": 229,
+   "type": 6,
+   "value": 22027
+  },
+  "CBRK_SUPPLY_CHK": {
+   "count": 1052,
+   "index": 230,
+   "type": 6,
+   "value": 894281
+  },
+  "CBRK_USB_CHK": {
+   "count": 1052,
+   "index": 231,
+   "type": 6,
+   "value": 197848
+  },
+  "CBRK_VTOLARMING": {
+   "count": 1052,
+   "index": 232,
+   "type": 6,
+   "value": 0
+  },
+  "COM_ACT_FAIL_ACT": {
+   "count": 1052,
+   "index": 233,
+   "type": 6,
+   "value": 0
+  },
+  "COM_ARMABLE": {
+   "count": 1052,
+   "index": 234,
+   "type": 6,
+   "value": 1
+  },
+  "COM_ARM_AUTH_ID": {
+   "count": 1052,
+   "index": 235,
+   "type": 6,
+   "value": 10
+  },
+  "COM_ARM_AUTH_MET": {
+   "count": 1052,
+   "index": 236,
+   "type": 6,
+   "value": 0
+  },
+  "COM_ARM_AUTH_REQ": {
+   "count": 1052,
+   "index": 237,
+   "type": 6,
+   "value": 0
+  },
+  "COM_ARM_AUTH_TO": {
+   "count": 1052,
+   "index": 238,
+   "type": 9,
+   "value": 1.0
+  },
+  "COM_ARM_BAT_MIN": {
+   "count": 1052,
+   "index": 239,
+   "type": 9,
+   "value": -1.0
+  },
+  "COM_ARM_CHK_ESCS": {
+   "count": 1052,
+   "index": 240,
+   "type": 6,
+   "value": 0
+  },
+  "COM_ARM_HFLT_CHK": {
+   "count": 1052,
+   "index": 241,
+   "type": 6,
+   "value": 1
+  },
+  "COM_ARM_IMU_ACC": {
+   "count": 1052,
+   "index": 242,
+   "type": 9,
+   "value": 0.699999988079071
+  },
+  "COM_ARM_IMU_GYR": {
+   "count": 1052,
+   "index": 243,
+   "type": 9,
+   "value": 0.25
+  },
+  "COM_ARM_MAG_ANG": {
+   "count": 1052,
+   "index": 244,
+   "type": 6,
+   "value": 60
+  },
+  "COM_ARM_MAG_STR": {
+   "count": 1052,
+   "index": 245,
+   "type": 6,
+   "value": 2
+  },
+  "COM_ARM_MIS_REQ": {
+   "count": 1052,
+   "index": 246,
+   "type": 6,
+   "value": 0
+  },
+  "COM_ARM_ODID": {
+   "count": 1052,
+   "index": 247,
+   "type": 6,
+   "value": 0
+  },
+  "COM_ARM_SDCARD": {
+   "count": 1052,
+   "index": 248,
+   "type": 6,
+   "value": 0
+  },
+  "COM_ARM_SWISBTN": {
+   "count": 1052,
+   "index": 249,
+   "type": 6,
+   "value": 0
+  },
+  "COM_ARM_WO_GPS": {
+   "count": 1052,
+   "index": 250,
+   "type": 6,
+   "value": 1
+  },
+  "COM_CPU_MAX": {
+   "count": 1052,
+   "index": 251,
+   "type": 9,
+   "value": 95.0
+  },
+  "COM_DISARM_LAND": {
+   "count": 1052,
+   "index": 252,
+   "type": 9,
+   "value": 2.0
+  },
+  "COM_DISARM_MAN": {
+   "count": 1052,
+   "index": 253,
+   "type": 6,
+   "value": 1
+  },
+  "COM_DISARM_PRFLT": {
+   "count": 1052,
+   "index": 254,
+   "type": 9,
+   "value": 30.0
+  },
+  "COM_DLL_EXCEPT": {
+   "count": 1052,
+   "index": 255,
+   "type": 6,
+   "value": 0
+  },
+  "COM_DL_LOSS_T": {
+   "count": 1052,
+   "index": 256,
+   "type": 6,
+   "value": 10
+  },
+  "COM_FAIL_ACT_T": {
+   "count": 1052,
+   "index": 257,
+   "type": 9,
+   "value": 5.0
+  },
+  "COM_FLIGHT_UUID": {
+   "count": 1052,
+   "index": 258,
+   "type": 6,
+   "value": 0
+  },
+  "COM_FLTMODE1": {
+   "count": 1052,
+   "index": 259,
+   "type": 6,
+   "value": 8
+  },
+  "COM_FLTMODE2": {
+   "count": 1052,
+   "index": 260,
+   "type": 6,
+   "value": 8
+  },
+  "COM_FLTMODE3": {
+   "count": 1052,
+   "index": 261,
+   "type": 6,
+   "value": 1
+  },
+  "COM_FLTMODE4": {
+   "count": 1052,
+   "index": 262,
+   "type": 6,
+   "value": 1
+  },
+  "COM_FLTMODE5": {
+   "count": 1052,
+   "index": 263,
+   "type": 6,
+   "value": 2
+  },
+  "COM_FLTMODE6": {
+   "count": 1052,
+   "index": 264,
+   "type": 6,
+   "value": 2
+  },
+  "COM_FLTT_LOW_ACT": {
+   "count": 1052,
+   "index": 265,
+   "type": 6,
+   "value": 3
+  },
+  "COM_FLT_PROFILE": {
+   "count": 1052,
+   "index": 266,
+   "type": 6,
+   "value": 0
+  },
+  "COM_FLT_TIME_MAX": {
+   "count": 1052,
+   "index": 267,
+   "type": 6,
+   "value": -1
+  },
+  "COM_FORCE_SAFETY": {
+   "count": 1052,
+   "index": 268,
+   "type": 6,
+   "value": 0
+  },
+  "COM_HLDL_LOSS_T": {
+   "count": 1052,
+   "index": 269,
+   "type": 6,
+   "value": 120
+  },
+  "COM_HLDL_REG_T": {
+   "count": 1052,
+   "index": 270,
+   "type": 6,
+   "value": 0
+  },
+  "COM_HOME_EN": {
+   "count": 1052,
+   "index": 271,
+   "type": 6,
+   "value": 1
+  },
+  "COM_HOME_IN_AIR": {
+   "count": 1052,
+   "index": 272,
+   "type": 6,
+   "value": 0
+  },
+  "COM_IMB_PROP_ACT": {
+   "count": 1052,
+   "index": 273,
+   "type": 6,
+   "value": 0
+  },
+  "COM_KILL_DISARM": {
+   "count": 1052,
+   "index": 274,
+   "type": 9,
+   "value": 5.0
+  },
+  "COM_LKDOWN_TKO": {
+   "count": 1052,
+   "index": 275,
+   "type": 9,
+   "value": 3.0
+  },
+  "COM_LOW_BAT_ACT": {
+   "count": 1052,
+   "index": 276,
+   "type": 6,
+   "value": 0
+  },
+  "COM_MODE_ARM_CHK": {
+   "count": 1052,
+   "index": 277,
+   "type": 6,
+   "value": 1
+  },
+  "COM_MOT_TEST_EN": {
+   "count": 1052,
+   "index": 278,
+   "type": 6,
+   "value": 1
+  },
+  "COM_OBC_LOSS_T": {
+   "count": 1052,
+   "index": 279,
+   "type": 9,
+   "value": 5.0
+  },
+  "COM_OBL_RC_ACT": {
+   "count": 1052,
+   "index": 280,
+   "type": 6,
+   "value": 0
+  },
+  "COM_OF_LOSS_T": {
+   "count": 1052,
+   "index": 281,
+   "type": 9,
+   "value": 1.0
+  },
+  "COM_PARACHUTE": {
+   "count": 1052,
+   "index": 282,
+   "type": 6,
+   "value": 0
+  },
+  "COM_POSCTL_NAVL": {
+   "count": 1052,
+   "index": 283,
+   "type": 6,
+   "value": 0
+  },
+  "COM_POS_FS_EPH": {
+   "count": 1052,
+   "index": 284,
+   "type": 9,
+   "value": 5.0
+  },
+  "COM_POS_LOW_ACT": {
+   "count": 1052,
+   "index": 285,
+   "type": 6,
+   "value": 3
+  },
+  "COM_POS_LOW_EPH": {
+   "count": 1052,
+   "index": 286,
+   "type": 9,
+   "value": -1.0
+  },
+  "COM_POWER_COUNT": {
+   "count": 1052,
+   "index": 287,
+   "type": 6,
+   "value": 1
+  },
+  "COM_PREARM_MODE": {
+   "count": 1052,
+   "index": 288,
+   "type": 6,
+   "value": 0
+  },
+  "COM_QC_ACT": {
+   "count": 1052,
+   "index": 289,
+   "type": 6,
+   "value": 0
+  },
+  "COM_RAM_MAX": {
+   "count": 1052,
+   "index": 290,
+   "type": 9,
+   "value": 95.0
+  },
+  "COM_RCL_EXCEPT": {
+   "count": 1052,
+   "index": 291,
+   "type": 6,
+   "value": 4
+  },
+  "COM_RC_ARM_HYST": {
+   "count": 1052,
+   "index": 292,
+   "type": 6,
+   "value": 1000
+  },
+  "COM_RC_IN_MODE": {
+   "count": 1052,
+   "index": 293,
+   "type": 6,
+   "value": 0
+  },
+  "COM_RC_LOSS_T": {
+   "count": 1052,
+   "index": 294,
+   "type": 9,
+   "value": 0.5
+  },
+  "COM_RC_OVERRIDE": {
+   "count": 1052,
+   "index": 295,
+   "type": 6,
+   "value": 1
+  },
+  "COM_RC_STICK_OV": {
+   "count": 1052,
+   "index": 296,
+   "type": 9,
+   "value": 30.0
+  },
+  "COM_SPOOLUP_TIME": {
+   "count": 1052,
+   "index": 297,
+   "type": 9,
+   "value": 1.0
+  },
+  "COM_TAKEOFF_ACT": {
+   "count": 1052,
+   "index": 298,
+   "type": 6,
+   "value": 0
+  },
+  "COM_THROW_EN": {
+   "count": 1052,
+   "index": 299,
+   "type": 6,
+   "value": 0
+  },
+  "COM_THROW_SPEED": {
+   "count": 1052,
+   "index": 300,
+   "type": 9,
+   "value": 5.0
+  },
+  "COM_VEL_FS_EVH": {
+   "count": 1052,
+   "index": 301,
+   "type": 9,
+   "value": 1.0
+  },
+  "COM_WIND_MAX": {
+   "count": 1052,
+   "index": 302,
+   "type": 9,
+   "value": -1.0
+  },
+  "COM_WIND_MAX_ACT": {
+   "count": 1052,
+   "index": 303,
+   "type": 6,
+   "value": 0
+  },
+  "COM_WIND_WARN": {
+   "count": 1052,
+   "index": 304,
+   "type": 9,
+   "value": -1.0
+  },
+  "CP_DELAY": {
+   "count": 1052,
+   "index": 305,
+   "type": 9,
+   "value": 0.4000000059604645
+  },
+  "CP_DIST": {
+   "count": 1052,
+   "index": 306,
+   "type": 9,
+   "value": -1.0
+  },
+  "CP_GO_NO_DATA": {
+   "count": 1052,
+   "index": 307,
+   "type": 6,
+   "value": 0
+  },
+  "CP_GUIDE_ANG": {
+   "count": 1052,
+   "index": 308,
+   "type": 9,
+   "value": 30.0
+  },
+  "EKF2_ABIAS_INIT": {
+   "count": 1052,
+   "index": 309,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "EKF2_ABL_ACCLIM": {
+   "count": 1052,
+   "index": 310,
+   "type": 9,
+   "value": 25.0
+  },
+  "EKF2_ABL_GYRLIM": {
+   "count": 1052,
+   "index": 311,
+   "type": 9,
+   "value": 3.0
+  },
+  "EKF2_ABL_LIM": {
+   "count": 1052,
+   "index": 312,
+   "type": 9,
+   "value": 0.4000000059604645
+  },
+  "EKF2_ABL_TAU": {
+   "count": 1052,
+   "index": 313,
+   "type": 9,
+   "value": 0.5
+  },
+  "EKF2_ACC_B_NOISE": {
+   "count": 1052,
+   "index": 314,
+   "type": 9,
+   "value": 0.003000000026077032
+  },
+  "EKF2_ACC_NOISE": {
+   "count": 1052,
+   "index": 315,
+   "type": 9,
+   "value": 0.3499999940395355
+  },
+  "EKF2_AGP_CTRL": {
+   "count": 1052,
+   "index": 316,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_AGP_DELAY": {
+   "count": 1052,
+   "index": 317,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_AGP_GATE": {
+   "count": 1052,
+   "index": 318,
+   "type": 9,
+   "value": 3.0
+  },
+  "EKF2_AGP_NOISE": {
+   "count": 1052,
+   "index": 319,
+   "type": 9,
+   "value": 0.8999999761581421
+  },
+  "EKF2_ANGERR_INIT": {
+   "count": 1052,
+   "index": 320,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "EKF2_ARSP_THR": {
+   "count": 1052,
+   "index": 321,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_ASPD_MAX": {
+   "count": 1052,
+   "index": 322,
+   "type": 9,
+   "value": 20.0
+  },
+  "EKF2_ASP_DELAY": {
+   "count": 1052,
+   "index": 323,
+   "type": 9,
+   "value": 100.0
+  },
+  "EKF2_AVEL_DELAY": {
+   "count": 1052,
+   "index": 324,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_BARO_CTRL": {
+   "count": 1052,
+   "index": 325,
+   "type": 6,
+   "value": 1
+  },
+  "EKF2_BARO_DELAY": {
+   "count": 1052,
+   "index": 326,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_BARO_GATE": {
+   "count": 1052,
+   "index": 327,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_BARO_NOISE": {
+   "count": 1052,
+   "index": 328,
+   "type": 9,
+   "value": 3.5
+  },
+  "EKF2_BCOEF_X": {
+   "count": 1052,
+   "index": 329,
+   "type": 9,
+   "value": 100.0
+  },
+  "EKF2_BCOEF_Y": {
+   "count": 1052,
+   "index": 330,
+   "type": 9,
+   "value": 100.0
+  },
+  "EKF2_BETA_GATE": {
+   "count": 1052,
+   "index": 331,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_BETA_NOISE": {
+   "count": 1052,
+   "index": 332,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "EKF2_DECL_TYPE": {
+   "count": 1052,
+   "index": 333,
+   "type": 6,
+   "value": 3
+  },
+  "EKF2_DELAY_MAX": {
+   "count": 1052,
+   "index": 334,
+   "type": 9,
+   "value": 200.0
+  },
+  "EKF2_DRAG_CTRL": {
+   "count": 1052,
+   "index": 335,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_DRAG_NOISE": {
+   "count": 1052,
+   "index": 336,
+   "type": 9,
+   "value": 2.5
+  },
+  "EKF2_EAS_NOISE": {
+   "count": 1052,
+   "index": 337,
+   "type": 9,
+   "value": 1.399999976158142
+  },
+  "EKF2_EN": {
+   "count": 1052,
+   "index": 338,
+   "type": 6,
+   "value": 1
+  },
+  "EKF2_EVA_NOISE": {
+   "count": 1052,
+   "index": 339,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "EKF2_EVP_GATE": {
+   "count": 1052,
+   "index": 340,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_EVP_NOISE": {
+   "count": 1052,
+   "index": 341,
+   "type": 9,
+   "value": 0.15000000596046448
+  },
+  "EKF2_EVV_GATE": {
+   "count": 1052,
+   "index": 342,
+   "type": 9,
+   "value": 3.0
+  },
+  "EKF2_EVV_NOISE": {
+   "count": 1052,
+   "index": 343,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "EKF2_EV_CTRL": {
+   "count": 1052,
+   "index": 344,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_EV_DELAY": {
+   "count": 1052,
+   "index": 345,
+   "type": 9,
+   "value": 150.0
+  },
+  "EKF2_EV_NOISE_MD": {
+   "count": 1052,
+   "index": 346,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_EV_POS_X": {
+   "count": 1052,
+   "index": 347,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_EV_POS_Y": {
+   "count": 1052,
+   "index": 348,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_EV_POS_Z": {
+   "count": 1052,
+   "index": 349,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_EV_QMIN": {
+   "count": 1052,
+   "index": 350,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_FUSE_BETA": {
+   "count": 1052,
+   "index": 351,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_GBIAS_INIT": {
+   "count": 1052,
+   "index": 352,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "EKF2_GND_EFF_DZ": {
+   "count": 1052,
+   "index": 353,
+   "type": 9,
+   "value": 4.0
+  },
+  "EKF2_GND_MAX_HGT": {
+   "count": 1052,
+   "index": 354,
+   "type": 9,
+   "value": 0.5
+  },
+  "EKF2_GPS_CHECK": {
+   "count": 1052,
+   "index": 355,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_GPS_CTRL": {
+   "count": 1052,
+   "index": 356,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_GPS_DELAY": {
+   "count": 1052,
+   "index": 357,
+   "type": 9,
+   "value": 110.0
+  },
+  "EKF2_GPS_POS_X": {
+   "count": 1052,
+   "index": 358,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "EKF2_GPS_POS_Y": {
+   "count": 1052,
+   "index": 359,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_GPS_POS_Z": {
+   "count": 1052,
+   "index": 360,
+   "type": 9,
+   "value": 0.23000000417232513
+  },
+  "EKF2_GPS_P_GATE": {
+   "count": 1052,
+   "index": 361,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_GPS_P_NOISE": {
+   "count": 1052,
+   "index": 362,
+   "type": 9,
+   "value": 0.5
+  },
+  "EKF2_GPS_V_GATE": {
+   "count": 1052,
+   "index": 363,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_GPS_V_NOISE": {
+   "count": 1052,
+   "index": 364,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "EKF2_GPS_YAW_OFF": {
+   "count": 1052,
+   "index": 365,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_GRAV_NOISE": {
+   "count": 1052,
+   "index": 366,
+   "type": 9,
+   "value": 1.0
+  },
+  "EKF2_GSF_TAS": {
+   "count": 1052,
+   "index": 367,
+   "type": 9,
+   "value": 15.0
+  },
+  "EKF2_GYR_B_LIM": {
+   "count": 1052,
+   "index": 368,
+   "type": 9,
+   "value": 0.15000000596046448
+  },
+  "EKF2_GYR_B_NOISE": {
+   "count": 1052,
+   "index": 369,
+   "type": 9,
+   "value": 0.0010000000474974513
+  },
+  "EKF2_GYR_NOISE": {
+   "count": 1052,
+   "index": 370,
+   "type": 9,
+   "value": 0.014999999664723873
+  },
+  "EKF2_HDG_GATE": {
+   "count": 1052,
+   "index": 371,
+   "type": 9,
+   "value": 2.5999999046325684
+  },
+  "EKF2_HEAD_NOISE": {
+   "count": 1052,
+   "index": 372,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "EKF2_HGT_REF": {
+   "count": 1052,
+   "index": 373,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_IMU_CTRL": {
+   "count": 1052,
+   "index": 374,
+   "type": 6,
+   "value": 7
+  },
+  "EKF2_IMU_POS_X": {
+   "count": 1052,
+   "index": 375,
+   "type": 9,
+   "value": -0.05000000074505806
+  },
+  "EKF2_IMU_POS_Y": {
+   "count": 1052,
+   "index": 376,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_IMU_POS_Z": {
+   "count": 1052,
+   "index": 377,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_LOG_VERBOSE": {
+   "count": 1052,
+   "index": 378,
+   "type": 6,
+   "value": 1
+  },
+  "EKF2_MAG_ACCLIM": {
+   "count": 1052,
+   "index": 379,
+   "type": 9,
+   "value": 0.5
+  },
+  "EKF2_MAG_B_NOISE": {
+   "count": 1052,
+   "index": 380,
+   "type": 9,
+   "value": 9.999999747378752e-05
+  },
+  "EKF2_MAG_CHECK": {
+   "count": 1052,
+   "index": 381,
+   "type": 6,
+   "value": 1
+  },
+  "EKF2_MAG_CHK_INC": {
+   "count": 1052,
+   "index": 382,
+   "type": 9,
+   "value": 20.0
+  },
+  "EKF2_MAG_CHK_STR": {
+   "count": 1052,
+   "index": 383,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "EKF2_MAG_DECL": {
+   "count": 1052,
+   "index": 384,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_MAG_DELAY": {
+   "count": 1052,
+   "index": 385,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_MAG_E_NOISE": {
+   "count": 1052,
+   "index": 386,
+   "type": 9,
+   "value": 0.0010000000474974513
+  },
+  "EKF2_MAG_GATE": {
+   "count": 1052,
+   "index": 387,
+   "type": 9,
+   "value": 3.0
+  },
+  "EKF2_MAG_NOISE": {
+   "count": 1052,
+   "index": 388,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "EKF2_MAG_TYPE": {
+   "count": 1052,
+   "index": 389,
+   "type": 6,
+   "value": 5
+  },
+  "EKF2_MCOEF": {
+   "count": 1052,
+   "index": 390,
+   "type": 9,
+   "value": 0.15000000596046448
+  },
+  "EKF2_MIN_RNG": {
+   "count": 1052,
+   "index": 391,
+   "type": 9,
+   "value": 0.009999999776482582
+  },
+  "EKF2_MULTI_IMU": {
+   "count": 1052,
+   "index": 392,
+   "type": 6,
+   "value": 3
+  },
+  "EKF2_NOAID_NOISE": {
+   "count": 1052,
+   "index": 393,
+   "type": 9,
+   "value": 10.0
+  },
+  "EKF2_NOAID_TOUT": {
+   "count": 1052,
+   "index": 394,
+   "type": 6,
+   "value": 5000000
+  },
+  "EKF2_OF_CTRL": {
+   "count": 1052,
+   "index": 395,
+   "type": 6,
+   "value": 1
+  },
+  "EKF2_OF_DELAY": {
+   "count": 1052,
+   "index": 396,
+   "type": 9,
+   "value": 20.0
+  },
+  "EKF2_OF_GATE": {
+   "count": 1052,
+   "index": 397,
+   "type": 9,
+   "value": 3.0
+  },
+  "EKF2_OF_GYR_SRC": {
+   "count": 1052,
+   "index": 398,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_OF_N_MAX": {
+   "count": 1052,
+   "index": 399,
+   "type": 9,
+   "value": 0.5
+  },
+  "EKF2_OF_N_MIN": {
+   "count": 1052,
+   "index": 400,
+   "type": 9,
+   "value": 0.15000000596046448
+  },
+  "EKF2_OF_POS_X": {
+   "count": 1052,
+   "index": 401,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "EKF2_OF_POS_Y": {
+   "count": 1052,
+   "index": 402,
+   "type": 9,
+   "value": -0.029999999329447746
+  },
+  "EKF2_OF_POS_Z": {
+   "count": 1052,
+   "index": 403,
+   "type": 9,
+   "value": 0.029999999329447746
+  },
+  "EKF2_OF_QMIN": {
+   "count": 1052,
+   "index": 404,
+   "type": 6,
+   "value": 1
+  },
+  "EKF2_OF_QMIN_GND": {
+   "count": 1052,
+   "index": 405,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_PCOEF_XN": {
+   "count": 1052,
+   "index": 406,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_PCOEF_XP": {
+   "count": 1052,
+   "index": 407,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_PCOEF_YN": {
+   "count": 1052,
+   "index": 408,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_PCOEF_YP": {
+   "count": 1052,
+   "index": 409,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_PCOEF_Z": {
+   "count": 1052,
+   "index": 410,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_PREDICT_US": {
+   "count": 1052,
+   "index": 411,
+   "type": 6,
+   "value": 10000
+  },
+  "EKF2_REQ_EPH": {
+   "count": 1052,
+   "index": 412,
+   "type": 9,
+   "value": 3.0
+  },
+  "EKF2_REQ_EPV": {
+   "count": 1052,
+   "index": 413,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_REQ_GPS_H": {
+   "count": 1052,
+   "index": 414,
+   "type": 9,
+   "value": 10.0
+  },
+  "EKF2_REQ_HDRIFT": {
+   "count": 1052,
+   "index": 415,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "EKF2_REQ_NSATS": {
+   "count": 1052,
+   "index": 416,
+   "type": 6,
+   "value": 6
+  },
+  "EKF2_REQ_PDOP": {
+   "count": 1052,
+   "index": 417,
+   "type": 9,
+   "value": 2.5
+  },
+  "EKF2_REQ_SACC": {
+   "count": 1052,
+   "index": 418,
+   "type": 9,
+   "value": 0.5
+  },
+  "EKF2_REQ_VDRIFT": {
+   "count": 1052,
+   "index": 419,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "EKF2_RNG_A_HMAX": {
+   "count": 1052,
+   "index": 420,
+   "type": 9,
+   "value": 10.0
+  },
+  "EKF2_RNG_A_IGATE": {
+   "count": 1052,
+   "index": 421,
+   "type": 9,
+   "value": 1.0
+  },
+  "EKF2_RNG_A_VMAX": {
+   "count": 1052,
+   "index": 422,
+   "type": 9,
+   "value": 1.0
+  },
+  "EKF2_RNG_CTRL": {
+   "count": 1052,
+   "index": 423,
+   "type": 6,
+   "value": 2
+  },
+  "EKF2_RNG_DELAY": {
+   "count": 1052,
+   "index": 424,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_RNG_FOG": {
+   "count": 1052,
+   "index": 425,
+   "type": 9,
+   "value": 1.0
+  },
+  "EKF2_RNG_GATE": {
+   "count": 1052,
+   "index": 426,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_RNG_K_GATE": {
+   "count": 1052,
+   "index": 427,
+   "type": 9,
+   "value": 1.0
+  },
+  "EKF2_RNG_NOISE": {
+   "count": 1052,
+   "index": 428,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "EKF2_RNG_PITCH": {
+   "count": 1052,
+   "index": 429,
+   "type": 9,
+   "value": 0.0
+  },
+  "EKF2_RNG_POS_X": {
+   "count": 1052,
+   "index": 430,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "EKF2_RNG_POS_Y": {
+   "count": 1052,
+   "index": 431,
+   "type": 9,
+   "value": -0.029999999329447746
+  },
+  "EKF2_RNG_POS_Z": {
+   "count": 1052,
+   "index": 432,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "EKF2_RNG_QLTY_T": {
+   "count": 1052,
+   "index": 433,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "EKF2_RNG_SFE": {
+   "count": 1052,
+   "index": 434,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "EKF2_SEL_ERR_RED": {
+   "count": 1052,
+   "index": 435,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "EKF2_SEL_IMU_ACC": {
+   "count": 1052,
+   "index": 436,
+   "type": 9,
+   "value": 1.0
+  },
+  "EKF2_SEL_IMU_ANG": {
+   "count": 1052,
+   "index": 437,
+   "type": 9,
+   "value": 15.0
+  },
+  "EKF2_SEL_IMU_RAT": {
+   "count": 1052,
+   "index": 438,
+   "type": 9,
+   "value": 7.0
+  },
+  "EKF2_SEL_IMU_VEL": {
+   "count": 1052,
+   "index": 439,
+   "type": 9,
+   "value": 2.0
+  },
+  "EKF2_SYNT_MAG_Z": {
+   "count": 1052,
+   "index": 440,
+   "type": 6,
+   "value": 0
+  },
+  "EKF2_TAS_GATE": {
+   "count": 1052,
+   "index": 441,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_TAU_POS": {
+   "count": 1052,
+   "index": 442,
+   "type": 9,
+   "value": 0.25
+  },
+  "EKF2_TAU_VEL": {
+   "count": 1052,
+   "index": 443,
+   "type": 9,
+   "value": 0.25
+  },
+  "EKF2_TERR_GRAD": {
+   "count": 1052,
+   "index": 444,
+   "type": 9,
+   "value": 0.5
+  },
+  "EKF2_TERR_NOISE": {
+   "count": 1052,
+   "index": 445,
+   "type": 9,
+   "value": 5.0
+  },
+  "EKF2_VEL_LIM": {
+   "count": 1052,
+   "index": 446,
+   "type": 9,
+   "value": 100.0
+  },
+  "EKF2_WIND_NSD": {
+   "count": 1052,
+   "index": 447,
+   "type": 9,
+   "value": 0.05000000074505806
+  },
+  "EV_TSK_RC_LOSS": {
+   "count": 1052,
+   "index": 448,
+   "type": 6,
+   "value": 0
+  },
+  "EV_TSK_STAT_DIS": {
+   "count": 1052,
+   "index": 449,
+   "type": 6,
+   "value": 0
+  },
+  "FD_ACT_EN": {
+   "count": 1052,
+   "index": 450,
+   "type": 6,
+   "value": 1
+  },
+  "FD_ACT_MOT_C2T": {
+   "count": 1052,
+   "index": 451,
+   "type": 9,
+   "value": 2.0
+  },
+  "FD_ACT_MOT_THR": {
+   "count": 1052,
+   "index": 452,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "FD_ACT_MOT_TOUT": {
+   "count": 1052,
+   "index": 453,
+   "type": 6,
+   "value": 100
+  },
+  "FD_ESCS_EN": {
+   "count": 1052,
+   "index": 454,
+   "type": 6,
+   "value": 1
+  },
+  "FD_EXT_ATS_EN": {
+   "count": 1052,
+   "index": 455,
+   "type": 6,
+   "value": 0
+  },
+  "FD_EXT_ATS_TRIG": {
+   "count": 1052,
+   "index": 456,
+   "type": 6,
+   "value": 1900
+  },
+  "FD_FAIL_P": {
+   "count": 1052,
+   "index": 457,
+   "type": 6,
+   "value": 60
+  },
+  "FD_FAIL_P_TTRI": {
+   "count": 1052,
+   "index": 458,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "FD_FAIL_R": {
+   "count": 1052,
+   "index": 459,
+   "type": 6,
+   "value": 60
+  },
+  "FD_FAIL_R_TTRI": {
+   "count": 1052,
+   "index": 460,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "FD_IMB_PROP_THR": {
+   "count": 1052,
+   "index": 461,
+   "type": 6,
+   "value": 30
+  },
+  "FLW_TGT_ALT_M": {
+   "count": 1052,
+   "index": 462,
+   "type": 6,
+   "value": 0
+  },
+  "FLW_TGT_DST": {
+   "count": 1052,
+   "index": 463,
+   "type": 9,
+   "value": 8.0
+  },
+  "FLW_TGT_FA": {
+   "count": 1052,
+   "index": 464,
+   "type": 9,
+   "value": 180.0
+  },
+  "FLW_TGT_HT": {
+   "count": 1052,
+   "index": 465,
+   "type": 9,
+   "value": 8.0
+  },
+  "FLW_TGT_MAX_VEL": {
+   "count": 1052,
+   "index": 466,
+   "type": 9,
+   "value": 5.0
+  },
+  "FLW_TGT_RS": {
+   "count": 1052,
+   "index": 467,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "FW_AIRSPD_MAX": {
+   "count": 1052,
+   "index": 468,
+   "type": 9,
+   "value": 20.0
+  },
+  "FW_AIRSPD_TRIM": {
+   "count": 1052,
+   "index": 469,
+   "type": 9,
+   "value": 15.0
+  },
+  "FW_PSP_OFF": {
+   "count": 1052,
+   "index": 470,
+   "type": 9,
+   "value": 0.0
+  },
+  "FW_T_CLMB_R_SP": {
+   "count": 1052,
+   "index": 471,
+   "type": 9,
+   "value": 3.0
+  },
+  "FW_T_SINK_R_SP": {
+   "count": 1052,
+   "index": 472,
+   "type": 9,
+   "value": 2.0
+  },
+  "GF_ACTION": {
+   "count": 1052,
+   "index": 473,
+   "type": 6,
+   "value": 2
+  },
+  "GF_MAX_HOR_DIST": {
+   "count": 1052,
+   "index": 474,
+   "type": 9,
+   "value": 0.0
+  },
+  "GF_MAX_VER_DIST": {
+   "count": 1052,
+   "index": 475,
+   "type": 9,
+   "value": 0.0
+  },
+  "GF_PREDICT": {
+   "count": 1052,
+   "index": 476,
+   "type": 6,
+   "value": 0
+  },
+  "GF_SOURCE": {
+   "count": 1052,
+   "index": 477,
+   "type": 6,
+   "value": 0
+  },
+  "GND_SPEED_THR_SC": {
+   "count": 1052,
+   "index": 478,
+   "type": 9,
+   "value": 1.0
+  },
+  "GPS_1_GNSS": {
+   "count": 1052,
+   "index": 479,
+   "type": 6,
+   "value": 0
+  },
+  "GPS_1_PROTOCOL": {
+   "count": 1052,
+   "index": 480,
+   "type": 6,
+   "value": 1
+  },
+  "GPS_DUMP_COMM": {
+   "count": 1052,
+   "index": 481,
+   "type": 6,
+   "value": 0
+  },
+  "GPS_SAT_INFO": {
+   "count": 1052,
+   "index": 482,
+   "type": 6,
+   "value": 0
+  },
+  "GPS_UBX_BAUD2": {
+   "count": 1052,
+   "index": 483,
+   "type": 6,
+   "value": 230400
+  },
+  "GPS_UBX_CFG_INTF": {
+   "count": 1052,
+   "index": 484,
+   "type": 6,
+   "value": 0
+  },
+  "GPS_UBX_DYNMODEL": {
+   "count": 1052,
+   "index": 485,
+   "type": 6,
+   "value": 7
+  },
+  "GPS_UBX_MODE": {
+   "count": 1052,
+   "index": 486,
+   "type": 6,
+   "value": 0
+  },
+  "GPS_YAW_OFFSET": {
+   "count": 1052,
+   "index": 487,
+   "type": 9,
+   "value": 0.0
+  },
+  "HTE_ACC_GATE": {
+   "count": 1052,
+   "index": 488,
+   "type": 9,
+   "value": 3.0
+  },
+  "HTE_HT_ERR_INIT": {
+   "count": 1052,
+   "index": 489,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "HTE_HT_NOISE": {
+   "count": 1052,
+   "index": 490,
+   "type": 9,
+   "value": 0.003599999938160181
+  },
+  "HTE_THR_RANGE": {
+   "count": 1052,
+   "index": 491,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "HTE_VXY_THR": {
+   "count": 1052,
+   "index": 492,
+   "type": 9,
+   "value": 10.0
+  },
+  "HTE_VZ_THR": {
+   "count": 1052,
+   "index": 493,
+   "type": 9,
+   "value": 2.0
+  },
+  "IMU_ACCEL_CUTOFF": {
+   "count": 1052,
+   "index": 494,
+   "type": 9,
+   "value": 30.0
+  },
+  "IMU_DGYRO_CUTOFF": {
+   "count": 1052,
+   "index": 495,
+   "type": 9,
+   "value": 20.0
+  },
+  "IMU_GYRO_CAL_EN": {
+   "count": 1052,
+   "index": 496,
+   "type": 6,
+   "value": 1
+  },
+  "IMU_GYRO_CUTOFF": {
+   "count": 1052,
+   "index": 497,
+   "type": 9,
+   "value": 40.0
+  },
+  "IMU_GYRO_DNF_BW": {
+   "count": 1052,
+   "index": 498,
+   "type": 9,
+   "value": 15.0
+  },
+  "IMU_GYRO_DNF_EN": {
+   "count": 1052,
+   "index": 499,
+   "type": 6,
+   "value": 0
+  },
+  "IMU_GYRO_DNF_HMC": {
+   "count": 1052,
+   "index": 500,
+   "type": 6,
+   "value": 3
+  },
+  "IMU_GYRO_DNF_MIN": {
+   "count": 1052,
+   "index": 501,
+   "type": 9,
+   "value": 25.0
+  },
+  "IMU_GYRO_FFT_EN": {
+   "count": 1052,
+   "index": 502,
+   "type": 6,
+   "value": 1
+  },
+  "IMU_GYRO_FFT_LEN": {
+   "count": 1052,
+   "index": 503,
+   "type": 6,
+   "value": 512
+  },
+  "IMU_GYRO_FFT_MAX": {
+   "count": 1052,
+   "index": 504,
+   "type": 9,
+   "value": 150.0
+  },
+  "IMU_GYRO_FFT_MIN": {
+   "count": 1052,
+   "index": 505,
+   "type": 9,
+   "value": 30.0
+  },
+  "IMU_GYRO_FFT_SNR": {
+   "count": 1052,
+   "index": 506,
+   "type": 9,
+   "value": 10.0
+  },
+  "IMU_GYRO_NF0_BW": {
+   "count": 1052,
+   "index": 507,
+   "type": 9,
+   "value": 20.0
+  },
+  "IMU_GYRO_NF0_FRQ": {
+   "count": 1052,
+   "index": 508,
+   "type": 9,
+   "value": 0.0
+  },
+  "IMU_GYRO_NF1_BW": {
+   "count": 1052,
+   "index": 509,
+   "type": 9,
+   "value": 20.0
+  },
+  "IMU_GYRO_NF1_FRQ": {
+   "count": 1052,
+   "index": 510,
+   "type": 9,
+   "value": 0.0
+  },
+  "IMU_GYRO_RATEMAX": {
+   "count": 1052,
+   "index": 511,
+   "type": 6,
+   "value": 800
+  },
+  "IMU_INTEG_RATE": {
+   "count": 1052,
+   "index": 512,
+   "type": 6,
+   "value": 250
+  },
+  "LNDMC_ALT_GND": {
+   "count": 1052,
+   "index": 513,
+   "type": 9,
+   "value": 2.0
+  },
+  "LNDMC_ROT_MAX": {
+   "count": 1052,
+   "index": 514,
+   "type": 9,
+   "value": 20.0
+  },
+  "LNDMC_TRIG_TIME": {
+   "count": 1052,
+   "index": 515,
+   "type": 9,
+   "value": 1.0
+  },
+  "LNDMC_XY_VEL_MAX": {
+   "count": 1052,
+   "index": 516,
+   "type": 9,
+   "value": 1.5
+  },
+  "LNDMC_Z_VEL_MAX": {
+   "count": 1052,
+   "index": 517,
+   "type": 9,
+   "value": 0.25
+  },
+  "LND_FLIGHT_T_HI": {
+   "count": 1052,
+   "index": 518,
+   "type": 6,
+   "value": 0
+  },
+  "LND_FLIGHT_T_LO": {
+   "count": 1052,
+   "index": 519,
+   "type": 6,
+   "value": 0
+  },
+  "LPE_EN": {
+   "count": 1052,
+   "index": 520,
+   "type": 6,
+   "value": 0
+  },
+  "MAN_ARM_GESTURE": {
+   "count": 1052,
+   "index": 521,
+   "type": 6,
+   "value": 0
+  },
+  "MAN_KILL_GEST_T": {
+   "count": 1052,
+   "index": 522,
+   "type": 9,
+   "value": -1.0
+  },
+  "MAV_0_FLOW_CTRL": {
+   "count": 1052,
+   "index": 523,
+   "type": 6,
+   "value": 2
+  },
+  "MAV_0_FORWARD": {
+   "count": 1052,
+   "index": 524,
+   "type": 6,
+   "value": 1
+  },
+  "MAV_0_MODE": {
+   "count": 1052,
+   "index": 525,
+   "type": 6,
+   "value": 2
+  },
+  "MAV_0_RADIO_CTL": {
+   "count": 1052,
+   "index": 526,
+   "type": 6,
+   "value": 1
+  },
+  "MAV_0_RATE": {
+   "count": 1052,
+   "index": 527,
+   "type": 6,
+   "value": 0
+  },
+  "MAV_2_FLOW_CTRL": {
+   "count": 1052,
+   "index": 528,
+   "type": 6,
+   "value": 2
+  },
+  "MAV_2_FORWARD": {
+   "count": 1052,
+   "index": 529,
+   "type": 6,
+   "value": 0
+  },
+  "MAV_2_MODE": {
+   "count": 1052,
+   "index": 530,
+   "type": 6,
+   "value": 0
+  },
+  "MAV_2_RADIO_CTL": {
+   "count": 1052,
+   "index": 531,
+   "type": 6,
+   "value": 1
+  },
+  "MAV_2_RATE": {
+   "count": 1052,
+   "index": 532,
+   "type": 6,
+   "value": 0
+  },
+  "MAV_COMP_ID": {
+   "count": 1052,
+   "index": 533,
+   "type": 6,
+   "value": 1
+  },
+  "MAV_FWDEXTSP": {
+   "count": 1052,
+   "index": 534,
+   "type": 6,
+   "value": 1
+  },
+  "MAV_HASH_CHK_EN": {
+   "count": 1052,
+   "index": 535,
+   "type": 6,
+   "value": 1
+  },
+  "MAV_HB_FORW_EN": {
+   "count": 1052,
+   "index": 536,
+   "type": 6,
+   "value": 1
+  },
+  "MAV_PROTO_VER": {
+   "count": 1052,
+   "index": 537,
+   "type": 6,
+   "value": 2
+  },
+  "MAV_RADIO_TOUT": {
+   "count": 1052,
+   "index": 538,
+   "type": 6,
+   "value": 5
+  },
+  "MAV_SIK_RADIO_ID": {
+   "count": 1052,
+   "index": 539,
+   "type": 6,
+   "value": 0
+  },
+  "MAV_SYS_ID": {
+   "count": 1052,
+   "index": 540,
+   "type": 6,
+   "value": 1
+  },
+  "MAV_TYPE": {
+   "count": 1052,
+   "index": 541,
+   "type": 6,
+   "value": 2
+  },
+  "MAV_USEHILGPS": {
+   "count": 1052,
+   "index": 542,
+   "type": 6,
+   "value": 0
+  },
+  "MBE_ENABLE": {
+   "count": 1052,
+   "index": 543,
+   "type": 6,
+   "value": 1
+  },
+  "MBE_LEARN_GAIN": {
+   "count": 1052,
+   "index": 544,
+   "type": 9,
+   "value": 18.0
+  },
+  "MC_ACRO_EXPO": {
+   "count": 1052,
+   "index": 545,
+   "type": 9,
+   "value": 0.0
+  },
+  "MC_ACRO_EXPO_Y": {
+   "count": 1052,
+   "index": 546,
+   "type": 9,
+   "value": 0.0
+  },
+  "MC_ACRO_P_MAX": {
+   "count": 1052,
+   "index": 547,
+   "type": 9,
+   "value": 100.0
+  },
+  "MC_ACRO_R_MAX": {
+   "count": 1052,
+   "index": 548,
+   "type": 9,
+   "value": 100.0
+  },
+  "MC_ACRO_SUPEXPO": {
+   "count": 1052,
+   "index": 549,
+   "type": 9,
+   "value": 0.0
+  },
+  "MC_ACRO_SUPEXPOY": {
+   "count": 1052,
+   "index": 550,
+   "type": 9,
+   "value": 0.0
+  },
+  "MC_ACRO_Y_MAX": {
+   "count": 1052,
+   "index": 551,
+   "type": 9,
+   "value": 100.0
+  },
+  "MC_AIRMODE": {
+   "count": 1052,
+   "index": 552,
+   "type": 6,
+   "value": 0
+  },
+  "MC_AT_APPLY": {
+   "count": 1052,
+   "index": 553,
+   "type": 6,
+   "value": 1
+  },
+  "MC_AT_EN": {
+   "count": 1052,
+   "index": 554,
+   "type": 6,
+   "value": 1
+  },
+  "MC_AT_RISE_TIME": {
+   "count": 1052,
+   "index": 555,
+   "type": 9,
+   "value": 0.14000000059604645
+  },
+  "MC_AT_START": {
+   "count": 1052,
+   "index": 556,
+   "type": 6,
+   "value": 0
+  },
+  "MC_AT_SYSID_AMP": {
+   "count": 1052,
+   "index": 557,
+   "type": 9,
+   "value": 0.699999988079071
+  },
+  "MC_BAT_SCALE_EN": {
+   "count": 1052,
+   "index": 558,
+   "type": 6,
+   "value": 0
+  },
+  "MC_MAN_TILT_TAU": {
+   "count": 1052,
+   "index": 559,
+   "type": 9,
+   "value": 0.0
+  },
+  "MC_ORBIT_RAD_MAX": {
+   "count": 1052,
+   "index": 560,
+   "type": 9,
+   "value": 1000.0
+  },
+  "MC_ORBIT_YAW_MOD": {
+   "count": 1052,
+   "index": 561,
+   "type": 6,
+   "value": 0
+  },
+  "MC_PITCHRATE_D": {
+   "count": 1052,
+   "index": 562,
+   "type": 9,
+   "value": 0.005097326822578907
+  },
+  "MC_PITCHRATE_FF": {
+   "count": 1052,
+   "index": 563,
+   "type": 9,
+   "value": 0.0
+  },
+  "MC_PITCHRATE_I": {
+   "count": 1052,
+   "index": 564,
+   "type": 9,
+   "value": 0.2665860950946808
+  },
+  "MC_PITCHRATE_K": {
+   "count": 1052,
+   "index": 565,
+   "type": 9,
+   "value": 0.5
+  },
+  "MC_PITCHRATE_MAX": {
+   "count": 1052,
+   "index": 566,
+   "type": 9,
+   "value": 220.0
+  },
+  "MC_PITCHRATE_P": {
+   "count": 1052,
+   "index": 567,
+   "type": 9,
+   "value": 0.2050677239894867
+  },
+  "MC_PITCH_P": {
+   "count": 1052,
+   "index": 568,
+   "type": 9,
+   "value": 4.6566548347473145
+  },
+  "MC_PR_INT_LIM": {
+   "count": 1052,
+   "index": 569,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MC_ROLLRATE_D": {
+   "count": 1052,
+   "index": 570,
+   "type": 9,
+   "value": 0.004999999888241291
+  },
+  "MC_ROLLRATE_FF": {
+   "count": 1052,
+   "index": 571,
+   "type": 9,
+   "value": 0.0
+  },
+  "MC_ROLLRATE_I": {
+   "count": 1052,
+   "index": 572,
+   "type": 9,
+   "value": 0.2618940472602844
+  },
+  "MC_ROLLRATE_K": {
+   "count": 1052,
+   "index": 573,
+   "type": 9,
+   "value": 0.5
+  },
+  "MC_ROLLRATE_MAX": {
+   "count": 1052,
+   "index": 574,
+   "type": 9,
+   "value": 220.0
+  },
+  "MC_ROLLRATE_P": {
+   "count": 1052,
+   "index": 575,
+   "type": 9,
+   "value": 0.2122001349925995
+  },
+  "MC_ROLL_P": {
+   "count": 1052,
+   "index": 576,
+   "type": 9,
+   "value": 4.500136852264404
+  },
+  "MC_RR_INT_LIM": {
+   "count": 1052,
+   "index": 577,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MC_SLOW_DEF_HVEL": {
+   "count": 1052,
+   "index": 578,
+   "type": 9,
+   "value": 3.0
+  },
+  "MC_SLOW_DEF_VVEL": {
+   "count": 1052,
+   "index": 579,
+   "type": 9,
+   "value": 1.0
+  },
+  "MC_SLOW_DEF_YAWR": {
+   "count": 1052,
+   "index": 580,
+   "type": 9,
+   "value": 45.0
+  },
+  "MC_SLOW_MAP_HVEL": {
+   "count": 1052,
+   "index": 581,
+   "type": 6,
+   "value": 0
+  },
+  "MC_SLOW_MAP_PTCH": {
+   "count": 1052,
+   "index": 582,
+   "type": 6,
+   "value": 0
+  },
+  "MC_SLOW_MAP_VVEL": {
+   "count": 1052,
+   "index": 583,
+   "type": 6,
+   "value": 0
+  },
+  "MC_SLOW_MAP_YAWR": {
+   "count": 1052,
+   "index": 584,
+   "type": 6,
+   "value": 0
+  },
+  "MC_SLOW_MIN_HVEL": {
+   "count": 1052,
+   "index": 585,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MC_SLOW_MIN_VVEL": {
+   "count": 1052,
+   "index": 586,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MC_SLOW_MIN_YAWR": {
+   "count": 1052,
+   "index": 587,
+   "type": 9,
+   "value": 3.0
+  },
+  "MC_YAWRATE_D": {
+   "count": 1052,
+   "index": 588,
+   "type": 9,
+   "value": 0.003355817636474967
+  },
+  "MC_YAWRATE_FF": {
+   "count": 1052,
+   "index": 589,
+   "type": 9,
+   "value": 0.0
+  },
+  "MC_YAWRATE_I": {
+   "count": 1052,
+   "index": 590,
+   "type": 9,
+   "value": 0.19369612634181976
+  },
+  "MC_YAWRATE_K": {
+   "count": 1052,
+   "index": 591,
+   "type": 9,
+   "value": 0.5
+  },
+  "MC_YAWRATE_MAX": {
+   "count": 1052,
+   "index": 592,
+   "type": 9,
+   "value": 200.0
+  },
+  "MC_YAWRATE_P": {
+   "count": 1052,
+   "index": 593,
+   "type": 9,
+   "value": 0.18581053614616394
+  },
+  "MC_YAW_P": {
+   "count": 1052,
+   "index": 594,
+   "type": 9,
+   "value": 5.0
+  },
+  "MC_YAW_TQ_CUTOFF": {
+   "count": 1052,
+   "index": 595,
+   "type": 9,
+   "value": 2.0
+  },
+  "MC_YAW_WEIGHT": {
+   "count": 1052,
+   "index": 596,
+   "type": 9,
+   "value": 0.4000000059604645
+  },
+  "MC_YR_INT_LIM": {
+   "count": 1052,
+   "index": 597,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MIS_COMMAND_TOUT": {
+   "count": 1052,
+   "index": 598,
+   "type": 9,
+   "value": 0.0
+  },
+  "MIS_LND_ABRT_ALT": {
+   "count": 1052,
+   "index": 599,
+   "type": 6,
+   "value": 30
+  },
+  "MIS_MNT_YAW_CTL": {
+   "count": 1052,
+   "index": 600,
+   "type": 6,
+   "value": 0
+  },
+  "MIS_TAKEOFF_ALT": {
+   "count": 1052,
+   "index": 601,
+   "type": 9,
+   "value": 2.5
+  },
+  "MIS_YAW_ERR": {
+   "count": 1052,
+   "index": 602,
+   "type": 9,
+   "value": 12.0
+  },
+  "MIS_YAW_TMT": {
+   "count": 1052,
+   "index": 603,
+   "type": 9,
+   "value": -1.0
+  },
+  "MNT_MODE_IN": {
+   "count": 1052,
+   "index": 604,
+   "type": 6,
+   "value": -1
+  },
+  "MNT_MODE_OUT": {
+   "count": 1052,
+   "index": 605,
+   "type": 6,
+   "value": 0
+  },
+  "MNT_RANGE_PITCH": {
+   "count": 1052,
+   "index": 606,
+   "type": 9,
+   "value": 90.0
+  },
+  "MNT_RANGE_ROLL": {
+   "count": 1052,
+   "index": 607,
+   "type": 9,
+   "value": 90.0
+  },
+  "MNT_RANGE_YAW": {
+   "count": 1052,
+   "index": 608,
+   "type": 9,
+   "value": 360.0
+  },
+  "MPC_ACC_DECOUPLE": {
+   "count": 1052,
+   "index": 609,
+   "type": 6,
+   "value": 1
+  },
+  "MPC_ACC_DOWN_MAX": {
+   "count": 1052,
+   "index": 610,
+   "type": 9,
+   "value": 3.0
+  },
+  "MPC_ACC_HOR": {
+   "count": 1052,
+   "index": 611,
+   "type": 9,
+   "value": 1.0
+  },
+  "MPC_ACC_HOR_MAX": {
+   "count": 1052,
+   "index": 612,
+   "type": 9,
+   "value": 5.0
+  },
+  "MPC_ACC_UP_MAX": {
+   "count": 1052,
+   "index": 613,
+   "type": 9,
+   "value": 4.0
+  },
+  "MPC_ALT_MODE": {
+   "count": 1052,
+   "index": 614,
+   "type": 6,
+   "value": 2
+  },
+  "MPC_HOLD_DZ": {
+   "count": 1052,
+   "index": 615,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "MPC_HOLD_MAX_XY": {
+   "count": 1052,
+   "index": 616,
+   "type": 9,
+   "value": 0.800000011920929
+  },
+  "MPC_HOLD_MAX_Z": {
+   "count": 1052,
+   "index": 617,
+   "type": 9,
+   "value": 0.6000000238418579
+  },
+  "MPC_JERK_AUTO": {
+   "count": 1052,
+   "index": 618,
+   "type": 9,
+   "value": 4.840000152587891
+  },
+  "MPC_JERK_MAX": {
+   "count": 1052,
+   "index": 619,
+   "type": 9,
+   "value": 1.5
+  },
+  "MPC_LAND_ALT1": {
+   "count": 1052,
+   "index": 620,
+   "type": 9,
+   "value": 10.0
+  },
+  "MPC_LAND_ALT2": {
+   "count": 1052,
+   "index": 621,
+   "type": 9,
+   "value": 5.0
+  },
+  "MPC_LAND_ALT3": {
+   "count": 1052,
+   "index": 622,
+   "type": 9,
+   "value": 1.0
+  },
+  "MPC_LAND_CRWL": {
+   "count": 1052,
+   "index": 623,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MPC_LAND_RADIUS": {
+   "count": 1052,
+   "index": 624,
+   "type": 9,
+   "value": 1000.0
+  },
+  "MPC_LAND_RC_HELP": {
+   "count": 1052,
+   "index": 625,
+   "type": 6,
+   "value": 0
+  },
+  "MPC_LAND_SPEED": {
+   "count": 1052,
+   "index": 626,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MPC_MANTHR_MIN": {
+   "count": 1052,
+   "index": 627,
+   "type": 9,
+   "value": 0.15000000596046448
+  },
+  "MPC_MAN_TILT_MAX": {
+   "count": 1052,
+   "index": 628,
+   "type": 9,
+   "value": 15.0
+  },
+  "MPC_MAN_Y_MAX": {
+   "count": 1052,
+   "index": 629,
+   "type": 9,
+   "value": 150.0
+  },
+  "MPC_MAN_Y_TAU": {
+   "count": 1052,
+   "index": 630,
+   "type": 9,
+   "value": 0.07999999821186066
+  },
+  "MPC_POS_MODE": {
+   "count": 1052,
+   "index": 631,
+   "type": 6,
+   "value": 4
+  },
+  "MPC_THR_CURVE": {
+   "count": 1052,
+   "index": 632,
+   "type": 6,
+   "value": 0
+  },
+  "MPC_THR_HOVER": {
+   "count": 1052,
+   "index": 633,
+   "type": 9,
+   "value": 0.6000000238418579
+  },
+  "MPC_THR_MAX": {
+   "count": 1052,
+   "index": 634,
+   "type": 9,
+   "value": 1.0
+  },
+  "MPC_THR_MIN": {
+   "count": 1052,
+   "index": 635,
+   "type": 9,
+   "value": 0.15000000596046448
+  },
+  "MPC_THR_XY_MARG": {
+   "count": 1052,
+   "index": 636,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MPC_TILTMAX_AIR": {
+   "count": 1052,
+   "index": 637,
+   "type": 9,
+   "value": 30.0
+  },
+  "MPC_TILTMAX_LND": {
+   "count": 1052,
+   "index": 638,
+   "type": 9,
+   "value": 12.0
+  },
+  "MPC_TKO_RAMP_T": {
+   "count": 1052,
+   "index": 639,
+   "type": 9,
+   "value": 3.0
+  },
+  "MPC_TKO_SPEED": {
+   "count": 1052,
+   "index": 640,
+   "type": 9,
+   "value": 0.800000011920929
+  },
+  "MPC_USE_HTE": {
+   "count": 1052,
+   "index": 641,
+   "type": 6,
+   "value": 1
+  },
+  "MPC_VELD_LP": {
+   "count": 1052,
+   "index": 642,
+   "type": 9,
+   "value": 5.0
+  },
+  "MPC_VEL_LP": {
+   "count": 1052,
+   "index": 643,
+   "type": 9,
+   "value": 0.0
+  },
+  "MPC_VEL_MANUAL": {
+   "count": 1052,
+   "index": 644,
+   "type": 9,
+   "value": 0.25
+  },
+  "MPC_VEL_MAN_BACK": {
+   "count": 1052,
+   "index": 645,
+   "type": 9,
+   "value": -1.0
+  },
+  "MPC_VEL_MAN_SIDE": {
+   "count": 1052,
+   "index": 646,
+   "type": 9,
+   "value": -1.0
+  },
+  "MPC_VEL_NF_BW": {
+   "count": 1052,
+   "index": 647,
+   "type": 9,
+   "value": 5.0
+  },
+  "MPC_VEL_NF_FRQ": {
+   "count": 1052,
+   "index": 648,
+   "type": 9,
+   "value": 0.0
+  },
+  "MPC_XY_CRUISE": {
+   "count": 1052,
+   "index": 649,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "MPC_XY_ERR_MAX": {
+   "count": 1052,
+   "index": 650,
+   "type": 9,
+   "value": 2.0
+  },
+  "MPC_XY_MAN_EXPO": {
+   "count": 1052,
+   "index": 651,
+   "type": 9,
+   "value": 0.6000000238418579
+  },
+  "MPC_XY_P": {
+   "count": 1052,
+   "index": 652,
+   "type": 9,
+   "value": 0.44999998807907104
+  },
+  "MPC_XY_TRAJ_P": {
+   "count": 1052,
+   "index": 653,
+   "type": 9,
+   "value": 0.5
+  },
+  "MPC_XY_VEL_ALL": {
+   "count": 1052,
+   "index": 654,
+   "type": 9,
+   "value": -10.0
+  },
+  "MPC_XY_VEL_D_ACC": {
+   "count": 1052,
+   "index": 655,
+   "type": 9,
+   "value": 0.07999999821186066
+  },
+  "MPC_XY_VEL_I_ACC": {
+   "count": 1052,
+   "index": 656,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MPC_XY_VEL_MAX": {
+   "count": 1052,
+   "index": 657,
+   "type": 9,
+   "value": 0.25
+  },
+  "MPC_XY_VEL_P_ACC": {
+   "count": 1052,
+   "index": 658,
+   "type": 9,
+   "value": 1.600000023841858
+  },
+  "MPC_YAWRAUTO_ACC": {
+   "count": 1052,
+   "index": 659,
+   "type": 9,
+   "value": 60.0
+  },
+  "MPC_YAWRAUTO_MAX": {
+   "count": 1052,
+   "index": 660,
+   "type": 9,
+   "value": 30.0
+  },
+  "MPC_YAW_EXPO": {
+   "count": 1052,
+   "index": 661,
+   "type": 9,
+   "value": 0.6000000238418579
+  },
+  "MPC_YAW_MODE": {
+   "count": 1052,
+   "index": 662,
+   "type": 6,
+   "value": 0
+  },
+  "MPC_Z_MAN_EXPO": {
+   "count": 1052,
+   "index": 663,
+   "type": 9,
+   "value": 0.6000000238418579
+  },
+  "MPC_Z_P": {
+   "count": 1052,
+   "index": 664,
+   "type": 9,
+   "value": 0.6499999761581421
+  },
+  "MPC_Z_VEL_ALL": {
+   "count": 1052,
+   "index": 665,
+   "type": 9,
+   "value": -3.0
+  },
+  "MPC_Z_VEL_D_ACC": {
+   "count": 1052,
+   "index": 666,
+   "type": 9,
+   "value": 0.30000001192092896
+  },
+  "MPC_Z_VEL_I_ACC": {
+   "count": 1052,
+   "index": 667,
+   "type": 9,
+   "value": 2.0
+  },
+  "MPC_Z_VEL_MAX_DN": {
+   "count": 1052,
+   "index": 668,
+   "type": 9,
+   "value": 0.4000000059604645
+  },
+  "MPC_Z_VEL_MAX_UP": {
+   "count": 1052,
+   "index": 669,
+   "type": 9,
+   "value": 1.0
+  },
+  "MPC_Z_VEL_P_ACC": {
+   "count": 1052,
+   "index": 670,
+   "type": 9,
+   "value": 5.0
+  },
+  "MPC_Z_V_AUTO_DN": {
+   "count": 1052,
+   "index": 671,
+   "type": 9,
+   "value": 0.4000000059604645
+  },
+  "MPC_Z_V_AUTO_UP": {
+   "count": 1052,
+   "index": 672,
+   "type": 9,
+   "value": 1.0
+  },
+  "NAV_ACC_RAD": {
+   "count": 1052,
+   "index": 673,
+   "type": 9,
+   "value": 2.0
+  },
+  "NAV_DLL_ACT": {
+   "count": 1052,
+   "index": 674,
+   "type": 6,
+   "value": 0
+  },
+  "NAV_FORCE_VT": {
+   "count": 1052,
+   "index": 675,
+   "type": 6,
+   "value": 1
+  },
+  "NAV_FW_ALTL_RAD": {
+   "count": 1052,
+   "index": 676,
+   "type": 9,
+   "value": 5.0
+  },
+  "NAV_FW_ALT_RAD": {
+   "count": 1052,
+   "index": 677,
+   "type": 9,
+   "value": 10.0
+  },
+  "NAV_LOITER_RAD": {
+   "count": 1052,
+   "index": 678,
+   "type": 9,
+   "value": 80.0
+  },
+  "NAV_MC_ALT_RAD": {
+   "count": 1052,
+   "index": 679,
+   "type": 9,
+   "value": 0.800000011920929
+  },
+  "NAV_MIN_GND_DIST": {
+   "count": 1052,
+   "index": 680,
+   "type": 9,
+   "value": -1.0
+  },
+  "NAV_MIN_LTR_ALT": {
+   "count": 1052,
+   "index": 681,
+   "type": 9,
+   "value": -1.0
+  },
+  "NAV_RCL_ACT": {
+   "count": 1052,
+   "index": 682,
+   "type": 6,
+   "value": 0
+  },
+  "NAV_TRAFF_AVOID": {
+   "count": 1052,
+   "index": 683,
+   "type": 6,
+   "value": 1
+  },
+  "NAV_TRAFF_A_HOR": {
+   "count": 1052,
+   "index": 684,
+   "type": 9,
+   "value": 500.0
+  },
+  "NAV_TRAFF_A_VER": {
+   "count": 1052,
+   "index": 685,
+   "type": 9,
+   "value": 500.0
+  },
+  "NAV_TRAFF_COLL_T": {
+   "count": 1052,
+   "index": 686,
+   "type": 6,
+   "value": 60
+  },
+  "PD_GRIPPER_TO": {
+   "count": 1052,
+   "index": 687,
+   "type": 9,
+   "value": 1.0
+  },
+  "PD_GRIPPER_TYPE": {
+   "count": 1052,
+   "index": 688,
+   "type": 6,
+   "value": 0
+  },
+  "PLD_BTOUT": {
+   "count": 1052,
+   "index": 689,
+   "type": 9,
+   "value": 5.0
+  },
+  "PLD_FAPPR_ALT": {
+   "count": 1052,
+   "index": 690,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "PLD_HACC_RAD": {
+   "count": 1052,
+   "index": 691,
+   "type": 9,
+   "value": 0.20000000298023224
+  },
+  "PLD_MAX_SRCH": {
+   "count": 1052,
+   "index": 692,
+   "type": 6,
+   "value": 3
+  },
+  "PLD_SRCH_ALT": {
+   "count": 1052,
+   "index": 693,
+   "type": 9,
+   "value": 10.0
+  },
+  "PLD_SRCH_TOUT": {
+   "count": 1052,
+   "index": 694,
+   "type": 9,
+   "value": 10.0
+  },
+  "PWM_MAIN_FUNC1": {
+   "count": 1052,
+   "index": 695,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC10": {
+   "count": 1052,
+   "index": 696,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC11": {
+   "count": 1052,
+   "index": 697,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC12": {
+   "count": 1052,
+   "index": 698,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC13": {
+   "count": 1052,
+   "index": 699,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC14": {
+   "count": 1052,
+   "index": 700,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC15": {
+   "count": 1052,
+   "index": 701,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC16": {
+   "count": 1052,
+   "index": 702,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC2": {
+   "count": 1052,
+   "index": 703,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC3": {
+   "count": 1052,
+   "index": 704,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC4": {
+   "count": 1052,
+   "index": 705,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC5": {
+   "count": 1052,
+   "index": 706,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC6": {
+   "count": 1052,
+   "index": 707,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC7": {
+   "count": 1052,
+   "index": 708,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC8": {
+   "count": 1052,
+   "index": 709,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_FUNC9": {
+   "count": 1052,
+   "index": 710,
+   "type": 6,
+   "value": 0
+  },
+  "PWM_MAIN_REV": {
+   "count": 1052,
+   "index": 711,
+   "type": 6,
+   "value": 0
+  },
+  "RC10_DZ": {
+   "count": 1052,
+   "index": 712,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC10_MAX": {
+   "count": 1052,
+   "index": 713,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC10_MIN": {
+   "count": 1052,
+   "index": 714,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC10_REV": {
+   "count": 1052,
+   "index": 715,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC10_TRIM": {
+   "count": 1052,
+   "index": 716,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC11_DZ": {
+   "count": 1052,
+   "index": 717,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC11_MAX": {
+   "count": 1052,
+   "index": 718,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC11_MIN": {
+   "count": 1052,
+   "index": 719,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC11_REV": {
+   "count": 1052,
+   "index": 720,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC11_TRIM": {
+   "count": 1052,
+   "index": 721,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC12_DZ": {
+   "count": 1052,
+   "index": 722,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC12_MAX": {
+   "count": 1052,
+   "index": 723,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC12_MIN": {
+   "count": 1052,
+   "index": 724,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC12_REV": {
+   "count": 1052,
+   "index": 725,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC12_TRIM": {
+   "count": 1052,
+   "index": 726,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC13_DZ": {
+   "count": 1052,
+   "index": 727,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC13_MAX": {
+   "count": 1052,
+   "index": 728,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC13_MIN": {
+   "count": 1052,
+   "index": 729,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC13_REV": {
+   "count": 1052,
+   "index": 730,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC13_TRIM": {
+   "count": 1052,
+   "index": 731,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC14_DZ": {
+   "count": 1052,
+   "index": 732,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC14_MAX": {
+   "count": 1052,
+   "index": 733,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC14_MIN": {
+   "count": 1052,
+   "index": 734,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC14_REV": {
+   "count": 1052,
+   "index": 735,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC14_TRIM": {
+   "count": 1052,
+   "index": 736,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC15_DZ": {
+   "count": 1052,
+   "index": 737,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC15_MAX": {
+   "count": 1052,
+   "index": 738,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC15_MIN": {
+   "count": 1052,
+   "index": 739,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC15_REV": {
+   "count": 1052,
+   "index": 740,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC15_TRIM": {
+   "count": 1052,
+   "index": 741,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC16_DZ": {
+   "count": 1052,
+   "index": 742,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC16_MAX": {
+   "count": 1052,
+   "index": 743,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC16_MIN": {
+   "count": 1052,
+   "index": 744,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC16_REV": {
+   "count": 1052,
+   "index": 745,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC16_TRIM": {
+   "count": 1052,
+   "index": 746,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC17_DZ": {
+   "count": 1052,
+   "index": 747,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC17_MAX": {
+   "count": 1052,
+   "index": 748,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC17_MIN": {
+   "count": 1052,
+   "index": 749,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC17_REV": {
+   "count": 1052,
+   "index": 750,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC17_TRIM": {
+   "count": 1052,
+   "index": 751,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC18_DZ": {
+   "count": 1052,
+   "index": 752,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC18_MAX": {
+   "count": 1052,
+   "index": 753,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC18_MIN": {
+   "count": 1052,
+   "index": 754,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC18_REV": {
+   "count": 1052,
+   "index": 755,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC18_TRIM": {
+   "count": 1052,
+   "index": 756,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC1_DZ": {
+   "count": 1052,
+   "index": 757,
+   "type": 9,
+   "value": 10.0
+  },
+  "RC1_MAX": {
+   "count": 1052,
+   "index": 758,
+   "type": 9,
+   "value": 1999.0
+  },
+  "RC1_MIN": {
+   "count": 1052,
+   "index": 759,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC1_REV": {
+   "count": 1052,
+   "index": 760,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC1_TRIM": {
+   "count": 1052,
+   "index": 761,
+   "type": 9,
+   "value": 1499.0
+  },
+  "RC2_DZ": {
+   "count": 1052,
+   "index": 762,
+   "type": 9,
+   "value": 10.0
+  },
+  "RC2_MAX": {
+   "count": 1052,
+   "index": 763,
+   "type": 9,
+   "value": 1999.0
+  },
+  "RC2_MIN": {
+   "count": 1052,
+   "index": 764,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC2_REV": {
+   "count": 1052,
+   "index": 765,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC2_TRIM": {
+   "count": 1052,
+   "index": 766,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC3_DZ": {
+   "count": 1052,
+   "index": 767,
+   "type": 9,
+   "value": 10.0
+  },
+  "RC3_MAX": {
+   "count": 1052,
+   "index": 768,
+   "type": 9,
+   "value": 1999.0
+  },
+  "RC3_MIN": {
+   "count": 1052,
+   "index": 769,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC3_REV": {
+   "count": 1052,
+   "index": 770,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC3_TRIM": {
+   "count": 1052,
+   "index": 771,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC4_DZ": {
+   "count": 1052,
+   "index": 772,
+   "type": 9,
+   "value": 10.0
+  },
+  "RC4_MAX": {
+   "count": 1052,
+   "index": 773,
+   "type": 9,
+   "value": 1999.0
+  },
+  "RC4_MIN": {
+   "count": 1052,
+   "index": 774,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC4_REV": {
+   "count": 1052,
+   "index": 775,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC4_TRIM": {
+   "count": 1052,
+   "index": 776,
+   "type": 9,
+   "value": 1497.0
+  },
+  "RC5_DZ": {
+   "count": 1052,
+   "index": 777,
+   "type": 9,
+   "value": 10.0
+  },
+  "RC5_MAX": {
+   "count": 1052,
+   "index": 778,
+   "type": 9,
+   "value": 1988.0
+  },
+  "RC5_MIN": {
+   "count": 1052,
+   "index": 779,
+   "type": 9,
+   "value": 1011.0
+  },
+  "RC5_REV": {
+   "count": 1052,
+   "index": 780,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC5_TRIM": {
+   "count": 1052,
+   "index": 781,
+   "type": 9,
+   "value": 1499.0
+  },
+  "RC6_DZ": {
+   "count": 1052,
+   "index": 782,
+   "type": 9,
+   "value": 10.0
+  },
+  "RC6_MAX": {
+   "count": 1052,
+   "index": 783,
+   "type": 9,
+   "value": 1999.0
+  },
+  "RC6_MIN": {
+   "count": 1052,
+   "index": 784,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC6_REV": {
+   "count": 1052,
+   "index": 785,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC6_TRIM": {
+   "count": 1052,
+   "index": 786,
+   "type": 9,
+   "value": 1499.0
+  },
+  "RC7_DZ": {
+   "count": 1052,
+   "index": 787,
+   "type": 9,
+   "value": 10.0
+  },
+  "RC7_MAX": {
+   "count": 1052,
+   "index": 788,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC7_MIN": {
+   "count": 1052,
+   "index": 789,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC7_REV": {
+   "count": 1052,
+   "index": 790,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC7_TRIM": {
+   "count": 1052,
+   "index": 791,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC8_DZ": {
+   "count": 1052,
+   "index": 792,
+   "type": 9,
+   "value": 10.0
+  },
+  "RC8_MAX": {
+   "count": 1052,
+   "index": 793,
+   "type": 9,
+   "value": 1999.0
+  },
+  "RC8_MIN": {
+   "count": 1052,
+   "index": 794,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC8_REV": {
+   "count": 1052,
+   "index": 795,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC8_TRIM": {
+   "count": 1052,
+   "index": 796,
+   "type": 9,
+   "value": 1499.0
+  },
+  "RC9_DZ": {
+   "count": 1052,
+   "index": 797,
+   "type": 9,
+   "value": 0.0
+  },
+  "RC9_MAX": {
+   "count": 1052,
+   "index": 798,
+   "type": 9,
+   "value": 2000.0
+  },
+  "RC9_MIN": {
+   "count": 1052,
+   "index": 799,
+   "type": 9,
+   "value": 1000.0
+  },
+  "RC9_REV": {
+   "count": 1052,
+   "index": 800,
+   "type": 9,
+   "value": 1.0
+  },
+  "RC9_TRIM": {
+   "count": 1052,
+   "index": 801,
+   "type": 9,
+   "value": 1500.0
+  },
+  "RC_ARMSWITCH_TH": {
+   "count": 1052,
+   "index": 802,
+   "type": 9,
+   "value": 0.75
+  },
+  "RC_CHAN_CNT": {
+   "count": 1052,
+   "index": 803,
+   "type": 6,
+   "value": 16
+  },
+  "RC_ENG_MOT_TH": {
+   "count": 1052,
+   "index": 804,
+   "type": 9,
+   "value": 0.75
+  },
+  "RC_FAILS_THR": {
+   "count": 1052,
+   "index": 805,
+   "type": 6,
+   "value": 0
+  },
+  "RC_GEAR_TH": {
+   "count": 1052,
+   "index": 806,
+   "type": 9,
+   "value": 0.75
+  },
+  "RC_KILLSWITCH_TH": {
+   "count": 1052,
+   "index": 807,
+   "type": 9,
+   "value": 0.75
+  },
+  "RC_LOITER_TH": {
+   "count": 1052,
+   "index": 808,
+   "type": 9,
+   "value": 0.75
+  },
+  "RC_MAP_ARM_SW": {
+   "count": 1052,
+   "index": 809,
+   "type": 6,
+   "value": 5
+  },
+  "RC_MAP_AUX1": {
+   "count": 1052,
+   "index": 810,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_AUX2": {
+   "count": 1052,
+   "index": 811,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_AUX3": {
+   "count": 1052,
+   "index": 812,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_AUX4": {
+   "count": 1052,
+   "index": 813,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_AUX5": {
+   "count": 1052,
+   "index": 814,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_AUX6": {
+   "count": 1052,
+   "index": 815,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_ENG_MOT": {
+   "count": 1052,
+   "index": 816,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_FAILSAFE": {
+   "count": 1052,
+   "index": 817,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_FLAPS": {
+   "count": 1052,
+   "index": 818,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_FLTMODE": {
+   "count": 1052,
+   "index": 819,
+   "type": 6,
+   "value": 6
+  },
+  "RC_MAP_FLTM_BTN": {
+   "count": 1052,
+   "index": 820,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_GEAR_SW": {
+   "count": 1052,
+   "index": 821,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_KILL_SW": {
+   "count": 1052,
+   "index": 822,
+   "type": 6,
+   "value": 8
+  },
+  "RC_MAP_LOITER_SW": {
+   "count": 1052,
+   "index": 823,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_MODE_SW": {
+   "count": 1052,
+   "index": 824,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_OFFB_SW": {
+   "count": 1052,
+   "index": 825,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_PARAM1": {
+   "count": 1052,
+   "index": 826,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_PARAM2": {
+   "count": 1052,
+   "index": 827,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_PARAM3": {
+   "count": 1052,
+   "index": 828,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_PAY_SW": {
+   "count": 1052,
+   "index": 829,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_PITCH": {
+   "count": 1052,
+   "index": 830,
+   "type": 6,
+   "value": 2
+  },
+  "RC_MAP_RETURN_SW": {
+   "count": 1052,
+   "index": 831,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_ROLL": {
+   "count": 1052,
+   "index": 832,
+   "type": 6,
+   "value": 1
+  },
+  "RC_MAP_THROTTLE": {
+   "count": 1052,
+   "index": 833,
+   "type": 6,
+   "value": 3
+  },
+  "RC_MAP_TRANS_SW": {
+   "count": 1052,
+   "index": 834,
+   "type": 6,
+   "value": 0
+  },
+  "RC_MAP_YAW": {
+   "count": 1052,
+   "index": 835,
+   "type": 6,
+   "value": 4
+  },
+  "RC_OFFB_TH": {
+   "count": 1052,
+   "index": 836,
+   "type": 9,
+   "value": 0.75
+  },
+  "RC_PAYLOAD_TH": {
+   "count": 1052,
+   "index": 837,
+   "type": 9,
+   "value": 0.75
+  },
+  "RC_RETURN_TH": {
+   "count": 1052,
+   "index": 838,
+   "type": 9,
+   "value": 0.75
+  },
+  "RC_RSSI_PWM_CHAN": {
+   "count": 1052,
+   "index": 839,
+   "type": 6,
+   "value": 0
+  },
+  "RC_RSSI_PWM_MAX": {
+   "count": 1052,
+   "index": 840,
+   "type": 6,
+   "value": 2000
+  },
+  "RC_RSSI_PWM_MIN": {
+   "count": 1052,
+   "index": 841,
+   "type": 6,
+   "value": 1000
+  },
+  "RC_TRANS_TH": {
+   "count": 1052,
+   "index": 842,
+   "type": 9,
+   "value": 0.75
+  },
+  "RTL_APPR_FORCE": {
+   "count": 1052,
+   "index": 843,
+   "type": 6,
+   "value": 0
+  },
+  "RTL_CONE_ANG": {
+   "count": 1052,
+   "index": 844,
+   "type": 6,
+   "value": 45
+  },
+  "RTL_DESCEND_ALT": {
+   "count": 1052,
+   "index": 845,
+   "type": 9,
+   "value": 10.0
+  },
+  "RTL_LAND_DELAY": {
+   "count": 1052,
+   "index": 846,
+   "type": 9,
+   "value": 0.0
+  },
+  "RTL_LOITER_RAD": {
+   "count": 1052,
+   "index": 847,
+   "type": 9,
+   "value": 80.0
+  },
+  "RTL_MIN_DIST": {
+   "count": 1052,
+   "index": 848,
+   "type": 9,
+   "value": 10.0
+  },
+  "RTL_PLD_MD": {
+   "count": 1052,
+   "index": 849,
+   "type": 6,
+   "value": 0
+  },
+  "RTL_RETURN_ALT": {
+   "count": 1052,
+   "index": 850,
+   "type": 9,
+   "value": 30.0
+  },
+  "RTL_TIME_FACTOR": {
+   "count": 1052,
+   "index": 851,
+   "type": 9,
+   "value": 1.100000023841858
+  },
+  "RTL_TIME_MARGIN": {
+   "count": 1052,
+   "index": 852,
+   "type": 6,
+   "value": 100
+  },
+  "RTL_TYPE": {
+   "count": 1052,
+   "index": 853,
+   "type": 6,
+   "value": 0
+  },
+  "SDLOG_BOOT_BAT": {
+   "count": 1052,
+   "index": 854,
+   "type": 6,
+   "value": 0
+  },
+  "SDLOG_DIRS_MAX": {
+   "count": 1052,
+   "index": 855,
+   "type": 6,
+   "value": 0
+  },
+  "SDLOG_MISSION": {
+   "count": 1052,
+   "index": 856,
+   "type": 6,
+   "value": 0
+  },
+  "SDLOG_MODE": {
+   "count": 1052,
+   "index": 857,
+   "type": 6,
+   "value": 0
+  },
+  "SDLOG_PROFILE": {
+   "count": 1052,
+   "index": 858,
+   "type": 6,
+   "value": 1
+  },
+  "SDLOG_UTC_OFFSET": {
+   "count": 1052,
+   "index": 859,
+   "type": 6,
+   "value": 0
+  },
+  "SDLOG_UUID": {
+   "count": 1052,
+   "index": 860,
+   "type": 6,
+   "value": 1
+  },
+  "SENS_BARO_QNH": {
+   "count": 1052,
+   "index": 861,
+   "type": 9,
+   "value": 1013.25
+  },
+  "SENS_BARO_RATE": {
+   "count": 1052,
+   "index": 862,
+   "type": 9,
+   "value": 20.0
+  },
+  "SENS_BOARD_ROT": {
+   "count": 1052,
+   "index": 863,
+   "type": 6,
+   "value": 0
+  },
+  "SENS_BOARD_X_OFF": {
+   "count": 1052,
+   "index": 864,
+   "type": 9,
+   "value": 9.999999974752427e-07
+  },
+  "SENS_BOARD_Y_OFF": {
+   "count": 1052,
+   "index": 865,
+   "type": 9,
+   "value": 0.0
+  },
+  "SENS_BOARD_Z_OFF": {
+   "count": 1052,
+   "index": 866,
+   "type": 9,
+   "value": 0.0
+  },
+  "SENS_DPRES_OFF": {
+   "count": 1052,
+   "index": 867,
+   "type": 9,
+   "value": 0.0
+  },
+  "SENS_EN_ARSPDSIM": {
+   "count": 1052,
+   "index": 868,
+   "type": 6,
+   "value": 0
+  },
+  "SENS_EN_MAGSIM": {
+   "count": 1052,
+   "index": 869,
+   "type": 6,
+   "value": 0
+  },
+  "SENS_EN_THERMAL": {
+   "count": 1052,
+   "index": 870,
+   "type": 6,
+   "value": -1
+  },
+  "SENS_EXT_I2C_PRB": {
+   "count": 1052,
+   "index": 871,
+   "type": 6,
+   "value": 1
+  },
+  "SENS_FLOW_MAXHGT": {
+   "count": 1052,
+   "index": 872,
+   "type": 9,
+   "value": 30.0
+  },
+  "SENS_FLOW_MAXR": {
+   "count": 1052,
+   "index": 873,
+   "type": 9,
+   "value": 7.400000095367432
+  },
+  "SENS_FLOW_MINHGT": {
+   "count": 1052,
+   "index": 874,
+   "type": 9,
+   "value": 0.07999999821186066
+  },
+  "SENS_FLOW_RATE": {
+   "count": 1052,
+   "index": 875,
+   "type": 9,
+   "value": 70.0
+  },
+  "SENS_FLOW_ROT": {
+   "count": 1052,
+   "index": 876,
+   "type": 6,
+   "value": 0
+  },
+  "SENS_FLOW_SCALE": {
+   "count": 1052,
+   "index": 877,
+   "type": 9,
+   "value": 1.0
+  },
+  "SENS_IMU_AUTOCAL": {
+   "count": 1052,
+   "index": 878,
+   "type": 6,
+   "value": 1
+  },
+  "SENS_IMU_CLPNOTI": {
+   "count": 1052,
+   "index": 879,
+   "type": 6,
+   "value": 1
+  },
+  "SENS_IMU_MODE": {
+   "count": 1052,
+   "index": 880,
+   "type": 6,
+   "value": 0
+  },
+  "SENS_MAG_AUTOCAL": {
+   "count": 1052,
+   "index": 881,
+   "type": 6,
+   "value": 1
+  },
+  "SENS_MAG_AUTOROT": {
+   "count": 1052,
+   "index": 882,
+   "type": 6,
+   "value": 1
+  },
+  "SENS_MAG_MODE": {
+   "count": 1052,
+   "index": 883,
+   "type": 6,
+   "value": 1
+  },
+  "SENS_MAG_RATE": {
+   "count": 1052,
+   "index": 884,
+   "type": 9,
+   "value": 15.0
+  },
+  "SENS_MAG_SIDES": {
+   "count": 1052,
+   "index": 885,
+   "type": 6,
+   "value": 63
+  },
+  "SIM_BAT_ENABLE": {
+   "count": 1052,
+   "index": 886,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GPS_USED": {
+   "count": 1052,
+   "index": 887,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_DIS1": {
+   "count": 1052,
+   "index": 888,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_DIS2": {
+   "count": 1052,
+   "index": 889,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_DIS3": {
+   "count": 1052,
+   "index": 890,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_DIS4": {
+   "count": 1052,
+   "index": 891,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_DIS5": {
+   "count": 1052,
+   "index": 892,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_DIS6": {
+   "count": 1052,
+   "index": 893,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_DIS7": {
+   "count": 1052,
+   "index": 894,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_DIS8": {
+   "count": 1052,
+   "index": 895,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_FAIL1": {
+   "count": 1052,
+   "index": 896,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_EC_FAIL2": {
+   "count": 1052,
+   "index": 897,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_EC_FAIL3": {
+   "count": 1052,
+   "index": 898,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_EC_FAIL4": {
+   "count": 1052,
+   "index": 899,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_EC_FAIL5": {
+   "count": 1052,
+   "index": 900,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_EC_FAIL6": {
+   "count": 1052,
+   "index": 901,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_EC_FAIL7": {
+   "count": 1052,
+   "index": 902,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_EC_FAIL8": {
+   "count": 1052,
+   "index": 903,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_EC_FUNC1": {
+   "count": 1052,
+   "index": 904,
+   "type": 6,
+   "value": 101
+  },
+  "SIM_GZ_EC_FUNC2": {
+   "count": 1052,
+   "index": 905,
+   "type": 6,
+   "value": 102
+  },
+  "SIM_GZ_EC_FUNC3": {
+   "count": 1052,
+   "index": 906,
+   "type": 6,
+   "value": 103
+  },
+  "SIM_GZ_EC_FUNC4": {
+   "count": 1052,
+   "index": 907,
+   "type": 6,
+   "value": 104
+  },
+  "SIM_GZ_EC_FUNC5": {
+   "count": 1052,
+   "index": 908,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_FUNC6": {
+   "count": 1052,
+   "index": 909,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_FUNC7": {
+   "count": 1052,
+   "index": 910,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_FUNC8": {
+   "count": 1052,
+   "index": 911,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_MAX1": {
+   "count": 1052,
+   "index": 912,
+   "type": 6,
+   "value": 650
+  },
+  "SIM_GZ_EC_MAX2": {
+   "count": 1052,
+   "index": 913,
+   "type": 6,
+   "value": 650
+  },
+  "SIM_GZ_EC_MAX3": {
+   "count": 1052,
+   "index": 914,
+   "type": 6,
+   "value": 650
+  },
+  "SIM_GZ_EC_MAX4": {
+   "count": 1052,
+   "index": 915,
+   "type": 6,
+   "value": 650
+  },
+  "SIM_GZ_EC_MAX5": {
+   "count": 1052,
+   "index": 916,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_EC_MAX6": {
+   "count": 1052,
+   "index": 917,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_EC_MAX7": {
+   "count": 1052,
+   "index": 918,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_EC_MAX8": {
+   "count": 1052,
+   "index": 919,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_EC_MIN1": {
+   "count": 1052,
+   "index": 920,
+   "type": 6,
+   "value": 153
+  },
+  "SIM_GZ_EC_MIN2": {
+   "count": 1052,
+   "index": 921,
+   "type": 6,
+   "value": 153
+  },
+  "SIM_GZ_EC_MIN3": {
+   "count": 1052,
+   "index": 922,
+   "type": 6,
+   "value": 153
+  },
+  "SIM_GZ_EC_MIN4": {
+   "count": 1052,
+   "index": 923,
+   "type": 6,
+   "value": 153
+  },
+  "SIM_GZ_EC_MIN5": {
+   "count": 1052,
+   "index": 924,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_MIN6": {
+   "count": 1052,
+   "index": 925,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_MIN7": {
+   "count": 1052,
+   "index": 926,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_MIN8": {
+   "count": 1052,
+   "index": 927,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EC_REV": {
+   "count": 1052,
+   "index": 928,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_EN": {
+   "count": 1052,
+   "index": 929,
+   "type": 6,
+   "value": 1
+  },
+  "SIM_GZ_SV_DIS1": {
+   "count": 1052,
+   "index": 930,
+   "type": 6,
+   "value": 500
+  },
+  "SIM_GZ_SV_DIS2": {
+   "count": 1052,
+   "index": 931,
+   "type": 6,
+   "value": 500
+  },
+  "SIM_GZ_SV_DIS3": {
+   "count": 1052,
+   "index": 932,
+   "type": 6,
+   "value": 500
+  },
+  "SIM_GZ_SV_DIS4": {
+   "count": 1052,
+   "index": 933,
+   "type": 6,
+   "value": 500
+  },
+  "SIM_GZ_SV_DIS5": {
+   "count": 1052,
+   "index": 934,
+   "type": 6,
+   "value": 500
+  },
+  "SIM_GZ_SV_DIS6": {
+   "count": 1052,
+   "index": 935,
+   "type": 6,
+   "value": 500
+  },
+  "SIM_GZ_SV_DIS7": {
+   "count": 1052,
+   "index": 936,
+   "type": 6,
+   "value": 500
+  },
+  "SIM_GZ_SV_DIS8": {
+   "count": 1052,
+   "index": 937,
+   "type": 6,
+   "value": 500
+  },
+  "SIM_GZ_SV_FAIL1": {
+   "count": 1052,
+   "index": 938,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_SV_FAIL2": {
+   "count": 1052,
+   "index": 939,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_SV_FAIL3": {
+   "count": 1052,
+   "index": 940,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_SV_FAIL4": {
+   "count": 1052,
+   "index": 941,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_SV_FAIL5": {
+   "count": 1052,
+   "index": 942,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_SV_FAIL6": {
+   "count": 1052,
+   "index": 943,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_SV_FAIL7": {
+   "count": 1052,
+   "index": 944,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_SV_FAIL8": {
+   "count": 1052,
+   "index": 945,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_SV_FUNC1": {
+   "count": 1052,
+   "index": 946,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_FUNC2": {
+   "count": 1052,
+   "index": 947,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_FUNC3": {
+   "count": 1052,
+   "index": 948,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_FUNC4": {
+   "count": 1052,
+   "index": 949,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_FUNC5": {
+   "count": 1052,
+   "index": 950,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_FUNC6": {
+   "count": 1052,
+   "index": 951,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_FUNC7": {
+   "count": 1052,
+   "index": 952,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_FUNC8": {
+   "count": 1052,
+   "index": 953,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_MAX1": {
+   "count": 1052,
+   "index": 954,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_SV_MAX2": {
+   "count": 1052,
+   "index": 955,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_SV_MAX3": {
+   "count": 1052,
+   "index": 956,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_SV_MAX4": {
+   "count": 1052,
+   "index": 957,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_SV_MAX5": {
+   "count": 1052,
+   "index": 958,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_SV_MAX6": {
+   "count": 1052,
+   "index": 959,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_SV_MAX7": {
+   "count": 1052,
+   "index": 960,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_SV_MAX8": {
+   "count": 1052,
+   "index": 961,
+   "type": 6,
+   "value": 1000
+  },
+  "SIM_GZ_SV_MAXA1": {
+   "count": 1052,
+   "index": 962,
+   "type": 9,
+   "value": 45.0
+  },
+  "SIM_GZ_SV_MAXA2": {
+   "count": 1052,
+   "index": 963,
+   "type": 9,
+   "value": 45.0
+  },
+  "SIM_GZ_SV_MAXA3": {
+   "count": 1052,
+   "index": 964,
+   "type": 9,
+   "value": 45.0
+  },
+  "SIM_GZ_SV_MAXA4": {
+   "count": 1052,
+   "index": 965,
+   "type": 9,
+   "value": 45.0
+  },
+  "SIM_GZ_SV_MAXA5": {
+   "count": 1052,
+   "index": 966,
+   "type": 9,
+   "value": 45.0
+  },
+  "SIM_GZ_SV_MAXA6": {
+   "count": 1052,
+   "index": 967,
+   "type": 9,
+   "value": 45.0
+  },
+  "SIM_GZ_SV_MAXA7": {
+   "count": 1052,
+   "index": 968,
+   "type": 9,
+   "value": 45.0
+  },
+  "SIM_GZ_SV_MAXA8": {
+   "count": 1052,
+   "index": 969,
+   "type": 9,
+   "value": 45.0
+  },
+  "SIM_GZ_SV_MIN1": {
+   "count": 1052,
+   "index": 970,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_MIN2": {
+   "count": 1052,
+   "index": 971,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_MIN3": {
+   "count": 1052,
+   "index": 972,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_MIN4": {
+   "count": 1052,
+   "index": 973,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_MIN5": {
+   "count": 1052,
+   "index": 974,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_MIN6": {
+   "count": 1052,
+   "index": 975,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_MIN7": {
+   "count": 1052,
+   "index": 976,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_MIN8": {
+   "count": 1052,
+   "index": 977,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_SV_MINA1": {
+   "count": 1052,
+   "index": 978,
+   "type": 9,
+   "value": -45.0
+  },
+  "SIM_GZ_SV_MINA2": {
+   "count": 1052,
+   "index": 979,
+   "type": 9,
+   "value": -45.0
+  },
+  "SIM_GZ_SV_MINA3": {
+   "count": 1052,
+   "index": 980,
+   "type": 9,
+   "value": -45.0
+  },
+  "SIM_GZ_SV_MINA4": {
+   "count": 1052,
+   "index": 981,
+   "type": 9,
+   "value": -45.0
+  },
+  "SIM_GZ_SV_MINA5": {
+   "count": 1052,
+   "index": 982,
+   "type": 9,
+   "value": -45.0
+  },
+  "SIM_GZ_SV_MINA6": {
+   "count": 1052,
+   "index": 983,
+   "type": 9,
+   "value": -45.0
+  },
+  "SIM_GZ_SV_MINA7": {
+   "count": 1052,
+   "index": 984,
+   "type": 9,
+   "value": -45.0
+  },
+  "SIM_GZ_SV_MINA8": {
+   "count": 1052,
+   "index": 985,
+   "type": 9,
+   "value": -45.0
+  },
+  "SIM_GZ_SV_REV": {
+   "count": 1052,
+   "index": 986,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_WH_DIS1": {
+   "count": 1052,
+   "index": 987,
+   "type": 6,
+   "value": 100
+  },
+  "SIM_GZ_WH_DIS2": {
+   "count": 1052,
+   "index": 988,
+   "type": 6,
+   "value": 100
+  },
+  "SIM_GZ_WH_DIS3": {
+   "count": 1052,
+   "index": 989,
+   "type": 6,
+   "value": 100
+  },
+  "SIM_GZ_WH_DIS4": {
+   "count": 1052,
+   "index": 990,
+   "type": 6,
+   "value": 100
+  },
+  "SIM_GZ_WH_FAIL1": {
+   "count": 1052,
+   "index": 991,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_WH_FAIL2": {
+   "count": 1052,
+   "index": 992,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_WH_FAIL3": {
+   "count": 1052,
+   "index": 993,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_WH_FAIL4": {
+   "count": 1052,
+   "index": 994,
+   "type": 6,
+   "value": -1
+  },
+  "SIM_GZ_WH_FUNC1": {
+   "count": 1052,
+   "index": 995,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_WH_FUNC2": {
+   "count": 1052,
+   "index": 996,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_WH_FUNC3": {
+   "count": 1052,
+   "index": 997,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_WH_FUNC4": {
+   "count": 1052,
+   "index": 998,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_WH_MAX1": {
+   "count": 1052,
+   "index": 999,
+   "type": 6,
+   "value": 200
+  },
+  "SIM_GZ_WH_MAX2": {
+   "count": 1052,
+   "index": 1000,
+   "type": 6,
+   "value": 200
+  },
+  "SIM_GZ_WH_MAX3": {
+   "count": 1052,
+   "index": 1001,
+   "type": 6,
+   "value": 200
+  },
+  "SIM_GZ_WH_MAX4": {
+   "count": 1052,
+   "index": 1002,
+   "type": 6,
+   "value": 200
+  },
+  "SIM_GZ_WH_MIN1": {
+   "count": 1052,
+   "index": 1003,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_WH_MIN2": {
+   "count": 1052,
+   "index": 1004,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_WH_MIN3": {
+   "count": 1052,
+   "index": 1005,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_WH_MIN4": {
+   "count": 1052,
+   "index": 1006,
+   "type": 6,
+   "value": 0
+  },
+  "SIM_GZ_WH_REV": {
+   "count": 1052,
+   "index": 1007,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_AUTOCONFIG": {
+   "count": 1052,
+   "index": 1008,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_AUTOSTART": {
+   "count": 1052,
+   "index": 1009,
+   "type": 6,
+   "value": 4035
+  },
+  "SYS_CAL_ACCEL": {
+   "count": 1052,
+   "index": 1010,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_CAL_BARO": {
+   "count": 1052,
+   "index": 1011,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_CAL_GYRO": {
+   "count": 1052,
+   "index": 1012,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_CAL_TDEL": {
+   "count": 1052,
+   "index": 1013,
+   "type": 6,
+   "value": 24
+  },
+  "SYS_CAL_TMAX": {
+   "count": 1052,
+   "index": 1014,
+   "type": 6,
+   "value": 10
+  },
+  "SYS_CAL_TMIN": {
+   "count": 1052,
+   "index": 1015,
+   "type": 6,
+   "value": 5
+  },
+  "SYS_DM_BACKEND": {
+   "count": 1052,
+   "index": 1016,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_FAC_CAL_MODE": {
+   "count": 1052,
+   "index": 1017,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_FAILURE_EN": {
+   "count": 1052,
+   "index": 1018,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_HAS_BARO": {
+   "count": 1052,
+   "index": 1019,
+   "type": 6,
+   "value": 1
+  },
+  "SYS_HAS_GPS": {
+   "count": 1052,
+   "index": 1020,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_HAS_MAG": {
+   "count": 1052,
+   "index": 1021,
+   "type": 6,
+   "value": 1
+  },
+  "SYS_HAS_NUM_ASPD": {
+   "count": 1052,
+   "index": 1022,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_HAS_NUM_DIST": {
+   "count": 1052,
+   "index": 1023,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_HAS_NUM_OF": {
+   "count": 1052,
+   "index": 1024,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_HITL": {
+   "count": 1052,
+   "index": 1025,
+   "type": 6,
+   "value": 0
+  },
+  "SYS_PARAM_VER": {
+   "count": 1052,
+   "index": 1026,
+   "type": 6,
+   "value": 1
+  },
+  "SYS_RGB_MAXBRT": {
+   "count": 1052,
+   "index": 1027,
+   "type": 9,
+   "value": 1.0
+  },
+  "SYS_STCK_EN": {
+   "count": 1052,
+   "index": 1028,
+   "type": 6,
+   "value": 1
+  },
+  "SYS_VEHICLE_RESP": {
+   "count": 1052,
+   "index": 1029,
+   "type": 9,
+   "value": -0.4000000059604645
+  },
+  "TC_A_ENABLE": {
+   "count": 1052,
+   "index": 1030,
+   "type": 6,
+   "value": 0
+  },
+  "TC_B_ENABLE": {
+   "count": 1052,
+   "index": 1031,
+   "type": 6,
+   "value": 0
+  },
+  "TC_G_ENABLE": {
+   "count": 1052,
+   "index": 1032,
+   "type": 6,
+   "value": 0
+  },
+  "TC_M_ENABLE": {
+   "count": 1052,
+   "index": 1033,
+   "type": 6,
+   "value": 0
+  },
+  "THR_MDL_FAC": {
+   "count": 1052,
+   "index": 1034,
+   "type": 9,
+   "value": 0.0
+  },
+  "TRIG_INTERFACE": {
+   "count": 1052,
+   "index": 1035,
+   "type": 6,
+   "value": 3
+  },
+  "TRIG_MODE": {
+   "count": 1052,
+   "index": 1036,
+   "type": 6,
+   "value": 0
+  },
+  "UXRCE_DDS_AG_IP": {
+   "count": 1052,
+   "index": 1037,
+   "type": 6,
+   "value": 2130706433
+  },
+  "UXRCE_DDS_DOM_ID": {
+   "count": 1052,
+   "index": 1038,
+   "type": 6,
+   "value": 0
+  },
+  "UXRCE_DDS_KEY": {
+   "count": 1052,
+   "index": 1039,
+   "type": 6,
+   "value": 1
+  },
+  "UXRCE_DDS_PTCFG": {
+   "count": 1052,
+   "index": 1040,
+   "type": 6,
+   "value": 0
+  },
+  "UXRCE_DDS_RX_TO": {
+   "count": 1052,
+   "index": 1041,
+   "type": 6,
+   "value": -1
+  },
+  "UXRCE_DDS_SYNCC": {
+   "count": 1052,
+   "index": 1042,
+   "type": 6,
+   "value": 0
+  },
+  "UXRCE_DDS_SYNCT": {
+   "count": 1052,
+   "index": 1043,
+   "type": 6,
+   "value": 1
+  },
+  "UXRCE_DDS_TX_TO": {
+   "count": 1052,
+   "index": 1044,
+   "type": 6,
+   "value": 3
+  },
+  "VTO_LOITER_ALT": {
+   "count": 1052,
+   "index": 1045,
+   "type": 9,
+   "value": 80.0
+  },
+  "VT_B_DEC_I": {
+   "count": 1052,
+   "index": 1046,
+   "type": 9,
+   "value": 0.10000000149011612
+  },
+  "VT_B_DEC_MSS": {
+   "count": 1052,
+   "index": 1047,
+   "type": 9,
+   "value": 2.0
+  },
+  "WV_EN": {
+   "count": 1052,
+   "index": 1048,
+   "type": 6,
+   "value": 0
+  },
+  "WV_GAIN": {
+   "count": 1052,
+   "index": 1049,
+   "type": 9,
+   "value": 1.0
+  },
+  "WV_ROLL_MIN": {
+   "count": 1052,
+   "index": 1050,
+   "type": 9,
+   "value": 1.0
+  },
+  "WV_YRATE_MAX": {
+   "count": 1052,
+   "index": 1051,
+   "type": 9,
+   "value": 90.0
+  },
+  "_HASH_CHECK": {
+   "count": 1052,
+   "index": 65535,
+   "type": 5,
+   "value": -1235977291
+  }
+ },
+ "read_by_name": []
+}

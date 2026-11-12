@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee 4045 + {'COM_DISARM_LAND': 0.5}
+#
+# @type Quadrotor
+#
+# SIMULATOR ONLY. 09.11 (Симулятор): 4045 + COM_DISARM_LAND 0.5 (выбор 1б, кандидат). Кандидат, на дроне нет.
+#
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=bumblebee}
+. ${R}etc/init.d-posix/airframes/4045_gz_bumblebee_card_on_4035
+
+param set-default COM_DISARM_LAND 0.5

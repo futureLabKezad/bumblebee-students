@@ -1,0 +1,2 @@
+R2D_LEASE_ROS_PASS [{"kind": "kill", "kill_to_auto_land_s": 2.44, "kill_to_disarm_s": 5.43}, {"kind": "pilot", "mode_after_5s": "POSCTL", "armed": true}, {"kind": "normal", "rc": 0, "auto_land_requests": 1}, {"kind": "sigint", "rc": 0, "auto_land_requests": 1}]
+

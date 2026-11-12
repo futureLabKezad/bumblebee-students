@@ -1,0 +1,828 @@
+diff -ruN -x __pycache__ /work/fixed_image_r2h_20261110/test/r2h_only/test_pins_r2h.py test/r2h_only/test_pins_r2h.py
+--- /work/fixed_image_r2h_20261110/test/r2h_only/test_pins_r2h.py	1970-01-01 04:00:00.000000000 +0400
++++ test/r2h_only/test_pins_r2h.py	2026-11-10 16:42:53.909618892 +0400
+@@ -0,0 +1,93 @@
++#!/usr/bin/env python3
++"""r2h code pins (no ROS): vpe_fix.py r2h against r2g's vpe_fix.py (3b8a93d4), part by part (the AST method of
++src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py, which is NOT edited: it pins the vision path to the c33
++product and fails on r2h by design -- see README).
++
++Allowed to differ (r2h B1/B2), each with its reason:
++  VpeFix.__init__              new state: markers_pos_time (B1), _recent_poses / _last_publish_time / _reentry_* (B2)
++  VpeFix._single_marker_fresh  B1: >= 1 marker within 1.5 s instead of "the last message >= 1"
++  VpeFix.markers_used_callback B1: records markers_pos_time; re-evaluates the gate on every message
++  VpeFix.yaw_locked_callback   B1: re-evaluates the gate when yaw_locked changes
++  VpeFix.aruco_map_callback    B2: an accepted pose is also kept in _recent_poses (one line)
++  VpeFix.publish_timer         B2: publishes _reentry_pose(now); stamps _last_publish_time
++  VpeFix._maybe_reseed         B2 (review S2): a reseed restarts _recent_poses with the seed (two lines)
++Added: VpeFix._reentry_pose, constants _REENTRY_GAP / _REENTRY_N / _REENTRY_HOLD / _REENTRY_MAX_WAIT. Nothing removed.
++Everything else (P1 state logic, _evaluate_gate, _apply_gate, guards, reseed, the parameter gate, constants) is
++AST-identical to r2g. Also: aruco_map_callback differs from r2g by exactly one added statement.
++Run: python3 -B test/test_pins_r2h.py -v
++"""
++import ast
++import unittest
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++R2H = ROOT / 'src/bumblebee/src/python/vpe_fix.py'
++R2G = Path('/work/fixed_image_r2g_20261110/src/bumblebee/src/python/vpe_fix.py')
++CHANGED = {'VpeFix.__init__', 'VpeFix._single_marker_fresh', 'VpeFix.markers_used_callback',
++           'VpeFix.yaw_locked_callback', 'VpeFix.aruco_map_callback', 'VpeFix.publish_timer', 'VpeFix._maybe_reseed'}
++ADDED = {'VpeFix._reentry_pose', 'const _REENTRY_GAP', 'const _REENTRY_N', 'const _REENTRY_HOLD', 'const _REENTRY_MAX_WAIT'}
++
++
++def parts(path):
++    t = ast.parse(path.read_text())
++    out = {}
++    for n in t.body:
++        if isinstance(n, ast.Assign):
++            for n2 in n.targets:
++                if isinstance(n2, ast.Name):
++                    out['const ' + n2.id] = ast.dump(n.value)
++        elif isinstance(n, (ast.Import, ast.ImportFrom)):
++            out['import ' + ast.dump(n)] = ''
++        elif isinstance(n, ast.ClassDef) and n.name == 'VpeFix':
++            out['class VpeFix bases'] = repr([ast.dump(b) for b in n.bases])
++            out['class VpeFix non-method body'] = repr([ast.dump(m) for m in n.body if not isinstance(m, ast.FunctionDef)])
++            for m in n.body:
++                if isinstance(m, ast.FunctionDef):
++                    out['VpeFix.' + m.name] = ast.dump(m)
++        elif isinstance(n, (ast.FunctionDef, ast.ClassDef)):
++            out[n.name] = ast.dump(n)
++        else:
++            out['stmt ' + ast.dump(n)] = ''
++    return out
++
++
++def method(path, name):
++    t = ast.parse(path.read_text())
++    return [m for n in t.body if isinstance(n, ast.ClassDef) and n.name == 'VpeFix' for m in n.body
++            if isinstance(m, ast.FunctionDef) and m.name == name][0]
++
++
++class PinsR2H(unittest.TestCase):
++    def test_only_the_declared_parts_differ_from_r2g(self):
++        a, b = parts(R2G), parts(R2H)
++        self.assertEqual({k for k in a if k in b and a[k] != b[k]}, CHANGED)
++        self.assertEqual(set(b) - set(a), ADDED)
++        self.assertEqual(set(a) - set(b), set())
++
++    def test_aruco_map_callback_one_added_statement(self):
++        a, b = method(R2G, 'aruco_map_callback'), method(R2H, 'aruco_map_callback')
++        sa, sb = [ast.dump(s) for s in a.body], [ast.dump(s) for s in b.body]
++        self.assertEqual(len(sb), len(sa) + 1)
++        extra = [s for s in sb if s not in sa]
++        self.assertEqual(len(extra), 1)
++        self.assertIn("attr='_recent_poses'", extra[0])
++        self.assertEqual([s for s in sb if s in sa], sa)
++
++    def test_p1_state_and_gate_decision_unchanged(self):
++        for m in ('_evaluate_gate', '_apply_gate', 'state_callback', '_fcu_state_unknown', '_state_clock_ns',
++                  '_state_watchdog_tick', '_gate_tick', '_multi_marker_fresh', '_medoid'):
++            self.assertEqual(ast.dump(method(R2G, m)), ast.dump(method(R2H, m)), m)
++
++    def test_gate_constants_unchanged(self):
++        a, b = parts(R2G), parts(R2H)
++        for c in ('_QUALITY_MULTI_TIMEOUT', '_QUALITY_SINGLE_TIMEOUT', '_GATE_HYSTERESIS', '_POSE_TIMEOUT',
++                  '_XY_JUMP_MAX', '_Z_JUMP_MAX', '_MAX_VISION_SPEED', '_STATE_STALE_TIMEOUT', '_STATE_STAMP_MAX_AGE'):
++            self.assertEqual(a['const ' + c], b['const ' + c], c)
++
++    def test_r2g_is_the_reference(self):
++        import hashlib
++        self.assertTrue(hashlib.sha256(R2G.read_bytes()).hexdigest().startswith('3b8a93d4d0898369'))
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff -ruN -x __pycache__ /work/fixed_image_r2h_20261110/test/r2h_only/test_r2h_final.py test/r2h_only/test_r2h_final.py
+--- /work/fixed_image_r2h_20261110/test/r2h_only/test_r2h_final.py	1970-01-01 04:00:00.000000000 +0400
++++ test/r2h_only/test_r2h_final.py	2026-11-10 18:22:49.143100600 +0400
+@@ -0,0 +1,124 @@
++#!/usr/bin/env python3
++"""r2h FINAL against the r2h CANDIDATE (task T44, no ROS). The final = the candidate (SHA256SUMS 4f4b0ce9) plus:
++  1. vpe_fix._reentry_pose: the medoid gets the fresh poses newest first, so a tie (always so with 2 poses) goes to
++     the newest (SHOULD of the candidate review); nothing else in vpe_fix changes;
++  2. code pins round 3: tests_r2/test_pins_r2.py (not edited) now pins the r2g copy ref/vpe_fix_r2g_3b8a93d4.py,
++     tests_r3/test_pins_r3.py pins r2h against that copy (CMake: the vpe_fix block only);
++  3. camera_fix.py stays the a45a264 file 4a15d699 (as r2g; Gazebo checks this one); its manifest row stays PENDING.
++drone.py: the candidate's bytes. Run: python3 -B test/test_r2h_final.py -v   (from the final folder)
++"""
++import ast
++import difflib
++import filecmp
++import hashlib
++import unittest
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++CAND = Path('/work/fixed_image_r2h_candidate_20261110')
++R2G = Path('/work/fixed_image_r2g_20261110')
++assert ROOT.name == 'fixed_image_r2h_20261110', ROOT
++S = 'src/bumblebee/'
++VPE = S + 'src/python/vpe_fix.py'
++H2 = S + 'test/vpe_fix_h2_r2/'
++
++
++def sha(p):
++    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
++
++
++def parts(path):
++    out = {}
++    for n in ast.parse(Path(path).read_text()).body:
++        if isinstance(n, ast.ClassDef) and n.name == 'VpeFix':
++            for m in n.body:
++                out['VpeFix.' + m.name if isinstance(m, ast.FunctionDef) else 'VpeFix body ' + ast.dump(m)] = ast.dump(m)
++        else:
++            out[ast.dump(n)[:60] + str(getattr(n, 'lineno', ''))] = ast.dump(n)
++    return out
++
++
++def method(path, name):
++    return [m for n in ast.parse(Path(path).read_text()).body if isinstance(n, ast.ClassDef) and n.name == 'VpeFix'
++            for m in n.body if isinstance(m, ast.FunctionDef) and m.name == name][0]
++
++
++def tree_files(root):
++    return {str(p.relative_to(root)) for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts}
++
++
++class FinalVsCandidate(unittest.TestCase):
++    def test_candidate_is_the_reviewed_one(self):
++        self.assertTrue(sha(CAND / 'SHA256SUMS').startswith('4f4b0ce9'))
++
++    def test_vpe_fix_only_reentry_pose_differs(self):
++        a = {k: v for k, v in parts(CAND / VPE).items() if k.startswith('VpeFix')}
++        b = {k: v for k, v in parts(ROOT / VPE).items() if k.startswith('VpeFix')}
++        self.assertEqual(set(a), set(b))
++        self.assertEqual({k for k in a if a[k] != b[k]}, {'VpeFix._reentry_pose'})
++        # everything outside the class (constants, imports, functions): the same statements in the same order
++        ta = [ast.dump(n) for n in ast.parse((CAND / VPE).read_text()).body if not (isinstance(n, ast.ClassDef) and n.name == 'VpeFix')]
++        tb = [ast.dump(n) for n in ast.parse((ROOT / VPE).read_text()).body if not (isinstance(n, ast.ClassDef) and n.name == 'VpeFix')]
++        self.assertEqual(ta, tb)
++
++    def test_reentry_pose_differs_in_the_docstring_and_the_final_return_only(self):
++        sa = method(CAND / VPE, '_reentry_pose').body
++        sb = method(ROOT / VPE, '_reentry_pose').body
++        self.assertEqual(len(sa), len(sb))
++        diff = [i for i, (x, y) in enumerate(zip(sa, sb)) if ast.dump(x) != ast.dump(y)]
++        self.assertEqual(diff, [0, len(sb) - 1])
++        self.assertIsInstance(sb[0].value, ast.Constant)                 # the docstring
++        ret = sb[-1]
++        self.assertIsInstance(ret, ast.Return)
++        self.assertEqual(ast.unparse(ret), 'return self._medoid([p for _t, p in reversed(fresh)])')
++        self.assertEqual(ast.unparse(sa[-1]), 'return self._medoid([p for _t, p in fresh])')
++
++    def test_drone_py_is_the_candidate_bytes(self):
++        self.assertEqual(sha(ROOT / S / 'examples/drone.py'), sha(CAND / S / 'examples/drone.py'))
++        self.assertTrue(sha(ROOT / S / 'examples/drone.py').startswith('fa6abf8b'))
++
++    def test_camera_fix_is_r2g_and_its_row_stays_pending(self):
++        p = 'src/python/camera_fix.py'
++        self.assertEqual(sha(ROOT / S / p), sha(R2G / S / p))
++        self.assertTrue(sha(ROOT / S / p).startswith('4a15d699'))
++        rows = [r.split('\t') for r in (ROOT / 'image_manifest_r2.tsv').read_text().split('\n')
++                if r.startswith('drone/ros2_ws/' + S + p + '\t')]
++        self.assertEqual(len(rows), 1)
++        r = rows[0]
++        self.assertTrue(r[1].startswith('4a15d699'))                      # on the drone (a45a264)
++        self.assertTrue(r[2].startswith('dabd5076'))                      # the pending camera fix (not in src)
++        self.assertEqual(r[3], 'camera_fullrow_01')
++        self.assertIn('PENDING', r[4])
++
++    def test_ref_copy_is_r2g_bytes(self):
++        self.assertEqual((ROOT / H2 / 'ref/vpe_fix_r2g_3b8a93d4.py').read_bytes(), (R2G / VPE).read_bytes())
++
++    def test_old_pins_file_not_edited(self):
++        self.assertEqual(sha(ROOT / H2 / 'tests_r2/test_pins_r2.py'), sha(CAND / H2 / 'tests_r2/test_pins_r2.py'))
++
++    def test_cmake_only_the_vpe_fix_pins_block(self):
++        a = (CAND / S / 'CMakeLists.txt').read_text().splitlines()
++        b = (ROOT / S / 'CMakeLists.txt').read_text().splitlines()
++        sm = difflib.SequenceMatcher(None, a, b, autojunk=False)
++        changed = [(t, i1, i2, j1, j2) for t, i1, i2, j1, j2 in sm.get_opcodes() if t != 'equal']
++        start = a.index('  ament_add_pytest_test(test_vpe_fix_h2_r2_pins test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py TIMEOUT 60')
++        end = a.index('  ament_add_pytest_test(test_vpe_fix_h2_r2 test/vpe_fix_h2_r2/tests_r2/test_h2_r2.py TIMEOUT 120')
++        for t, i1, i2, j1, j2 in changed:
++            self.assertTrue(start - 1 <= i1 and i2 <= end, (t, a[i1:i2], b[j1:j2]))
++        new = '\n'.join(b)
++        self.assertIn('PIN_TARGET=${_H2R2}/ref/vpe_fix_r2g_3b8a93d4.py', new)
++        self.assertIn('ament_add_pytest_test(test_vpe_fix_pins_r3 test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py', new)
++        self.assertIn('PIN_TARGET=${_VPE} PIN_R2G=${_H2R2}/ref/vpe_fix_r2g_3b8a93d4.py', new)
++
++    def test_src_differs_from_the_candidate_only_in_the_declared_files(self):
++        a, b = tree_files(CAND / 'src'), tree_files(ROOT / 'src')
++        self.assertEqual(b - a, {'bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_r2g_3b8a93d4.py',
++                                 'bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py'})
++        self.assertEqual(a - b, set())
++        diff = {f for f in a if not filecmp.cmp(CAND / 'src' / f, ROOT / 'src' / f, shallow=False)}
++        self.assertEqual(diff, {'bumblebee/src/python/vpe_fix.py', 'bumblebee/CMakeLists.txt',
++                                'bumblebee/test/vpe_fix_h2_r2/README.md'})
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff -ruN -x __pycache__ /work/fixed_image_r2h_20261110/test/test_pins_r2h.py test/test_pins_r2h.py
+--- /work/fixed_image_r2h_20261110/test/test_pins_r2h.py	2026-11-10 16:42:53.909618892 +0400
++++ test/test_pins_r2h.py	1970-01-01 04:00:00.000000000 +0400
+@@ -1,93 +0,0 @@
+-#!/usr/bin/env python3
+-"""r2h code pins (no ROS): vpe_fix.py r2h against r2g's vpe_fix.py (3b8a93d4), part by part (the AST method of
+-src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py, which is NOT edited: it pins the vision path to the c33
+-product and fails on r2h by design -- see README).
+-
+-Allowed to differ (r2h B1/B2), each with its reason:
+-  VpeFix.__init__              new state: markers_pos_time (B1), _recent_poses / _last_publish_time / _reentry_* (B2)
+-  VpeFix._single_marker_fresh  B1: >= 1 marker within 1.5 s instead of "the last message >= 1"
+-  VpeFix.markers_used_callback B1: records markers_pos_time; re-evaluates the gate on every message
+-  VpeFix.yaw_locked_callback   B1: re-evaluates the gate when yaw_locked changes
+-  VpeFix.aruco_map_callback    B2: an accepted pose is also kept in _recent_poses (one line)
+-  VpeFix.publish_timer         B2: publishes _reentry_pose(now); stamps _last_publish_time
+-  VpeFix._maybe_reseed         B2 (review S2): a reseed restarts _recent_poses with the seed (two lines)
+-Added: VpeFix._reentry_pose, constants _REENTRY_GAP / _REENTRY_N / _REENTRY_HOLD / _REENTRY_MAX_WAIT. Nothing removed.
+-Everything else (P1 state logic, _evaluate_gate, _apply_gate, guards, reseed, the parameter gate, constants) is
+-AST-identical to r2g. Also: aruco_map_callback differs from r2g by exactly one added statement.
+-Run: python3 -B test/test_pins_r2h.py -v
+-"""
+-import ast
+-import unittest
+-from pathlib import Path
+-
+-ROOT = Path(__file__).resolve().parent.parent
+-R2H = ROOT / 'src/bumblebee/src/python/vpe_fix.py'
+-R2G = Path('/work/fixed_image_r2g_20261110/src/bumblebee/src/python/vpe_fix.py')
+-CHANGED = {'VpeFix.__init__', 'VpeFix._single_marker_fresh', 'VpeFix.markers_used_callback',
+-           'VpeFix.yaw_locked_callback', 'VpeFix.aruco_map_callback', 'VpeFix.publish_timer', 'VpeFix._maybe_reseed'}
+-ADDED = {'VpeFix._reentry_pose', 'const _REENTRY_GAP', 'const _REENTRY_N', 'const _REENTRY_HOLD', 'const _REENTRY_MAX_WAIT'}
+-
+-
+-def parts(path):
+-    t = ast.parse(path.read_text())
+-    out = {}
+-    for n in t.body:
+-        if isinstance(n, ast.Assign):
+-            for n2 in n.targets:
+-                if isinstance(n2, ast.Name):
+-                    out['const ' + n2.id] = ast.dump(n.value)
+-        elif isinstance(n, (ast.Import, ast.ImportFrom)):
+-            out['import ' + ast.dump(n)] = ''
+-        elif isinstance(n, ast.ClassDef) and n.name == 'VpeFix':
+-            out['class VpeFix bases'] = repr([ast.dump(b) for b in n.bases])
+-            out['class VpeFix non-method body'] = repr([ast.dump(m) for m in n.body if not isinstance(m, ast.FunctionDef)])
+-            for m in n.body:
+-                if isinstance(m, ast.FunctionDef):
+-                    out['VpeFix.' + m.name] = ast.dump(m)
+-        elif isinstance(n, (ast.FunctionDef, ast.ClassDef)):
+-            out[n.name] = ast.dump(n)
+-        else:
+-            out['stmt ' + ast.dump(n)] = ''
+-    return out
+-
+-
+-def method(path, name):
+-    t = ast.parse(path.read_text())
+-    return [m for n in t.body if isinstance(n, ast.ClassDef) and n.name == 'VpeFix' for m in n.body
+-            if isinstance(m, ast.FunctionDef) and m.name == name][0]
+-
+-
+-class PinsR2H(unittest.TestCase):
+-    def test_only_the_declared_parts_differ_from_r2g(self):
+-        a, b = parts(R2G), parts(R2H)
+-        self.assertEqual({k for k in a if k in b and a[k] != b[k]}, CHANGED)
+-        self.assertEqual(set(b) - set(a), ADDED)
+-        self.assertEqual(set(a) - set(b), set())
+-
+-    def test_aruco_map_callback_one_added_statement(self):
+-        a, b = method(R2G, 'aruco_map_callback'), method(R2H, 'aruco_map_callback')
+-        sa, sb = [ast.dump(s) for s in a.body], [ast.dump(s) for s in b.body]
+-        self.assertEqual(len(sb), len(sa) + 1)
+-        extra = [s for s in sb if s not in sa]
+-        self.assertEqual(len(extra), 1)
+-        self.assertIn("attr='_recent_poses'", extra[0])
+-        self.assertEqual([s for s in sb if s in sa], sa)
+-
+-    def test_p1_state_and_gate_decision_unchanged(self):
+-        for m in ('_evaluate_gate', '_apply_gate', 'state_callback', '_fcu_state_unknown', '_state_clock_ns',
+-                  '_state_watchdog_tick', '_gate_tick', '_multi_marker_fresh', '_medoid'):
+-            self.assertEqual(ast.dump(method(R2G, m)), ast.dump(method(R2H, m)), m)
+-
+-    def test_gate_constants_unchanged(self):
+-        a, b = parts(R2G), parts(R2H)
+-        for c in ('_QUALITY_MULTI_TIMEOUT', '_QUALITY_SINGLE_TIMEOUT', '_GATE_HYSTERESIS', '_POSE_TIMEOUT',
+-                  '_XY_JUMP_MAX', '_Z_JUMP_MAX', '_MAX_VISION_SPEED', '_STATE_STALE_TIMEOUT', '_STATE_STAMP_MAX_AGE'):
+-            self.assertEqual(a['const ' + c], b['const ' + c], c)
+-
+-    def test_r2g_is_the_reference(self):
+-        import hashlib
+-        self.assertTrue(hashlib.sha256(R2G.read_bytes()).hexdigest().startswith('3b8a93d4d0898369'))
+-
+-
+-if __name__ == '__main__':
+-    unittest.main()
+diff -ruN -x __pycache__ /work/fixed_image_r2h_20261110/test/test_r2h.py test/test_r2h.py
+--- /work/fixed_image_r2h_20261110/test/test_r2h.py	2026-11-10 18:24:44.637767876 +0400
++++ test/test_r2h.py	2026-11-11 12:34:21.006820635 +0400
+@@ -20,7 +20,7 @@
+ _src = (HERE / 'test_r2g.py').read_text()
+ _old = "assert 'fixed_image_r2g_20261110' in str(R2G_DRONE), R2G_DRONE"
+ assert _src.count(_old) == 1
+-_src = _src.replace(_old, "assert 'fixed_image_r2h_20261110' in str(R2G_DRONE), R2G_DRONE   # r2h: retargeted")
++_src = _src.replace(_old, "assert 'fixed_image_r2i_20261111' in str(R2G_DRONE), R2G_DRONE   # r2h: retargeted")
+ R2G_TESTS = types.ModuleType('test_r2g_on_r2h')
+ R2G_TESTS.__file__ = str(HERE / 'test_r2g.py')
+ sys.modules['test_r2g_on_r2h'] = R2G_TESTS
+diff -ruN -x __pycache__ /work/fixed_image_r2h_20261110/test/test_r2h_final.py test/test_r2h_final.py
+--- /work/fixed_image_r2h_20261110/test/test_r2h_final.py	2026-11-10 18:22:49.143100600 +0400
++++ test/test_r2h_final.py	1970-01-01 04:00:00.000000000 +0400
+@@ -1,124 +0,0 @@
+-#!/usr/bin/env python3
+-"""r2h FINAL against the r2h CANDIDATE (task T44, no ROS). The final = the candidate (SHA256SUMS 4f4b0ce9) plus:
+-  1. vpe_fix._reentry_pose: the medoid gets the fresh poses newest first, so a tie (always so with 2 poses) goes to
+-     the newest (SHOULD of the candidate review); nothing else in vpe_fix changes;
+-  2. code pins round 3: tests_r2/test_pins_r2.py (not edited) now pins the r2g copy ref/vpe_fix_r2g_3b8a93d4.py,
+-     tests_r3/test_pins_r3.py pins r2h against that copy (CMake: the vpe_fix block only);
+-  3. camera_fix.py stays the a45a264 file 4a15d699 (as r2g; Gazebo checks this one); its manifest row stays PENDING.
+-drone.py: the candidate's bytes. Run: python3 -B test/test_r2h_final.py -v   (from the final folder)
+-"""
+-import ast
+-import difflib
+-import filecmp
+-import hashlib
+-import unittest
+-from pathlib import Path
+-
+-ROOT = Path(__file__).resolve().parent.parent
+-CAND = Path('/work/fixed_image_r2h_candidate_20261110')
+-R2G = Path('/work/fixed_image_r2g_20261110')
+-assert ROOT.name == 'fixed_image_r2h_20261110', ROOT
+-S = 'src/bumblebee/'
+-VPE = S + 'src/python/vpe_fix.py'
+-H2 = S + 'test/vpe_fix_h2_r2/'
+-
+-
+-def sha(p):
+-    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+-
+-
+-def parts(path):
+-    out = {}
+-    for n in ast.parse(Path(path).read_text()).body:
+-        if isinstance(n, ast.ClassDef) and n.name == 'VpeFix':
+-            for m in n.body:
+-                out['VpeFix.' + m.name if isinstance(m, ast.FunctionDef) else 'VpeFix body ' + ast.dump(m)] = ast.dump(m)
+-        else:
+-            out[ast.dump(n)[:60] + str(getattr(n, 'lineno', ''))] = ast.dump(n)
+-    return out
+-
+-
+-def method(path, name):
+-    return [m for n in ast.parse(Path(path).read_text()).body if isinstance(n, ast.ClassDef) and n.name == 'VpeFix'
+-            for m in n.body if isinstance(m, ast.FunctionDef) and m.name == name][0]
+-
+-
+-def tree_files(root):
+-    return {str(p.relative_to(root)) for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts}
+-
+-
+-class FinalVsCandidate(unittest.TestCase):
+-    def test_candidate_is_the_reviewed_one(self):
+-        self.assertTrue(sha(CAND / 'SHA256SUMS').startswith('4f4b0ce9'))
+-
+-    def test_vpe_fix_only_reentry_pose_differs(self):
+-        a = {k: v for k, v in parts(CAND / VPE).items() if k.startswith('VpeFix')}
+-        b = {k: v for k, v in parts(ROOT / VPE).items() if k.startswith('VpeFix')}
+-        self.assertEqual(set(a), set(b))
+-        self.assertEqual({k for k in a if a[k] != b[k]}, {'VpeFix._reentry_pose'})
+-        # everything outside the class (constants, imports, functions): the same statements in the same order
+-        ta = [ast.dump(n) for n in ast.parse((CAND / VPE).read_text()).body if not (isinstance(n, ast.ClassDef) and n.name == 'VpeFix')]
+-        tb = [ast.dump(n) for n in ast.parse((ROOT / VPE).read_text()).body if not (isinstance(n, ast.ClassDef) and n.name == 'VpeFix')]
+-        self.assertEqual(ta, tb)
+-
+-    def test_reentry_pose_differs_in_the_docstring_and_the_final_return_only(self):
+-        sa = method(CAND / VPE, '_reentry_pose').body
+-        sb = method(ROOT / VPE, '_reentry_pose').body
+-        self.assertEqual(len(sa), len(sb))
+-        diff = [i for i, (x, y) in enumerate(zip(sa, sb)) if ast.dump(x) != ast.dump(y)]
+-        self.assertEqual(diff, [0, len(sb) - 1])
+-        self.assertIsInstance(sb[0].value, ast.Constant)                 # the docstring
+-        ret = sb[-1]
+-        self.assertIsInstance(ret, ast.Return)
+-        self.assertEqual(ast.unparse(ret), 'return self._medoid([p for _t, p in reversed(fresh)])')
+-        self.assertEqual(ast.unparse(sa[-1]), 'return self._medoid([p for _t, p in fresh])')
+-
+-    def test_drone_py_is_the_candidate_bytes(self):
+-        self.assertEqual(sha(ROOT / S / 'examples/drone.py'), sha(CAND / S / 'examples/drone.py'))
+-        self.assertTrue(sha(ROOT / S / 'examples/drone.py').startswith('fa6abf8b'))
+-
+-    def test_camera_fix_is_r2g_and_its_row_stays_pending(self):
+-        p = 'src/python/camera_fix.py'
+-        self.assertEqual(sha(ROOT / S / p), sha(R2G / S / p))
+-        self.assertTrue(sha(ROOT / S / p).startswith('4a15d699'))
+-        rows = [r.split('\t') for r in (ROOT / 'image_manifest_r2.tsv').read_text().split('\n')
+-                if r.startswith('drone/ros2_ws/' + S + p + '\t')]
+-        self.assertEqual(len(rows), 1)
+-        r = rows[0]
+-        self.assertTrue(r[1].startswith('4a15d699'))                      # on the drone (a45a264)
+-        self.assertTrue(r[2].startswith('dabd5076'))                      # the pending camera fix (not in src)
+-        self.assertEqual(r[3], 'camera_fullrow_01')
+-        self.assertIn('PENDING', r[4])
+-
+-    def test_ref_copy_is_r2g_bytes(self):
+-        self.assertEqual((ROOT / H2 / 'ref/vpe_fix_r2g_3b8a93d4.py').read_bytes(), (R2G / VPE).read_bytes())
+-
+-    def test_old_pins_file_not_edited(self):
+-        self.assertEqual(sha(ROOT / H2 / 'tests_r2/test_pins_r2.py'), sha(CAND / H2 / 'tests_r2/test_pins_r2.py'))
+-
+-    def test_cmake_only_the_vpe_fix_pins_block(self):
+-        a = (CAND / S / 'CMakeLists.txt').read_text().splitlines()
+-        b = (ROOT / S / 'CMakeLists.txt').read_text().splitlines()
+-        sm = difflib.SequenceMatcher(None, a, b, autojunk=False)
+-        changed = [(t, i1, i2, j1, j2) for t, i1, i2, j1, j2 in sm.get_opcodes() if t != 'equal']
+-        start = a.index('  ament_add_pytest_test(test_vpe_fix_h2_r2_pins test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py TIMEOUT 60')
+-        end = a.index('  ament_add_pytest_test(test_vpe_fix_h2_r2 test/vpe_fix_h2_r2/tests_r2/test_h2_r2.py TIMEOUT 120')
+-        for t, i1, i2, j1, j2 in changed:
+-            self.assertTrue(start - 1 <= i1 and i2 <= end, (t, a[i1:i2], b[j1:j2]))
+-        new = '\n'.join(b)
+-        self.assertIn('PIN_TARGET=${_H2R2}/ref/vpe_fix_r2g_3b8a93d4.py', new)
+-        self.assertIn('ament_add_pytest_test(test_vpe_fix_pins_r3 test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py', new)
+-        self.assertIn('PIN_TARGET=${_VPE} PIN_R2G=${_H2R2}/ref/vpe_fix_r2g_3b8a93d4.py', new)
+-
+-    def test_src_differs_from_the_candidate_only_in_the_declared_files(self):
+-        a, b = tree_files(CAND / 'src'), tree_files(ROOT / 'src')
+-        self.assertEqual(b - a, {'bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_r2g_3b8a93d4.py',
+-                                 'bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py'})
+-        self.assertEqual(a - b, set())
+-        diff = {f for f in a if not filecmp.cmp(CAND / 'src' / f, ROOT / 'src' / f, shallow=False)}
+-        self.assertEqual(diff, {'bumblebee/src/python/vpe_fix.py', 'bumblebee/CMakeLists.txt',
+-                                'bumblebee/test/vpe_fix_h2_r2/README.md'})
+-
+-
+-if __name__ == '__main__':
+-    unittest.main()
+diff -ruN -x __pycache__ /work/fixed_image_r2h_20261110/test/test_r2h_vpe.py test/test_r2h_vpe.py
+--- /work/fixed_image_r2h_20261110/test/test_r2h_vpe.py	2026-11-10 18:37:00.243572120 +0400
++++ test/test_r2h_vpe.py	2026-11-11 12:34:21.006935254 +0400
+@@ -19,7 +19,7 @@
+ 
+ R2H_VPE = ROOT / 'src/bumblebee/src/python/vpe_fix.py'
+ R2G_VPE = Path('/work/fixed_image_r2g_20261110/src/bumblebee/src/python/vpe_fix.py')
+-assert 'fixed_image_r2h_20261110' in str(R2H_VPE), R2H_VPE
++assert 'fixed_image_r2i_20261111' in str(R2H_VPE), R2H_VPE
+ R2H = B.load(str(R2H_VPE), 'vpe_fix_r2h')
+ R2G = B.load(str(R2G_VPE), 'vpe_fix_r2g_control')
+ CAND_VPE = Path('/work/fixed_image_r2h_candidate_20261110/src/bumblebee/src/python/vpe_fix.py')   # T44 control
+diff -ruN -x __pycache__ /work/fixed_image_r2h_20261110/test/test_r2i_changes.py test/test_r2i_changes.py
+--- /work/fixed_image_r2h_20261110/test/test_r2i_changes.py	1970-01-01 04:00:00.000000000 +0400
++++ test/test_r2i_changes.py	2026-11-11 12:33:24.837608600 +0400
+@@ -0,0 +1,95 @@
++#!/usr/bin/env python3
++"""r2i (T46, no ROS): the difference r2h -> r2i is exactly the table EDITS of tools/make_r2i.py plus the declared new
++files. Every edited file, with EDITS applied backwards, is r2h's file byte for byte; every other src file is r2h's;
++drone.py, flight.py and camera_fix.py are r2h's bytes; flight_marker takes off to 0.9 m; the camera_fix manifest row
++has no PENDING and names the file src holds; the manifest rows that changed are the declared ones.
++Run: python3 -B test/test_r2i_changes.py -v   (from the r2i folder)
++"""
++import filecmp
++import hashlib
++import importlib.util
++import unittest
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++R2H = Path('/work/fixed_image_r2h_20261110')
++assert ROOT.name == 'fixed_image_r2i_20261111', ROOT
++spec = importlib.util.spec_from_file_location('make_r2i', ROOT / 'tools/make_r2i.py')
++MK = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(MK)
++S = 'src/bumblebee/'
++P = 'drone/ros2_ws/src/bumblebee/'
++
++
++def sha(p):
++    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
++
++
++def files(root):
++    return {str(p.relative_to(root)) for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts}
++
++
++class Changes(unittest.TestCase):
++    def test_r2h_is_the_accepted_one(self):
++        self.assertEqual(sha(R2H / 'SHA256SUMS'), MK.R2H_SUMS)
++
++    def test_edits_backwards_give_r2h_bytes(self):
++        by_file = {}
++        for rel, old, new, why in MK.EDITS:
++            by_file.setdefault(rel, []).append((old, new))
++        for rel, pairs in by_file.items():
++            t = (ROOT / rel).read_text()
++            for old, new in reversed(pairs):
++                self.assertEqual(t.count(new), 1, (rel, new[:60]))
++                t = t.replace(new, old)
++            if rel == 'image_manifest_r2.tsv':
++                continue                                  # other rows: test_manifest_rows
++            self.assertEqual(t, (R2H / rel).read_text(), rel)
++
++    def test_src_files_differ_only_as_declared(self):
++        a, b = files(R2H / 'src'), files(ROOT / 'src')
++        new = {k[len('src/'):] for k in MK.NEW_FILES if k.startswith('src/')} | \
++              {'bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_r2h_66d806ba.py'}
++        self.assertEqual(b - a, new)
++        self.assertEqual(a - b, set())
++        edited = {rel[len('src/'):] for rel, *_ in MK.EDITS if rel.startswith('src/')}
++        diff = {f for f in a if not filecmp.cmp(R2H / 'src' / f, ROOT / 'src' / f, shallow=False)}
++        self.assertEqual(diff, edited)
++
++    def test_drone_py_flight_py_camera_fix_are_r2h(self):
++        for f in ('examples/drone.py', 'examples/flight/flight.py', 'src/python/camera_fix.py'):
++            self.assertEqual(sha(ROOT / S / f), sha(R2H / S / f), f)
++        self.assertEqual(sha(ROOT / S / 'examples/drone.py'), MK.R2H_DRONE)
++        self.assertEqual(sha(ROOT / S / 'src/python/camera_fix.py'), MK.CAMERA_FIX)
++        self.assertIn('takeoff(height=0.8', (ROOT / S / 'examples/flight/flight.py').read_text())
++
++    def test_flight_marker_one_line(self):
++        a = (R2H / S / 'examples/flight/flight_marker.py').read_text().splitlines()
++        b = (ROOT / S / 'examples/flight/flight_marker.py').read_text().splitlines()
++        self.assertEqual(len(a), len(b))
++        d = [(i + 1, x, y) for i, (x, y) in enumerate(zip(a, b)) if x != y]
++        self.assertEqual(d, [(159, '    drone.takeoff(height=0.7, speed=0.4)', '    drone.takeoff(height=0.9, speed=0.4)')])
++
++    def test_manifest_rows(self):
++        def rows(p):
++            return {r.split('\t')[0]: r.split('\t') for r in Path(p).read_text().split('\n') if r and not r.startswith('#')}
++        a, b = rows(R2H / 'image_manifest_r2.tsv'), rows(ROOT / 'image_manifest_r2.tsv')
++        cam = b[P + 'src/python/camera_fix.py']
++        self.assertEqual(cam[1], MK.CAMERA_FIX)
++        self.assertEqual(cam[2], MK.CAMERA_FIX)
++        self.assertEqual(cam[2], sha(ROOT / S / 'src/python/camera_fix.py'))
++        self.assertNotIn('PENDING', '\n'.join('\t'.join(r) for r in b.values()))
++        changed = {k for k in a if k in b and a[k] != b[k]}
++        expect = {P + 'src/python/camera_fix.py', P + 'src/python/vpe_fix.py', P + 'src/cpp/simple_offboard.cpp',
++                  P + 'examples/flight/flight_marker.py', P + 'CMakeLists.txt', P + 'test/vpe_fix_h2_r2/README.md',
++                  P + 'test/test_simple_offboard_px4model_launch.py'}
++        self.assertEqual(changed, expect)
++        self.assertEqual(set(b) - set(a), {P + 'src/cpp/state_link.h', P + 'test/vpe_fix_h2_r2/ref/vpe_fix_r2h_66d806ba.py',
++                                           P + 'test/vpe_fix_h2_r2/tests_r4/test_pins_r4.py'})
++        self.assertEqual(set(a) - set(b), set())
++        for k in expect | (set(b) - set(a)):
++            self.assertEqual(b[k][2], sha(ROOT / 'src' / k[len('drone/ros2_ws/src/'):]), k)
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff -ruN -x __pycache__ /work/fixed_image_r2h_20261110/test/test_r2i_vpe.py test/test_r2i_vpe.py
+--- /work/fixed_image_r2h_20261110/test/test_r2i_vpe.py	1970-01-01 04:00:00.000000000 +0400
++++ test/test_r2i_vpe.py	2026-11-11 12:36:08.991073018 +0400
+@@ -0,0 +1,129 @@
++#!/usr/bin/env python3
++"""r2i (T46, owner 11.11 «Зрение при посадке», no ROS): vpe_fix publishes in AUTO.LAND on the same vision condition
++as in OFFBOARD (B1/B2 of r2h); every other armed mode stays silent. The REAL VpeFix class on the offline bench, driven
++by the event simulation of test/test_r2h_vpe.py (24 Hz detector, 30 Hz publish timer, 1 Hz /mavros/state).
++Every AUTO.LAND scenario runs on r2i and, as the control, on r2h's vpe_fix (/work/fixed_image_r2h_20261110): r2h
++stays silent in AUTO.LAND (T45: no vision after LAND).
++Run: python3 -B test/test_r2i_vpe.py -v   (from the r2i folder)
++"""
++import sys
++import unittest
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE))
++import test_r2h_vpe as base  # noqa: E402  (its R2H is this folder's vpe_fix: r2i)
++
++B = base.B
++Sim = base.Sim
++R2I = base.R2H
++R2I_VPE = base.R2H_VPE
++assert 'fixed_image_r2i_' in str(R2I_VPE), R2I_VPE
++R2H_VPE = Path('/work/fixed_image_r2h_20261110/src/bumblebee/src/python/vpe_fix.py')
++R2H = B.load(str(R2H_VPE), 'vpe_fix_r2h_control_t46')
++FRAME = base.FRAME
++MARK = lambda t: (2, (0.0, 0.0, 1.0))
++
++
++def modes(*steps):
++    """steps: (from_s, connected, armed, mode) in time order; the last one with from_s <= t applies"""
++    def st(t):
++        cur = None
++        for a, c, ar, m in steps:
++            if t >= a - 1e-9:
++                cur = (c, ar, m)
++        return cur
++    return st
++
++
++def gaps(ts):
++    return max((b - a for a, b in zip(ts, ts[1:])), default=0.0)
++
++
++class AutoLand(unittest.TestCase):
++    def test_offboard_to_auto_land_keeps_publishing(self):
++        """OFFBOARD until 3 s, AUTO.LAND after (the script's own /land or a PX4 failsafe land), markers seen:
++        r2i publishes on without a gap; control r2h stops at the AUTO.LAND State."""
++        st = modes((0, True, True, 'OFFBOARD'), (3, True, True, 'AUTO.LAND'))
++        s = Sim(R2I, MARK, state=st)
++        s.run(8.0)
++        ts = [t for t, _ in s.sent(after=2.0)]
++        self.assertGreater(ts[-1], 7.9)
++        self.assertLess(gaps(ts), 0.05)
++        self.assertEqual(s.node._evaluate_gate(), (True, 'AUTO.LAND + vision_ok'))   # publish stays True: no log line
++        c = Sim(R2H, MARK, state=st)
++        c.run(8.0)
++        self.assertEqual(c.sent(after=3.0 + 0.05), [])
++        self.assertIn('armed in manual (no publish)', ' '.join(m for _, _, m in c.node.logs))
++
++    def test_auto_land_from_the_start_publishes(self):
++        st = modes((0, True, True, 'AUTO.LAND'))
++        s = Sim(R2I, MARK, state=st)
++        s.run(4.0)
++        self.assertGreater(len(s.sent(after=1.0)), 3.0 * 30 * 0.9)
++        c = Sim(R2H, MARK, state=st)
++        c.run(4.0)
++        self.assertEqual(c.sent(after=0.05), [])
++
++    def test_auto_land_vision_bad_suspends_as_in_offboard(self):
++        """markers stop at 4 s (empty frames): the gate closes as in OFFBOARD (>= 1 marker within 1.5 s, B1, + 0.5 s)"""
++        det = lambda t: (2, (0.0, 0.0, 1.0)) if t < 4.0 else (0, None)
++        when = {}
++        for mode in ('OFFBOARD', 'AUTO.LAND'):
++            s = Sim(R2I, det, state=modes((0, True, True, mode)))
++            s.run(8.0)
++            self.assertFalse(s.node.vpe_active, mode)
++            self.assertEqual(s.sent(after=4.0 + 0.5 + 0.05), [], mode)       # nothing older than 0.5 s
++            closes = [((t - s.t0) / 1e9, m) for t, _, m in s.node.logs if 'vision_bad (publish suspended)' in m]
++            self.assertTrue(closes and closes[-1][1].startswith('vpe_fix: %s + vision_bad' % mode), (mode, closes))
++            self.assertLessEqual(closes[-1][0], 4.0 + 1.5 + 0.5 + 2 * FRAME, mode)
++            when[mode] = closes[-1][0]
++        self.assertEqual(when['OFFBOARD'], when['AUTO.LAND'])
++
++    def test_manual_and_other_auto_modes_never_publish(self):
++        """armed in STAB, ALTCTL, POSCTL (pilot) or other AUTO modes: silent, as r2h"""
++        for mode in ('STABILIZED', 'ALTCTL', 'POSCTL', 'AUTO.LOITER', 'AUTO.RTL', 'AUTO.TAKEOFF', 'ACRO'):
++            for mod in (R2I, R2H):
++                s = Sim(mod, MARK, state=modes((0, True, True, 'OFFBOARD'), (3, True, True, mode)))
++                s.run(6.0)
++                self.assertEqual(s.sent(after=3.0 + 0.05), [], mode)
++                self.assertFalse(s.node.vpe_active, mode)
++
++    def test_auto_land_to_posctl_closes_at_once(self):
++        """the pilot takes over during the landing: the POSCTL State closes the gate at once (P1b)"""
++        st = modes((0, True, True, 'OFFBOARD'), (2, True, True, 'AUTO.LAND'), (5, True, True, 'POSCTL'))
++        s = Sim(R2I, MARK, state=st)
++        s.run(8.0)
++        self.assertGreater(len([t for t, _ in s.sent(after=2.0) if t < 5.0]), 80)
++        self.assertEqual(s.sent(after=5.0 + 0.05), [])
++
++    def test_auto_land_fcu_state_unknown_closes(self):
++        """P1 kept in AUTO.LAND: connected=False closes at once; no State for > 4.5 s closes"""
++        s = Sim(R2I, MARK, state=modes((0, True, True, 'AUTO.LAND'), (3, False, False, '')))
++        s.run(6.0)
++        self.assertEqual(s.sent(after=3.0 + 0.05), [])
++        st2 = lambda t: (True, True, 'AUTO.LAND') if t < 2.0 else None
++        s2 = Sim(R2I, MARK, state=st2)
++        s2.run(9.0)
++        self.assertEqual(s2.sent(after=2.0 - 0.01 + 4.5 + 0.15), [])
++
++    def test_disarm_after_landing_is_the_warm_up(self):
++        s = Sim(R2I, MARK, state=modes((0, True, True, 'AUTO.LAND'), (3, True, False, 'AUTO.LAND')))
++        s.run(5.0)
++        self.assertTrue(s.node.vpe_active)
++        self.assertIn('disarmed (warm-up)', ' '.join(m for _, _, m in s.node.logs))
++
++    def test_b2_reentry_in_auto_land(self):
++        """r2h B2 works in AUTO.LAND too: after a pause the first samples are the medoid"""
++        xs = [0.0, 0.01, 0.06]
++        det = base.B2Reentry.det_with_pause(xs)
++        s = Sim(R2I, det, state=modes((0, True, True, 'AUTO.LAND')))
++        s.run(5.0)
++        after = s.sent(after=det.back[0])
++        t1 = after[0][0]
++        hold = [m.pose.pose.position.x for t, m in after if t < t1 + 0.5 - 1e-6]
++        self.assertTrue(hold and all(abs(x - 0.01) < 1e-9 for x in hold), hold)
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff -ruN -x __pycache__ /work/fixed_image_r2h_20261110/test/test_state_link.cpp test/test_state_link.cpp
+--- /work/fixed_image_r2h_20261110/test/test_state_link.cpp	1970-01-01 04:00:00.000000000 +0400
++++ test/test_state_link.cpp	2026-11-11 12:36:08.990043772 +0400
+@@ -0,0 +1,118 @@
++// r2i T46 (S9): fcuLinkSilentNs() without ROS, against the r2h rule (silence = now - last State) as the control.
++// Build and run (from the r2i folder):
++//   g++ -std=c++17 -Wall -Wextra -Werror -I src/bumblebee/src/cpp test/test_state_link.cpp -o /tmp/tsl && /tmp/tsl
++// Model: FCU HEARTBEATs (and so MAVROS States) every 1 s at a phase; local_position every 1/30 s; the watchdog
++// (publishSetpoint) ticks every 1/30 s; threshold state_watchdog_timeout 4.5 s (unchanged).
++// What r2i promises (1 Hz HEARTBEATs make 4.0-5.0 s a phase-dependent band, whatever the rule):
++//   - it never stops before the loss has really lasted 4.5 s;
++//   - a HEARTBEAT-only gap of <= 4.0 s never stops, of >= 5.0 s always stops before it ends;
++//   - when the whole link goes (the fast stream too), it stops 4.5 s after the loss began (to one fast sample).
++#include "state_link.h"
++#include <cstdio>
++
++static int failures = 0;
++#define CHECK(cond) do { if (!(cond)) { std::printf("FAIL line %d: %s\n", __LINE__, #cond); ++failures; } } while (0)
++
++static const int64_t S = 1000000000LL;
++static const int64_t MS = 1000000LL;
++static const int64_t TH = 4500 * MS;            // state_watchdog_timeout (unchanged)
++static const int64_t P = S;                     // HEARTBEAT period
++static const int64_t TICK = S / 30;
++static const int64_t FAST = S / 30;
++
++struct Run {
++    int64_t phase;              // HEARTBEATs at phase + k s
++    int64_t drop_a, drop_b;     // HEARTBEATs in [drop_a, drop_b) are dropped (S9 proxy); -1: none
++    int64_t link_a, link_b;     // everything (HEARTBEATs and the fast stream) is lost in [link_a, link_b); -1: none
++    bool no_fast = false;       // no fast stream at all (fallback)
++    bool lost_hb(int64_t t) const {
++        return (drop_a >= 0 && t >= drop_a && t < drop_b) || (link_a >= 0 && t >= link_a && t < link_b);
++    }
++    int64_t last_hb(int64_t now) const {            // the last State received at or before now
++        int64_t k = (now - phase) / S;
++        for (int64_t t = phase + k * S; t > 0; t -= S)
++            if (t <= now && !lost_hb(t)) return t;
++        return 0;
++    }
++    int64_t last_fast(int64_t now) const {
++        if (no_fast) return 0;
++        int64_t t = now - now % FAST;
++        while (link_a >= 0 && t >= link_a && t < link_b) t -= FAST;
++        return t;
++    }
++    // first tick in [a, b] at which the rule fires; -1 = none
++    int64_t fire(int64_t a, int64_t b, bool old_rule) const {
++        for (int64_t t = a - a % TICK; t <= b; t += TICK) {
++            int64_t sr = last_hb(t);
++            int64_t silent = old_rule ? t - sr : fcuLinkSilentNs(t, sr, last_fast(t), P);
++            if (silent > TH) return t;
++        }
++        return -1;
++    }
++};
++
++int main() {
++    // 1. C8 A10 heartbeat_13 exactly (proxy record, PX4 sim time): HEARTBEATs at k + 0.436 s
++    {
++        Run r{436 * MS, 63344 * MS, 66844 * MS, -1, -1};
++        CHECK(r.last_hb(66900 * MS) == 62436 * MS);                 // 4 dropped: 63.436 .. 66.436
++        CHECK(r.fire(62500 * MS, 67500 * MS, false) == -1);         // r2i: the short gap does not stop the flight
++        int64_t old = r.fire(62500 * MS, 67500 * MS, true);
++        CHECK(old > 0 && old < 67436 * MS);                         // control: r2h stopped it (as in the run)
++        Run l{436 * MS, 69464 * MS, 74464 * MS, -1, -1};             // the long gap of the same run
++        int64_t f = l.fire(69500 * MS, 76000 * MS, false);
++        CHECK(f > 0 && f < 75436 * MS);                             // r2i stops before the HEARTBEAT returns
++        CHECK(f - 69464 * MS >= TH);                                // and only after >= 4.5 s of real loss
++        std::printf("heartbeat_13: short r2i none, r2h %.3f s; long r2i %.3f s (%.3f s after the drop began)\n",
++                    old / 1e9, f / 1e9, (f - 69464 * MS) / 1e9);
++    }
++    // 2. S9 HEARTBEAT-only gaps at every phase (step 7 ms)
++    int old_short_fires = 0, n = 0;
++    for (int64_t ph = 0; ph < S; ph += 7 * MS, ++n) {
++        int64_t a = 50 * S + 300 * MS;
++        Run s{ph, a, a + 3500 * MS, -1, -1};
++        CHECK(s.fire(a - S, a + 6 * S, false) == -1);               // a 3.5 s gap never stops (r2i)
++        if (s.fire(a - S, a + 6 * S, true) > 0) ++old_short_fires;
++        Run l{ph, a, a + 5000 * MS, -1, -1};
++        int64_t f = l.fire(a - S, a + 8 * S, false);
++        int64_t back = a + 5000 * MS;                               // the first HEARTBEAT after the gap is >= back
++        while (l.lost_hb(back) || (back - ph) % S != 0) back += MS;
++        CHECK(f > 0 && f < back);                                   // a 5.0 s gap always stops before it ends
++        CHECK(f - a >= TH);                                         // never before 4.5 s of real loss
++        Run m{ph, a, a + 4000 * MS, -1, -1};                        // 4.0 s: at most 4 HEARTBEATs lost, never stops
++        CHECK(m.fire(a - S, a + 7 * S, false) == -1);
++        Run b{ph, a, a + 4400 * MS, -1, -1};                        // 4.0-5.0 s: depends on the phase (1 Hz evidence),
++        int64_t fb = b.fire(a - S, a + 7 * S, false);              // but never before 4.5 s of real loss
++        CHECK(fb == -1 || fb - a >= TH);
++    }
++    CHECK(old_short_fires > n / 3);                                 // control: r2h stops on a share of the phases
++    std::printf("S9 phases: %d, r2h stopped the 3.5 s gap in %d of them, r2i in none\n", n, old_short_fires);
++    // 3. Real link loss / MAVROS kill (HEARTBEATs AND the fast stream stop at L), every phase
++    int64_t worst_old = 0, worst_new = 0;
++    for (int64_t ph = 0; ph < S; ph += 7 * MS) {
++        int64_t L = 80 * S + 123 * MS;
++        Run k{ph, -1, -1, L, L + 60 * S};
++        int64_t f = k.fire(L - S, L + 7 * S, false), o = k.fire(L - S, L + 7 * S, true);
++        CHECK(f > 0 && f - L > TH - FAST && f - L <= TH + FAST + TICK);   // r2i: 4.5 s after the loss, to a sample
++        CHECK(f < L + 5 * S);                                             // before a MAVROS respawned after 5 s
++        CHECK(o > 0 && o - L <= TH + TICK);
++        if (f - L > worst_new) worst_new = f - L;
++        if (o - L > worst_old) worst_old = o - L;
++        Run q{ph, -1, -1, L, L + 4000 * MS};                              // a 4.0 s total loss: no stop (r2i)
++        CHECK(q.fire(L - S, L + 7 * S, false) == -1);
++        Run w{ph, -1, -1, L, L + 4400 * MS};                              // 4.4 s: never before 4.5 s of loss
++        int64_t fw = w.fire(L - S, L + 7 * S, false);
++        CHECK(fw == -1 || fw - L >= TH);
++    }
++    std::printf("link loss: stop after the loss began r2i <= %.3f s, r2h <= %.3f s\n", worst_new / 1e9, worst_old / 1e9);
++    // 4. Fallbacks: no fast sample yet -> as r2h; no valid State -> now - 0
++    CHECK(fcuLinkSilentNs(10 * S, 5 * S, 0, P) == 5 * S);
++    CHECK(fcuLinkSilentNs(10 * S, 0, 9 * S, P) == 10 * S);
++    CHECK(fcuLinkSilentNs(10 * S, 5 * S, 9 * S, 0) == 5 * S);
++    CHECK(fcuLinkSilentNs(10 * S, 5 * S, 9 * S, P) == 4 * S);           // fast running: from the next HEARTBEAT due
++    CHECK(fcuLinkSilentNs(10 * S, 5 * S, 5 * S + 300 * MS, P) == 4700 * MS);   // fast stopped 0.3 s after the State
++    CHECK(fcuLinkSilentNs(10 * S, 5 * S, 4 * S, P) == 5 * S);           // fast stopped earlier: from the State
++    if (failures) { std::printf("test_state_link: %d FAILED\n", failures); return 1; }
++    std::printf("test_state_link: all cases OK\n");
++    return 0;
++}

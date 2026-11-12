@@ -1,0 +1,186 @@
+[
+ [
+  "expect/flight_real_params_4070.json",
+  "New: 4061 file + ['BAT1_SOURCE', 'SDLOG_MODE']."
+ ],
+ [
+  "expect/rc_real_params_4070.json",
+  "New: copy of rc_real_params_4061.json (no RC change in 4070)."
+ ],
+ [
+  "verify_flight_c8.py",
+  "Comment of the new identity."
+ ],
+ [
+  "verify_flight_c8.py",
+  "A8: identity c8_4070 (one table row, no logic change)."
+ ],
+ [
+  "candidate/parameters/vpe_profile_optin.py",
+  "A8: SITL harness airframe check 4061 -> 4070."
+ ],
+ [
+  "candidate/manifest.json:scope",
+  "Scope text."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/flight_profile.py",
+  "Origin r2e -> r2f (byte-identical file)."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/vpe_fix.py",
+  "Origin r2e -> r2f (byte-identical file)."
+ ],
+ [
+  "candidate/manifest.json:origins:vision/aruco_detect.py",
+  "Origin r2e -> r2f (byte-identical file)."
+ ],
+ [
+  "candidate/manifest.json",
+  "files: vpe_profile_optin.py sha; origins text."
+ ],
+ [
+  "candidate/README.md",
+  "One line appended."
+ ],
+ [
+  "executor/PRODUCT_SHA256SUMS.txt",
+  "Regenerated from the r2f install (same 522 paths, same order)."
+ ],
+ [
+  "executor/run.sh",
+  "Own folder."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "A8: product sums of the r2f install."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "A8: r2f drone.py."
+ ],
+ [
+  "executor/sitl_setup.py",
+  "A8: profile path r2f (byte-identical file)."
+ ],
+ [
+  "executor/vision_c8.launch.py",
+  "A8: own candidate path (header + location check)."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Header."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "First line."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Refusal text."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Comment."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "A8: default airframe 4070."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "A8: default image r2f."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Pins runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Banner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "host_check runner."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Paths -> A8 (2) and image -> r2f (6)."
+ ],
+ [
+  "tests/d1_check.py",
+  "Paths -> A8 (1) and image -> r2f (0)."
+ ],
+ [
+  "tests/ledger_check.py",
+  "Paths -> A8 (1) and image -> r2f (2)."
+ ],
+ [
+  "tests/a6_apply_order.py",
+  "Paths -> A8 (1) and image -> r2f (0)."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "Paths -> A8 (3) and image -> r2f (0)."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Tests use pins A8."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Launcher pre-check with the default airframe 4070."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Control: the A7 pins are refused by the A8 launcher."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "D7: the opt-in now names 4070."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "D7: 4061 refused, 4070 reaches the route check."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "A8 tests added."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "A8: the A7 candidate is refused too."
+ ],
+ [
+  "tests/a8_checks.py",
+  "New test (A8)."
+ ],
+ [
+  "tests/a8_judge_effect.py",
+  "New test (A8)."
+ ],
+ [
+  "tests/a8_judge_on_a7_run.py",
+  "New test (A8)."
+ ],
+ [
+  "pins/frozen_inputs_c8_r2f_a8_01.json",
+  "Changed entries: ['@run/drone.py', 'c8_judge_r2f_a8_20261110/candidate/parameters/vpe_profile_optin.py', 'c8_judge_r2f_a8_20261110/executor/PRODUCT_SHA256SUMS.txt', 'c8_judge_r2f_a8_20261110/executor/run.sh', 'c8_judge_r2f_a8_20261110/executor/sitl_setup.py', 'c8_judge_r2f_a8_20261110/executor/vision_c8.launch.py', 'c8_judge_r2f_a8_20261110/verify_flight_c8.py', 'fixed_image_r2f_20261110/MANIFEST_SHA256.txt', 'fixed_image_r2f_20261110/image_manifest_r2.tsv', 'fixed_image_r2f_20261110/install/bumblebee/lib/bumblebee/simple_offboard', 'fixed_image_r2f_20261110/src/bumblebee/examples/drone.py', 'fixed_image_r2f_20261110/src/bumblebee/src/cpp/simple_offboard.cpp', 'run_files:drone.py', 'run_files:run.sh', 'run_files:sitl_setup.py', 'run_files:vision_c8.launch.py']"
+ ]
+]

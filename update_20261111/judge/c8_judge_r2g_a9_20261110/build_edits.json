@@ -1,0 +1,190 @@
+[
+ [
+  "expect/flight_real_params_4070.json",
+  "Rebuilt: 4061 file + ['BAT1_SOURCE', 'EKF2_OF_QMIN', 'SDLOG_MODE'] (A9 adds EKF2_OF_QMIN 50)."
+ ],
+ [
+  "verify_flight_c8.py",
+  "A9: c8_4070 flight expectation sha (EKF2_OF_QMIN 50 added; the values are EXPECT_4070 of tools/make_a9.py)."
+ ],
+ [
+  "candidate/manifest.json:scope",
+  "Scope text."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/flight_profile.py",
+  "Origin r2f -> r2g (byte-identical file)."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/vpe_fix.py",
+  "Origin r2f -> r2g (byte-identical file)."
+ ],
+ [
+  "candidate/manifest.json:origins:vision/aruco_detect.py",
+  "Origin r2f -> r2g (byte-identical file)."
+ ],
+ [
+  "candidate/README.md",
+  "One line appended."
+ ],
+ [
+  "executor/PRODUCT_SHA256SUMS.txt",
+  "Regenerated from the r2g install (same 522 paths, same order)."
+ ],
+ [
+  "executor/run.sh",
+  "Own folder."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "A9: product sums of the r2g install."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "A9: r2g drone.py."
+ ],
+ [
+  "executor/sitl_setup.py",
+  "A9: profile path r2g (byte-identical file)."
+ ],
+ [
+  "executor/vision_c8.launch.py",
+  "A9: own candidate path (header + location check)."
+ ],
+ [
+  "executor/run_sim.snapshot.sh",
+  "A9 (M1): logger restart for SDLOG_MODE 1 (-e), boot log moved aside; other modes refused."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Header."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "First line."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Refusal text."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Comment."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "A9: default image r2g."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Pins runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Banner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "host_check runner."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Paths -> A9 (2), image -> r2g (6), builder -> make_a9.py (0)."
+ ],
+ [
+  "tests/d1_check.py",
+  "Paths -> A9 (1), image -> r2g (0), builder -> make_a9.py (0)."
+ ],
+ [
+  "tests/ledger_check.py",
+  "Paths -> A9 (1), image -> r2g (2), builder -> make_a9.py (0)."
+ ],
+ [
+  "tests/a6_apply_order.py",
+  "Paths -> A9 (1), image -> r2g (0), builder -> make_a9.py (0)."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "Paths -> A9 (3), image -> r2g (0), builder -> make_a9.py (0)."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Paths -> A9 (4), image -> r2g (4), builder -> make_a9.py (2)."
+ ],
+ [
+  "tests/a8_judge_effect.py",
+  "Paths -> A9 (1), image -> r2g (0), builder -> make_a9.py (1)."
+ ],
+ [
+  "tests/a8_judge_on_a7_run.py",
+  "Paths -> A9 (1), image -> r2g (0), builder -> make_a9.py (1)."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Tests use pins A9."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Launcher pre-check with airframe 4070 v2."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Control: the A8 pins are refused by the A9 launcher."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "A9 tests added."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A9: the reviewed r2g MANIFEST."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Pins A9."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Accepted pins A9."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Key mapping A7 -> A9 (checked: the path replacement already gives it)."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A9: airframe 4070 file name."
+ ],
+ [
+  "tests/a8_judge_on_a7_run.py",
+  "A9 (S1): all EXPECT_4070 names must be judged."
+ ],
+ [
+  "tests/a9_logger_restart.py",
+  "New test (A9)."
+ ],
+ [
+  "tests/a9_checks.py",
+  "New test (A9)."
+ ],
+ [
+  "pins/frozen_inputs_c8_r2g_a9_01.json",
+  "Changed entries: ['@run/drone.py', 'c8_judge_r2g_a9_20261110/executor/PRODUCT_SHA256SUMS.txt', 'c8_judge_r2g_a9_20261110/executor/run.sh', 'c8_judge_r2g_a9_20261110/executor/run_sim.snapshot.sh', 'c8_judge_r2g_a9_20261110/executor/sitl_setup.py', 'c8_judge_r2g_a9_20261110/executor/vision_c8.launch.py', 'c8_judge_r2g_a9_20261110/expect/flight_real_params_4070.json', 'c8_judge_r2g_a9_20261110/verify_flight_c8.py', 'fixed_image_r2g_20261110/MANIFEST_SHA256.txt', 'fixed_image_r2g_20261110/image_manifest_r2.tsv', 'fixed_image_r2g_20261110/install/bumblebee/lib/bumblebee/simple_offboard', 'fixed_image_r2g_20261110/src/bumblebee/examples/drone.py', 'goal_step5b_20261109/px4_etc/init.d-posix/airframes/4070_gz_bumblebee_final_4061_bat0_sdlog1_ofqmin50', 'run_files:drone.py', 'run_files:run.sh', 'run_files:run_sim.snapshot.sh', 'run_files:sitl_setup.py', 'run_files:vision_c8.launch.py']"
+ ]
+]

@@ -1,0 +1,135 @@
+hover_marker0.py r6, 10.11.2026 11:52, drone.py = r2f (94f9dfee2f6114c0)
+
+test_before_takeoff_never_flies (__main__.CtrlC.test_before_takeoff_never_flies) ... ok
+test_during_fly_to_lands (__main__.CtrlC.test_during_fly_to_lands) ... ok
+test_during_hover_lands_at_once (__main__.CtrlC.test_during_hover_lands_at_once) ... ok
+test_during_landing_landing_goes_on (__main__.CtrlC.test_during_landing_landing_goes_on) ... ok
+test_in_flight_lands (__main__.CtrlC.test_in_flight_lands) ... ok
+test_full_flight_order_and_args (__main__.DryRun.test_full_flight_order_and_args) ... ok
+test_landing_not_confirmed_is_not_ok (__main__.DryRun.test_landing_not_confirmed_is_not_ok) ... ok
+test_disarm_during_hover (__main__.InFlight.test_disarm_during_hover) ... ok
+test_fcu_state_unknown (__main__.InFlight.test_fcu_state_unknown) ... ok
+test_fly_to_fails_no_hover (__main__.InFlight.test_fly_to_fails_no_hover)
+fly_to False (timeout, guard, pilot): no hover; safe_land (it sends nothing if the pilot has it). ... ok
+test_pilot_takes_over (__main__.InFlight.test_pilot_takes_over) ... ok
+test_short_vision_gap_tolerated (__main__.InFlight.test_short_vision_gap_tolerated) ... ok
+test_takeoff_fails_no_hover (__main__.InFlight.test_takeoff_fails_no_hover) ... ok
+test_vision_silent_lands (__main__.InFlight.test_vision_silent_lands) ... ok
+test_climb_fails_no_hover (__main__.OrderR6.test_climb_fails_no_hover) ... ok
+test_climb_settle_times_out_no_hover (__main__.OrderR6.test_climb_settle_times_out_no_hover) ... ok
+test_ctrl_c_during_climb_lands (__main__.OrderR6.test_ctrl_c_during_climb_lands) ... ok
+test_ctrl_c_in_climb_settle_lands (__main__.OrderR6.test_ctrl_c_in_climb_settle_lands) ... ok
+test_low_height_below_band_with_overshoot_margin (__main__.OrderR6.test_low_height_below_band_with_overshoot_margin) ... ok
+test_nothing_sent_between_the_moves (__main__.OrderR6.test_nothing_sent_between_the_moves) ... ok
+test_pilot_takes_over_in_climb_settle (__main__.OrderR6.test_pilot_takes_over_in_climb_settle) ... ok
+test_vision_silent_in_climb_settle (__main__.OrderR6.test_vision_silent_in_climb_settle) ... ok
+test_no_markers_f1 (__main__.Preflight.test_no_markers_f1) ... ok
+test_no_vpe (__main__.Preflight.test_no_vpe) ... ok
+test_no_yaw_lock (__main__.Preflight.test_no_yaw_lock) ... ok
+test_not_stable (__main__.Preflight.test_not_stable) ... ok
+test_s9_c6_04_start (__main__.Preflight.test_s9_c6_04_start)
+Variant B run s9_c6_04: START (-0.05, -0.05, z -0.31). Hover z = 0.69, as takeoff's target. ... ok
+test_start_nan (__main__.Preflight.test_start_nan) ... ok
+test_start_none (__main__.Preflight.test_start_none) ... ok
+test_start_offset_limit (__main__.Preflight.test_start_offset_limit) ... ok
+test_start_y_nan (__main__.Preflight.test_start_y_nan) ... ok
+test_start_z_nan (__main__.Preflight.test_start_z_nan) ... ok
+test_variant_a_map_frame_refuses (__main__.Preflight.test_variant_a_map_frame_refuses)
+Gazebo s04 (4035, variant A): on marker 0 the EKF map read (0.00, 1.53). r3 refuses: ... ok
+test_check_raises_refuses (__main__.Profile.test_check_raises_refuses) ... ok
+test_mismatch_refuses (__main__.Profile.test_mismatch_refuses) ... ok
+test_old_image_without_check_refuses_and_never_writes (__main__.Profile.test_old_image_without_check_refuses_and_never_writes) ... ok
+test_above_target_counts (__main__.Settle.test_above_target_counts) ... ok
+test_boundary_exactly_3cm_counts (__main__.Settle.test_boundary_exactly_3cm_counts) ... ok
+test_ctrl_c_during_settle_lands (__main__.Settle.test_ctrl_c_during_settle_lands) ... ok
+test_disarm_during_settle (__main__.Settle.test_disarm_during_settle) ... ok
+test_fcu_unknown_during_settle (__main__.Settle.test_fcu_unknown_during_settle) ... ok
+test_just_below_3cm_does_not_count (__main__.Settle.test_just_below_3cm_does_not_count) ... ok
+test_nan_and_read_errors_do_not_count (__main__.Settle.test_nan_and_read_errors_do_not_count) ... ok
+test_needs_three_in_a_row (__main__.Settle.test_needs_three_in_a_row) ... ok
+test_pilot_takes_over_during_settle (__main__.Settle.test_pilot_takes_over_during_settle) ... ok
+test_s9_c6r3_03_never_settles_times_out (__main__.Settle.test_s9_c6r3_03_never_settles_times_out) ... ok
+test_safety_checked_before_height (__main__.Settle.test_safety_checked_before_height) ... ok
+test_vision_silent_during_settle (__main__.Settle.test_vision_silent_during_settle) ... ok
+test_api_matches_fixed_image (__main__.Source.test_api_matches_fixed_image)
+Every drone.X(...) of the script exists in the fixed drone.py, with those keyword names. ... ok
+test_no_forbidden_calls (__main__.Source.test_no_forbidden_calls) ... ok
+test_numbers (__main__.Source.test_numbers) ... ok
+test_gap_3_8s_tolerated_4_2s_cut (__main__.VisionR5.test_gap_3_8s_tolerated_4_2s_cut) ... ok
+test_height_lost_while_waiting_for_vision (__main__.VisionR5.test_height_lost_while_waiting_for_vision) ... ok
+test_height_reached_but_no_pose_waits (__main__.VisionR5.test_height_reached_but_no_pose_waits) ... ok
+test_image_before_r2f_refuses_before_arming (__main__.VisionR5.test_image_before_r2f_refuses_before_arming) ... ok
+test_lost_during_climb_not_reset_at_settle (__main__.VisionR5.test_lost_during_climb_not_reset_at_settle) ... ok
+test_lost_during_fly_to_not_reset_at_climb_settle (__main__.VisionR5.test_lost_during_fly_to_not_reset_at_climb_settle) ... ok
+test_lost_in_climb_settle_not_reset_at_hover (__main__.VisionR5.test_lost_in_climb_settle_not_reset_at_hover) ... ok
+test_never_a_pose_counts_from_takeoff (__main__.VisionR5.test_never_a_pose_counts_from_takeoff) ... ok
+test_old_pose_does_not_end_first_settle (__main__.VisionR5.test_old_pose_does_not_end_first_settle) ... ok
+test_raw_markers_present_but_no_new_pose_cuts (__main__.VisionR5.test_raw_markers_present_but_no_new_pose_cuts) ... ok
+test_raw_markers_zero_but_poses_flow_no_cut (__main__.VisionR5.test_raw_markers_zero_but_poses_flow_no_cut) ... ok
+test_vision_back_after_15s_flies_on (__main__.VisionR5.test_vision_back_after_15s_flies_on) ... ok
+test_vision_back_late_in_the_climb (__main__.VisionR5.test_vision_back_late_in_the_climb) ... ok
+test_watchdog_does_not_read_raw_count (__main__.VisionR5.test_watchdog_does_not_read_raw_count) ... ok
+----------------------------------------------------------------------
+Ran 65 tests in 0.388s
+OK
+
+== mutation_check ==
+CAUGHT   profile check removed -> apply_flight_profile (writes in port-rc3)
+CAUGHT   mismatch ignored
+CAUGHT   Ctrl+C before takeoff ignored
+CAUGHT   pilot takeover ignored
+CAUGHT   hover re-sends setpoint to current position
+CAUGHT   no landing on Ctrl+C in hover
+CAUGHT   hover 60 s (r1)
+CAUGHT   height 1.5 m
+CAUGHT   NaN start check off
+CAUGHT   r3: lands over START instead of marker 0
+CAUGHT   r3: no fly_to (r2: hovers over START)
+CAUGHT   r3: fly_to START instead of marker 0
+CAUGHT   r3: absolute z 1.0 instead of START z + 1.0
+CAUGHT   r3: START offset check off
+CAUGHT   r3: START offset limit 1.6 m
+CAUGHT   r3: START offset limit 0.6 m
+CAUGHT   r3: offset from START x only
+CAUGHT   r3: fly_to failure ignored
+CAUGHT   r3: fly_to fast 0.5 m/s
+CAUGHT   r3: fly_to no settle
+CAUGHT   r4: no settle (r3)
+CAUGHT   r4: settle 15 cm (= takeoff tolerance)
+CAUGHT   r4: settle 1 sample
+CAUGHT   r4: settle timeout 60 s
+CAUGHT   r4: settle sign flipped
+CAUGHT   r4: settle in the map frame
+CAUGHT   r4: settle timeout flies on
+CAUGHT   r4: settle read error counts as reached
+CAUGHT   r4: count not reset on a bad check
+CAUGHT   r4: height checked before safety
+CAUGHT   r5: watchdog on the raw markers_used (r4)
+CAUGHT   r5: silence counted from the first pose (no S4)
+CAUGHT   r5: silence reset at each watch start
+CAUGHT   r5: takeoff time never set
+CAUGHT   r5: no r2f image check
+CAUGHT   r5: vision age limit 2 s
+CAUGHT   r5: vision silent 6 s
+CAUGHT   r5: vision watchdog off
+CAUGHT   r6: takeoff straight to the hover height (r5)
+CAUGHT   r6: move to marker 0 at the hover height
+CAUGHT   r6: low z absolute
+CAUGHT   r6: no climb
+CAUGHT   r6: climb over START instead of marker 0
+CAUGHT   r6: climb failure ignored
+CAUGHT   r6: climb no settle_speed
+CAUGHT   r6: no settle after the climb
+CAUGHT   r6: hover even if the climb settle failed
+CAUGHT   r6: LOW_H 0.5
+CAUGHT   r6: LOW_H 0.9
+CAUGHT   r6: climb fast 0.4 m/s
+CAUGHT   r6 A: first settle ends without a new pose
+CAUGHT   r6 A: first settle with the r5 limit
+CAUGHT   r6 A: 25 s limit in every watch
+CAUGHT   r6 A: no wait for vision after 15 s (review)
+CAUGHT   r6 A: wait-on cut without the vision silent prefix
+CAUGHT   r6 A: first settle limit 60 s
+CAUGHT   r6 A: climb settle also waits for vision
+CAUGHT   F1 bypass: aruco check skipped
+58/58 mutations caught

@@ -1,0 +1,1 @@
+{"clocksource": "tsc", "kernel": "6.18.54.1-microsoft-standard-WSL2", "tick_us": 10000, "freq_ppm": -0.208, "timesyncd": "inactive", "seconds": 40.0, "ratio": 1.00006, "uncertainty": 0.00377, "realtime_steps": [], "problems": [], "ok": true}

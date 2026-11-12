@@ -1,0 +1,132 @@
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/1/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/162/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/170/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/171/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/175/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/180/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/192/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/194/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/2/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/205/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/212/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/3/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/309/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/353/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/35338/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/35339/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/354/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/40/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/53353/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/53354/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/53355/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/53356/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/53357/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/53358/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/53367/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/53383/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/53384/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/7/environ: Permission denied
+/work/goal_step5b_20261109/run_scenario7l.sh: line 152: /proc/87/environ: Permission denied
+ТОЛЬКО СИМУЛЯТОР (ed.7l image_r2j; ed.7k af_4074_t52 sim_only_4074; ed.7j af_4072_4073_t49; ed.7h image_r2h_final; ed.7g script_use_sim_time; ed.7f image_r2h_candidate; ed.7e hover_r6; ed.7c image_r2g; ed.7b logger_by_SDLOG_MODE r5 sim_only=4070v2; ed.7 vision_max_hz=12; ed.6c range_relay=0; ed.6 inject_on=none#1:none after_inject_s=30 rc=rc_hold3; ed.5 image=r2hf pilot_pos_on=none#1; ed.4 model=/work/goal_t22_flow_20261109/model_v1/bumblebee flow_plugin=/work/goal_t22_flow_20261109/plugin_v1/libOpticalFlowSystemT22.so; ed.3 kill_script_on=none after_kill_s=30): scenario t52_yawbase_01 airframe 4070 script /work/goal_step5b_20261109/scenarios/t52_hover_yaw.py gui=0 timeout=300s trial_aruco_always=0 trial_map_file=1 probe_param_events=0 script_height=1.0 end_after_disarm=15s end_if_idle=60s 2026-11-11T13:52:28+04:00
+date 2026-11-11T13:52:28+04:00
+px4_source_head 94cb2012792b2ae89f0b147cfee53ee31ae550be
+px4_binary_sha256 56931e9da394a7619e6d61e04f5e1a0d77e3fa9f9828f5824c61d5cdb53963d7
+gz 8.15.0
+airframe 4070 0224deec06a3a4fee076b2bc24d8cd1cd1650f3d270da057f94afa057698339e
+airframe 4032 b1c83fbe8bdc97b9371b61af2314201c1c2434e016a9805448328e2d25c04eb4
+model_sdf /work/goal_t22_flow_20261109/model_v1/bumblebee 21d0ad765497ac8bbbbc64ec9f1ec6aab9e50009c65c5579aeb5058b11ab0d2d
+range_relay 0
+flow_plugin /work/goal_t22_flow_20261109/plugin_v1/libOpticalFlowSystemT22.so 631f10421ddde6f6514bdf12dc60d0e956344dc1ba60d3b7c9b3fe94018afc04
+aruco_world 73804e4e01accd7c515b7f3b285f09b0d63de4ad0385945b68bf11505e9b3ec0 map 528b5adb467dc91e819e0c4cb9a5ff44439319fff23c3293799b8ee3fe43e611
+product port-rc3 64438f4dcdb92fb08adee81902ccdf31e5e442e4 (tag object 331eeeb4dc1e7860ff
+script /work/goal_step5b_20261109/scenarios/t52_hover_yaw.py 18bed5e361b803a03b22efc4eb2d27ba704e13301fc15a99934c66bce890b8ea
+c8d9e10af3bd26188cbdc6f29293cced70a2922bc726f7b4795f4a91f94c2d05  run_scenario2.sh
+aae1748cecabd4d77af332e9f5e5a3971735c3343ba3b874ebbfcc454f6c8cf8  run_scenario3.sh
+901ad9075939a1bdfb3fec45fc7f05c1c880781890373cb15707c77fdf40b905  run_scenario4.sh
+9b9c53a2d20899a4a744c44c0dabfbd17c700ddba1408ffa31f0e250eb440226  run_scenario5.sh
+a58328a1349a075e5f7c16bb35a7f172645dadba87d7fbe7c53bee6eb26da4cb  run_scenario6.sh
+182374c1974b7fa98d8b15be881d8ec8aadb961f51315e55899c43ea3beb665e  run_scenario7.sh
+b28fd5daf6ef00975fd403f4961055e90404f2ea2e1a1723db4bb9b2da64bb5c  run_scenario7b.sh
+e24cc2a77bd385fe8143f57a6688d32cd0c4c63d81e09a8eae89e350a4ecdc58  run_scenario7c.sh
+0afd82bf38415fc6f9f571ae0b53d8c1b2b1f63771e4990a8d8063130bdd178a  run_scenario7e.sh
+499363783efe67382a409805ff05f3be5e47b9bca73fea52761027bd158e5d97  run_scenario7f.sh
+0041807725d3c1b34f4aa23fb8e6f6dd56f4c08629fa4c5f052c3af94035386d  run_scenario7g.sh
+12b60b08aa8a8bcdf4b5fca27b6ee3c5a1a00a7b027fff493a5b5a7d9a2d575c  run_scenario7h.sh
+ac97d21201503cead7eb19baf4256d3eab4d7b6b451e30e983807e81a98eeeb5  run_scenario7j.sh
+5a1160427f493560875f218e5489d5f951fd9022a75e3fd6066835b5f50c5228  run_scenario7k.sh
+ac7b97bd5d758d147bc6c4cbfa3165845df2576399cef4977c96afddc5192cb1  run_scenario7l.sh
+4b013f4989889e3a6a0931965d4f8c650844f08373225dab52f0ae2d03434c31  scenario_stack.launch.py
+87c9a0e42d9adf85ffaa7003ba9ebb1264fceb2782bf50f7a2733f9c54ba2e2b  sim_only.json
+10a8c8b544b970fa85d054142664c52d895872decbdf478f205cbb3f8e6a2f07  tools/c8_follow.py
+05fa4bf9f6d6e586ab1a05d0ce8b24fff1ffaf13ef15bf6e0f47cd1ba6a944ab  tools/c8_inject.py
+300cd79f4abedad37410c98a715d8946428f90008c552fb0980dc738c92dd82f  tools/goal_eval.py
+5e02c07a2f6a64d1bc560a73828eca97a95764b93e375f97335b28d62779252b  tools/goal_eval2.py
+8e897570068fbc8e398f92c1e314e68162bd759ff5fff9b017e71dde7137e541  tools/line_stamp.py
+335a1d68dcf3167cd4485eaf792eae91887ed75fe9e9efa43a24b2b3f79b7c81  tools/param_events_probe.py
+821006aaafd086eed5b0b03b644fbfa0fba43ab3e5151eafcb6508bdce1dacb5  tools/param_parity.py
+8621dab61ed9caa2544b5f71d5cab8dc61a499c30ec6e1ef245215777e0f7fbf  tools/pins_check2.py
+5c3d6eb861cba945153bdfdf5d80eaf5a0c17ec922311aaa2b6726d074dca1b7  tools/rc_hold.py
+f29e81651d925ad4d910ac84a821f9788f485fb016b2cab265a665c75a86de85  tools/rc_hold2.py
+0f9cafbc787444cc799237c828d133be8ae4316be5a4f4b76adfbe56627f330b  tools/rc_hold3.py
+aebdc7aeb26166631d16a98bc1ab58e12b8cc1c514ba793d8979cc372e96bb97  tools/sitl_param_names.txt
+bf5634a1e38569f55426e85e3394fe7c9fad790e21bc63e50a338c3d4cb46b29  tools/trial_runner.py
+0b0f8bdf65fd9dba4af8e949e8fa1ba380e1877daf998e7f163546bedbaefda6  tools/trial_runner2.py
+d9f688f12d7907f95b7c0223f5474646a71057fde1f3f1b731f34c4853f14ee6  tools/vision_throttle.py
+626acd4f73ba5a47e87f9a9250aea11c8501b3e6efb0a1e1e5aa40cac5922bdb  standin/bin/pkill
+pins: 14 same, differs: ['src/python/camera_fix.py'], new: ['/work/goal_step5b_20261109/scenarios/t52_hover_yaw.py']
+clock check exit 0: {"clocksource": "tsc", "kernel": "6.18.58.1-microsoft-standard-WSL2", "tick_us": 10000, "freq_ppm": -0.257, "timesyncd": "inactive", "seconds": 40.0, "ratio": 1.00001, "uncertainty": 0.00398, "realtime_steps": [], "problems": [], "ok": true}
+world: 20 markers
+gz server up after 2s
+px4 startup: INFO  [px4] Startup script returned successfully  after 1s
+logger SDLOG_MODE=1 args=-b 1000 -t -e
+logger restarted
+rc_hold ready: yes
+ros: mavros /work/ws_mavros214_bp02_rel/install/mavros bumblebee /work/fixed_image_r2h_20261110/install/bumblebee
+mavros: Got HEARTBEAT, connected. FCU: PX4 Autopilot after 3s
+mavros params: NOT complete after 90s
+script start 2026-11-11T13:55:22+04:00
+script exit 0 2026-11-11T13:56:43+04:00; 2026-11-11T13:56:43+04:00 exited by itself, code 0
+/work/goal_step5b_20261109/run_scenario7l.sh: line 263: 62384 Segmentation fault      (core dumped) setsid gz sim --verbose=2 -r -s --headless-rendering "$RUN/world.sdf" > "$RUN/gz.log" 2>&1 < /dev/null
+stopped 2026-11-11T13:56:54+04:00; alive px4/gz/ruby/mavros_node: 
+alive ROS-domain-83 ros2 daemon after cleanup: 
+airframe 4070: drone params 1107; {"equal": 762, "absent": 230, "control": 14, "sim_only": 101}; sim-only that really differ 61 {"S2": 48, "S6": 2, "S8": 1, "S7": 1, "S5": 4, "S3": 2, "S3b": 1, "S4": 1, "S1": 1}
+UNEXPLAINED 0
+parity exit 0
+criteria: PROPOSED 05.11, not approved by the owner (question 3); trial runs do not count
+script height 1.0 m; flight height 0.912 m (err -0.088); h max 1.287 m; air 64.6 s; hover runs [{"from_s": 140.3, "len_s": 30.7, "h_mean_m": 0.912, "h_p95_abs_err_m": 0.369}, {"from_s": 176.8, "len_s": 3.3, "h_mean_m": 1.163, "h_p95_abs_err_m": 0.204}, {"from_s": 184.6, "len_s": 6.5, "h_mean_m": 1.105, "h_p95_abs_err_m": 0.131}]
+touchdown 195.604 s, motors off 198.128 s, delta 2.52 s; failsafe while armed False; kill False
+EKF xy jumps > 0.10 m in air: 0; xy resets 2
+nav: LOITER@-0.02 -> STAB@1.2 -> OFFBOARD@128.62 -> LAND@191.83 -> OFFBOARD@198.13
+verdict vs PROPOSED (trial, not counted): {"C5_height": true, "C5_motors_off": true, "C5_no_failsafe": true}
+criteria: PROPOSED 05.11, not approved (question 3); trial run: пробно, не в зачёт
+valid: True []; RTF min 0.84 median 1.0; clock ok True; C2 parity unexplained 0
+profile: None; missing: []
+world->marker map: rot 0.000 deg, shift [0.0, 0.0], max residual 0.0000 m, dz -0.324 m, markers 20
+script end: 2026-11-11T13:56:43+04:00 exited by itself, code 0
+took off True; h max 1.287 m; air 64.6 s; flight height 0.912 m (err -0.088 vs 1.0); start (marker map) [-0.078, 0.0]
+EKF at arm [0.0, 0.05, 0.024]; EKF frame offset to marker map at arm [-0.078, -0.05]; EKF->map rotation in air not determinable (horizontal spread < 0.30 m) deg
+  wp1 target [0.0, 0.0] -> measured [-0.118, 0.071] err 0.138 m (vert -0.379), hold max 0.014, leg dev 0.096 / shape 0.001 / ekf own 0.117, reached 141.1 s
+  wp2 target [0.0, 0.0] -> measured [-0.033, -0.026] err 0.042 m (vert -0.208), hold max 0.007, leg dev 0.15 / shape 0.013 / ekf own 0.118, reached 147.1 s
+landing {"touchdown_marker_map_xy": [0.025, -0.224], "intended_xy": [-0.078, 0.0], "intended_is": "start point", "error_m": 0.246}
+touchdown 195.6 s, motors off 198.13 s, delay 2.52 s; arm->disarm 198.1 s; failsafe while armed False; kill False
+nav: LOITER@-0.02 -> STAB@1.2 -> OFFBOARD@128.62 -> LAND@191.83 -> OFFBOARD@198.13
+PX4 warnings: []
+script events: []
+verdict vs PROPOSED (пробно, не в зачёт): {"C5_height": true, "C5_motors_off": true, "C5_no_failsafe": true}
+goal_eval2 exit 0
+[LAND] z=0.86 vz=-0.34 armed=True
+[LAND] z=0.69 vz=-0.32 armed=True
+[LAND] z=0.56 vz=-0.30 armed=True
+[LAND] z=0.39 vz=-0.35 armed=True
+[LAND] z=0.25 vz=-0.30 armed=True
+[LAND] z=0.09 vz=-0.33 armed=True
+[LAND] z=0.06 vz=-0.01 armed=True
+[LAND] z=0.09 vz=-0.00 armed=True
+[LAND] z=0.10 vz=-0.00 armed=True
+[LAND] z=0.11 vz=-0.00 armed=True
+[LAND] z=0.13 vz=0.00 armed=True
+[LAND] z=0.13 vz=-0.00 armed=True
+[LAND] z=0.13 vz=-0.00 armed=False
+Landed and disarmed.
+C6 HOVER RESULT: OK held=20.0s reason=full time landed=True
+done t52_yawbase_01 2026-11-11T13:56:55+04:00

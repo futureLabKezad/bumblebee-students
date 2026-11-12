@@ -1,0 +1,165 @@
+--- notes/prev_r2.0/drone.py	2026-11-09 10:20:08.326955051 +0400
++++ src/bumblebee/examples/drone.py	2026-11-09 10:32:24.263037668 +0400
+@@ -842,6 +842,7 @@
+     if not _initialized:
+         return
+     _initialized = False
++    _stop_detector_wake()   # F1: no wakes after the script ends
+     try:
+         if _executor is not None:
+             _executor.shutdown(timeout_sec=2.0)
+@@ -1568,11 +1569,21 @@
+     except OSError as e:
+         raise RuntimeError('set_aruco_map: cannot read map %s: %s' % (path, e))
+     rows = {}
+-    for line in lines:
++    for n, line in enumerate(lines, 1):
+         p = line.split()
+         if not p or p[0].startswith('#'):
+             continue
+-        rows[int(p[0])] = (float(p[1]), float(p[2]), float(p[3]), float(p[5]) if len(p) > 5 else 1.571)
++        try:
++            if len(p) < 4:
++                raise ValueError('%d columns, need at least 4: id length x y' % len(p))
++            i = int(p[0])
++            if i in rows:
++                raise ValueError('id %d twice' % i)
++            rows[i] = (float(p[1]), float(p[2]), float(p[3]), float(p[5]) if len(p) > 5 else 1.571)
++        except ValueError as e:
++            raise RuntimeError('set_aruco_map: bad line %d in map %s: %r (%s)' % (n, path, line, e))
++    if not rows:
++        raise RuntimeError('set_aruco_map: no markers in map %s' % path)
+     return rows
+ 
+ 
+@@ -1684,6 +1695,73 @@
+     return time.monotonic() - _aruco_markers_pos_time
+ 
+ 
++# ---------------------------------------------------------------------------
++# F1 (09.11.2026, r2b): keep the marker detector awake during the preflight
++# ---------------------------------------------------------------------------
++# The image's detector (aruco_detect.py) sleeps until the FCU is armed or in
++# OFFBOARD and stays awake WAKE_HOLD_S (5 s) after each /aruco_detect/wake.
++# A preflight (check_aruco, wait_yaw_lock, wait_position_stable,
++# require_vpe_link, takeoff's vision wait) can take minutes, so a background
++# thread repeats the wake every WAKE_PERIOD_S until the FCU is armed (then the
++# detector's own gate keeps it on), the script shuts down, or WAKE_MAX_S pass
++# after the last preflight call -- no permanent CPU load on the ground.
++WAKE_PERIOD_S = 2.0
++WAKE_MAX_S = 180.0
++_wake_lock = threading.Lock()
++_wake_thread = None
++_wake_stop = None
++_wake_deadline = 0.0
++
++
++def _fcu_is_armed():
++    m = _fcu_state_msg
++    return bool(m is not None and getattr(m, 'armed', False))
++
++
++def _keep_detector_awake():
++    """Start (or extend) the background wake. Idempotent; never raises."""
++    global _wake_thread, _wake_stop, _wake_deadline
++    try:
++        with _wake_lock:
++            _wake_deadline = time.monotonic() + WAKE_MAX_S
++            if _wake_thread is not None and _wake_thread.is_alive():
++                return
++            pub = _node.create_publisher(Bool, '/aruco_detect/wake', 10)
++            stop = threading.Event()
++
++            def run():
++                msg = Bool()
++                msg.data = True
++                try:
++                    while not stop.is_set():
++                        if _fcu_is_armed() or time.monotonic() > _wake_deadline:
++                            break
++                        pub.publish(msg)
++                        stop.wait(WAKE_PERIOD_S)
++                except Exception:
++                    pass
++                finally:
++                    try:
++                        _node.destroy_publisher(pub)
++                    except Exception:
++                        pass
++
++            _wake_stop = stop
++            _wake_thread = threading.Thread(target=run, name='aruco-wake', daemon=True)
++            _wake_thread.start()
++    except Exception as e:
++        print('  WARN  detector wake not started: %s' % e)
++
++
++def _stop_detector_wake():
++    stop = _wake_stop
++    if stop is not None:
++        stop.set()
++    t = _wake_thread
++    if t is not None and t.is_alive() and t is not threading.current_thread():
++        t.join(timeout=1.0)
++
++
+ def check_aruco(timeout=10, min_markers=1):
+     """
+     Wait until at least `min_markers` ArUco markers are visible.
+@@ -1702,23 +1780,16 @@
+             result['ids'] = [m.id for m in msg.markers]
+ 
+     sub = _node.create_subscription(MarkerArray, '/aruco_detect/markers', cb, 1)
+-    # F1 (09.11.2026): the image's detector sleeps until the FCU is armed or in
+-    # OFFBOARD (gate_by_flight_state, saves Pi CPU). Keep it awake during this
+-    # preflight check: each message holds detection on for a few seconds.
+-    wake_pub = _node.create_publisher(Bool, '/aruco_detect/wake', 10)
+-    wake = Bool()
+-    wake.data = True
++    _keep_detector_awake()   # F1: detector awake from here until arming
+     deadline = time.time() + timeout
+     try:
+         while rclpy.ok() and not result['ids']:
+-            wake_pub.publish(wake)
+             if time.time() > deadline:
+                 print('ERROR: <%d ArUco markers detected after %ds.' % (min_markers, timeout))
+                 return []
+             time.sleep(0.2)
+     finally:
+         _node.destroy_subscription(sub)
+-        _node.destroy_publisher(wake_pub)
+     print('ArUco markers visible: %s -- OK' % result['ids'])
+     return result['ids']
+ 
+@@ -1750,6 +1821,7 @@
+     eventually hit the IPPE mirror flip when down to a single marker.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     print('=== WAITING FOR YAW LOCK (timeout %.0fs) ===' % timeout)
+     deadline = time.time() + timeout
+     while time.time() < deadline and not _aruco_yaw_locked:
+@@ -1781,6 +1853,7 @@
+     stuck, pose_cov stops flowing and EKF2 will fly on baro+IMU only.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     from geometry_msgs.msg import PoseWithCovarianceStamped as _PWCS
+     from rclpy.qos import QoSProfile as _QoS, ReliabilityPolicy as _RP, DurabilityPolicy as _DP
+     import collections as _collections
+@@ -1846,6 +1919,7 @@
+     Returns True when stable, False on timeout.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     base_tolerance = tolerance
+     print('=== POSITION STABLE CHECK ===')
+     print('Waiting for stable position (%.1fs window, timeout %.0fs, multi=%s, adaptive=%s)...'
+@@ -2091,6 +2165,7 @@
+     drops it. Returns True when the target height was reached.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     known, armed, mode = _fcu_mode_state(wait=_FCU_STATE_WAIT)
+     reason = _no_control_reason(known, armed, mode)
+     if reason is not None:

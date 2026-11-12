@@ -1,0 +1,54 @@
+test_r3_aruco_map_callback_one_added_statement (__main__.PinsR3.test_r3_aruco_map_callback_one_added_statement) ... FAIL
+test_r3_constants (__main__.PinsR3.test_r3_constants) ... ERROR
+test_r3_declared_parts_are_the_accepted_final (__main__.PinsR3.test_r3_declared_parts_are_the_accepted_final) ... FAIL
+test_r3_only_the_declared_parts_differ_from_r2g (__main__.PinsR3.test_r3_only_the_declared_parts_differ_from_r2g) ... FAIL
+test_r3_p1_gate_h2_and_guard_code_unchanged (__main__.PinsR3.test_r3_p1_gate_h2_and_guard_code_unchanged) ... ok
+test_r3_reference_is_r2g (__main__.PinsR3.test_r3_reference_is_r2g) ... ok
+
+======================================================================
+ERROR: test_r3_constants (__main__.PinsR3.test_r3_constants)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_20261110/src/bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py", line 141, in test_r3_constants
+    self.assertEqual(getattr(mod, k), v, k)
+                     ^^^^^^^^^^^^^^^
+AttributeError: module 'pin_r3_target' has no attribute '_REENTRY_GAP'
+
+======================================================================
+FAIL: test_r3_aruco_map_callback_one_added_statement (__main__.PinsR3.test_r3_aruco_map_callback_one_added_statement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_20261110/src/bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py", line 122, in test_r3_aruco_map_callback_one_added_statement
+    self.assertEqual(len(sb), len(sa) + 1)
+AssertionError: 9 != 10
+
+======================================================================
+FAIL: test_r3_declared_parts_are_the_accepted_final (__main__.PinsR3.test_r3_declared_parts_are_the_accepted_final)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_20261110/src/bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py", line 117, in test_r3_declared_parts_are_the_accepted_final
+    self.assertEqual(hashlib.sha256(b[k].encode()).hexdigest(), v, k)
+AssertionError: 'eac3b5004049646cae8a0b29143895d3a6a6bc0e710f4689cf7384c9007a0c40' != 'f7bfb962bb3258f8cb5b3f31730a61d4cf9a639c1a379eff14d721b979a5ea4b'
+- eac3b5004049646cae8a0b29143895d3a6a6bc0e710f4689cf7384c9007a0c40
++ f7bfb962bb3258f8cb5b3f31730a61d4cf9a639c1a379eff14d721b979a5ea4b
+ : VpeFix.__init__
+
+======================================================================
+FAIL: test_r3_only_the_declared_parts_differ_from_r2g (__main__.PinsR3.test_r3_only_the_declared_parts_differ_from_r2g)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_20261110/src/bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py", line 109, in test_r3_only_the_declared_parts_differ_from_r2g
+    self.assertEqual({k for k in a if k in b and a[k] != b[k]}, CHANGED)
+AssertionError: Items in the second set but not the first:
+'VpeFix._single_marker_fresh'
+'VpeFix.yaw_locked_callback'
+'VpeFix.__init__'
+'VpeFix.publish_timer'
+'VpeFix._maybe_reseed'
+'VpeFix.aruco_map_callback'
+'VpeFix.markers_used_callback'
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.141s
+
+FAILED (failures=3, errors=1)

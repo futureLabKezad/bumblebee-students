@@ -1,0 +1,202 @@
+[
+ [
+  "executor/run.sh",
+  "Paths -> A11 (1), image -> r2i (1), builder -> make_a11.py (0)."
+ ],
+ [
+  "executor/sitl_setup.py",
+  "Paths -> A11 (0), image -> r2i (1), builder -> make_a11.py (0)."
+ ],
+ [
+  "executor/vision_c8.launch.py",
+  "Paths -> A11 (2), image -> r2i (0), builder -> make_a11.py (0)."
+ ],
+ [
+  "executor/tests/test_entry_order.py",
+  "Paths -> A11 (1), image -> r2i (0), builder -> make_a11.py (0)."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Paths -> A11 (4), image -> r2i (2), builder -> make_a11.py (0)."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Paths -> A11 (2), image -> r2i (6), builder -> make_a11.py (0)."
+ ],
+ [
+  "tests/d1_check.py",
+  "Paths -> A11 (1), image -> r2i (0), builder -> make_a11.py (0)."
+ ],
+ [
+  "tests/ledger_check.py",
+  "Paths -> A11 (1), image -> r2i (2), builder -> make_a11.py (0)."
+ ],
+ [
+  "tests/a6_apply_order.py",
+  "Paths -> A11 (1), image -> r2i (0), builder -> make_a11.py (0)."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "Paths -> A11 (3), image -> r2i (0), builder -> make_a11.py (0)."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Paths -> A11 (4), image -> r2i (4), builder -> make_a11.py (2)."
+ ],
+ [
+  "tests/a8_judge_effect.py",
+  "Paths -> A11 (1), image -> r2i (0), builder -> make_a11.py (1)."
+ ],
+ [
+  "tests/a8_judge_on_a7_run.py",
+  "Paths -> A11 (1), image -> r2i (0), builder -> make_a11.py (1)."
+ ],
+ [
+  "tests/a9_logger_restart.py",
+  "Paths -> A11 (1), image -> r2i (0), builder -> make_a11.py (0)."
+ ],
+ [
+  "tests/a10_vpe_as_drone.py",
+  "Paths -> A11 (1), image -> r2i (1), builder -> make_a11.py (0)."
+ ],
+ [
+  "candidate/parameters/vpe_fix.py",
+  "A11: copy of the r2i vpe_fix (f0dc7c18)."
+ ],
+ [
+  "candidate/parameters/vpe_profile_optin.py",
+  "A11: the profile opt-in pins the r2i vpe_fix."
+ ],
+ [
+  "executor/vpe_gate_diagnostic_p1.py",
+  "A11: the gate diagnostic pins the r2i vpe_fix."
+ ],
+ [
+  "executor/vpe_diagnostic_entry.py",
+  "A11: entry pins the new diagnostic helper."
+ ],
+ [
+  "candidate/manifest.json:scope",
+  "Scope text."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/flight_profile.py",
+  "Origin r2h -> r2i."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/vpe_fix.py",
+  "Origin r2h -> r2i."
+ ],
+ [
+  "candidate/manifest.json:origins:vision/aruco_detect.py",
+  "Origin r2h -> r2i."
+ ],
+ [
+  "candidate/manifest.json:origins:vpe_profile_optin",
+  "A11 note."
+ ],
+ [
+  "candidate/manifest.json:files",
+  "A11: vpe_fix and vpe_profile_optin shas."
+ ],
+ [
+  "candidate/README.md",
+  "One line appended."
+ ],
+ [
+  "executor/PRODUCT_SHA256SUMS.txt",
+  "Regenerated from the r2i install (the same 505 paths, same order)."
+ ],
+ [
+  "executor/run.sh",
+  "Own folder."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "A11: product sums of the r2i install."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/sitl_setup.py",
+  "A11: profile path r2i (byte-identical file)."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Header."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Version strings (first line, refusal, banner)."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Comment."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Pins runner."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Tests use pins A11."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d2: r2i vpe_fix."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d2 comment."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Control: the A10 pins are refused by the A11 launcher."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "a10_checks -> a11_checks."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Comment."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A11: vpe_profile_optin pins the r2i sha."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A11: the r2i MANIFEST."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Pins A11."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Accepted pins A11."
+ ],
+ [
+  "tests/a11_checks.py",
+  "New test (A11)."
+ ],
+ [
+  "pins/frozen_inputs_c8_r2i_a11_01.json",
+  "Changed entries: ['c8_judge_r2i_a11_20261111/candidate/parameters/vpe_fix.py', 'c8_judge_r2i_a11_20261111/candidate/parameters/vpe_profile_optin.py', 'c8_judge_r2i_a11_20261111/executor/PRODUCT_SHA256SUMS.txt', 'c8_judge_r2i_a11_20261111/executor/run.sh', 'c8_judge_r2i_a11_20261111/executor/sitl_setup.py', 'c8_judge_r2i_a11_20261111/executor/vision_c8.launch.py', 'c8_judge_r2i_a11_20261111/executor/vpe_diagnostic_entry.py', 'c8_judge_r2i_a11_20261111/executor/vpe_gate_diagnostic_p1.py', 'fixed_image_r2i_20261111/MANIFEST_SHA256.txt', 'fixed_image_r2i_20261111/image_manifest_r2.tsv', 'fixed_image_r2i_20261111/install/bumblebee/lib/bumblebee/simple_offboard', 'fixed_image_r2i_20261111/src/bumblebee/src/cpp/simple_offboard.cpp', 'fixed_image_r2i_20261111/src/bumblebee/src/python/vpe_fix.py', 'run_files:run.sh', 'run_files:sitl_setup.py', 'run_files:vision_c8.launch.py', 'run_files:vpe_diagnostic_entry.py', 'run_files:vpe_gate_diagnostic_p1.py']"
+ ]
+]

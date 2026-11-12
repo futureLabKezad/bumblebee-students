@@ -1,0 +1,50 @@
+test_r2e_false_frames_extend_vision (test_r2g_on_r2h.ControlR2EOnR2G.test_r2e_false_frames_extend_vision) ... ok
+test_r2e_safe_land_trusts_false_frames (test_r2g_on_r2h.ControlR2EOnR2G.test_r2e_safe_land_trusts_false_frames) ... ok
+test_false_frames_do_not_extend_vision (test_r2g_on_r2h.R2FTestsOnR2G.test_false_frames_do_not_extend_vision) ... ok
+test_new_poses_extend_vision (test_r2g_on_r2h.R2FTestsOnR2G.test_new_poses_extend_vision) ... ok
+test_no_pose_before_takeoff_inactive_and_warns (test_r2g_on_r2h.R2FTestsOnR2G.test_no_pose_before_takeoff_inactive_and_warns) ... ok
+test_no_warning_when_pose_seen (test_r2g_on_r2h.R2FTestsOnR2G.test_no_warning_when_pose_seen) ... ok
+test_repeated_same_pose_does_not_extend (test_r2g_on_r2h.R2FTestsOnR2G.test_repeated_same_pose_does_not_extend)
+vpe_fix repeats the last accepted pose for up to 0.5 s with a new stamp: not new vision. ... ok
+test_safe_land_false_frames_mean_straight_land (test_r2g_on_r2h.R2FTestsOnR2G.test_safe_land_false_frames_mean_straight_land) ... ok
+test_safe_land_fresh_pose_keeps_precision_approach (test_r2g_on_r2h.R2FTestsOnR2G.test_safe_land_fresh_pose_keeps_precision_approach) ... ok
+test_vision_pose_age (test_r2g_on_r2h.R2FTestsOnR2G.test_vision_pose_age) ... ok
+test_vpe_fix_silent_trips (test_r2g_on_r2h.R2FTestsOnR2G.test_vpe_fix_silent_trips) ... ok
+test_r2f_flying_without_any_pose_never_lands (test_r2g_on_r2h.S4ControlR2F.test_r2f_flying_without_any_pose_never_lands) ... ok
+test_r2f_safe_land_without_any_pose_flies_the_approach (test_r2g_on_r2h.S4ControlR2F.test_r2f_safe_land_without_any_pose_flies_the_approach) ... ok
+test_disarm_clears_the_arm_reference (test_r2g_on_r2h.S4NoPoseEver.test_disarm_clears_the_arm_reference) ... ok
+test_false_frames_still_do_not_extend (test_r2g_on_r2h.S4NoPoseEver.test_false_frames_still_do_not_extend) ... ok
+test_flying_without_any_pose_lands_after_the_fly_to_limit (test_r2g_on_r2h.S4NoPoseEver.test_flying_without_any_pose_lands_after_the_fly_to_limit) ... ok
+test_late_first_pose_takes_over (test_r2g_on_r2h.S4NoPoseEver.test_late_first_pose_takes_over)
+No pose for 4 s after the arm, then regular new poses: no landing, the age follows the poses. ... ok
+test_link_loss_state_is_not_a_disarm (test_r2g_on_r2h.S4NoPoseEver.test_link_loss_state_is_not_a_disarm) ... ok
+test_pose_before_arm_counts_as_in_r2f (test_r2g_on_r2h.S4NoPoseEver.test_pose_before_arm_counts_as_in_r2f)
+Poses on the ground before the arm (the normal case): the age runs from the last pose, as in r2f. ... ok
+test_safe_land_without_any_pose_is_straight_after_3s (test_r2g_on_r2h.S4NoPoseEver.test_safe_land_without_any_pose_is_straight_after_3s) ... ok
+test_takeoff_without_any_pose_lands_at_arm_plus_25s (test_r2g_on_r2h.S4NoPoseEver.test_takeoff_without_any_pose_lands_at_arm_plus_25s) ... ok
+test_vision_pose_age_unchanged (test_r2g_on_r2h.S4NoPoseEver.test_vision_pose_age_unchanged) ... ok
+test_drone_py_watchdogs_no_longer_read_raw_marker_time (test_r2g_on_r2h.ScriptsOnR2G.test_drone_py_watchdogs_no_longer_read_raw_marker_time) ... ok
+test_hover_vw_aborts_on_no_new_pose_despite_raw_frames (test_r2g_on_r2h.ScriptsOnR2G.test_hover_vw_aborts_on_no_new_pose_despite_raw_frames) ... ok
+test_hover_vw_ok_with_new_poses (test_r2g_on_r2h.ScriptsOnR2G.test_hover_vw_ok_with_new_poses) ... ok
+test_hover_watchdogs_use_vision_pose_age (test_r2g_on_r2h.ScriptsOnR2G.test_hover_watchdogs_use_vision_pose_age)
+flight.py and flight_marker_loop.py hover loops are top-level code: their condition line is checked. ... ok
+test_init_subscribes_pose_cov_best_effort (test_r2g_on_r2h.ScriptsOnR2G.test_init_subscribes_pose_cov_best_effort)
+_init() with faked ROS (as the package's ArmingD3 test): /mavros/mavros/pose_cov -> _on_vpe_pose. ... ok
+test_arm_reference_on_the_hold_clock_and_cleared_on_disarm (__main__.WClock.test_arm_reference_on_the_hold_clock_and_cleared_on_disarm) ... ok
+test_change_of_clock_kind_falls_back_to_monotonic (__main__.WClock.test_change_of_clock_kind_falls_back_to_monotonic) ... ok
+test_monotonic_when_not_active_or_clock_reads_zero (__main__.WClock.test_monotonic_when_not_active_or_clock_reads_zero) ... ok
+test_negative_age_is_inf (__main__.WClock.test_negative_age_is_inf) ... ok
+test_silence_follows_the_sim_clock_when_active (__main__.WClock.test_silence_follows_the_sim_clock_when_active) ... ok
+test_r2g_lands_up_to_0p5_s_after_the_limit (__main__.WControlR2G.test_r2g_lands_up_to_0p5_s_after_the_limit) ... ok
+test_fly_to_lands_within_0p1_s_of_the_limit_after_the_last_pose (__main__.WLimits.test_fly_to_lands_within_0p1_s_of_the_limit_after_the_last_pose) ... ok
+test_flying_without_any_pose_lands_within_0p1_s (__main__.WLimits.test_flying_without_any_pose_lands_within_0p1_s) ... ok
+test_pose_stream_that_stops_mid_leg (__main__.WLimits.test_pose_stream_that_stops_mid_leg)
+new poses every clock step for 3 s, then none: landing 6.0..6.1 s after the last pose, at any phase of the ... ok
+test_takeoff_without_any_pose_lands_within_0p1_s_of_25 (__main__.WLimits.test_takeoff_without_any_pose_lands_within_0p1_s_of_25) ... ok
+test_with_poses_the_flight_is_unchanged (__main__.WLimits.test_with_poses_the_flight_is_unchanged) ... ok
+test_navigate_wait_step_and_checks (__main__.WSource.test_navigate_wait_step_and_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 39 tests in 0.337s
+
+OK

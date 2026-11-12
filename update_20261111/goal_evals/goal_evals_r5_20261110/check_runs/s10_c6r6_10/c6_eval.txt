@@ -1,0 +1,10 @@
+C6 PASS  failed: -
+run s10_c6r6_10; valid True []; ulog /work/goal_step5b_20261109/runs/s10_c6r6_10/rootfs/log/2026-11-10/09_37_35.ulg
+trial deviations: ['trial-map-file (F2): drone.MAP_FILE -> RUN/aruco_map_written/map.txt instead of /home/lb/...']
+window 149.46..218.42 s (69.0 s, ends: left OFFBOARD (nav_state 18)); settling 0.0 s
+offset to marker 0: <=10 cm 100.0 % of the time (need >=95), max 0.052 m (need <=0.20); height err max 0.100 m (need <=0.10)
+jump a (EKF, armed flight: 11997 EKF samples, 128.24..224.2 s): resets >0.10 m []; max move <0.2 s 0.068 m at [220.8, 221.0]
+jump b (truth): max move in 0.5 s 0.023 m at [149.46, 149.96] (horizontal only 0.016 m, information)
+verdict lines: {'took_off': True, 'hover_window_found': True, 'hover_60s': True, 'share_10cm_ge_95pct': True, 'offset_max_le_20cm': True, 'height_err_le_10cm': True, 'no_jump_a_ekf': True, 'no_jump_b_truth': True, 'landed_and_disarmed_after_hover': True, 'no_emergency': True, 'script_matches_versions': True, 'run_valid': True}
+emergencies: -
+script: === HOVER END held=65.0s reason=full time === | C6 HOVER RESULT: OK held=65.0s reason=full time landed=True

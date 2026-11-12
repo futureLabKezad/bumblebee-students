@@ -1,0 +1,42 @@
+test_r2e_false_frames_extend_vision (__main__.ControlR2E.test_r2e_false_frames_extend_vision) ... ok
+test_r2e_safe_land_trusts_false_frames (__main__.ControlR2E.test_r2e_safe_land_trusts_false_frames) ... ok
+test_drone_py_watchdogs_no_longer_read_raw_marker_time (__main__.Scripts.test_drone_py_watchdogs_no_longer_read_raw_marker_time) ... ok
+test_hover_vw_aborts_on_no_new_pose_despite_raw_frames (__main__.Scripts.test_hover_vw_aborts_on_no_new_pose_despite_raw_frames) ... ok
+test_hover_vw_ok_with_new_poses (__main__.Scripts.test_hover_vw_ok_with_new_poses) ... ok
+test_hover_watchdogs_use_vision_pose_age (__main__.Scripts.test_hover_watchdogs_use_vision_pose_age)
+flight.py and flight_marker_loop.py hover loops are top-level code: their condition line is checked. ... ok
+test_init_subscribes_pose_cov_best_effort (__main__.Scripts.test_init_subscribes_pose_cov_best_effort)
+_init() with faked ROS (as the package's ArmingD3 test): /mavros/mavros/pose_cov -> _on_vpe_pose. ... ok
+test_false_frames_do_not_extend_vision (__main__.VisionWatchdogR2F.test_false_frames_do_not_extend_vision) ... FAIL
+test_new_poses_extend_vision (__main__.VisionWatchdogR2F.test_new_poses_extend_vision) ... ok
+test_no_pose_before_takeoff_inactive_and_warns (__main__.VisionWatchdogR2F.test_no_pose_before_takeoff_inactive_and_warns) ... ok
+test_no_warning_when_pose_seen (__main__.VisionWatchdogR2F.test_no_warning_when_pose_seen) ... ok
+test_repeated_same_pose_does_not_extend (__main__.VisionWatchdogR2F.test_repeated_same_pose_does_not_extend)
+vpe_fix repeats the last accepted pose for up to 0.5 s with a new stamp: not new vision. ... FAIL
+test_safe_land_false_frames_mean_straight_land (__main__.VisionWatchdogR2F.test_safe_land_false_frames_mean_straight_land) ... ok
+test_safe_land_fresh_pose_keeps_precision_approach (__main__.VisionWatchdogR2F.test_safe_land_fresh_pose_keeps_precision_approach) ... ok
+test_vision_pose_age (__main__.VisionWatchdogR2F.test_vision_pose_age) ... ok
+test_vpe_fix_silent_trips (__main__.VisionWatchdogR2F.test_vpe_fix_silent_trips) ... ok
+
+======================================================================
+FAIL: test_false_frames_do_not_extend_vision (__main__.VisionWatchdogR2F.test_false_frames_do_not_extend_vision)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2f_20261110/test/test_r2f.py", line 77, in test_false_frames_do_not_extend_vision
+    self.assertLess(self.land_t[0] - t_pose, 6.5)   # fly_to limit 6 s + one loop step
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 6.5 not less than 6.5
+
+======================================================================
+FAIL: test_repeated_same_pose_does_not_extend (__main__.VisionWatchdogR2F.test_repeated_same_pose_does_not_extend)
+vpe_fix repeats the last accepted pose for up to 0.5 s with a new stamp: not new vision.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2f_20261110/test/test_r2f.py", line 98, in test_repeated_same_pose_does_not_extend
+    self.assertLess(self.land_t[0] - t_pose, 6.5)
+AssertionError: 6.5 not less than 6.5
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.130s
+
+FAILED (failures=2)

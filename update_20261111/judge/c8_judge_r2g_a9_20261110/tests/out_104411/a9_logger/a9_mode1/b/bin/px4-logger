@@ -1,0 +1,2 @@
+#!/bin/sh
+echo "$*" >> /work/c8_judge_r2g_a9_20261110/tests/out_104411/a9_logger/a9_mode1/calls.txt

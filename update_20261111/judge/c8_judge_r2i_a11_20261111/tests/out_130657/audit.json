@@ -1,0 +1,1 @@
+{"sitl_autostart": 4070, "sitl_autostart_source": "rc_ready.json:sys_autostart", "sim_gz_en_1": true, "all_fcu_paths_guarded": true, "no_hardware": true, "raw_topics_verified": true, "exclusive_profile_writer": true, "mavros_config": "/work/c8_judge_r2i_a11_20261111/tests/out_130657/fake_mavros.yaml"}

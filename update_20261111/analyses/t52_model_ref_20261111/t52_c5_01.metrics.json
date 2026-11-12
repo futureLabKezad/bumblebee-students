@@ -1,0 +1,1 @@
+{"run": "t52_c5_01", "dist_bottom_max_m": 1.007, "hte_valid": true, "hte_first_valid_s_after_arm": 19.8, "hte_last": NaN, "liftoff_s_after_arm": 6.7, "ekf_jump_liftoff_m": 0.018, "z_resets_in_window": 0, "z_reset_delta_m": []}

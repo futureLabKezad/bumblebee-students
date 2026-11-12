@@ -1,0 +1,32 @@
+--- /work/c6_hover_script_r6_20261110/hover_marker0.py	2026-11-10 11:52:48.225384623 +0400
++++ scenarios/t52_hover_yaw.py	2026-11-11 13:19:41.067397313 +0400
+@@ -13,6 +13,7 @@
+ # limitations under the License.
+ 
+ """
++t52_hover_yaw.py (T52 sign check, Claude 11.11; from hover r6) -- STUDY ONLY: hover 20 s, yaw +90 deg and back.
+ hover_marker0.py -- take off to 0.75 m, fly to the centre of marker 0, climb there to 1.0 m,
+ hover 65 s, land (goal criteria C6 / Zh4). r3: variant B. r4: waits for the takeoff height
+ before fly_to. r5: vision watchdog on new vpe_fix poses (image r2f), silence counted from the
+@@ -105,7 +106,7 @@
+ HOVER_H = 1.0             # m above the takeoff point (the drone stands on marker 0)
+ LOW_H = 0.75              # r6: takeoff and the move to marker 0 at this height (below the C6 band 0.90-1.10)
+ CLIMB_SPEED = 0.1         # r6: slow climb over marker 0 from LOW_H to HOVER_H
+-HOVER_S = 65.0            # r2 (chat 1, 09.11): the C6 window (from the band entry) must reach 60 s; e3 had 59.6
++HOVER_S = 20.0   # T52: was 65.0;           # r2 (chat 1, 09.11): the C6 window (from the band entry) must reach 60 s; e3 had 59.6
+ MARKER0_X = 0.0           # r3: centre of marker 0 in 'map' (variant B: map = marker frame)
+ MARKER0_Y = 0.0
+ MAX_START_OFFSET_M = 0.5  # r3: START farther than this from (0, 0) -> refuse (map is not the marker frame)
+@@ -347,6 +348,12 @@
+             reason = settle_at_target_height('hover height')
+             if reason is None:
+                 held, reason = hold_over_marker0(HOVER_S)
++                for yaw_t, tag in ((math.pi / 2, '[YAW90]'), (0.0, '[YAW0]')):   # T52: yaw turn over marker 0, position target unchanged
++                    if reason is not None:
++                        break
++                    print('=== T52 %s yaw %.2f rad ===' % (tag, yaw_t), flush=True)
++                    drone.navigate_wait(x=MARKER0_X, y=MARKER0_Y, z=hover_z, yaw=yaw_t, speed=FLY_SPEED, frame_id='map', tolerance=FLY_TOL)
++                    _, reason, _ = watch(8.0, tag)
+     if drone.should_land:
+         reason = 'Ctrl+C'
+ finally:

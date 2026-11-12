@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+  File "/work/c8_judge_r2e_20261109/tests/out_164406/mix/vpe_fix.py", line 143, in <module>
+    from aruco_pose.msg import MarkerArray
+ModuleNotFoundError: No module named 'aruco_pose'

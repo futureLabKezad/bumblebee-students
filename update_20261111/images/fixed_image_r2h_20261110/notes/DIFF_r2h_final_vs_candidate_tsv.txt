@@ -1,0 +1,44 @@
+--- /work/fixed_image_r2h_candidate_20261110/image_manifest_r2.tsv	2026-11-10 16:46:39.070563368 +0400
++++ image_manifest_r2.tsv	2026-11-10 18:37:50.750459111 +0400
+@@ -70,7 +70,7 @@
+ drone/ros2_ws/src/aruco_pose/vendor/aruco/src/zmaxheap.cpp	a01a7361fc6569e1a0cfa56db9da069b1ac7c961914271354119977c87eb1508	a01a7361fc6569e1a0cfa56db9da069b1ac7c961914271354119977c87eb1508	a45a264	same
+ drone/ros2_ws/src/aruco_pose/vendor/aruco/src/zmaxheap.hpp	9dc8f9ae3b0a6b1c356f7c2b8b7ecbbd947ad996a131880ad603c653e2c25d58	9dc8f9ae3b0a6b1c356f7c2b8b7ecbbd947ad996a131880ad603c653e2c25d58	a45a264	same
+ drone/ros2_ws/src/bumblebee/CHANGELOG.rst	3a48edf4869d525611ca7510c1cede6e71a8c8b600e4b64942b7ee242d74f141	3a48edf4869d525611ca7510c1cede6e71a8c8b600e4b64942b7ee242d74f141	a45a264	same
+-drone/ros2_ws/src/bumblebee/CMakeLists.txt	e904bfafeaaa070f7449f5a9f48577baa8d4b0a55a37030734132e640db51e74	d1ba22c9357898fbf068ef641f19bda56d12bd41edbed3f5fd4475a9c1ca0769	port-rc3 + r2d	changed + r2d: std_msgs for simple_offboard (T25)
++drone/ros2_ws/src/bumblebee/CMakeLists.txt	e904bfafeaaa070f7449f5a9f48577baa8d4b0a55a37030734132e640db51e74	453130e983b01251b363684137f9e4527dac3aa1f1b800a00c1edb75309d9e5d	port-rc3 + r2d + r2h	changed + r2d: std_msgs for simple_offboard (T25) + r2h: code pins round 3 (T44)
+ drone/ros2_ws/src/bumblebee/README.md	82361b04107bde14252e053743f39b58c2210a64de222ef36872a24709abc87c	82361b04107bde14252e053743f39b58c2210a64de222ef36872a24709abc87c	a45a264	same
+ drone/ros2_ws/src/bumblebee/camera_info/fisheye_cam.yaml	99b63364572522af51c63078198031ec40677781fd61f1e3e136643d74354c83	99b63364572522af51c63078198031ec40677781fd61f1e3e136643d74354c83	a45a264	same
+ drone/ros2_ws/src/bumblebee/camera_info/fisheye_cam_1280x720.yaml	258e377d31ed2bac12c4839178b7d0616b7813b246bdb464ff66a97e2524dced	258e377d31ed2bac12c4839178b7d0616b7813b246bdb464ff66a97e2524dced	a45a264	same
+@@ -161,12 +161,12 @@
+ drone/ros2_ws/src/bumblebee/src/cpp/vpe_publisher.cpp	ce30558836938f8176c738eaa95c49a4194cbc8454bf4f543e63305982616f81	ce30558836938f8176c738eaa95c49a4194cbc8454bf4f543e63305982616f81	a45a264	same
+ drone/ros2_ws/src/bumblebee/src/python/aruco_detect.py	25ec291e639e80a07de70c4abe3fa104e00239e48bed0c028a35a0728569ad6c	66f061ecc14445de5901cee8d4dfcd59be98fcaa697b97cbf939a89bd0be9bd3	image_bugs_q6_20261109	changed (r2: question 6 fixes)
+ drone/ros2_ws/src/bumblebee/src/python/aruco_metrics_record.py	de343340250e2d1feb259d16b32e99cf77957bc242b403ff942e1960f3a8a1eb	de343340250e2d1feb259d16b32e99cf77957bc242b403ff942e1960f3a8a1eb	a45a264	same
+-drone/ros2_ws/src/bumblebee/src/python/camera_fix.py	4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310	dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83	camera_fullrow_01	changed (PENDING: Pi load check at the bench)
++drone/ros2_ws/src/bumblebee/src/python/camera_fix.py	4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310	dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83	camera_fullrow_01	changed (PENDING: Pi load check at the bench; owner decides 11.11 morning. r2h src keeps the a45a264 file 4a15d699 as r2g, the one Gazebo checks)
+ drone/ros2_ws/src/bumblebee/src/python/qos_relay.py	b435f0106604b02e8a9f9466a4f4f92d036080a0ff3c94a1713404bbd6cfaa65	b435f0106604b02e8a9f9466a4f4f92d036080a0ff3c94a1713404bbd6cfaa65	a45a264	same
+ drone/ros2_ws/src/bumblebee/src/python/selfcheck.py	0dc81b2baf3dee3002080d515ee66477850ca245b28e454edcb98b2ce31db310	0dc81b2baf3dee3002080d515ee66477850ca245b28e454edcb98b2ce31db310	a45a264	same
+ drone/ros2_ws/src/bumblebee/src/python/set_params.py	3071313900cbeef4ea86bf12512cfdeda96700ca9b588b5dcf1374dfe7a2b7fe	3071313900cbeef4ea86bf12512cfdeda96700ca9b588b5dcf1374dfe7a2b7fe	a45a264	same
+ drone/ros2_ws/src/bumblebee/src/python/setpoint_freshness.py	-	2cc14a41eb77e4d9548f1fd5e0bade3e3f73d3032d17be48cea7f6e75eacc2dd	port-rc3	new
+-drone/ros2_ws/src/bumblebee/src/python/vpe_fix.py	c33a52bf1b10bc064ca102bdc720ed03afaa08c691d9c5c34b1d7fadf859b8b9	f2a7ca4f120eb8340f5b674d4f44e87da84b47bda511e6260285f36d0483a5cb	port-rc3 + r2h	changed; r2h (candidate): B1 gate >=1 marker in 1.5 s, decided per frame; B2 medoid of 3 after a pause
++drone/ros2_ws/src/bumblebee/src/python/vpe_fix.py	c33a52bf1b10bc064ca102bdc720ed03afaa08c691d9c5c34b1d7fadf859b8b9	66d806baf5ef6884bdc7e1636289e90dd55964f8f69ed0ffa13be2e23f5e6958	port-rc3 + r2h	changed; r2h: B1 gate >=1 marker in 1.5 s, decided per frame; B2 medoid of 3 after a pause, a tie -> the newest (T44)
+ drone/ros2_ws/src/bumblebee/src/ros_mjpeg_server.py	563c593ffe3de91bab2f2424b813dc5e2531d90261984a32733226c4619005d4	563c593ffe3de91bab2f2424b813dc5e2531d90261984a32733226c4619005d4	a45a264	same
+ drone/ros2_ws/src/bumblebee/src/waitfile	d8930eea184a6459c970135d205331df7a22020b2aa06a9ab12cc8878614e96f	d8930eea184a6459c970135d205331df7a22020b2aa06a9ab12cc8878614e96f	a45a264	same
+ drone/ros2_ws/src/bumblebee/src/www	1c6be4c092c1e50eafbb69055c625983a2a02b82be789dfb3b4ed668555003cf	1c6be4c092c1e50eafbb69055c625983a2a02b82be789dfb3b4ed668555003cf	a45a264	same
+@@ -218,7 +218,7 @@
+ drone/ros2_ws/src/bumblebee/test/test_wifi_manager.py	d3869f5da59c2375e51ca93cecf8289f5a71b2ed0c6bb782e53418eae815531f	d3869f5da59c2375e51ca93cecf8289f5a71b2ed0c6bb782e53418eae815531f	a45a264	same
+ drone/ros2_ws/src/bumblebee/test/test_wifi_manager_safety.py	e3dc729b8cc5a2c243aefbfb1002c8e88192cbc29983dae35e2530863f6d5865	e3dc729b8cc5a2c243aefbfb1002c8e88192cbc29983dae35e2530863f6d5865	a45a264	same
+ drone/ros2_ws/src/bumblebee/test/test_wifi_watchdog.py	62afbb6922af9403cc28b20fb8d59b540b0c55e0dd6cd276fca3c793b6d6438f	62afbb6922af9403cc28b20fb8d59b540b0c55e0dd6cd276fca3c793b6d6438f	a45a264	same
+-drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/README.md	-	e06ad37c28f047552f970b82799e9fe38cf2eb4ed853217973dcb9aaa682a3d3	port-rc3	new
++drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/README.md	-	9fbad9f5638a3edd985389d2877ad2ad7a54bbe99ef7dc4f884b1fa681506297	port-rc3	new
+ drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/eval/original/s1_eval.py	-	01badf57c3b2efca7e2facdfe4c3b0b304d2e42ea28190a6acfc3534f0a76f29	port-rc3	new
+ drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/eval/s1_eval.py	-	ef7a76fcec6b591e043950f29eb6d65b071ebb4453b02045ab80ffca9eab7429	port-rc3	new
+ drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/real_s1/step08_t5a_apply_1117417889.log	-	bfb0d2ae15663a7ac6dc53701be750ebbbfbc07c430e5c4bf415c454c4698a70	port-rc3	new
+@@ -231,6 +231,8 @@
+ drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_h2_r2.py	-	2e557c6d2cbdaa5c5d8aba3c4c97f254250f7f96b80067fe54f8802eba48d478	port-rc3	new
+ drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_in_air_writes.py	-	191d2adeff822e25572a137ff33737d0ca7fefdeaa157c9e8142a6a537cbcbf7	port-rc3	new
+ drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py	-	676264185f0429074def4a1a57c3f92cc4360664efbbe9a864605f0f704bb1d4	port-rc3	new
++drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_r2g_3b8a93d4.py	-	3b8a93d4d08983694186766b0259fa6fa6b4167079c4078cf402a908d02e9725	r2h	new
++drone/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py	-	aceed84c08004f70346f95e31f07305d93dc6e9a8d838dbcb09f1cd60c192adf	r2h	new
+ drone/ros2_ws/src/bumblebee/tools/rescale_camera_info.py	fcd9846857df401b20603a95ee67811868de4cd97d34a1d5fb8f8fc80a21314b	fcd9846857df401b20603a95ee67811868de4cd97d34a1d5fb8f8fc80a21314b	a45a264	same
+ drone/ros2_ws/src/bumblebee/udev/99-px4fmu.rules	663706c2bf5453613ad35636c709c82ae938a91843c214ed9f2479158aa9846e	663706c2bf5453613ad35636c709c82ae938a91843c214ed9f2479158aa9846e	a45a264	same
+ drone/ros2_ws/src/bumblebee/www/CATKIN_IGNORE	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	a45a264	same

@@ -1,0 +1,8883 @@
+{
+ "summary": {
+  "airframe": "4035",
+  "drone_params": 1107,
+  "counts": {
+   "equal": 775,
+   "absent": 230,
+   "sim_only": 101,
+   "control": 1
+  },
+  "unexplained": [],
+  "sim_only_differs": 61,
+  "sim_only_differs_by_id": {
+   "S2": 48,
+   "S6": 2,
+   "S8": 1,
+   "S7": 1,
+   "S5": 4,
+   "S3": 2,
+   "S3b": 1,
+   "S4": 1,
+   "S1": 1
+  }
+ },
+ "rows": [
+  {
+   "name": "ASPD_SCALE_1",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "BAT1_A_PER_V",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 9,
+   "class": "absent:A5",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "BAT1_SOURCE",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "BAT1_V_DIV",
+   "drone": 18.1,
+   "sitl": null,
+   "type": 9,
+   "class": "absent:A5",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "BAT2_A_PER_V",
+   "drone": 36.367516,
+   "sitl": null,
+   "type": 9,
+   "class": "absent:A5",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "BAT2_V_DIV",
+   "drone": 18.1,
+   "sitl": null,
+   "type": 9,
+   "class": "absent:A5",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "BAT_CRIT_THR",
+   "drone": 0.07,
+   "sitl": 0.07000000029802322,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "BAT_EMERGEN_THR",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "BAT_LOW_THR",
+   "drone": 0.15,
+   "sitl": 0.15000000596046448,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CAL_ACC0_ID",
+   "drone": 4259850.0,
+   "sitl": 1310988,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC0_PRIO",
+   "drone": 50.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC0_ROT",
+   "drone": -1.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_ACC0_XOFF",
+   "drone": -0.17327836,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC0_XSCALE",
+   "drone": 0.9830271,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC0_YOFF",
+   "drone": -0.11017367,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC0_YSCALE",
+   "drone": 0.98583466,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC0_ZOFF",
+   "drone": 0.04365099,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC0_ZSCALE",
+   "drone": 0.99012214,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC1_ID",
+   "drone": 2490378.0,
+   "sitl": 1310996,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC1_PRIO",
+   "drone": 50.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC1_ROT",
+   "drone": -1.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_ACC1_XOFF",
+   "drone": -0.005409364,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC1_XSCALE",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_ACC1_YOFF",
+   "drone": 0.003973357,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC1_YSCALE",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_ACC1_ZOFF",
+   "drone": -0.031786498,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC1_ZSCALE",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_ACC2_ID",
+   "drone": 0.0,
+   "sitl": 1311004,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_ACC3_ID",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_AIR_CMODEL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_AIR_TUBED_MM",
+   "drone": 1.5,
+   "sitl": 1.5,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_AIR_TUBELEN",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_BARO0_ID",
+   "drone": 4028193.0,
+   "sitl": 6619404,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_BARO0_OFF",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_BARO0_PRIO",
+   "drone": 50.0,
+   "sitl": 50,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_GYRO0_ID",
+   "drone": 4325386.0,
+   "sitl": 1310988,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO0_PRIO",
+   "drone": 50.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO0_ROT",
+   "drone": -1.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_GYRO0_XOFF",
+   "drone": -0.0016405071,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO0_YOFF",
+   "drone": 0.0045422874,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO0_ZOFF",
+   "drone": 0.0005488242,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO1_ID",
+   "drone": 2490378.0,
+   "sitl": 1310996,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO1_PRIO",
+   "drone": 50.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO1_ROT",
+   "drone": -1.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_GYRO1_XOFF",
+   "drone": -0.022622058,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO1_YOFF",
+   "drone": -0.02394123,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO1_ZOFF",
+   "drone": -0.006876242,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO2_ID",
+   "drone": 0.0,
+   "sitl": 1311004,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_GYRO3_ID",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG0_ID",
+   "drone": 396321.0,
+   "sitl": 197388,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG0_PITCH",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG0_PRIO",
+   "drone": 50.0,
+   "sitl": 50,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG0_ROLL",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG0_ROT",
+   "drone": -1.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG0_XCOMP",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG0_XODIAG",
+   "drone": 0.001882791,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG0_XOFF",
+   "drone": -0.060414683,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG0_XSCALE",
+   "drone": 1.0182761,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG0_YAW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG0_YCOMP",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG0_YODIAG",
+   "drone": -0.047153544,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG0_YOFF",
+   "drone": -0.012393044,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG0_YSCALE",
+   "drone": 0.989377,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG0_ZCOMP",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG0_ZODIAG",
+   "drone": -0.04806527,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG0_ZOFF",
+   "drone": -0.03725842,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG0_ZSCALE",
+   "drone": 0.9785898,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_ID",
+   "drone": 8944643.0,
+   "sitl": 197644,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_PITCH",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG1_PRIO",
+   "drone": 75.0,
+   "sitl": 50,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_ROLL",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG1_ROT",
+   "drone": 0.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_XCOMP",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG1_XODIAG",
+   "drone": -0.006049877,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_XOFF",
+   "drone": -0.076905966,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_XSCALE",
+   "drone": 1.0115355,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_YAW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG1_YCOMP",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG1_YODIAG",
+   "drone": 0.06382457,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_YOFF",
+   "drone": 0.047936358,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_YSCALE",
+   "drone": 1.0094523,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_ZCOMP",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG1_ZODIAG",
+   "drone": 0.014364837,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_ZOFF",
+   "drone": -0.026614364,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG1_ZSCALE",
+   "drone": 0.9970347,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "sim_only:S2",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "CAL_MAG2_ID",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG2_ROT",
+   "drone": -1.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG3_ID",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG3_ROT",
+   "drone": -1.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG_COMP_TYP",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAL_MAG_SIDES",
+   "drone": 63.0,
+   "sitl": 63,
+   "type": 6,
+   "class": "sim_only:S2",
+   "note": "same value as drone"
+  },
+  {
+   "name": "CAM_CAP_FBACK",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A6",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "CA_AIRFRAME",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_FAILURE_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_METHOD",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R0_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R10_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R11_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R1_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R2_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R3_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R4_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R5_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R6_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R7_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R8_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R9_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR0_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR0_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR0_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR0_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR0_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR0_PX",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR0_PY",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR0_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR10_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR10_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR10_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR10_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR10_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR10_PX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR10_PY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR10_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR11_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR11_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR11_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR11_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR11_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR11_PX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR11_PY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR11_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR1_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR1_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR1_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR1_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR1_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR1_PX",
+   "drone": -0.25,
+   "sitl": -0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR1_PY",
+   "drone": -0.25,
+   "sitl": -0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR1_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR2_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR2_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR2_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR2_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR2_KM",
+   "drone": -0.05,
+   "sitl": -0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR2_PX",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR2_PY",
+   "drone": -0.25,
+   "sitl": -0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR2_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR3_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR3_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR3_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR3_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR3_KM",
+   "drone": -0.05,
+   "sitl": -0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR3_PX",
+   "drone": -0.25,
+   "sitl": -0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR3_PY",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR3_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR4_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR4_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR4_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR4_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR4_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR4_PX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR4_PY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR4_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR5_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR5_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR5_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR5_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR5_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR5_PX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR5_PY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR5_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR6_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR6_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR6_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR6_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR6_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR6_PX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR6_PY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR6_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR7_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR7_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR7_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR7_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR7_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR7_PX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR7_PY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR7_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR8_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR8_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR8_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR8_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR8_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR8_PX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR8_PY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR8_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR9_AX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR9_AY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR9_AZ",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR9_CT",
+   "drone": 6.5,
+   "sitl": 6.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR9_KM",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR9_PX",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR9_PY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR9_PZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_ROTOR_COUNT",
+   "drone": 4.0,
+   "sitl": 4,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_R_REV",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_SV0_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_SV1_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_SV2_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_SV3_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_SV4_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_SV5_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_SV6_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CA_SV7_SLEW",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CBRK_BUZZER",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CBRK_FLIGHTTERM",
+   "drone": 121212.0,
+   "sitl": 121212,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CBRK_IO_SAFETY",
+   "drone": 22027.0,
+   "sitl": 22027,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CBRK_SUPPLY_CHK",
+   "drone": 894281.0,
+   "sitl": 894281,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CBRK_USB_CHK",
+   "drone": 197848.0,
+   "sitl": 197848,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CBRK_VTOLARMING",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ACT_FAIL_ACT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARMABLE",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_AUTH_ID",
+   "drone": 10.0,
+   "sitl": 10,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_AUTH_MET",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_AUTH_REQ",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_AUTH_TO",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_BAT_MIN",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_CHK_ESCS",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_HFLT_CHK",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_IMU_ACC",
+   "drone": 0.7,
+   "sitl": 0.699999988079071,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_IMU_GYR",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_MAG_ANG",
+   "drone": 60.0,
+   "sitl": 60,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_MAG_STR",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_MIS_REQ",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_ODID",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_SDCARD",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_SWISBTN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_ARM_WO_GPS",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_CPU_MAX",
+   "drone": 95.0,
+   "sitl": 95.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_DISARM_LAND",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_DISARM_MAN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_DISARM_PRFLT",
+   "drone": 30.0,
+   "sitl": 30.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_DLL_EXCEPT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_DL_LOSS_T",
+   "drone": 10.0,
+   "sitl": 10,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FAIL_ACT_T",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FLIGHT_UUID",
+   "drone": 62.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S6",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "COM_FLTMODE1",
+   "drone": 8.0,
+   "sitl": 8,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FLTMODE2",
+   "drone": 8.0,
+   "sitl": 8,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FLTMODE3",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FLTMODE4",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FLTMODE5",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FLTMODE6",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FLTT_LOW_ACT",
+   "drone": 3.0,
+   "sitl": 3,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FLT_PROFILE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FLT_TIME_MAX",
+   "drone": -1.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_FORCE_SAFETY",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_HLDL_LOSS_T",
+   "drone": 120.0,
+   "sitl": 120,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_HLDL_REG_T",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_HOME_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_HOME_IN_AIR",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_IMB_PROP_ACT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_KILL_DISARM",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_LKDOWN_TKO",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_LOW_BAT_ACT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_MODE_ARM_CHK",
+   "drone": 0.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "sim_only:S8",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "COM_MOT_TEST_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_OBC_LOSS_T",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_OBL_RC_ACT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_OF_LOSS_T",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_PARACHUTE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_POSCTL_NAVL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_POS_FS_EPH",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_POS_LOW_ACT",
+   "drone": 3.0,
+   "sitl": 3,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_POS_LOW_EPH",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_POWER_COUNT",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_PREARM_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_QC_ACT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_RAM_MAX",
+   "drone": 95.0,
+   "sitl": 95.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_RCL_EXCEPT",
+   "drone": 4.0,
+   "sitl": 4,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_RC_ARM_HYST",
+   "drone": 1000.0,
+   "sitl": 1000,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_RC_IN_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_RC_LOSS_T",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_RC_OVERRIDE",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_RC_STICK_OV",
+   "drone": 30.0,
+   "sitl": 30.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_SPOOLUP_TIME",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_TAKEOFF_ACT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_THROW_EN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_THROW_SPEED",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_VEL_FS_EVH",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_WIND_MAX",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_WIND_MAX_ACT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "COM_WIND_WARN",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CP_DELAY",
+   "drone": 0.4,
+   "sitl": 0.4000000059604645,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CP_DIST",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CP_GO_NO_DATA",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "CP_GUIDE_ANG",
+   "drone": 30.0,
+   "sitl": 30.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "DSHOT_3D_DEAD_H",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "DSHOT_3D_DEAD_L",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "DSHOT_3D_ENABLE",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "DSHOT_BIDIR_EN",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "DSHOT_MIN",
+   "drone": 0.055,
+   "sitl": null,
+   "type": 9,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "DSHOT_TEL_CFG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "EKF2_ABIAS_INIT",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ABL_ACCLIM",
+   "drone": 25.0,
+   "sitl": 25.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ABL_GYRLIM",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ABL_LIM",
+   "drone": 0.4,
+   "sitl": 0.4000000059604645,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ABL_TAU",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ACC_B_NOISE",
+   "drone": 0.003,
+   "sitl": 0.003000000026077032,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ACC_NOISE",
+   "drone": 0.35,
+   "sitl": 0.3499999940395355,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_AGP_CTRL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_AGP_DELAY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_AGP_GATE",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_AGP_NOISE",
+   "drone": 0.9,
+   "sitl": 0.8999999761581421,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ANGERR_INIT",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ARSP_THR",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ASPD_MAX",
+   "drone": 20.0,
+   "sitl": 20.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_ASP_DELAY",
+   "drone": 100.0,
+   "sitl": 100.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_AVEL_DELAY",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_BARO_CTRL",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_BARO_DELAY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_BARO_GATE",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_BARO_NOISE",
+   "drone": 3.5,
+   "sitl": 3.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_BCOEF_X",
+   "drone": 100.0,
+   "sitl": 100.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_BCOEF_Y",
+   "drone": 100.0,
+   "sitl": 100.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_BETA_GATE",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_BETA_NOISE",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_DECL_TYPE",
+   "drone": 3.0,
+   "sitl": 3,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_DELAY_MAX",
+   "drone": 200.0,
+   "sitl": 200.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_DRAG_CTRL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_DRAG_NOISE",
+   "drone": 2.5,
+   "sitl": 2.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EAS_NOISE",
+   "drone": 1.4,
+   "sitl": 1.399999976158142,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EVA_NOISE",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EVP_GATE",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EVP_NOISE",
+   "drone": 0.15,
+   "sitl": 0.15000000596046448,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EVV_GATE",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EVV_NOISE",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EV_CTRL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EV_DELAY",
+   "drone": 150.0,
+   "sitl": 150.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EV_NOISE_MD",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EV_POS_X",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EV_POS_Y",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EV_POS_Z",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_EV_QMIN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_FUSE_BETA",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GBIAS_INIT",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GND_EFF_DZ",
+   "drone": 4.0,
+   "sitl": 4.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GND_MAX_HGT",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_CHECK",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_CTRL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_DELAY",
+   "drone": 110.0,
+   "sitl": 110.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_POS_X",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_POS_Y",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_POS_Z",
+   "drone": 0.23,
+   "sitl": 0.23000000417232513,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_P_GATE",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_P_NOISE",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_V_GATE",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_V_NOISE",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GPS_YAW_OFF",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GRAV_NOISE",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GSF_TAS",
+   "drone": 15.0,
+   "sitl": 15.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GYR_B_LIM",
+   "drone": 0.15,
+   "sitl": 0.15000000596046448,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GYR_B_NOISE",
+   "drone": 0.001,
+   "sitl": 0.0010000000474974513,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_GYR_NOISE",
+   "drone": 0.015,
+   "sitl": 0.014999999664723873,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_HDG_GATE",
+   "drone": 2.6,
+   "sitl": 2.5999999046325684,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_HEAD_NOISE",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_HGT_REF",
+   "drone": 2.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "control:EKF2_HGT_REF",
+   "note": "control value 0"
+  },
+  {
+   "name": "EKF2_IMU_CTRL",
+   "drone": 7.0,
+   "sitl": 7,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_IMU_POS_X",
+   "drone": -0.05,
+   "sitl": -0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_IMU_POS_Y",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_IMU_POS_Z",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_LOG_VERBOSE",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_ACCLIM",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_B_NOISE",
+   "drone": 0.0001,
+   "sitl": 9.999999747378752e-05,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_CHECK",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_CHK_INC",
+   "drone": 20.0,
+   "sitl": 20.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_CHK_STR",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_DECL",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_DELAY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_E_NOISE",
+   "drone": 0.001,
+   "sitl": 0.0010000000474974513,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_GATE",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_NOISE",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MAG_TYPE",
+   "drone": 5.0,
+   "sitl": 5,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MCOEF",
+   "drone": 0.15,
+   "sitl": 0.15000000596046448,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MIN_RNG",
+   "drone": 0.01,
+   "sitl": 0.009999999776482582,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_MULTI_IMU",
+   "drone": 3.0,
+   "sitl": 3,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_NOAID_NOISE",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_NOAID_TOUT",
+   "drone": 5000000.0,
+   "sitl": 5000000,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_CTRL",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_DELAY",
+   "drone": 20.0,
+   "sitl": 20.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_GATE",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_GYR_SRC",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_N_MAX",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_N_MIN",
+   "drone": 0.15,
+   "sitl": 0.15000000596046448,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_POS_X",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_POS_Y",
+   "drone": -0.03,
+   "sitl": -0.029999999329447746,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_POS_Z",
+   "drone": 0.03,
+   "sitl": 0.029999999329447746,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_QMIN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_OF_QMIN_GND",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_PCOEF_XN",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_PCOEF_XP",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_PCOEF_YN",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_PCOEF_YP",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_PCOEF_Z",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_PREDICT_US",
+   "drone": 10000.0,
+   "sitl": 10000,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_REQ_EPH",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_REQ_EPV",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_REQ_GPS_H",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_REQ_HDRIFT",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_REQ_NSATS",
+   "drone": 6.0,
+   "sitl": 6,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_REQ_PDOP",
+   "drone": 2.5,
+   "sitl": 2.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_REQ_SACC",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_REQ_VDRIFT",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_A_HMAX",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_A_IGATE",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_A_VMAX",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_CTRL",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_DELAY",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_FOG",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_GATE",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_K_GATE",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_NOISE",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_PITCH",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_POS_X",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_POS_Y",
+   "drone": -0.03,
+   "sitl": -0.029999999329447746,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_POS_Z",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_QLTY_T",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_RNG_SFE",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_SEL_ERR_RED",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_SEL_IMU_ACC",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_SEL_IMU_ANG",
+   "drone": 15.0,
+   "sitl": 15.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_SEL_IMU_RAT",
+   "drone": 7.0,
+   "sitl": 7.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_SEL_IMU_VEL",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_SYNT_MAG_Z",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_TAS_GATE",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_TAU_POS",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_TAU_VEL",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_TERR_GRAD",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_TERR_NOISE",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_VEL_LIM",
+   "drone": 100.0,
+   "sitl": 100.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EKF2_WIND_NSD",
+   "drone": 0.05,
+   "sitl": 0.05000000074505806,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EV_TSK_RC_LOSS",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "EV_TSK_STAT_DIS",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_ACT_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_ACT_MOT_C2T",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_ACT_MOT_THR",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_ACT_MOT_TOUT",
+   "drone": 100.0,
+   "sitl": 100,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_ESCS_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_EXT_ATS_EN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_EXT_ATS_TRIG",
+   "drone": 1900.0,
+   "sitl": 1900,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_FAIL_P",
+   "drone": 60.0,
+   "sitl": 60,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_FAIL_P_TTRI",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_FAIL_R",
+   "drone": 60.0,
+   "sitl": 60,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_FAIL_R_TTRI",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FD_IMB_PROP_THR",
+   "drone": 30.0,
+   "sitl": 30,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FLW_TGT_ALT_M",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FLW_TGT_DST",
+   "drone": 8.0,
+   "sitl": 8.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FLW_TGT_FA",
+   "drone": 180.0,
+   "sitl": 180.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FLW_TGT_HT",
+   "drone": 8.0,
+   "sitl": 8.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FLW_TGT_MAX_VEL",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FLW_TGT_RS",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FW_AIRSPD_MAX",
+   "drone": 20.0,
+   "sitl": 20.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FW_AIRSPD_TRIM",
+   "drone": 15.0,
+   "sitl": 15.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FW_PSP_OFF",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FW_T_CLMB_R_SP",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "FW_T_SINK_R_SP",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GF_ACTION",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GF_MAX_HOR_DIST",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GF_MAX_VER_DIST",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GF_PREDICT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GF_SOURCE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GPS_1_CONFIG",
+   "drone": 201.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "GPS_1_GNSS",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GPS_1_PROTOCOL",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GPS_2_CONFIG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "GPS_DUMP_COMM",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GPS_SAT_INFO",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GPS_UBX_BAUD2",
+   "drone": 230400.0,
+   "sitl": 230400,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GPS_UBX_CFG_INTF",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GPS_UBX_DYNMODEL",
+   "drone": 7.0,
+   "sitl": 7,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GPS_UBX_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "GPS_YAW_OFFSET",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "HTE_ACC_GATE",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "HTE_HT_ERR_INIT",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "HTE_HT_NOISE",
+   "drone": 0.0036,
+   "sitl": 0.003599999938160181,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "HTE_THR_RANGE",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "HTE_VXY_THR",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "HTE_VZ_THR",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_ACCEL_CUTOFF",
+   "drone": 30.0,
+   "sitl": 30.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_DGYRO_CUTOFF",
+   "drone": 20.0,
+   "sitl": 20.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_CAL_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_CUTOFF",
+   "drone": 40.0,
+   "sitl": 40.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_DNF_BW",
+   "drone": 15.0,
+   "sitl": 15.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_DNF_EN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_DNF_HMC",
+   "drone": 3.0,
+   "sitl": 3,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_DNF_MIN",
+   "drone": 25.0,
+   "sitl": 25.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_NF0_BW",
+   "drone": 20.0,
+   "sitl": 20.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_NF0_FRQ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_NF1_BW",
+   "drone": 20.0,
+   "sitl": 20.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_NF1_FRQ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_GYRO_RATEMAX",
+   "drone": 800.0,
+   "sitl": 800,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "IMU_INTEG_RATE",
+   "drone": 200.0,
+   "sitl": 250,
+   "type": 6,
+   "class": "sim_only:S7",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "LNDMC_ALT_GND",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "LNDMC_ROT_MAX",
+   "drone": 20.0,
+   "sitl": 20.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "LNDMC_TRIG_TIME",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "LNDMC_XY_VEL_MAX",
+   "drone": 1.5,
+   "sitl": 1.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "LNDMC_Z_VEL_MAX",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "LND_FLIGHT_T_HI",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S6",
+   "note": "same value as drone"
+  },
+  {
+   "name": "LND_FLIGHT_T_LO",
+   "drone": -1943023757.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S6",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "MAN_ARM_GESTURE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAN_KILL_GEST_T",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_0_CONFIG",
+   "drone": 101.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "MAV_0_FLOW_CTRL",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_0_FORWARD",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_0_MODE",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_0_RADIO_CTL",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_0_RATE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_1_CONFIG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "MAV_2_CONFIG",
+   "drone": 102.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "MAV_2_FLOW_CTRL",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_2_FORWARD",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_2_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_2_RADIO_CTL",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_2_RATE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_COMP_ID",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_FWDEXTSP",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_HASH_CHK_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_HB_FORW_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_PROTO_VER",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_RADIO_TOUT",
+   "drone": 5.0,
+   "sitl": 5,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_SIK_RADIO_ID",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_SYS_ID",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_TYPE",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MAV_USEHILGPS",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MBE_ENABLE",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MBE_LEARN_GAIN",
+   "drone": 18.0,
+   "sitl": 18.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ACRO_EXPO",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ACRO_EXPO_Y",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ACRO_P_MAX",
+   "drone": 100.0,
+   "sitl": 100.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ACRO_R_MAX",
+   "drone": 100.0,
+   "sitl": 100.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ACRO_SUPEXPO",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ACRO_SUPEXPOY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ACRO_Y_MAX",
+   "drone": 100.0,
+   "sitl": 100.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_AIRMODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_AT_APPLY",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_AT_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_AT_RISE_TIME",
+   "drone": 0.14,
+   "sitl": 0.14000000059604645,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_AT_START",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_AT_SYSID_AMP",
+   "drone": 0.7,
+   "sitl": 0.699999988079071,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_BAT_SCALE_EN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_MAN_TILT_TAU",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ORBIT_RAD_MAX",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ORBIT_YAW_MOD",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_PITCHRATE_D",
+   "drone": 0.005097327,
+   "sitl": 0.005097326822578907,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_PITCHRATE_FF",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_PITCHRATE_I",
+   "drone": 0.2665861,
+   "sitl": 0.2665860950946808,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_PITCHRATE_K",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_PITCHRATE_MAX",
+   "drone": 220.0,
+   "sitl": 220.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_PITCHRATE_P",
+   "drone": 0.20506772,
+   "sitl": 0.2050677239894867,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_PITCH_P",
+   "drone": 4.656655,
+   "sitl": 4.6566548347473145,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_PR_INT_LIM",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ROLLRATE_D",
+   "drone": 0.005,
+   "sitl": 0.004999999888241291,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ROLLRATE_FF",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ROLLRATE_I",
+   "drone": 0.261894,
+   "sitl": 0.2618940472602844,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ROLLRATE_K",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ROLLRATE_MAX",
+   "drone": 220.0,
+   "sitl": 220.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ROLLRATE_P",
+   "drone": 0.21220013,
+   "sitl": 0.2122001349925995,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_ROLL_P",
+   "drone": 4.500137,
+   "sitl": 4.500136852264404,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_RR_INT_LIM",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_DEF_HVEL",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_DEF_VVEL",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_DEF_YAWR",
+   "drone": 45.0,
+   "sitl": 45.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_MAP_HVEL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_MAP_PTCH",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_MAP_VVEL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_MAP_YAWR",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_MIN_HVEL",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_MIN_VVEL",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_SLOW_MIN_YAWR",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YAWRATE_D",
+   "drone": 0.0033558176,
+   "sitl": 0.003355817636474967,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YAWRATE_FF",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YAWRATE_I",
+   "drone": 0.19369613,
+   "sitl": 0.19369612634181976,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YAWRATE_K",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YAWRATE_MAX",
+   "drone": 200.0,
+   "sitl": 200.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YAWRATE_P",
+   "drone": 0.18581054,
+   "sitl": 0.18581053614616394,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YAW_P",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YAW_TQ_CUTOFF",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YAW_WEIGHT",
+   "drone": 0.4,
+   "sitl": 0.4000000059604645,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MC_YR_INT_LIM",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MIS_COMMAND_TOUT",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MIS_LND_ABRT_ALT",
+   "drone": 30.0,
+   "sitl": 30,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MIS_MNT_YAW_CTL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MIS_TAKEOFF_ALT",
+   "drone": 2.5,
+   "sitl": 2.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MIS_YAW_ERR",
+   "drone": 12.0,
+   "sitl": 12.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MIS_YAW_TMT",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MOT_POLE_COUNT",
+   "drone": 24.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "MPC_ACC_DECOUPLE",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_ACC_DOWN_MAX",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_ACC_HOR",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_ACC_HOR_MAX",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_ACC_UP_MAX",
+   "drone": 4.0,
+   "sitl": 4.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_ALT_MODE",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_HOLD_DZ",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_HOLD_MAX_XY",
+   "drone": 0.8,
+   "sitl": 0.800000011920929,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_HOLD_MAX_Z",
+   "drone": 0.6,
+   "sitl": 0.6000000238418579,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_JERK_AUTO",
+   "drone": 4.84,
+   "sitl": 4.840000152587891,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_JERK_MAX",
+   "drone": 1.5,
+   "sitl": 1.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_LAND_ALT1",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_LAND_ALT2",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_LAND_ALT3",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_LAND_CRWL",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_LAND_RADIUS",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_LAND_RC_HELP",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_LAND_SPEED",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_MANTHR_MIN",
+   "drone": 0.15,
+   "sitl": 0.15000000596046448,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_MAN_TILT_MAX",
+   "drone": 15.0,
+   "sitl": 15.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_MAN_Y_MAX",
+   "drone": 150.0,
+   "sitl": 150.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_MAN_Y_TAU",
+   "drone": 0.08,
+   "sitl": 0.07999999821186066,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_POS_MODE",
+   "drone": 4.0,
+   "sitl": 4,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_THR_CURVE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_THR_HOVER",
+   "drone": 0.6,
+   "sitl": 0.6000000238418579,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_THR_MAX",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_THR_MIN",
+   "drone": 0.15,
+   "sitl": 0.15000000596046448,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_THR_XY_MARG",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_TILTMAX_AIR",
+   "drone": 30.0,
+   "sitl": 30.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_TILTMAX_LND",
+   "drone": 12.0,
+   "sitl": 12.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_TKO_RAMP_T",
+   "drone": 3.0,
+   "sitl": 3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_TKO_SPEED",
+   "drone": 0.8,
+   "sitl": 0.800000011920929,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_USE_HTE",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_VELD_LP",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_VEL_LP",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_VEL_MANUAL",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_VEL_MAN_BACK",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_VEL_MAN_SIDE",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_VEL_NF_BW",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_VEL_NF_FRQ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_CRUISE",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_ERR_MAX",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_MAN_EXPO",
+   "drone": 0.6,
+   "sitl": 0.6000000238418579,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_P",
+   "drone": 0.45,
+   "sitl": 0.44999998807907104,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_TRAJ_P",
+   "drone": 0.5,
+   "sitl": 0.5,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_VEL_ALL",
+   "drone": -10.0,
+   "sitl": -10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_VEL_D_ACC",
+   "drone": 0.08,
+   "sitl": 0.07999999821186066,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_VEL_I_ACC",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_VEL_MAX",
+   "drone": 0.25,
+   "sitl": 0.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_XY_VEL_P_ACC",
+   "drone": 1.6,
+   "sitl": 1.600000023841858,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_YAWRAUTO_ACC",
+   "drone": 60.0,
+   "sitl": 60.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_YAWRAUTO_MAX",
+   "drone": 30.0,
+   "sitl": 30.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_YAW_EXPO",
+   "drone": 0.6,
+   "sitl": 0.6000000238418579,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_YAW_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_MAN_EXPO",
+   "drone": 0.6,
+   "sitl": 0.6000000238418579,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_P",
+   "drone": 0.65,
+   "sitl": 0.6499999761581421,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_VEL_ALL",
+   "drone": -3.0,
+   "sitl": -3.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_VEL_D_ACC",
+   "drone": 0.3,
+   "sitl": 0.30000001192092896,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_VEL_I_ACC",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_VEL_MAX_DN",
+   "drone": 0.4,
+   "sitl": 0.4000000059604645,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_VEL_MAX_UP",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_VEL_P_ACC",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_V_AUTO_DN",
+   "drone": 0.4,
+   "sitl": 0.4000000059604645,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "MPC_Z_V_AUTO_UP",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_ACC_RAD",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_DLL_ACT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_FORCE_VT",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_FW_ALTL_RAD",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_FW_ALT_RAD",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_LOITER_RAD",
+   "drone": 80.0,
+   "sitl": 80.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_MC_ALT_RAD",
+   "drone": 0.8,
+   "sitl": 0.800000011920929,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_MIN_GND_DIST",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_MIN_LTR_ALT",
+   "drone": -1.0,
+   "sitl": -1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_RCL_ACT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_TRAFF_AVOID",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_TRAFF_A_HOR",
+   "drone": 500.0,
+   "sitl": 500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_TRAFF_A_VER",
+   "drone": 500.0,
+   "sitl": 500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "NAV_TRAFF_COLL_T",
+   "drone": 60.0,
+   "sitl": 60,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "PLD_BTOUT",
+   "drone": 5.0,
+   "sitl": 5.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "PLD_FAPPR_ALT",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "PLD_HACC_RAD",
+   "drone": 0.2,
+   "sitl": 0.20000000298023224,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "PLD_MAX_SRCH",
+   "drone": 3.0,
+   "sitl": 3,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "PLD_SRCH_ALT",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "PLD_SRCH_TOUT",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "PWM_AUX_DIS1",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_DIS2",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_DIS3",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_DIS4",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_DIS5",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_DIS6",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_DIS7",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_DIS8",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FAIL1",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FAIL2",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FAIL3",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FAIL4",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FAIL5",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FAIL6",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FAIL7",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FAIL8",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FUNC1",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FUNC2",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FUNC3",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FUNC4",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FUNC5",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FUNC6",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FUNC7",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_FUNC8",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MAX1",
+   "drone": 1900.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MAX2",
+   "drone": 1900.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MAX3",
+   "drone": 1900.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MAX4",
+   "drone": 1900.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MAX5",
+   "drone": 2000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MAX6",
+   "drone": 2000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MAX7",
+   "drone": 2000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MAX8",
+   "drone": 2000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MIN1",
+   "drone": 1100.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MIN2",
+   "drone": 1100.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MIN3",
+   "drone": 1100.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MIN4",
+   "drone": 1100.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MIN5",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MIN6",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MIN7",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_MIN8",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_REV",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_TIM0",
+   "drone": -4.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_TIM1",
+   "drone": 400.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_AUX_TIM2",
+   "drone": 400.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_DIS1",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_DIS2",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_DIS3",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_DIS4",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_DIS5",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_DIS6",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_DIS7",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_DIS8",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_FAIL1",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_FAIL2",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_FAIL3",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_FAIL4",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_FAIL5",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_FAIL6",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_FAIL7",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_FAIL8",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_FUNC1",
+   "drone": 102.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S5",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "PWM_MAIN_FUNC2",
+   "drone": 104.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S5",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "PWM_MAIN_FUNC3",
+   "drone": 101.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S5",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "PWM_MAIN_FUNC4",
+   "drone": 103.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S5",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "PWM_MAIN_FUNC5",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S5",
+   "note": "same value as drone"
+  },
+  {
+   "name": "PWM_MAIN_FUNC6",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S5",
+   "note": "same value as drone"
+  },
+  {
+   "name": "PWM_MAIN_FUNC7",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S5",
+   "note": "same value as drone"
+  },
+  {
+   "name": "PWM_MAIN_FUNC8",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S5",
+   "note": "same value as drone"
+  },
+  {
+   "name": "PWM_MAIN_MAX1",
+   "drone": 1900.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MAX2",
+   "drone": 1900.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MAX3",
+   "drone": 1900.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MAX4",
+   "drone": 1900.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MAX5",
+   "drone": 2000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MAX6",
+   "drone": 2000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MAX7",
+   "drone": 2000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MAX8",
+   "drone": 2000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MIN1",
+   "drone": 1100.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MIN2",
+   "drone": 1100.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MIN3",
+   "drone": 1100.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MIN4",
+   "drone": 1100.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MIN5",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MIN6",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MIN7",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_MIN8",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_REV",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "PWM_MAIN_TIM0",
+   "drone": 400.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_TIM1",
+   "drone": 400.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_MAIN_TIM2",
+   "drone": 400.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "PWM_SBUS_MODE",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A2",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "RC10_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC10_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC10_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC10_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC10_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC11_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC11_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC11_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC11_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC11_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC12_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC12_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC12_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC12_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC12_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC13_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC13_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC13_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC13_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC13_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC14_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC14_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC14_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC14_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC14_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC15_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC15_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC15_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC15_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC15_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC16_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC16_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC16_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC16_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC16_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC17_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC17_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC17_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC17_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC17_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC18_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC18_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC18_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC18_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC18_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC1_DZ",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC1_MAX",
+   "drone": 1999.0,
+   "sitl": 1999.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC1_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC1_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC1_TRIM",
+   "drone": 1499.0,
+   "sitl": 1499.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC2_DZ",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC2_MAX",
+   "drone": 1999.0,
+   "sitl": 1999.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC2_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC2_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC2_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC3_DZ",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC3_MAX",
+   "drone": 1999.0,
+   "sitl": 1999.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC3_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC3_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC3_TRIM",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC4_DZ",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC4_MAX",
+   "drone": 1999.0,
+   "sitl": 1999.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC4_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC4_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC4_TRIM",
+   "drone": 1497.0,
+   "sitl": 1497.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC5_DZ",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC5_MAX",
+   "drone": 1988.0,
+   "sitl": 1988.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC5_MIN",
+   "drone": 1011.0,
+   "sitl": 1011.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC5_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC5_TRIM",
+   "drone": 1499.0,
+   "sitl": 1499.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC6_DZ",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC6_MAX",
+   "drone": 1999.0,
+   "sitl": 1999.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC6_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC6_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC6_TRIM",
+   "drone": 1499.0,
+   "sitl": 1499.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC7_DZ",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC7_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC7_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC7_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC7_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC8_DZ",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC8_MAX",
+   "drone": 1999.0,
+   "sitl": 1999.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC8_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC8_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC8_TRIM",
+   "drone": 1499.0,
+   "sitl": 1499.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC9_DZ",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC9_MAX",
+   "drone": 2000.0,
+   "sitl": 2000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC9_MIN",
+   "drone": 1000.0,
+   "sitl": 1000.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC9_REV",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC9_TRIM",
+   "drone": 1500.0,
+   "sitl": 1500.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_ARMSWITCH_TH",
+   "drone": 0.75,
+   "sitl": 0.75,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_CHAN_CNT",
+   "drone": 16.0,
+   "sitl": 16,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_CRSF_PRT_CFG",
+   "drone": 103.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "RC_CRSF_TEL_EN",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "RC_ENG_MOT_TH",
+   "drone": 0.75,
+   "sitl": 0.75,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_FAILS_THR",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_GEAR_TH",
+   "drone": 0.75,
+   "sitl": 0.75,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_KILLSWITCH_TH",
+   "drone": 0.75,
+   "sitl": 0.75,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_LOITER_TH",
+   "drone": 0.75,
+   "sitl": 0.75,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_ARM_SW",
+   "drone": 5.0,
+   "sitl": 5,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_AUX1",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_AUX2",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_AUX3",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_AUX4",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_AUX5",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_AUX6",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_ENG_MOT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_FAILSAFE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_FLAPS",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_FLTMODE",
+   "drone": 6.0,
+   "sitl": 6,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_FLTM_BTN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_GEAR_SW",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_KILL_SW",
+   "drone": 8.0,
+   "sitl": 8,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_LOITER_SW",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_MODE_SW",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_OFFB_SW",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_PARAM1",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_PARAM2",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_PARAM3",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_PAY_SW",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_PITCH",
+   "drone": 2.0,
+   "sitl": 2,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_RETURN_SW",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_ROLL",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_THROTTLE",
+   "drone": 3.0,
+   "sitl": 3,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_TRANS_SW",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_MAP_YAW",
+   "drone": 4.0,
+   "sitl": 4,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_OFFB_TH",
+   "drone": 0.75,
+   "sitl": 0.75,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_PAYLOAD_TH",
+   "drone": 0.75,
+   "sitl": 0.75,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_PORT_CONFIG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "RC_RETURN_TH",
+   "drone": 0.75,
+   "sitl": 0.75,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_RSSI_PWM_CHAN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_RSSI_PWM_MAX",
+   "drone": 2000.0,
+   "sitl": 2000,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_RSSI_PWM_MIN",
+   "drone": 1000.0,
+   "sitl": 1000,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RC_TRANS_TH",
+   "drone": 0.75,
+   "sitl": 0.75,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_APPR_FORCE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_CONE_ANG",
+   "drone": 45.0,
+   "sitl": 45,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_DESCEND_ALT",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_LAND_DELAY",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_LOITER_RAD",
+   "drone": 80.0,
+   "sitl": 80.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_MIN_DIST",
+   "drone": 10.0,
+   "sitl": 10.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_PLD_MD",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_RETURN_ALT",
+   "drone": 30.0,
+   "sitl": 30.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_TIME_FACTOR",
+   "drone": 1.1,
+   "sitl": 1.100000023841858,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_TIME_MARGIN",
+   "drone": 100.0,
+   "sitl": 100,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "RTL_TYPE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SDLOG_BOOT_BAT",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SDLOG_DIRS_MAX",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SDLOG_MISSION",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SDLOG_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SDLOG_PROFILE",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SDLOG_UTC_OFFSET",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SDLOG_UUID",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_BARO_QNH",
+   "drone": 1013.25,
+   "sitl": 1013.25,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_BARO_RATE",
+   "drone": 20.0,
+   "sitl": 20.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_BOARD_ROT",
+   "drone": 2.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S3",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "SENS_BOARD_X_OFF",
+   "drone": 1.0984008,
+   "sitl": 9.999999974752427e-07,
+   "type": 9,
+   "class": "sim_only:S3b",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "SENS_BOARD_Y_OFF",
+   "drone": -0.54284936,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S3",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "SENS_BOARD_Z_OFF",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "sim_only:S3",
+   "note": "same value as drone"
+  },
+  {
+   "name": "SENS_CM8JL65_CFG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_DPRES_OFF",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_EN_BATT",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_LL40LS",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_MS4525DO",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_MS5525DS",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_PAA3905",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_PAW3902",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_PMW3901",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_PX4FLOW",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_SDP3X",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_SF1XX",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_TF02PRO",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_THERMAL",
+   "drone": -1.0,
+   "sitl": -1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_EN_TRANGER",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_VL53L0X",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EN_VL53L1X",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A4",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_EXT_I2C_PRB",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_FLOW_MAXHGT",
+   "drone": 30.0,
+   "sitl": 30.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_FLOW_MAXR",
+   "drone": 7.4,
+   "sitl": 7.400000095367432,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_FLOW_MINHGT",
+   "drone": 0.08,
+   "sitl": 0.07999999821186066,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_FLOW_RATE",
+   "drone": 70.0,
+   "sitl": 70.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_FLOW_ROT",
+   "drone": 6.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "sim_only:S4",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "SENS_FLOW_SCALE",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_IMU_AUTOCAL",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_IMU_CLPNOTI",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_IMU_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_MAG_AUTOCAL",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_MAG_AUTOROT",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_MAG_MODE",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_MAG_RATE",
+   "drone": 15.0,
+   "sitl": 15.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_MAG_SIDES",
+   "drone": 63.0,
+   "sitl": 63,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SENS_SF0X_CFG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_TFLOW_CFG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_TFMINI_CFG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SENS_ULAND_CFG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SEP_PORT1_CFG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SEP_PORT2_CFG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SER_GPS1_BAUD",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SER_TEL1_BAUD",
+   "drone": 921600.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SER_TEL2_BAUD",
+   "drone": 57600.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SYS_AUTOCONFIG",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_AUTOSTART",
+   "drone": 4001.0,
+   "sitl": 4035,
+   "type": 6,
+   "class": "sim_only:S1",
+   "note": "differs on purpose"
+  },
+  {
+   "name": "SYS_CAL_ACCEL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_CAL_BARO",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_CAL_GYRO",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_CAL_TDEL",
+   "drone": 24.0,
+   "sitl": 24,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_CAL_TMAX",
+   "drone": 10.0,
+   "sitl": 10,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_CAL_TMIN",
+   "drone": 5.0,
+   "sitl": 5,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_DM_BACKEND",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_FAC_CAL_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_FAILURE_EN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_HAS_BARO",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_HAS_GPS",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_HAS_MAG",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_HAS_NUM_ASPD",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_HAS_NUM_DIST",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_HAS_NUM_OF",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_HITL",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_PARAM_VER",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_RGB_MAXBRT",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_STCK_EN",
+   "drone": 1.0,
+   "sitl": 1,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "SYS_USB_AUTO",
+   "drone": 2.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "SYS_VEHICLE_RESP",
+   "drone": -0.4,
+   "sitl": -0.4000000059604645,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "TC_A_ENABLE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "TC_B_ENABLE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "TC_G_ENABLE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "TC_M_ENABLE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "TEL_BST_EN",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "TEL_FRSKY_CONFIG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "TEL_HOTT_CONFIG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "THR_MDL_FAC",
+   "drone": 0.0,
+   "sitl": 0.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "TRIG_MODE",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "UAVCAN_BITRATE",
+   "drone": 1000000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FAIL1",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FAIL2",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FAIL3",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FAIL4",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FAIL5",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FAIL6",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FAIL7",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FAIL8",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FUNC1",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FUNC2",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FUNC3",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FUNC4",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FUNC5",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FUNC6",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FUNC7",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_FUNC8",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MAX1",
+   "drone": 8191.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MAX2",
+   "drone": 8191.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MAX3",
+   "drone": 8191.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MAX4",
+   "drone": 8191.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MAX5",
+   "drone": 8191.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MAX6",
+   "drone": 8191.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MAX7",
+   "drone": 8191.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MAX8",
+   "drone": 8191.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MIN1",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MIN2",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MIN3",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MIN4",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MIN5",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MIN6",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MIN7",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_MIN8",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_EC_REV",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_ENABLE",
+   "drone": 2.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_LGT_ANTCL",
+   "drone": 2.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_LGT_LAND",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_LGT_NAV",
+   "drone": 3.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_LGT_STROB",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_NODE_ID",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_PUB_ARM",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_PUB_MBD",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_PUB_RTCM",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_RNG_MAX",
+   "drone": 30.0,
+   "sitl": null,
+   "type": 9,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_RNG_MIN",
+   "drone": 0.08,
+   "sitl": null,
+   "type": 9,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_ASPD",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_BARO",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_BAT",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_BTN",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_DPRES",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_FLOW",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_FUEL",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_GPS",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_GPS_R",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_HYGRO",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_ICE",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_IMU",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_MAG",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SUB_RNG",
+   "drone": 1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_DIS1",
+   "drone": 500.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_DIS2",
+   "drone": 500.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_DIS3",
+   "drone": 500.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_DIS4",
+   "drone": 500.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_DIS5",
+   "drone": 500.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_DIS6",
+   "drone": 500.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_DIS7",
+   "drone": 500.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_DIS8",
+   "drone": 500.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FAIL1",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FAIL2",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FAIL3",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FAIL4",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FAIL5",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FAIL6",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FAIL7",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FAIL8",
+   "drone": -1.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FUNC1",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FUNC2",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FUNC3",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FUNC4",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FUNC5",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FUNC6",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FUNC7",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_FUNC8",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MAX1",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MAX2",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MAX3",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MAX4",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MAX5",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MAX6",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MAX7",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MAX8",
+   "drone": 1000.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MIN1",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MIN2",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MIN3",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MIN4",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MIN5",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MIN6",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MIN7",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_MIN8",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "UAVCAN_SV_REV",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A1",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "USB_MAV_MODE",
+   "drone": 2.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "VERTIQ_IO_CFG",
+   "drone": 0.0,
+   "sitl": null,
+   "type": 6,
+   "class": "absent:A3",
+   "note": "not in SITL build"
+  },
+  {
+   "name": "VT_B_DEC_I",
+   "drone": 0.1,
+   "sitl": 0.10000000149011612,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "VT_B_DEC_MSS",
+   "drone": 2.0,
+   "sitl": 2.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "WV_EN",
+   "drone": 0.0,
+   "sitl": 0,
+   "type": 6,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "WV_GAIN",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "WV_ROLL_MIN",
+   "drone": 1.0,
+   "sitl": 1.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  },
+  {
+   "name": "WV_YRATE_MAX",
+   "drone": 90.0,
+   "sitl": 90.0,
+   "type": 9,
+   "class": "equal",
+   "note": ""
+  }
+ ]
+}

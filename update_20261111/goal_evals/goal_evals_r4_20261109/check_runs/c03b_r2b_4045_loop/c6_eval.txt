@@ -1,0 +1,10 @@
+C6 FAIL  failed: hover_60s, share_10cm_ge_95pct, offset_max_le_20cm, height_err_le_10cm, no_emergency, script_matches_versions
+run c03b_r2b_4045_loop; valid True []; ulog /work/goal_step5b_20261109/runs/c03b_r2b_4045_loop/rootfs/log/2026-11-09/07_39_35.ulg
+trial deviations: ['trial-map-file (F2): drone.MAP_FILE -> RUN/aruco_map_written/map.txt instead of /home/lb/...', 'pkill stand-in (F2): `pkill` in the script PATH acts only inside the script session (rule 13)']
+window 11.41..57.26 s (45.8 s, ends: left OFFBOARD (nav_state 18)); settling None s
+offset to marker 0: <=10 cm 6.5 % of the time (need >=95), max 1.879 m (need <=0.20); height err max 0.248 m (need <=0.10)
+jump a (EKF): resets >0.10 m []; max move <0.2 s 0.019 m at [21.92, 22.12]
+jump b (truth): max move in 0.5 s 0.051 m at [11.41, 11.91] (horizontal only 0.042 m, information)
+verdict lines: {'took_off': True, 'hover_window_found': True, 'hover_60s': False, 'share_10cm_ge_95pct': False, 'offset_max_le_20cm': False, 'height_err_le_10cm': False, 'no_jump_a_ekf': True, 'no_jump_b_truth': True, 'landed_and_disarmed_after_hover': True, 'no_emergency': False, 'script_matches_versions': False, 'run_valid': True}
+emergencies: ['drone.py emergency landing: [ERROR] [1794210033.142767846] [flight]: Vision lost for 6.5s (markers_used=0, limit 6.0s) -- EKF is coasting, landing', 'script emergency landing / abort: Waypoint (-0.72, 1.40) failed -- aborting mission']
+script: [ERROR] [1794210033.142767846] [flight]: Vision lost for 6.5s (markers_used=0, limit 6.0s) -- EKF is coasting, landing | hover: pilot/failsafe has control (armed, mode=AUTO.LAND) -- stopped

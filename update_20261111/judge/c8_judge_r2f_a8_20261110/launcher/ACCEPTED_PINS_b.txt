@@ -1,0 +1,3 @@
+# ACCEPTED_PINS_b.txt of launcher v35-c8-r2f-a8 (host_run_wsl_c8_r2e_b.sh of c8_judge_r2f_a8_20261110 reads only this list)
+# frozen_inputs_c8_r2f_a8_01.json = pins A7 (12a05438) renamed + image r2f + airframe 4070 + identity c8_4070 files (tools/make_a8.py)
+65d0f719c6a10c49874f5a323527d5dbb812e1577924a38ca04adcb50ae5f900  /work/c8_judge_r2f_a8_20261110/pins/frozen_inputs_c8_r2f_a8_01.json

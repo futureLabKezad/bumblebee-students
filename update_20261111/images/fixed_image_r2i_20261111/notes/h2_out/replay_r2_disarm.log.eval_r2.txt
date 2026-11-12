@@ -1,0 +1,7 @@
+rc=0
+--- vpe_fix gate: applied/restored/FAILED, set ... failed, confirmed/dropped/kept/held, future timeout, SetParam_Response: 4
+    [vpe_fix.py-20] [WARN 1793344400.150000095] [vpe_publisher]: vpe_fix gate: set MPC_TKO_SPEED=0.3 failed (attempt 1, future timeout after 6.0s); retrying in 0.3 s
+    [vpe_fix.py-20] [WARN 1793344406.150000095] [vpe_publisher]: vpe_fix gate: set MPC_TKO_SPEED=0.3 failed, outcome unknown (future timeout after 6.0s); override kept UNCONFIRMED (orig=0.8): restored on disarm, revert_all or TTL, never while armed
+    [vpe_fix.py-20] [INFO 1793344453.000000000] [vpe_publisher]: vpe_fix gate: noop MPC_TKO_SPEED=0.3, override with unknown write outcome kept UNCONFIRMED (orig=0.8, requested 0.3): restored on disarm, revert_all or TTL
+    [vpe_fix.py-20] [INFO 1793344454.000000000] [vpe_publisher]: vpe_fix gate: restored MPC_TKO_SPEED=0.8 (disarmed); was unconfirmed
+ПАРЫ ЕСТЬ: у каждой applied есть restored (или applied не было), записей с неизвестным исходом нет

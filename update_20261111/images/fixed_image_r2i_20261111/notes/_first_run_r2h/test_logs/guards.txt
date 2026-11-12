@@ -1,0 +1,48 @@
+...........sF.F......F....................F.................F.............s............
+======================================================================
+FAIL: test_guard_during_ground_hold_disarms_through_land (test_drone_flight_guards.GroundHoldLandingS7.test_guard_during_ground_hold_disarms_through_land)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/test_drone_flight_guards.py", line 984, in test_guard_during_ground_hold_disarms_through_land
+    self.assertFalse(self.run_quiet(d.takeoff, 1.0))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_guard_in_flight_switches_directly_as_before (test_drone_flight_guards.GroundHoldLandingS7.test_guard_in_flight_switches_directly_as_before)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/test_drone_flight_guards.py", line 1011, in test_guard_in_flight_switches_directly_as_before
+    self.assertFalse(self.run_quiet(d.fly_to, 1.0, 0.0, 1.0))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_guard_on_platform_hold_then_safe_land_is_not_a_fall (test_drone_flight_guards.GroundHoldLandingS7.test_guard_on_platform_hold_then_safe_land_is_not_a_fall)
+Review SDK7-1: the disarm edge cleared the arm height before safe_land ran.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/test_drone_flight_guards.py", line 999, in test_guard_on_platform_hold_then_safe_land_is_not_a_fall
+    self.assertFalse(self.run_quiet(d.takeoff, 1.0))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_guard_abort_then_safe_land_watches_own_descent (test_drone_flight_guards.PilotWinsD2.test_guard_abort_then_safe_land_watches_own_descent)
+Example scripts: takeoff/fly_to abort on a guard, then safe_land in finally.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/test_drone_flight_guards.py", line 540, in test_guard_abort_then_safe_land_watches_own_descent
+    self.assertFalse(self.run_quiet(d.fly_to, 3.0, 0.0, 1.0))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_vision_guard_still_lands_in_offboard (test_drone_flight_guards.PilotWinsD2.test_vision_guard_still_lands_in_offboard)
+Control for the test above: same flight, no takeover -> AUTO.LAND.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/test_drone_flight_guards.py", line 452, in test_vision_guard_still_lands_in_offboard
+    self.assertFalse(self.run_quiet(d.fly_to, 3.0, 0.0, 1.0))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 87 tests in 1.080s
+
+FAILED (failures=5, skipped=2)

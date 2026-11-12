@@ -1,0 +1,18 @@
+stand-in test 2026-11-09T10:05:01+04:00; stand-in sha256 626acd4f73ba5a47e87f9a9250aea11c8501b3e6efb0a1e1e5aa40cac5922bdb
+outside dummy pid 1543 (own session)
+which: which pkill: /work/goal_step5b_20261109/standin/bin/pkill
+exit codes:
+  call1 0
+  call2_nomatch 1
+  call3_regex 2
+  call4_other_form 2
+  call5_wrong_sid 3
+stand-in stdout bytes 0, stderr bytes 0
+survival:
+  OK   inside run session, cmdline has the pattern (pid 1553): dead
+  OK   inside run session, other cmdline (pid 1554): alive
+  OK   inside run session, aruco_detect-like remaps (aruco_map/map) (pid 1555): alive
+  OK   OUTSIDE the run session, cmdline has the pattern (pid 1543): alive
+  OK   call1 log: signalled [1553], outside untouched [1543]
+after cleanup: 1553:dead 1554:dead 1555:dead 1543:dead 1550:dead 
+RESULT: PASS

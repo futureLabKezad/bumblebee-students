@@ -1,0 +1,3 @@
+# ACCEPTED_PINS_b.txt of launcher v36-c8-r2g-a9 (host_run_wsl_c8_r2e_b.sh of c8_judge_r2g_a9_20261110 reads only this list)
+# frozen_inputs_c8_r2g_a9_01.json = pins A8 (65d0f719) renamed + image r2g + run_sim.snapshot.sh M1 (tools/make_a9.py)
+4b46f4d421c7b311d1de18e6ec2f8dc81ee65bc095a8540b380077c8740c05f6  /work/c8_judge_r2g_a9_20261110/pins/frozen_inputs_c8_r2g_a9_01.json

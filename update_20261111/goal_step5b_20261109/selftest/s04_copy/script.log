@@ -1,0 +1,86 @@
+[WARN] [1793966881.636518075] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1793966881.636554501] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+Applying flight profile 'INDOOR_ARUCO_SLOW' through vpe_fix gate (13 params)...
+  ... pass 2: 2 params still not in cache; triggering ParamPull(force=True) + 12s wait
+  ParamPull(force=True) completed
+  OK    MPC_XY_VEL_MAX=0.25 (pass 2)
+  ... pass 3: 1 params still not in cache; triggering ParamPull(force=True) + 12s wait
+  ParamPull(force=True) completed
+  ... pass 4: 1 params still not in cache; triggering ParamPull(force=True) + 12s wait
+  ParamPull(force=True) completed
+  WARN  MPC_XY_VEL_P_ACC=1.2 rejected (final): param not in PX4 cache after 3 ParamPull rounds
+Flight profile 'INDOOR_ARUCO_SLOW': 12/13 params applied. Auto-revert on disarm.
+Profile gate OK: 12/13 INDOOR_ARUCO_SLOW params applied
+=== ARUCO CHECK (min_markers=1) ===
+Waiting for ArUco markers (timeout 15s)...
+ArUco markers visible: [0] -- OK
+=== WAITING FOR YAW LOCK (timeout 20s) ===
+  yaw_locked=True -- OK
+=== POSITION STABLE CHECK ===
+Waiting for stable position (3.0s window, timeout 30s, multi=False, adaptive=True)...
+  position: x=-0.000 y=1.531 z=-0.047 | markers=1 yaw=True | stable 0.0s/3.0s
+  position: x=-0.000 y=1.531 z=-0.044 | markers=0 yaw=True | stable 0.5s/3.0s
+  position: x=-0.000 y=1.531 z=-0.044 | markers=0 yaw=True | stable 1.0s/3.0s
+  position: x=-0.000 y=1.531 z=-0.046 | markers=0 yaw=True | stable 1.5s/3.0s
+  position: x=-0.000 y=1.531 z=-0.049 | markers=0 yaw=True | stable 2.0s/3.0s
+  position: x=-0.000 y=1.531 z=-0.048 | markers=1 yaw=True | stable 2.5s/3.0s
+  position: x=-0.000 y=1.531 z=-0.046 | markers=1 yaw=True | stable 3.0s/3.0s
+  position stable -- OK
+=== WAITING FOR VPE LINK (>= 8 Hz on /mavros/mavros/pose_cov) ===
+  vpe link OK
+[START] x=-0.00 y=1.53 z=-0.05 | armed=False mode=STABILIZED
+=== TAKEOFF to 1.5m ===
+[TAKEOFF] x=-0.00 y=1.53 z=-0.05 | dist=1.51
+[TAKEOFF] x=-0.00 y=1.53 z=-0.05 | dist=1.51
+[TAKEOFF] x=0.00 y=1.53 z=-0.05 | dist=1.51
+[TAKEOFF] x=0.01 y=1.53 z=-0.05 | dist=1.51
+[TAKEOFF] x=0.01 y=1.53 z=-0.05 | dist=1.51
+[TAKEOFF] x=0.01 y=1.53 z=-0.05 | dist=1.50
+[TAKEOFF] x=0.01 y=1.53 z=-0.05 | dist=1.51
+[TAKEOFF] x=0.01 y=1.54 z=0.13 | dist=1.32
+[TAKEOFF] x=0.01 y=1.54 z=0.19 | dist=1.26
+[TAKEOFF] x=0.01 y=1.54 z=0.21 | dist=1.24
+[TAKEOFF] x=0.01 y=1.51 z=0.25 | dist=1.20
+[TAKEOFF] x=0.01 y=1.46 z=0.37 | dist=1.08
+[TAKEOFF] x=0.03 y=1.41 z=0.53 | dist=0.93
+[TAKEOFF] x=0.04 y=1.41 z=0.66 | dist=0.80
+[TAKEOFF] x=0.04 y=1.41 z=0.78 | dist=0.69
+[TAKEOFF] x=0.01 y=1.39 z=0.88 | dist=0.59
+[TAKEOFF] x=-0.02 y=1.37 z=0.96 | dist=0.51
+[TAKEOFF] x=-0.05 y=1.35 z=1.03 | dist=0.46
+[TAKEOFF] x=-0.06 y=1.34 z=1.10 | dist=0.41
+[TAKEOFF] x=-0.05 y=1.33 z=1.15 | dist=0.37
+[TAKEOFF] x=-0.04 y=1.33 z=1.19 | dist=0.33
+[TAKEOFF] x=-0.02 y=1.34 z=1.22 | dist=0.30
+[TAKEOFF] x=-0.00 y=1.35 z=1.25 | dist=0.28
+[TAKEOFF] x=0.01 y=1.36 z=1.27 | dist=0.25
+[TAKEOFF] x=0.02 y=1.37 z=1.30 | dist=0.23
+[TAKEOFF] x=0.03 y=1.38 z=1.32 | dist=0.20
+[TAKEOFF] x=0.03 y=1.40 z=1.34 | dist=0.18
+[TAKEOFF] x=0.03 y=1.41 z=1.36 | dist=0.15
+[TAKEOFF] x=0.04 y=1.42 z=1.39 | dist=0.13
+Precision approach to (-0.00, 1.53)...
+[APPROACH] x=0.00 y=1.49 z=1.46 | dist=0.05
+Hovering 1.5s...
+=== LANDING ===
+[LAND] z=1.41 vz=-0.30 armed=True
+[LAND] z=1.28 vz=-0.32 armed=True
+[LAND] z=1.12 vz=-0.32 armed=True
+[LAND] z=0.97 vz=-0.32 armed=True
+[LAND] z=0.81 vz=-0.32 armed=True
+[LAND] z=0.67 vz=-0.31 armed=True
+[LAND] z=0.52 vz=-0.31 armed=True
+[LAND] z=0.37 vz=-0.31 armed=True
+[LAND] z=0.21 vz=-0.31 armed=True
+[LAND] z=0.06 vz=-0.31 armed=True
+[LAND] z=-0.08 vz=-0.31 armed=True
+[LAND] z=-0.07 vz=0.00 armed=True
+[LAND] z=-0.04 vz=0.01 armed=True
+[LAND] z=-0.03 vz=0.01 armed=True
+[LAND] z=-0.03 vz=0.01 armed=True
+[LAND] z=-0.04 vz=0.01 armed=True
+[LAND] z=-0.04 vz=0.00 armed=True
+[LAND] z=-0.05 vz=0.00 armed=True
+[LAND] z=-0.05 vz=0.00 armed=False
+Landed and disarmed.
+[WARN] [1793967181.312016215] [flight]: Interrupt received -- cancelling takeoff / landing

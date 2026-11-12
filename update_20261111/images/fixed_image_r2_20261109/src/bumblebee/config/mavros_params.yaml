@@ -1,0 +1,29 @@
+mavros:
+  ros__parameters:
+    fcu_url: /dev/ttyAMA0:115200
+    gcs_url: tcp-l://0.0.0.0:5760
+    gcs_quiet_mode: true
+    conn.timeout: 8
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    plugin_allowlist:
+      - sys_status
+      - statustext
+      - imu
+      - local_position
+      - command
+      - param
+      - vision_pose
+      - rc_io
+      - manual_control
+      - setpoint_position
+      - setpoint_attitude
+      - setpoint_velocity
+      - play_tune
+
+mavros/mavros:
+  ros__parameters:
+    tf.send: true
+    tf.frame_id: map
+    tf.child_frame_id: base_link

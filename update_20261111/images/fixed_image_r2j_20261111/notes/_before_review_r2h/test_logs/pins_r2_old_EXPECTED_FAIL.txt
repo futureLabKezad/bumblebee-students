@@ -1,0 +1,51 @@
+test_r2_added_methods (__main__.PinsR2.test_r2_added_methods) ... FAIL
+test_r2_keep_untouched_code_and_constants_vs_c33 (__main__.PinsR2.test_r2_keep_untouched_code_and_constants_vs_c33) ... FAIL
+test_r2_not_sent_constant_is_the_literal_of_param_set_once (__main__.PinsR2.test_r2_not_sent_constant_is_the_literal_of_param_set_once) ... ok
+test_r2_only_the_declared_h2_set_differs_from_7f107882 (__main__.PinsR2.test_r2_only_the_declared_h2_set_differs_from_7f107882) ... FAIL
+test_r2_p1_code_identical_to_7f107882 (__main__.PinsR2.test_r2_p1_code_identical_to_7f107882) ... FAIL
+
+======================================================================
+FAIL: test_r2_added_methods (__main__.PinsR2.test_r2_added_methods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py", line 114, in test_r2_added_methods
+    self.assertEqual(methods(tree(TARGET)) - methods(tree(C33)), P1_ADDED)
+AssertionError: Items in the first set but not the second:
+'_reentry_pose'
+
+======================================================================
+FAIL: test_r2_keep_untouched_code_and_constants_vs_c33 (__main__.PinsR2.test_r2_keep_untouched_code_and_constants_vs_c33)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py", line 105, in test_r2_keep_untouched_code_and_constants_vs_c33
+    self.assertEqual(db.get(k), v, k)
+AssertionError: "Func[242 chars]kers_pos_time', ctx=Load()), ops=[Is()], compa[810 chars]=[])" != "Func[242 chars]kers_used_time', ctx=Load()), ops=[Is()], comp[950 chars]=[])"
+Diff is 4287 characters long. Set self.maxDiff to None to see it. : VpeFix._single_marker_fresh
+
+======================================================================
+FAIL: test_r2_only_the_declared_h2_set_differs_from_7f107882 (__main__.PinsR2.test_r2_only_the_declared_h2_set_differs_from_7f107882)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py", line 132, in test_r2_only_the_declared_h2_set_differs_from_7f107882
+    self.assertEqual(changed, H2_CHANGED)
+AssertionError: Items in the first set but not the second:
+'VpeFix.__init__'
+'VpeFix.yaw_locked_callback'
+'VpeFix.publish_timer'
+'VpeFix.markers_used_callback'
+'VpeFix._single_marker_fresh'
+'VpeFix.aruco_map_callback'
+
+======================================================================
+FAIL: test_r2_p1_code_identical_to_7f107882 (__main__.PinsR2.test_r2_p1_code_identical_to_7f107882)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py", line 122, in test_r2_p1_code_identical_to_7f107882
+    self.assertEqual(b.get('VpeFix.' + m), a['VpeFix.' + m], m)
+AssertionError: "Func[6620 chars]ttr='markers_pos_time', ctx=Store())], value=C[6079 chars]=[])" != "Func[6620 chars]ttr='yaw_locked', ctx=Store())], value=Constan[5331 chars]=[])"
+Diff is 39891 characters long. Set self.maxDiff to None to see it. : __init__
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.101s
+
+FAILED (failures=4)

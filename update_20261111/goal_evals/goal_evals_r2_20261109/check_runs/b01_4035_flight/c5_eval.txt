@@ -1,0 +1,4 @@
+C5 FAIL  failed: took_off, not evaluated: height_window_found, not evaluated: height_within_0p10, not evaluated: touchdown_found, not evaluated: motors_off_found, not evaluated: motors_off_le_3s, not evaluated: no_emergency
+run b01_4035_flight; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py H=1.5 ; exit 3 (2026-11-09T10:08:45+04:00 exited by itself, code 3)
+emergencies: not evaluated
+no ULog: the vehicle never armed

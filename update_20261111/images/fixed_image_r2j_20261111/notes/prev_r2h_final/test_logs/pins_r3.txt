@@ -1,0 +1,11 @@
+test_r3_aruco_map_callback_one_added_statement (__main__.PinsR3.test_r3_aruco_map_callback_one_added_statement) ... ok
+test_r3_constants (__main__.PinsR3.test_r3_constants) ... ok
+test_r3_declared_parts_are_the_accepted_final (__main__.PinsR3.test_r3_declared_parts_are_the_accepted_final) ... ok
+test_r3_only_the_declared_parts_differ_from_r2g (__main__.PinsR3.test_r3_only_the_declared_parts_differ_from_r2g) ... ok
+test_r3_p1_gate_h2_and_guard_code_unchanged (__main__.PinsR3.test_r3_p1_gate_h2_and_guard_code_unchanged) ... ok
+test_r3_reference_is_r2g (__main__.PinsR3.test_r3_reference_is_r2g) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.148s
+
+OK

@@ -1,0 +1,51 @@
+--- /work/goal_step5b_20261109/run_scenario7k.sh	2026-11-11 13:20:50.592028287 +0400
++++ run_scenario7l.sh.new	2026-11-11 13:37:06.485531779 +0400
+@@ -1,5 +1,6 @@
+ #!/bin/bash
+ # ТОЛЬКО СИМУЛЯТОР (SIMULATOR ONLY). К дрону не подключается. Goal step 5b scenario launcher, Claude, 09.11.2026.
++# Edition 7l (11.11, Claude): ed.7k + --image r2j = /work/fixed_image_r2j_20261111; flight.py / flight_marker.py height 0.9 for r2j. Maker: /work/t52_model_ref_20261111/make_7l.py
+ # Edition 7k (11.11, Claude, T52): ed.7j + AIRFRAME 4074 + policy file /work/t52_model_ref_20261111/sim_only_4074.json. Maker: /work/t52_model_ref_20261111/make_t52.py
+ # Edition 7j (11.11, Claude, T49): ed.7h + AIRFRAME 4072|4073 (sensor-position probes, not scored). Maker: /work/t49_sensor_pos_probe_20261111/make_t49.py
+ # Edition 7h (10.11, Claude): ed.7g + --image r2hf = /work/fixed_image_r2h_20261110 (FINAL r2h, owner 18:17). Maker: /work/series3_r2h_20261110/make_series3.py
+@@ -110,11 +111,11 @@
+ [ "${FREE_G:-0}" -ge 8 ] || { echo "REFUSE: disk C: free ${FREE_G}G < 8G (АРХИТЕКТУРА_РАБОТЫ.md §8)"; exit 2; }
+ case $AF in 4032|4034|4035|4036|4037|4038|4044|4045|4046|4047|4055|4056|4057|4058|4059|4060|4061|4070|4072|4073|4074) ;; *) echo "AIRFRAME not allowed"; exit 2 ;; esac
+ IMG_SRC=$PRODUCT/src/bumblebee; IMG_INSTALL=$PRODUCT/install; IMG_PINS=""
+-if [ "${IMAGE:0:2}" = r2 ]; then R2=/work/fixed_image_r2_20261109; [ "$IMAGE" = r2c ] && R2=/work/fixed_image_r2c_20261109; [ "$IMAGE" = r2d ] && R2=/work/fixed_image_r2d_20261109; [ "$IMAGE" = r2e ] && R2=/work/fixed_image_r2e_20261109; [ "$IMAGE" = r2f ] && R2=/work/fixed_image_r2f_20261110; [ "$IMAGE" = r2g ] && R2=/work/fixed_image_r2g_20261110; [ "$IMAGE" = r2h ] && R2=/work/fixed_image_r2h_candidate_20261110; [ "$IMAGE" = r2hf ] && R2=/work/fixed_image_r2h_20261110; IMG_SRC=$R2/src/bumblebee; IMG_INSTALL=$R2/install; EXAMPLES=$IMG_SRC/examples
++if [ "${IMAGE:0:2}" = r2 ]; then R2=/work/fixed_image_r2_20261109; [ "$IMAGE" = r2c ] && R2=/work/fixed_image_r2c_20261109; [ "$IMAGE" = r2d ] && R2=/work/fixed_image_r2d_20261109; [ "$IMAGE" = r2e ] && R2=/work/fixed_image_r2e_20261109; [ "$IMAGE" = r2f ] && R2=/work/fixed_image_r2f_20261110; [ "$IMAGE" = r2g ] && R2=/work/fixed_image_r2g_20261110; [ "$IMAGE" = r2h ] && R2=/work/fixed_image_r2h_candidate_20261110; [ "$IMAGE" = r2hf ] && R2=/work/fixed_image_r2h_20261110; [ "$IMAGE" = r2j ] && R2=/work/fixed_image_r2j_20261111; IMG_SRC=$R2/src/bumblebee; IMG_INSTALL=$R2/install; EXAMPLES=$IMG_SRC/examples
+   IMG_PINS="--src $IMG_SRC --install $IMG_INSTALL --manifest $R2/image_manifest_r2.tsv"; fi
+ case $SCRIPT in
+-  flight.py) SCRIPT_REL=examples/flight/flight.py; SCRIPT_H=1.5; [ "${IMAGE:0:2}" = r2 ] && SCRIPT_H=0.8 ;;                    # takeoff(height=1.5) in the image's code
+-  flight_marker.py) SCRIPT_REL=examples/flight/flight_marker.py; SCRIPT_H=0.7 ;;      # 5b: takeoff(height=0.7)
++  flight.py) SCRIPT_REL=examples/flight/flight.py; SCRIPT_H=1.5; [ "${IMAGE:0:2}" = r2 ] && SCRIPT_H=0.8; [ "$IMAGE" = r2j ] && SCRIPT_H=0.9 ;;                    # takeoff(height=1.5) in the image's code
++  flight_marker.py) SCRIPT_REL=examples/flight/flight_marker.py; SCRIPT_H=0.7; [ "$IMAGE" = r2j ] && SCRIPT_H=0.9 ;;      # 5b: takeoff(height=0.7)
+   flight_marker_loop.py) SCRIPT_REL=examples/flight/flight_marker_loop.py; SCRIPT_H=1.3 ;;   # 5b: takeoff(height=1.3)
+   $STEP5B/scenarios/*.py) SCRIPT_REL=$SCRIPT; SCRIPT_H=1.0 ;;
+   /work/c6_hover_script_r2_20261109/hover_marker0.py) SCRIPT_REL=$SCRIPT; SCRIPT_H=1.0 ;;
+@@ -155,7 +156,7 @@
+ export BB_STAND=goal_step5b PYTHONDONTWRITEBYTECODE=1                                   # 5b
+ mkdir -p "$RUN/rootfs" "$RUN/models" "$RUN/snapshot/tools" "$RUN/snapshot/standin"
+ exec > >(tee -a "$RUN/launcher.log") 2>&1
+-echo "ТОЛЬКО СИМУЛЯТОР (ed.7k af_4074_t52 sim_only_4074; ed.7j af_4072_4073_t49; ed.7h image_r2h_final; ed.7g script_use_sim_time; ed.7f image_r2h_candidate; ed.7e hover_r6; ed.7c image_r2g; ed.7b logger_by_SDLOG_MODE r5 sim_only=4070v2; ed.7 vision_max_hz=$VISION_HZ; ed.6c range_relay=$RANGE_RELAY; ed.6 inject_on=${INJ_PAT:-none}#$INJ_NTH:${INJ_ACT:-none} after_inject_s=$AFTER_INJ_S rc=rc_hold3; ed.5 image=$IMAGE pilot_pos_on=${PILOT_PAT:-none}#$PILOT_NTH; ed.4 model=$MODEL flow_plugin=$FLOWPLUG; ed.3 kill_script_on=${KILL_PAT:-none} after_kill_s=$AFTER_KILL_S): scenario $TAG airframe $AF script $SCRIPT gui=$GUI timeout=${TIMEOUT}s trial_aruco_always=$ARUCO_ALWAYS trial_map_file=$MAP_TRIAL probe_param_events=$PROBE script_height=$SCRIPT_H end_after_disarm=${END_AFTER_DISARM}s end_if_idle=${END_IF_IDLE}s $(date -Is)"
++echo "ТОЛЬКО СИМУЛЯТОР (ed.7l image_r2j; ed.7k af_4074_t52 sim_only_4074; ed.7j af_4072_4073_t49; ed.7h image_r2h_final; ed.7g script_use_sim_time; ed.7f image_r2h_candidate; ed.7e hover_r6; ed.7c image_r2g; ed.7b logger_by_SDLOG_MODE r5 sim_only=4070v2; ed.7 vision_max_hz=$VISION_HZ; ed.6c range_relay=$RANGE_RELAY; ed.6 inject_on=${INJ_PAT:-none}#$INJ_NTH:${INJ_ACT:-none} after_inject_s=$AFTER_INJ_S rc=rc_hold3; ed.5 image=$IMAGE pilot_pos_on=${PILOT_PAT:-none}#$PILOT_NTH; ed.4 model=$MODEL flow_plugin=$FLOWPLUG; ed.3 kill_script_on=${KILL_PAT:-none} after_kill_s=$AFTER_KILL_S): scenario $TAG airframe $AF script $SCRIPT gui=$GUI timeout=${TIMEOUT}s trial_aruco_always=$ARUCO_ALWAYS trial_map_file=$MAP_TRIAL probe_param_events=$PROBE script_height=$SCRIPT_H end_after_disarm=${END_AFTER_DISARM}s end_if_idle=${END_IF_IDLE}s $(date -Is)"
+ # 5b: run options and every trial deviation, machine-readable
+ python3 -I -B - "$RUN/run_options.json" "$TAG" "$AF" "$SCRIPT" "$SCRIPT_PATH" "$GUI" "$TIMEOUT" "$ARUCO_ALWAYS" "$MAP_TRIAL" \
+   "$PROBE" "$SCRIPT_H" "$END_AFTER_DISARM" "$END_IF_IDLE" "$USES_MAP" <<'PY'
+@@ -181,7 +182,7 @@
+ PY
+ 
+ # --- snapshot + versions
+-cp $STEP5B/run_scenario2.sh $STEP5B/run_scenario3.sh $STEP5B/run_scenario4.sh $STEP5B/run_scenario5.sh $STEP5B/run_scenario6.sh $STEP5B/run_scenario7.sh $STEP5B/run_scenario7b.sh $STEP5B/run_scenario7c.sh $STEP5B/run_scenario7e.sh $STEP5B/run_scenario7f.sh $STEP5B/run_scenario7g.sh $STEP5B/run_scenario7h.sh $STEP5B/run_scenario7j.sh $STEP5B/run_scenario7k.sh $STEP5/scenario_stack.launch.py "$RUN/snapshot/"
++cp $STEP5B/run_scenario2.sh $STEP5B/run_scenario3.sh $STEP5B/run_scenario4.sh $STEP5B/run_scenario5.sh $STEP5B/run_scenario6.sh $STEP5B/run_scenario7.sh $STEP5B/run_scenario7b.sh $STEP5B/run_scenario7c.sh $STEP5B/run_scenario7e.sh $STEP5B/run_scenario7f.sh $STEP5B/run_scenario7g.sh $STEP5B/run_scenario7h.sh $STEP5B/run_scenario7j.sh $STEP5B/run_scenario7k.sh $STEP5B/run_scenario7l.sh $STEP5/scenario_stack.launch.py "$RUN/snapshot/"
+ cp $STEP5/tools/rc_hold.py $STEP5B/tools/rc_hold2.py $STEP5/tools/goal_eval.py "$RUN/snapshot/tools/"
+ cp $C8/rc_hold3.py $C8/c8_inject.py $C8/c8_follow.py "$RUN/snapshot/tools/"              # ed.6 (+ c8_follow ed.6b)
+ [ $RANGE_RELAY = 1 ] && cp $RR "$RUN/snapshot/tools/"                                     # ed.6c
+@@ -207,7 +208,7 @@
+   echo "aruco_world $(sha256sum < $ARUCO_DIR/default.sdf | cut -c1-64) map $(sha256sum < $ARUCO_DIR/map.input.txt | cut -c1-64)"
+   echo "product $(tail -1 $PRODUCT/RC3_PROVENANCE.txt | cut -c1-80)"
+   echo "script $SCRIPT_REL $(sha256sum < "$SCRIPT_PATH" | cut -c1-64)"
+-  (cd "$SNAP" && sha256sum run_scenario2.sh run_scenario3.sh run_scenario4.sh run_scenario5.sh run_scenario6.sh run_scenario7.sh run_scenario7b.sh run_scenario7c.sh run_scenario7e.sh run_scenario7f.sh run_scenario7g.sh run_scenario7h.sh run_scenario7j.sh run_scenario7k.sh scenario_stack.launch.py sim_only.json tools/* standin/bin/*)
++  (cd "$SNAP" && sha256sum run_scenario2.sh run_scenario3.sh run_scenario4.sh run_scenario5.sh run_scenario6.sh run_scenario7.sh run_scenario7b.sh run_scenario7c.sh run_scenario7e.sh run_scenario7f.sh run_scenario7g.sh run_scenario7h.sh run_scenario7j.sh run_scenario7k.sh run_scenario7l.sh scenario_stack.launch.py sim_only.json tools/* standin/bin/*)
+ } > "$RUN/versions.txt"
+ cat "$RUN/versions.txt"
+ $PY -I $SNAP/tools/pins_check2.py "$RUN" "$SCRIPT_REL" $IMG_PINS

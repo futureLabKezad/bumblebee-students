@@ -1,0 +1,1 @@
+a11 ok: judge/expectations/run_sim/freshness = A10; candidate vpe_fix = r2i, two loaded vpe pins = r2i sha only; image r2i pinned; product sums r2i; pins renamed

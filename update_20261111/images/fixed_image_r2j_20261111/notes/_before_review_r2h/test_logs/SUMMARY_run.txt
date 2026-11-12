@@ -1,0 +1,29 @@
+# r2h tests (no ROS) 10.11.2026 16:30
+## r2h new
+r2h_drone.txt exit=0 | Ran 39 tests in 0.385s OK 
+r2h_vpe.txt exit=0 | Ran 11 tests in 0.053s OK 
+r2h_pins.txt exit=0 | Ran 5 tests in 0.116s OK 
+## carried over from r2g
+test_q6_fixes.txt exit=0 | Ran 17 tests in 3.156s OK 
+test_r2b_wake.txt exit=0 | Ran 5 tests in 3.254s OK 
+test_r2c_navigate_float.txt exit=0 | Ran 6 tests in 0.040s OK (skipped=2) 
+test_r2d.txt exit=0 | Ran 14 tests in 0.986s OK 
+test_r2e.txt exit=0 | Ran 2 tests in 0.413s OK 
+guards.txt exit=0 | Ran 87 tests in 0.901s OK (skipped=2) 
+notify.txt exit=0 | Ran 37 tests in 0.424s OK (skipped=2) 
+script_lease.txt exit=0 | test_script_lease: 19 cases OK
+## vpe_fix H2 round 2 suites on the r2h vpe_fix (parameter gate: unchanged code)
+h2_r2.txt exit=0 | Ran 33 tests in 2.303s OK 
+h2_in_air.txt exit=0 | Ran 1 test in 3.543s OK 
+## the old vision-path pins (c33/7f107882): EXPECTED to fail on r2h, the vision path changed on purpose
+pins_r2_old_EXPECTED_FAIL.txt exit=1 | Ran 5 tests in 0.131s FAILED (failures=4) 
+FAIL: test_r2_added_methods (__main__.PinsR2.test_r2_added_methods)
+AssertionError: Items in the first set but not the second:
+FAIL: test_r2_keep_untouched_code_and_constants_vs_c33 (__main__.PinsR2.test_r2_keep_untouched_code_and_constants_vs_c33)
+AssertionError: "Func[242 chars]kers_pos_time', ctx=Load()), ops=[Is()], compa[810 chars]=[])" != "Func[242 chars]kers_used_time', ctx=Load()), ops=[Is()], comp[950 chars]=[])"
+FAIL: test_r2_only_the_declared_h2_set_differs_from_7f107882 (__main__.PinsR2.test_r2_only_the_declared_h2_set_differs_from_7f107882)
+AssertionError: Items in the first set but not the second:
+FAIL: test_r2_p1_code_identical_to_7f107882 (__main__.PinsR2.test_r2_p1_code_identical_to_7f107882)
+AssertionError: "Func[6620 chars]ttr='markers_pos_time', ctx=Store())], value=C[6079 chars]=[])" != "Func[6620 chars]ttr='yaw_locked', ctx=Store())], value=Constan[5331 chars]=[])"
+## the same old pins on r2g (control: pass)
+pins_r2_old_on_r2g.txt exit=0 | Ran 5 tests in 0.077s OK 

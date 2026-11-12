@@ -1,0 +1,38 @@
+test_r10_guarantee_matrix (__main__.Candidate.test_r10_guarantee_matrix) ... ok
+test_r11_disarm_restore_during_the_call_then_unknown_kept_again (__main__.Candidate.test_r11_disarm_restore_during_the_call_then_unknown_kept_again) ... ok
+test_r1_timeout_applied_in_air_event_does_not_confirm_restored_on_disarm (__main__.Candidate.test_r1_timeout_applied_in_air_event_does_not_confirm_restored_on_disarm) ... ok
+test_r1b_mavros_success_false_is_unknown_too (__main__.Candidate.test_r1b_mavros_success_false_is_unknown_too) ... ok
+test_r1c_value_seen_during_the_call_still_unconfirmed (__main__.Candidate.test_r1c_value_seen_during_the_call_still_unconfirmed) ... ok
+test_r2_original_seen_after_failure_never_drops (__main__.Candidate.test_r2_original_seen_after_failure_never_drops) ... ok
+test_r2b_noop_on_old_cache_value_never_drops_and_logs (__main__.Candidate.test_r2b_noop_on_old_cache_value_never_drops_and_logs) ... ok
+test_r2c_third_value_kept_and_restored (__main__.Candidate.test_r2c_third_value_kept_and_restored) ... ok
+test_r2d_not_sent_dropped_as_before (__main__.Candidate.test_r2d_not_sent_dropped_as_before) ... ok
+test_r2e_sent_then_service_gone_is_unknown (__main__.Candidate.test_r2e_sent_then_service_gone_is_unknown) ... ok
+test_r3_mavros_restart_applied_stays_unconfirmed (__main__.Candidate.test_r3_mavros_restart_applied_stays_unconfirmed) ... ok
+test_r3b_mavros_restart_not_applied_never_drops (__main__.Candidate.test_r3b_mavros_restart_not_applied_never_drops) ... ok
+test_r4_revert_all_restores_unconfirmed (__main__.Candidate.test_r4_revert_all_restores_unconfirmed) ... ok
+test_r4b_revert_all_unconfirmed_px4_unchanged_is_harmless (__main__.Candidate.test_r4b_revert_all_unconfirmed_px4_unchanged_is_harmless) ... ok
+test_r4c_ttl_on_ground_restores_unconfirmed (__main__.Candidate.test_r4c_ttl_on_ground_restores_unconfirmed) ... ok
+test_r4d_event_never_cancels_ttl (__main__.Candidate.test_r4d_event_never_cancels_ttl) ... ok
+test_r4e_persistent_unconfirmed_kept_on_disarm_restored_by_revert_all (__main__.Candidate.test_r4e_persistent_unconfirmed_kept_on_disarm_restored_by_revert_all) ... ok
+test_r4f_shutdown_revert_on_ground_restores_unconfirmed (__main__.Candidate.test_r4f_shutdown_revert_on_ground_restores_unconfirmed) ... ok
+test_r4g_later_successful_write_is_an_ordinary_override (__main__.Candidate.test_r4g_later_successful_write_is_an_ordinary_override) ... ok
+test_r4h_success_after_unknown_never_dropped_by_a_late_old_value (__main__.Candidate.test_r4h_success_after_unknown_never_dropped_by_a_late_old_value) ... ok
+test_r5_ev_ctrl_guard_and_first_write_wins_kept (__main__.Candidate.test_r5_ev_ctrl_guard_and_first_write_wins_kept) ... ok
+test_r6_replay_30_10 (__main__.Candidate.test_r6_replay_30_10) ... ok
+test_r7_review_probe_stale_original_then_real_value (__main__.Candidate.test_r7_review_probe_stale_original_then_real_value) ... ok
+test_r8_unknown_in_air_no_ttl_restored_on_disarm (__main__.Candidate.test_r8_unknown_in_air_no_ttl_restored_on_disarm) ... ok
+test_r8b_ttl_due_in_air_held_until_disarm (__main__.Candidate.test_r8b_ttl_due_in_air_held_until_disarm) ... ok
+test_r8c_revert_all_in_air_held_until_disarm (__main__.Candidate.test_r8c_revert_all_in_air_held_until_disarm) ... ok
+test_r8d_shutdown_in_air_held (__main__.Candidate.test_r8d_shutdown_in_air_held) ... ok
+test_r8e_ordinary_override_ttl_in_air_unchanged (__main__.Candidate.test_r8e_ordinary_override_ttl_in_air_unchanged) ... ok
+test_r8f_fcu_state_unknown_after_armed_counts_as_armed (__main__.Candidate.test_r8f_fcu_state_unknown_after_armed_counts_as_armed) ... ok
+test_r9_param_set_once_not_sent_string_is_the_constant (__main__.Candidate.test_r9_param_set_once_not_sent_string_is_the_constant) ... ok
+test_original_breaks_the_guarantee_matrix (__main__.Control.test_original_breaks_the_guarantee_matrix) ... ok
+test_original_replay_silently_leaves_0_3 (__main__.Control.test_original_replay_silently_leaves_0_3) ... ok
+test_real_logs_still_stop (__main__.RealLogs.test_real_logs_still_stop) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 2.252s
+
+OK

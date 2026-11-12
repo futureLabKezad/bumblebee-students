@@ -1,0 +1,485 @@
+{
+ "run": "/work/goal_step5b_20261109/runs/e1_r2c_4056_loop",
+ "criteria": "C7 approved 09.11 + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "point_m": 0.25,
+  "landing_m": 0.15,
+  "in_a_row": 10,
+  "sp_still_m": 0.003,
+  "hold_min_s": 0.4,
+  "hold_merge_m": 0.05,
+  "leg_match_m": 0.05,
+  "stand_after_off_s": 1.0
+ },
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.994,
+  "clock_ok": true
+ },
+ "fingerprint": {
+  "px4_source_head": "px4_source_head 94cb2012792b2ae89f0b147cfee53ee31ae550be",
+  "px4_binary_sha256": "px4_binary_sha256 56931e9da394a7619e6d61e04f5e1a0d77e3fa9f9828f5824c61d5cdb53963d7",
+  "gz": "gz 8.15.0",
+  "airframe 4056": "airframe 4056 f5f5229eff7a7170718abd9ce3b0ea555c9eb57192416e8cf21841a774885fc0",
+  "airframe 4032": "airframe 4032 b1c83fbe8bdc97b9371b61af2314201c1c2434e016a9805448328e2d25c04eb4",
+  "model_sdf": "model_sdf a5300d7c749615c50760a26a9953d62074bd959435c74a26e1436a6110590222",
+  "aruco_world": "aruco_world 73804e4e01accd7c515b7f3b285f09b0d63de4ad0385945b68bf11505e9b3ec0 map 528b5adb467dc91e819e0c4cb9a5ff44439319fff23c3293799b8ee3fe43e611",
+  "product": "product port-rc3 64438f4dcdb92fb08adee81902ccdf31e5e442e4 (tag object 331eeeb4dc1e7860ff",
+  "script": "script examples/flight/flight_marker_loop.py cade97b5fc96706e2a7b292e34708109edd401465b10de679603c39df860736b",
+  "file run_scenario2.sh": "15cecae8a74b115e36c4baea8e285b61a553d98bf56f0e1732e56ce5996a8678",
+  "file scenario_stack.launch.py": "104842659e63e126aebb5f1a602f9ad81a25b21befbe88e2a08176dde79037fc",
+  "file sim_only.json": "4c3b2ac299a24f8b712c3b934f5924ddea8bd83f52a1828bc7487c376ce6b0aa",
+  "file tools/goal_eval.py": "300cd79f4abedad37410c98a715d8946428f90008c552fb0980dc738c92dd82f",
+  "file tools/goal_eval2.py": "5e02c07a2f6a64d1bc560a73828eca97a95764b93e375f97335b28d62779252b",
+  "file tools/line_stamp.py": "8e897570068fbc8e398f92c1e314e68162bd759ff5fff9b017e71dde7137e541",
+  "file tools/param_events_probe.py": "335a1d68dcf3167cd4485eaf792eae91887ed75fe9e9efa43a24b2b3f79b7c81",
+  "file tools/param_parity.py": "821006aaafd086eed5b0b03b644fbfa0fba43ab3e5151eafcb6508bdce1dacb5",
+  "file tools/pins_check2.py": "8621dab61ed9caa2544b5f71d5cab8dc61a499c30ec6e1ef245215777e0f7fbf",
+  "file tools/rc_hold.py": "5c3d6eb861cba945153bdfdf5d80eaf5a0c17ec922311aaa2b6726d074dca1b7",
+  "file tools/sitl_param_names.txt": "aebdc7aeb26166631d16a98bc1ab58e12b8cc1c514ba793d8979cc372e96bb97",
+  "file tools/trial_runner.py": "bf5634a1e38569f55426e85e3394fe7c9fad790e21bc63e50a338c3d4cb46b29",
+  "file standin/bin/pkill": "626acd4f73ba5a47e87f9a9250aea11c8501b3e6efb0a1e1e5aa40cac5922bdb",
+  "params_sitl.json": "9aa85e9dfc446066ed400e868a16963de3526151e62621568218294169b60d7f"
+ },
+ "script": {
+  "path": "/work/fixed_image_r2d_20261109/notes/prev_r2c/flight_marker_loop.py",
+  "problem": null
+ },
+ "script_exit": {
+  "code": 2,
+  "how": "2026-11-09T12:14:08+04:00 exited by itself, code 2"
+ },
+ "ulog": "/work/goal_step5b_20261109/runs/e1_r2c_4056_loop/rootfs/log/2026-11-09/08_12_13.ulg",
+ "failsafe_flags_on_at_start": [
+  "auto_mission_missing",
+  "global_position_invalid",
+  "home_position_invalid"
+ ],
+ "emergencies": [
+  "script exit code 2 (2026-11-09T12:14:08+04:00 exited by itself, code 2)"
+ ],
+ "route_marker_map": [
+  [
+   0.0,
+   0.7
+  ],
+  [
+   0.0,
+   1.4
+  ],
+  [
+   0.0,
+   2.1
+  ],
+  [
+   -0.36,
+   2.1
+  ],
+  [
+   -0.72,
+   2.1
+  ],
+  [
+   -0.72,
+   1.4
+  ],
+  [
+   -0.72,
+   0.7
+  ],
+  [
+   -0.36,
+   0.7
+  ],
+  [
+   0.0,
+   0.7
+  ],
+  [
+   0.0,
+   0.0
+  ]
+ ],
+ "flown_from_log": [
+  [
+   0.0,
+   0.7
+  ],
+  [
+   0.0,
+   1.4
+  ],
+  [
+   0.0,
+   2.1
+  ],
+  [
+   -0.36,
+   2.1
+  ],
+  [
+   -0.72,
+   2.1
+  ],
+  [
+   -0.72,
+   1.4
+  ],
+  [
+   -0.72,
+   0.7
+  ],
+  [
+   -0.36,
+   0.7
+  ],
+  [
+   0.0,
+   0.7
+  ],
+  [
+   0.0,
+   0.0
+  ]
+ ],
+ "modes_before_land": [],
+ "holds": [
+  {
+   "from_s": 0.02,
+   "to_s": 15.18,
+   "sp_ekf": [
+    -0.046,
+    -0.048,
+    1.587
+   ]
+  },
+  {
+   "from_s": 15.78,
+   "to_s": 16.78,
+   "sp_ekf": [
+    -0.177,
+    -0.084,
+    1.534
+   ]
+  },
+  {
+   "from_s": 24.78,
+   "to_s": 27.17,
+   "sp_ekf": [
+    -0.0,
+    0.7,
+    1.53
+   ]
+  },
+  {
+   "from_s": 34.17,
+   "to_s": 37.38,
+   "sp_ekf": [
+    -0.0,
+    1.402,
+    1.53
+   ]
+  },
+  {
+   "from_s": 44.18,
+   "to_s": 47.39,
+   "sp_ekf": [
+    -0.0,
+    2.1,
+    1.53
+   ]
+  },
+  {
+   "from_s": 50.99,
+   "to_s": 52.78,
+   "sp_ekf": [
+    -0.36,
+    2.1,
+    1.53
+   ]
+  },
+  {
+   "from_s": 56.38,
+   "to_s": 58.97,
+   "sp_ekf": [
+    -0.72,
+    2.098,
+    1.53
+   ]
+  },
+  {
+   "from_s": 65.77,
+   "to_s": 68.98,
+   "sp_ekf": [
+    -0.72,
+    1.4,
+    1.53
+   ]
+  },
+  {
+   "from_s": 75.98,
+   "to_s": 78.98,
+   "sp_ekf": [
+    -0.72,
+    0.7,
+    1.53
+   ]
+  },
+  {
+   "from_s": 82.58,
+   "to_s": 84.57,
+   "sp_ekf": [
+    -0.358,
+    0.7,
+    1.53
+   ]
+  },
+  {
+   "from_s": 87.97,
+   "to_s": 90.0,
+   "sp_ekf": [
+    -0.0,
+    0.7,
+    1.53
+   ]
+  },
+  {
+   "from_s": 97.0,
+   "to_s": 102.99,
+   "sp_ekf": [
+    -0.0,
+    0.0,
+    1.529
+   ]
+  },
+  {
+   "from_s": 103.39,
+   "to_s": 104.44,
+   "sp_ekf": [
+    -0.016,
+    0.063,
+    1.527
+   ]
+  }
+ ],
+ "hold_readings": [
+  [
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11
+  ]
+ ],
+ "legs_route_vs_setpoint_m": [
+  [
+   0.7,
+   0.702
+  ],
+  [
+   0.7,
+   0.698
+  ],
+  [
+   0.36,
+   0.36
+  ],
+  [
+   0.36,
+   0.36
+  ],
+  [
+   0.7,
+   0.698
+  ],
+  [
+   0.7,
+   0.7
+  ],
+  [
+   0.36,
+   0.362
+  ],
+  [
+   0.36,
+   0.358
+  ],
+  [
+   0.7,
+   0.7
+  ]
+ ],
+ "points": [
+  {
+   "n": 1,
+   "route": [
+    0.0,
+    0.7
+   ],
+   "reached": true,
+   "arrival_s": 26.09,
+   "next_command_s": 27.17,
+   "err_at_next_command_m": 0.198,
+   "err_max_wait_m": 0.265,
+   "err_m": 0.265,
+   "height_mean_m": 0.966
+  },
+  {
+   "n": 2,
+   "route": [
+    0.0,
+    1.4
+   ],
+   "reached": true,
+   "arrival_s": 35.82,
+   "next_command_s": 37.38,
+   "err_at_next_command_m": 0.151,
+   "err_max_wait_m": 0.248,
+   "err_m": 0.248,
+   "height_mean_m": 0.968
+  },
+  {
+   "n": 3,
+   "route": [
+    0.0,
+    2.1
+   ],
+   "reached": true,
+   "arrival_s": 45.7,
+   "next_command_s": 47.39,
+   "err_at_next_command_m": 0.144,
+   "err_max_wait_m": 0.255,
+   "err_m": 0.255,
+   "height_mean_m": 0.967
+  },
+  {
+   "n": 4,
+   "route": [
+    -0.36,
+    2.1
+   ],
+   "reached": true,
+   "arrival_s": 51.36,
+   "next_command_s": 52.78,
+   "err_at_next_command_m": 0.159,
+   "err_max_wait_m": 0.241,
+   "err_m": 0.241,
+   "height_mean_m": 0.971
+  },
+  {
+   "n": 5,
+   "route": [
+    -0.72,
+    2.1
+   ],
+   "reached": true,
+   "arrival_s": 57.58,
+   "next_command_s": 58.97,
+   "err_at_next_command_m": 0.164,
+   "err_max_wait_m": 0.251,
+   "err_m": 0.251,
+   "height_mean_m": 0.97
+  },
+  {
+   "n": 6,
+   "route": [
+    -0.72,
+    1.4
+   ],
+   "reached": true,
+   "arrival_s": 67.29,
+   "next_command_s": 68.98,
+   "err_at_next_command_m": 0.149,
+   "err_max_wait_m": 0.249,
+   "err_m": 0.249,
+   "height_mean_m": 0.966
+  },
+  {
+   "n": 7,
+   "route": [
+    -0.72,
+    0.7
+   ],
+   "reached": true,
+   "arrival_s": 77.4,
+   "next_command_s": 78.98,
+   "err_at_next_command_m": 0.168,
+   "err_max_wait_m": 0.261,
+   "err_m": 0.261,
+   "height_mean_m": 0.969
+  },
+  {
+   "n": 8,
+   "route": [
+    -0.36,
+    0.7
+   ],
+   "reached": true,
+   "arrival_s": 82.91,
+   "next_command_s": 84.57,
+   "err_at_next_command_m": 0.186,
+   "err_max_wait_m": 0.285,
+   "err_m": 0.285,
+   "height_mean_m": 0.97
+  },
+  {
+   "n": 9,
+   "route": [
+    0.0,
+    0.7
+   ],
+   "reached": true,
+   "arrival_s": 88.66,
+   "next_command_s": 90.0,
+   "err_at_next_command_m": 0.213,
+   "err_max_wait_m": 0.289,
+   "err_m": 0.289,
+   "height_mean_m": 0.968
+  },
+  {
+   "n": 10,
+   "route": [
+    0.0,
+    0.0
+   ],
+   "reached": true,
+   "arrival_s": 98.32,
+   "next_command_s": 104.44,
+   "err_at_next_command_m": 0.061,
+   "err_max_wait_m": 0.264,
+   "err_m": 0.264,
+   "height_mean_m": 0.966
+  }
+ ],
+ "landing": {
+  "motors_off_s": 113.77,
+  "stands_at_marker_map": [
+   -0.023,
+   0.102
+  ],
+  "dist_to_marker0_m": 0.105
+ },
+ "verdict_lines": {
+  "run_valid": true,
+  "route_from_code": true,
+  "no_emergency": false,
+  "route_flown_as_coded": true,
+  "offboard_until_land": true,
+  "holds_match_route": true,
+  "all_points_reached": true,
+  "points_within_0p25": false,
+  "landing_found": true,
+  "landing_within_0p15": true
+ },
+ "failed": [
+  "points_within_0p25",
+  "no_emergency"
+ ],
+ "C7": "FAIL"
+}

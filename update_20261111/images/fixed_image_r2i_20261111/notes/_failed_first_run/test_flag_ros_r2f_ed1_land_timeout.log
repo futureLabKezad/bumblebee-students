@@ -1,0 +1,15 @@
+[WARN] [1794288353.899223317] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1794288353.899242938] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[WARN] [1794288356.960873840] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1794288356.960887529] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+[WARN] [1794288356.961695835] [rcl]: ROS_LOCALHOST_ONLY is deprecated but still honored if it is enabled. Use ROS_AUTOMATIC_DISCOVERY_RANGE and ROS_STATIC_PEERS instead.
+[WARN] [1794288356.961718414] [rcl]: 'localhost_only' is enabled, 'automatic_discovery_range' and 'static_peers' will be ignored.
+Traceback (most recent call last):
+  File "/work/fixed_image_r2f_20261110/test/test_r2f_flag_ros.py", line 138, in <module>
+    main()
+  File "/work/fixed_image_r2f_20261110/test/test_r2f_flag_ros.py", line 115, in main
+    until(lambda: not fake.snapshot('true_armed'), 40., 'disarm')
+  File "/work/fixed_image_r2f_20261110/test/test_r2f_flag_ros.py", line 79, in until
+    assert time.monotonic() < end, 'timeout: ' + what
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: timeout: disarm

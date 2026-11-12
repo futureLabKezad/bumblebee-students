@@ -1,0 +1,1 @@
+A8 judge on A7 kill_01: c8_4061 = A7 review (pass); c8_4070 fails only on ['candidate4030', 'real_parameters_before_arm'] {'BAT1_SOURCE': (1, 0), 'SDLOG_MODE': (0, 1)}

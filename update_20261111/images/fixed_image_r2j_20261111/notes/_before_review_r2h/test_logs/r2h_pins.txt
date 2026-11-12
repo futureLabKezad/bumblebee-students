@@ -1,0 +1,10 @@
+test_aruco_map_callback_one_added_statement (__main__.PinsR2H.test_aruco_map_callback_one_added_statement) ... ok
+test_gate_constants_unchanged (__main__.PinsR2H.test_gate_constants_unchanged) ... ok
+test_only_the_declared_parts_differ_from_r2g (__main__.PinsR2H.test_only_the_declared_parts_differ_from_r2g) ... ok
+test_p1_state_and_gate_decision_unchanged (__main__.PinsR2H.test_p1_state_and_gate_decision_unchanged) ... ok
+test_r2g_is_the_reference (__main__.PinsR2H.test_r2g_is_the_reference) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.114s
+
+OK

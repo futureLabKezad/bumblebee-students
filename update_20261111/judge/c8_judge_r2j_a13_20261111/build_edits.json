@@ -1,0 +1,178 @@
+[
+ [
+  "executor/run.sh",
+  "Paths -> A13 (1), builder -> make_a13.py (0)."
+ ],
+ [
+  "executor/vision_c8.launch.py",
+  "Paths -> A13 (2), builder -> make_a13.py (0)."
+ ],
+ [
+  "executor/tests/test_entry_order.py",
+  "Paths -> A13 (1), builder -> make_a13.py (0)."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Paths -> A13 (4), builder -> make_a13.py (0)."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Paths -> A13 (2), builder -> make_a13.py (0)."
+ ],
+ [
+  "tests/d1_check.py",
+  "Paths -> A13 (1), builder -> make_a13.py (0)."
+ ],
+ [
+  "tests/ledger_check.py",
+  "Paths -> A13 (1), builder -> make_a13.py (0)."
+ ],
+ [
+  "tests/a6_apply_order.py",
+  "Paths -> A13 (1), builder -> make_a13.py (0)."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "Paths -> A13 (3), builder -> make_a13.py (0)."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Paths -> A13 (4), builder -> make_a13.py (2)."
+ ],
+ [
+  "tests/a8_judge_effect.py",
+  "Paths -> A13 (1), builder -> make_a13.py (1)."
+ ],
+ [
+  "tests/a8_judge_on_a7_run.py",
+  "Paths -> A13 (1), builder -> make_a13.py (1)."
+ ],
+ [
+  "tests/a9_logger_restart.py",
+  "Paths -> A13 (1), builder -> make_a13.py (0)."
+ ],
+ [
+  "tests/a10_vpe_as_drone.py",
+  "Paths -> A13 (1), builder -> make_a13.py (0)."
+ ],
+ [
+  "verify_flight_c8.py",
+  "A13: identity comment."
+ ],
+ [
+  "verify_flight_c8.py",
+  "A13: identity c8_4074."
+ ],
+ [
+  "candidate/parameters/vpe_profile_optin.py",
+  "A13: the opt-in accepts only airframe 4074."
+ ],
+ [
+  "candidate/manifest.json:scope",
+  "Scope."
+ ],
+ [
+  "candidate/manifest.json:scope",
+  "Scope."
+ ],
+ [
+  "candidate/manifest.json",
+  "A13: vpe_profile_optin sha and texts."
+ ],
+ [
+  "executor/run.sh",
+  "Own folder."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Header."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Version strings."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Pins runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Comment."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "A13: default airframe 4074."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "A13: default model_v2."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Tests use pins A13."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Launcher pre-check: airframe 4074, model_v2."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d7: refusal text 4074."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d7: 4070 refused, 4074 reaches the route check."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Control: the A12 pins are refused by the A13 launcher."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "a12_checks -> a13_checks."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A13: identities."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A13: the A8 judge check ignores the c8_4074 lines (checked by a13_checks)."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A13: opt-in airframe 4074 normalised like 4061/4070."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Pins A13."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Accepted pins A13."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A13: model_v1 keys -> model_v2."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A13: + airframe 4074."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A13: default airframe."
+ ],
+ [
+  "tests/a13_checks.py",
+  "New test (A13)."
+ ],
+ [
+  "pins/frozen_inputs_c8_r2j_a13_01.json",
+  "Changed entries: ['c8_judge_r2j_a13_20261111/candidate/parameters/vpe_profile_optin.py', 'c8_judge_r2j_a13_20261111/executor/run.sh', 'c8_judge_r2j_a13_20261111/executor/vision_c8.launch.py', 'c8_judge_r2j_a13_20261111/verify_flight_c8.py', 'goal_step5b_20261109/px4_etc/init.d-posix/airframes/4074_gz_bumblebee_t52_ref_dims', 'run_files:run.sh', 'run_files:vision_c8.launch.py', 't52_model_ref_20261111/models/model_v2/bumblebee/model.sdf']"
+ ]
+]

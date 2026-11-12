@@ -1,0 +1,12 @@
+Starting >>> bumblebee
+--- stderr: bumblebee
+CMake Warning at CMakeLists.txt:104 (message):
+  led_msgs not found — skipping led node (install led_msgs to enable)
+
+
+---
+Finished <<< bumblebee [1min 21s]
+
+Summary: 1 package finished [1min 21s]
+  1 package had stderr output: bumblebee
+build exit=0 seconds=81

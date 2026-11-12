@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/work/c8_judge_r2e_a7_20261110/tests/a7_vision_launch.py", line 59, in <module>
+    m.generate_launch_description()
+  File "/work/c8_judge_r2e_a7_20261110/tests/tmp1e6y6ch2/vision_patched.launch.py", line 19, in generate_launch_description
+RuntimeError: Isolated SITL environment required
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/work/c8_judge_r2e_a7_20261110/tests/a7_vision_launch.py", line 62, in <module>
+    assert str(e) == 'Detector differs from reviewed copy', e
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Isolated SITL environment required

@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee 4044 + EV_CTRL 13
+#
+# @type Quadrotor
+#
+# SIMULATOR ONLY. 09.11 (Симулятор): вариант Б-в: HGT_REF 0 + RNG_CTRL 1 + карточка + EV_CTRL 13. Кандидат, на дроне нет.
+#
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=bumblebee}
+. ${R}etc/init.d-posix/airframes/4044_gz_bumblebee_card_on_4034
+
+param set-default EKF2_EV_CTRL 13

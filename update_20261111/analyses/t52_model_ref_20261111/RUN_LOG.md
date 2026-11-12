@@ -1,0 +1,10 @@
+- 2026-11-11T13:27:03+04:00 t52_c5_01 start (CHECK, NOT scored, AF 4074, model v2, c5)
+- 2026-11-11T13:30:47+04:00 t52_c5_01 eval rc 0 (C5 PASS  failed: -); parity: UNEXPLAINED 0; IMU VALID: max gap sensor_combined 8.0 ms (0 over 
+- 2026-11-11T13:31:07+04:00 t52_c6_01 start (CHECK, NOT scored, AF 4074, model v2, c6)
+- 2026-11-11T13:36:03+04:00 t52_c6_01 eval rc 0 (C6 PASS  failed: -); parity: UNEXPLAINED 0; IMU VALID: max gap sensor_combined 8.0 ms (0 over 
+- 2026-11-11T13:36:23+04:00 STOP: t52 sums
+- 2026-11-11T13:47:29+04:00 t52_yawj_01 start (CHECK, NOT scored, AF 4074, model v2, yaw, image r2j)
+- 2026-11-11T13:52:08+04:00 t52_yawj_01 eval rc - (C6 HOVER RESULT: OK held=20.0s reason=full time landed=True); parity: UNEXPLAINED 0; IMU VALID: max gap sensor_combined 8.0 ms (0 over 
+- 2026-11-11T13:52:28+04:00 t52_yawbase_01 start (CHECK, NOT scored, AF 4070, model v1, yaw, image r2hf)
+- 2026-11-11T13:56:56+04:00 t52_yawbase_01 eval rc - (C6 HOVER RESULT: OK held=20.0s reason=full time landed=True); parity: UNEXPLAINED 0; IMU VALID: max gap sensor_combined 8.0 ms (0 over 
+- 2026-11-11T13:57:16+04:00 t52b done

@@ -1,0 +1,14 @@
+test_drone_rest_z_offset_is_defined_and_unused (__main__.Changes.test_drone_rest_z_offset_is_defined_and_unused)
+T53 item 3: DRONE_REST_Z_OFFSET (0.32) is assigned once; no code reads it (comments only) ... ok
+test_edits_backwards_give_r2i_bytes (__main__.Changes.test_edits_backwards_give_r2i_bytes) ... ok
+test_flight_code_is_r2i (__main__.Changes.test_flight_code_is_r2i) ... ok
+test_flight_py_two_lines (__main__.Changes.test_flight_py_two_lines) ... ok
+test_manifest_rows (__main__.Changes.test_manifest_rows) ... ok
+test_r2i_is_the_reviewed_one (__main__.Changes.test_r2i_is_the_reviewed_one) ... ok
+test_reference_translations_and_unchanged_angles (__main__.Changes.test_reference_translations_and_unchanged_angles) ... ok
+test_src_differs_only_in_the_launch_files (__main__.Changes.test_src_differs_only_in_the_launch_files) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.091s
+
+OK

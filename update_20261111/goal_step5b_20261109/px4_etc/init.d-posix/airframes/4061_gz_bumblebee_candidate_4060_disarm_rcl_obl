@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee candidate set (4060 + COM_DISARM_LAND 0.5 + NAV_RCL_ACT 3 + COM_RCL_EXCEPT 0 + COM_OBL_RC_ACT 4)
+#
+# @type Quadrotor
+#
+# SIMULATOR ONLY. 09.11: набор-кандидат чата 1 для r2d, С8 и зачётной серии: Б-б (EV13 + карточка) + MIN_RNG 0,28 (T23)
+# + выбор 1б (COM_DISARM_LAND 0,5) + потеря пульта LAND (NAV_RCL_ACT 3, COM_RCL_EXCEPT 0) + COM_OBL_RC_ACT 4. Не утверждён владельцем, на дроне нет.
+#
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=bumblebee}
+. ${R}etc/init.d-posix/airframes/4060_gz_bumblebee_4057_ekf2_min_rng0p28
+
+param set-default COM_DISARM_LAND 0.5
+param set-default NAV_RCL_ACT 3
+param set-default COM_RCL_EXCEPT 0
+param set-default COM_OBL_RC_ACT 4

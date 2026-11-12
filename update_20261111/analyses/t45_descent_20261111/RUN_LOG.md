@@ -1,0 +1,18 @@
+- 2026-11-11T00:42:21+04:00 t45_desc_01 start (NOT scored, desc, r2h-final+7h)
+- 2026-11-11T00:46:50+04:00 t45_desc_01 done; script end: Landed and disarmed. C6 HOVER RESULT: CUT held=15.0s reason=T45 descent target not reached (fcu ok=True armed=True mode=OFFBOARD) landed=True ; IMU VALID: max gap sensor_combined 8.0 ms (0 over 20), vehic
+- 2026-11-11T00:47:10+04:00 t45_desc_02 start (NOT scored, desc, r2h-final+7h)
+- 2026-11-11T00:51:36+04:00 t45_desc_02 done; script end: Landed and disarmed. C6 HOVER RESULT: CUT held=15.0s reason=T45 descent target not reached (fcu ok=True armed=True mode=OFFBOARD) landed=True ; IMU VALID: max gap sensor_combined 8.0 ms (0 over 20), vehic
+- 2026-11-11T00:51:56+04:00 ctl_r2hf_flow_01 start (NOT scored, flow, r2h-final+7h)
+- 2026-11-11T00:57:18+04:00 ctl_r2hf_flow_01 eval rc 0 (C8 new check flow: PASS  (ctl_r2hf_flow_01, 20_52_49.ulg));   drift: touchdown 0.731 m, max 0.731 m (limit 1.0); window to touchdown; IMU VALID: max gap sensor_combined 8.0 ms (0 over 20), vehic
+- 2026-11-11T00:57:38+04:00 ctl_r2hf_flow_02 start (NOT scored, flow, r2h-final+7h)
+- 2026-11-11T01:03:00+04:00 ctl_r2hf_flow_02 eval rc 0 (C8 new check flow: PASS  (ctl_r2hf_flow_02, 20_58_32.ulg));   drift: touchdown 0.81 m, max 0.81 m (limit 1.0); window to touchdown; IMU VALID: max gap sensor_combined 8.0 ms (0 over 20), vehic
+- 2026-11-11T01:03:20+04:00 ctl_r2hf_flow_03 start (NOT scored, flow, r2h-final+7h)
+- 2026-11-11T01:08:40+04:00 ctl_r2hf_flow_03 eval rc 0 (C8 new check flow: PASS  (ctl_r2hf_flow_03, 21_04_14.ulg));   drift: touchdown 0.304 m, max 0.304 m (limit 1.0); window to touchdown; IMU VALID: max gap sensor_combined 8.0 ms (0 over 20), vehic
+- 2026-11-11T01:09:00+04:00 ctl_r2hf_flow_04 start (NOT scored, flow, r2h-final+7h)
+- 2026-11-11T01:14:22+04:00 ctl_r2hf_flow_04 eval rc 1 (C8 new check flow: FAIL  (ctl_r2hf_flow_04, 21_09_54.ulg));   drift: touchdown 1.474 m, max 1.474 m (limit 1.0); window to touchdown; IMU VALID: max gap sensor_combined 8.0 ms (0 over 20), vehic
+- 2026-11-11T01:14:42+04:00 t45 + flow controls done
+- 2026-11-11T01:15:23+04:00 t45b_desc_01 start (NOT scored, desc, r2h-final+7h)
+- 2026-11-11T01:20:13+04:00 t45b_desc_01 done; script end: Landed and disarmed. C6 HOVER RESULT: CUT held=15.0s reason=T45 descent step 5 (z 0.48) not reached (fcu ok=True armed=True mode=OFFBOARD) landed=True ; IMU VALID: max gap sensor_combined 8.0 ms (0 over 20), vehic
+- 2026-11-11T01:20:33+04:00 t45b_desc_02 start (NOT scored, desc, r2h-final+7h)
+- 2026-11-11T01:25:25+04:00 t45b_desc_02 done; script end: Landed and disarmed. C6 HOVER RESULT: CUT held=15.1s reason=T45 descent step 5 (z 0.56) not reached (fcu ok=True armed=True mode=OFFBOARD) landed=True ; IMU VALID: max gap sensor_combined 8.0 ms (0 over 20), vehic
+- 2026-11-11T01:25:45+04:00 t45b done

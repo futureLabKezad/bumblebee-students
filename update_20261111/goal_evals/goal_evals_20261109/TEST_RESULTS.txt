@@ -1,0 +1,90 @@
+# TEST_RESULTS 2026-11-09T10:39:50+04:00 Python 3.12.3 numpy 1.26.4
+## synthetic tests
+test_clean_passes (__main__.C5Tests.test_clean_passes) ... ok
+test_emergencies (__main__.C5Tests.test_emergencies) ... ok
+test_height_limit_inclusive (__main__.C5Tests.test_height_limit_inclusive) ... ok
+test_height_max_not_mean (__main__.C5Tests.test_height_max_not_mean) ... ok
+test_motors_off_limit (__main__.C5Tests.test_motors_off_limit) ... ok
+test_never_armed (__main__.C5Tests.test_never_armed) ... ok
+test_no_motors_off (__main__.C5Tests.test_no_motors_off) ... ok
+test_no_touchdown (__main__.C5Tests.test_no_touchdown) ... ok
+test_script_height_from_code (__main__.C5Tests.test_script_height_from_code) ... ok
+test_touchdown_is_contact_not_5cm (__main__.C5Tests.test_touchdown_is_contact_not_5cm) ... ok
+test_wrong_script_height (__main__.C5Tests.test_wrong_script_height) ... ok
+test_clean_passes_with_offset_ekf_frame (__main__.C7Tests.test_clean_passes_with_offset_ekf_frame) ... ok
+test_emergencies (__main__.C7Tests.test_emergencies) ... ok
+test_extra_stop_cannot_match (__main__.C7Tests.test_extra_stop_cannot_match) ... ok
+test_flown_shorter_than_code (__main__.C7Tests.test_flown_shorter_than_code) ... ok
+test_intervention (__main__.C7Tests.test_intervention) ... ok
+test_landing (__main__.C7Tests.test_landing) ... ok
+test_never_lands (__main__.C7Tests.test_never_lands) ... ok
+test_point_error (__main__.C7Tests.test_point_error) ... ok
+test_point_limit_inclusive (__main__.C7Tests.test_point_limit_inclusive) ... ok
+test_point_not_reached (__main__.C7Tests.test_point_not_reached) ... ok
+test_route_of_the_image_examples (__main__.C7Tests.test_route_of_the_image_examples) ... ok
+test_route_patterns (__main__.C7Tests.test_route_patterns) ... ok
+test_setpoints_not_the_coded_route (__main__.C7Tests.test_setpoints_not_the_coded_route) ... ok
+test_fingerprint_ignores_date (__main__.FileTests.test_fingerprint_ignores_date) ... ok
+test_main_no_ulog_and_no_overwrite (__main__.FileTests.test_main_no_ulog_and_no_overwrite) ... ok
+test_numbers (__main__.FileTests.test_numbers) ... ok
+test_script_exit (__main__.FileTests.test_script_exit) ... ok
+test_script_source_product (__main__.FileTests.test_script_source_product) ... ok
+test_script_source_sha (__main__.FileTests.test_script_source_sha) ... ok
+test_both_scripts_both_need_ten (__main__.SeriesTests.test_both_scripts_both_need_ten) ... ok
+test_change_restarts (__main__.SeriesTests.test_change_restarts) ... ok
+test_fail_resets (__main__.SeriesTests.test_fail_resets) ... ok
+test_only_one_script (__main__.SeriesTests.test_only_one_script) ... ok
+test_ten_in_a_row_both (__main__.SeriesTests.test_ten_in_a_row_both) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.031s
+
+OK
+## mutation check
+CAUGHT   C5 height tol 0.15
+CAUGHT   C5 motors 3.5 s
+CAUGHT   C5 mean instead of max
+CAUGHT   C5 touchdown at 5 cm
+CAUGHT   C5 height from default
+CAUGHT   C5 emergencies ignored
+CAUGHT   exit code ignored
+CAUGHT   unknown exit passes
+CAUGHT   DESCEND not an emergency
+CAUGHT   took-over ignored
+CAUGHT   missing line passes
+CAUGHT   sha not checked
+CAUGHT   date in fingerprint
+CAUGHT   C7 point 0.30
+CAUGHT   C7 landing 0.20
+CAUGHT   C7 9 in a row
+CAUGHT   C7 only the moment of the next command
+CAUGHT   C7 flown not compared
+CAUGHT   C7 intervention ignored
+CAUGHT   C7 leg check off
+CAUGHT   C7 fail does not reset
+CAUGHT   C7 change does not restart
+CAUGHT   C7 one script enough
+23/23 mutations caught
+## real runs
+### check_runs/b01_4035_flight/c5_eval.txt
+C5 FAIL  failed: took_off, not evaluated: height_window_found, not evaluated: height_within_0p10, not evaluated: touchdown_found, not evaluated: motors_off_found, not evaluated: motors_off_le_3s, not evaluated: no_emergency
+run b01_4035_flight; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py H=1.5 ; exit 3 (2026-11-09T10:08:45+04:00 exited by itself, code 3)
+emergencies: not evaluated
+no ULog: the vehicle never armed
+### check_runs/b01_4035_flight/c7_eval.txt
+C7 FAIL  failed: route_from_code, not evaluated: route_flown_as_coded, not evaluated: holds_match_route, not evaluated: all_points_reached, not evaluated: points_within_0p25, not evaluated: landing_found, not evaluated: landing_within_0p15, not evaluated: offboard_until_land, not evaluated: no_emergency
+run b01_4035_flight; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py no drone.fly_to() call found; exit 3 (2026-11-09T10:08:45+04:00 exited by itself, code 3)
+route (code): None; flown (log): []
+emergencies: not evaluated; modes before land: None
+no ULog: the vehicle never armed
+### check_runs/s04_4035_flight_arucoalways/c5_eval.txt
+C5 FAIL  failed: height_within_0p10, motors_off_le_3s, no_emergency
+run s04_4035_flight_arucoalways; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py H=1.5 ; exit 137 (None)
+window 14.1..21.56 s (left OFFBOARD (nav_state 18)); height dev max 0.104 m at 21.54 s (need <=0.10), mean 1.54 m
+touchdown 27.184 s, motors off 30.896 s, delay 3.712 s (need <=3.0)
+emergencies: ['script exit code 137 (launcher.log)']
+### check_runs/s04_4035_flight_arucoalways/c7_eval.txt
+C7 FAIL  failed: route_from_code, not evaluated: route_flown_as_coded, not evaluated: holds_match_route, not evaluated: all_points_reached, not evaluated: points_within_0p25, not evaluated: landing_found, not evaluated: landing_within_0p15, not evaluated: offboard_until_land, not evaluated: no_emergency
+run s04_4035_flight_arucoalways; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py no drone.fly_to() call found; exit 137 (None)
+route (code): None; flown (log): []
+emergencies: not evaluated; modes before land: None

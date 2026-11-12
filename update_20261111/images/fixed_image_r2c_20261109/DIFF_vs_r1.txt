@@ -1,0 +1,366 @@
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/examples/drone.py src/bumblebee/examples/drone.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/examples/drone.py	2026-11-09 10:11:41.429882958 +0400
++++ src/bumblebee/examples/drone.py	2026-11-09 11:59:07.487773212 +0400
+@@ -810,6 +810,14 @@
+     _spin_thread = threading.Thread(
+         target=_executor.spin, name='drone-spin', daemon=False)
+     _spin_thread.start()
++    # F4 (09.11.2026): Python joins non-daemon threads BEFORE it runs atexit
++    # handlers, so with only atexit.register(_shutdown) the spin thread kept
++    # the process alive and a finished script hung until Ctrl+C.
++    # threading._register_atexit hooks run before that join (Python >= 3.9).
++    try:
++        threading._register_atexit(_shutdown)
++    except Exception:
++        pass
+ 
+     # Clean rclpy shutdown on interpreter exit. Without this, sys.exit() with
+     # the executor still spinning makes rmw_fastrtps abort the process with
+@@ -834,6 +842,7 @@
+     if not _initialized:
+         return
+     _initialized = False
++    _stop_detector_wake()   # F1: no wakes after the script ends
+     try:
+         if _executor is not None:
+             _executor.shutdown(timeout_sec=2.0)
+@@ -1195,11 +1204,21 @@
+     return time.monotonic() - entry[1]
+ 
+ 
++# F5 (09.11.2026, r2c): float32 fields of the Navigate request. Each must hold
++# a Python float: an int (fly_to(x=0)) or a numpy.float32 passes the Python
++# setter (ROS_PYTHON_CHECK_FIELDS is off by default) and then aborts the whole
++# process in the rosidl C converter (assert PyFloat_Check, core dump), leaving
++# the drone in OFFBOARD without a script. float() keeps nan as nan.
++_NAVIGATE_FLOAT_FIELDS = ('x', 'y', 'z', 'yaw', 'speed')
++
++
+ def navigate(**kwargs):
+     global _arm_ref_z, _auto_arm_ok_t
+     _init()
+     req = srv.Navigate.Request()
+     for k, v in kwargs.items():
++        if k in _NAVIGATE_FLOAT_FIELDS:
++            v = float(v)
+         setattr(req, k, v)
+     # Pilot wins (A4): never start or retarget OFFBOARD control while the
+     # pilot / a PX4 failsafe owns the armed vehicle or the state is unknown.
+@@ -1546,62 +1565,77 @@
+ # ArUco map management
+ # ---------------------------------------------------------------------------
+ 
++def _map_rows(markers):
++    """{id: (length, x, y, rot_z)} from a set_aruco_map() marker list (same defaults as before)."""
++    return {int(m['id']): (float(m['length']), float(m['x']), float(m['y']), float(m.get('rot_z', 1.571)))
++            for m in markers}
++
++
++def _read_map_file(path):
++    """{id: (length, x, y, rot_z)} from an aruco_pose map file; RuntimeError if it cannot be read."""
++    try:
++        with open(path) as f:
++            lines = f.read().splitlines()
++    except OSError as e:
++        raise RuntimeError('set_aruco_map: cannot read map %s: %s' % (path, e))
++    rows = {}
++    for n, line in enumerate(lines, 1):
++        p = line.split()
++        if not p or p[0].startswith('#'):
++            continue
++        try:
++            if len(p) < 4:
++                raise ValueError('%d columns, need at least 4: id length x y' % len(p))
++            i = int(p[0])
++            if i in rows:
++                raise ValueError('id %d twice' % i)
++            rows[i] = (float(p[1]), float(p[2]), float(p[3]), float(p[5]) if len(p) > 5 else 1.571)
++        except ValueError as e:
++            raise RuntimeError('set_aruco_map: bad line %d in map %s: %r (%s)' % (n, path, line, e))
++    if not rows:
++        raise RuntimeError('set_aruco_map: no markers in map %s' % path)
++    return rows
++
++
+ def set_aruco_map(markers=None, map_file=None):
+     """
+-    Load an ArUco map and reload the aruco_map node.
++    Check that the ArUco map a script wants is the map the detector already uses.
+ 
+-    Two ways to use:
++    Since 09.11.2026 (finding F2) this does NOT write the map and does NOT
++    restart any node. The image's detector (aruco_detect.py) reads its map once
++    at start (map_file parameter, launch/aruco.launch.py) and the C++ aruco_map
++    node that used to be restarted is disabled, so a map written during a
++    session never reached the detector: the route silently used the old map.
+ 
+-    1. Pass a file path -- copies that file to map.txt and reloads:
+-        drone.set_aruco_map(map_file='/home/lb/maps/arena.txt')
++    Now: the same map -> OK; a different map -> RuntimeError before takeoff.
++    To fly another map, put it into MAP_FILE and restart the drone stack.
+ 
+-    2. Pass a list of markers -- writes them to map.txt and reloads:
+-        drone.set_aruco_map([
+-            {'id': 0, 'length': 0.19, 'x': 0,    'y': 0},
+-            {'id': 1, 'length': 0.29, 'x': 0,    'y': 1.88},
+-        ])
++    Two ways to use (as before):
++        drone.set_aruco_map(map_file='/home/lb/maps/arena.txt')
++        drone.set_aruco_map([{'id': 0, 'length': 0.19, 'x': 0, 'y': 0}, ...])
+     """
+     _init()
+-    import shutil
+-
+     if map_file is not None:
+-        if not os.path.exists(map_file):
+-            _node.get_logger().error('Map file not found: ' + map_file)
+-            return
+-        shutil.copy(map_file, MAP_FILE)
+-        print('Map loaded from file: ' + map_file)
+-
++        want = _read_map_file(map_file)
+     elif markers is not None:
+-        lines = ['# id\tlength\tx\ty\tz\trot_z\trot_y\trot_x']
+-        for m in markers:
+-            z     = m.get('z', -DRONE_REST_Z_OFFSET)
+-            rot_z = m.get('rot_z', 1.571)
+-            rot_y = m.get('rot_y', 0)
+-            rot_x = m.get('rot_x', 0)
+-            lines.append('%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f' % (
+-                m['id'], m['length'], m['x'], m['y'], z, rot_z, rot_y, rot_x))
+-        with open(MAP_FILE, 'w') as f:
+-            f.write('\n'.join(lines) + '\n')
+-        print('Map written (%d markers): %s' % (len(markers), MAP_FILE))
+-
++        want = _map_rows(markers)
+     else:
+-        _node.get_logger().error('set_aruco_map: provide either markers list or map_file path')
+-        return
+-
+-    # Kill aruco_map node -- it has respawn=true so it will reload the file.
+-    # The plain `pkill -f aruco_map` pattern also matches aruco_detect.py
+-    # (its argv contains 'aruco_map' four times in remappings); restrict to
+-    # the aruco_map executable path so aruco_detect keeps running.
+-    print('Reloading aruco_map node...')
+-    subprocess.run(
+-        ['ros2', 'lifecycle', 'set', '/aruco_map', 'shutdown'],
+-        check=False,
+-        stdout=subprocess.DEVNULL,
+-        stderr=subprocess.DEVNULL,
+-    )
+-    subprocess.run(['pkill', '-f', 'aruco_pose/aruco_map'], check=False)
+-    time.sleep(3.0)
+-    print('aruco_map reloaded.')
++        raise RuntimeError('set_aruco_map: provide either markers list or map_file path')
++    have = _read_map_file(MAP_FILE)
++    problems = []
++    for i in sorted(set(want) | set(have)):
++        if i not in have:
++            problems.append('id %d not in loaded map' % i)
++        elif i not in want:
++            problems.append('id %d only in loaded map' % i)
++        elif any(abs(a - b) > 1e-3 for a, b in zip(want[i], have[i])):
++            problems.append('id %d: wanted %s, loaded %s' % (i, want[i], have[i]))
++    if problems:
++        raise RuntimeError(
++            'set_aruco_map: the map differs from the map the detector uses (%s): %s. '
++            'The detector does not reload maps during a session; put the map into %s '
++            'and restart the drone stack.' % (MAP_FILE, '; '.join(problems[:5]), MAP_FILE))
++    print('Map check OK: %d markers, same as the loaded map %s' % (len(want), MAP_FILE))
+ 
+ 
+ # ---------------------------------------------------------------------------
+@@ -1671,6 +1705,73 @@
+     return time.monotonic() - _aruco_markers_pos_time
+ 
+ 
++# ---------------------------------------------------------------------------
++# F1 (09.11.2026, r2b): keep the marker detector awake during the preflight
++# ---------------------------------------------------------------------------
++# The image's detector (aruco_detect.py) sleeps until the FCU is armed or in
++# OFFBOARD and stays awake WAKE_HOLD_S (5 s) after each /aruco_detect/wake.
++# A preflight (check_aruco, wait_yaw_lock, wait_position_stable,
++# require_vpe_link, takeoff's vision wait) can take minutes, so a background
++# thread repeats the wake every WAKE_PERIOD_S until the FCU is armed (then the
++# detector's own gate keeps it on), the script shuts down, or WAKE_MAX_S pass
++# after the last preflight call -- no permanent CPU load on the ground.
++WAKE_PERIOD_S = 2.0
++WAKE_MAX_S = 180.0
++_wake_lock = threading.Lock()
++_wake_thread = None
++_wake_stop = None
++_wake_deadline = 0.0
++
++
++def _fcu_is_armed():
++    m = _fcu_state_msg
++    return bool(m is not None and getattr(m, 'armed', False))
++
++
++def _keep_detector_awake():
++    """Start (or extend) the background wake. Idempotent; never raises."""
++    global _wake_thread, _wake_stop, _wake_deadline
++    try:
++        with _wake_lock:
++            _wake_deadline = time.monotonic() + WAKE_MAX_S
++            if _wake_thread is not None and _wake_thread.is_alive():
++                return
++            pub = _node.create_publisher(Bool, '/aruco_detect/wake', 10)
++            stop = threading.Event()
++
++            def run():
++                msg = Bool()
++                msg.data = True
++                try:
++                    while not stop.is_set():
++                        if _fcu_is_armed() or time.monotonic() > _wake_deadline:
++                            break
++                        pub.publish(msg)
++                        stop.wait(WAKE_PERIOD_S)
++                except Exception:
++                    pass
++                finally:
++                    try:
++                        _node.destroy_publisher(pub)
++                    except Exception:
++                        pass
++
++            _wake_stop = stop
++            _wake_thread = threading.Thread(target=run, name='aruco-wake', daemon=True)
++            _wake_thread.start()
++    except Exception as e:
++        print('  WARN  detector wake not started: %s' % e)
++
++
++def _stop_detector_wake():
++    stop = _wake_stop
++    if stop is not None:
++        stop.set()
++    t = _wake_thread
++    if t is not None and t.is_alive() and t is not threading.current_thread():
++        t.join(timeout=1.0)
++
++
+ def check_aruco(timeout=10, min_markers=1):
+     """
+     Wait until at least `min_markers` ArUco markers are visible.
+@@ -1689,6 +1790,7 @@
+             result['ids'] = [m.id for m in msg.markers]
+ 
+     sub = _node.create_subscription(MarkerArray, '/aruco_detect/markers', cb, 1)
++    _keep_detector_awake()   # F1: detector awake from here until arming
+     deadline = time.time() + timeout
+     try:
+         while rclpy.ok() and not result['ids']:
+@@ -1729,6 +1831,7 @@
+     eventually hit the IPPE mirror flip when down to a single marker.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     print('=== WAITING FOR YAW LOCK (timeout %.0fs) ===' % timeout)
+     deadline = time.time() + timeout
+     while time.time() < deadline and not _aruco_yaw_locked:
+@@ -1760,6 +1863,7 @@
+     stuck, pose_cov stops flowing and EKF2 will fly on baro+IMU only.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     from geometry_msgs.msg import PoseWithCovarianceStamped as _PWCS
+     from rclpy.qos import QoSProfile as _QoS, ReliabilityPolicy as _RP, DurabilityPolicy as _DP
+     import collections as _collections
+@@ -1825,6 +1929,7 @@
+     Returns True when stable, False on timeout.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     base_tolerance = tolerance
+     print('=== POSITION STABLE CHECK ===')
+     print('Waiting for stable position (%.1fs window, timeout %.0fs, multi=%s, adaptive=%s)...'
+@@ -2070,6 +2175,7 @@
+     drops it. Returns True when the target height was reached.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     known, armed, mode = _fcu_mode_state(wait=_FCU_STATE_WAIT)
+     reason = _no_control_reason(known, armed, mode)
+     if reason is not None:
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight.py src/bumblebee/examples/flight/flight.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight.py	2026-11-09 10:11:41.434354406 +0400
++++ src/bumblebee/examples/flight/flight.py	2026-11-09 10:20:08.332923433 +0400
+@@ -104,7 +104,7 @@
+ 
+ try:
+     # Lower than 1.0 m -- at this altitude marker 0 (0.19m) stays in frame.
+-    drone.takeoff(height=1.5, speed=0.4)
++    drone.takeoff(height=0.8, speed=0.4)
+ 
+     # Hover with vision watchdog: bail to safe_land only if vision goes
+     # completely silent (no markers at all) for >3s.
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight_marker_loop.py src/bumblebee/examples/flight/flight_marker_loop.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight_marker_loop.py	2026-11-09 10:11:41.434819775 +0400
++++ src/bumblebee/examples/flight/flight_marker_loop.py	2026-11-09 10:20:08.333176768 +0400
+@@ -92,11 +92,11 @@
+     ( 0.00, 0.70),  # 1
+     ( 0.00, 1.40),  # 2
+     ( 0.00, 2.10),  # 3
+-    (-0.50, 2.10),  # bridge 3 -> 13
+-    (-1.00, 2.10),  # 13
+-    (-1.00, 1.40),  # 12
+-    (-1.00, 0.70),  # 11
+-    (-0.50, 0.70),  # bridge 11 -> 1
++    (-0.36, 2.10),  # bridge 3 -> 13 (over marker 7)
++    (-0.72, 2.10),  # 13 (its map: x=-0.72)
++    (-0.72, 1.40),  # 12
++    (-0.72, 0.70),  # 11
++    (-0.36, 0.70),  # bridge 11 -> 1 (over marker 5)
+     ( 0.00, 0.70),  # 1 (back)
+ ]
+ 
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/src/python/aruco_detect.py src/bumblebee/src/python/aruco_detect.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/src/python/aruco_detect.py	2026-10-30 12:33:01.461213256 +0400
++++ src/bumblebee/src/python/aruco_detect.py	2026-11-09 10:20:08.330891201 +0400
+@@ -29,6 +29,7 @@
+ """
+ 
+ import collections
++import time
+ import math
+ import numpy as np
+ import cv2
+@@ -238,6 +239,7 @@
+         self.full_rate_when_armed = bool(self.get_parameter('full_rate_when_armed').value)
+         self._fcu_mode = ''
+         self._fcu_armed = False
++        self._wake_until = 0.0  # F1: monotonic time until which a preflight wake keeps detection on
+         self._image_sub = None      # created/destroyed by _apply_detection_gate
+         self._img_qos = None        # stored so the sub can be recreated
+         self.map_frame_id = self.get_parameter('map_frame_id').value
+@@ -523,6 +525,9 @@
+                 durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+             )
+             self.create_subscription(State, '/mavros/state', self._state_cb, state_qos)
++            # F1 (09.11.2026): drone.check_aruco() publishes True here while it
++            # waits for markers before arming; each message keeps detection on 5 s.
++            self.create_subscription(Bool, '/aruco_detect/wake', self._wake_cb, 10)
+             self.create_timer(0.2, self._apply_detection_gate)
+ 
+         self.get_logger().info(
+@@ -534,10 +539,18 @@
+         self._fcu_mode = str(msg.mode)
+         self._fcu_armed = bool(msg.armed)
+ 
++    WAKE_HOLD_S = 5.0
++
++    def _wake_cb(self, msg):
++        if bool(msg.data):
++            self._wake_until = time.monotonic() + self.WAKE_HOLD_S
++
+     def _detect_full_rate(self):
+         """True when detection is warranted (autonomous mission armed/OFFBOARD)."""
+         if not self.gate_by_flight_state:
+             return True
++        if time.monotonic() < self._wake_until:
++            return True
+         if self._fcu_mode == 'OFFBOARD':
+             return True
+         if self.full_rate_when_armed and self._fcu_armed:

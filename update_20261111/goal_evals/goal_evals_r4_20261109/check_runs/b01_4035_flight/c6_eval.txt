@@ -1,0 +1,7 @@
+C6 FAIL  failed: took_off, not evaluated: hover_window_found, not evaluated: hover_60s, not evaluated: share_10cm_ge_95pct, not evaluated: offset_max_le_20cm, not evaluated: height_err_le_10cm, not evaluated: no_jump_a_ekf, not evaluated: no_jump_b_truth, not evaluated: landed_and_disarmed_after_hover, not evaluated: no_emergency
+run b01_4035_flight; valid True []; ulog None
+trial deviations: ['trial-aruco-always (F1): aruco_detect gate_by_flight_state=False, detector works before arming']
+verdict lines: {'took_off': False, 'script_matches_versions': True, 'run_valid': True}
+emergencies: not evaluated
+no ULog: the vehicle never armed
+script: PREFLIGHT FAIL: only 7/13 profile params applied (<90%). Refusing takeoff -- PX4 would fly on defaults, not INDOOR_ARUCO_SLOW. Check /tmp/bumblebee.log for vpe_fix gate state.

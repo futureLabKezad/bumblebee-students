@@ -1,0 +1,50 @@
+--- /work/analysis/exp_scripts/verify_package1b_gates.py	2026-10-15 09:46:13.050230500 +0400
++++ legacy/verify_package1b_gates_c8.py	2026-11-09 16:58:55.856130827 +0400
+@@ -1,6 +1,12 @@
+ #!/usr/bin/env python3
+ """Read local SITL artifacts and report pass/failed/unknown without commanding ROS.
+ 
++C8 COPY (T28, 09.11.2026, owner variant B): copy of analysis/exp_scripts/verify_package1b_gates.py (sha 1f6e2b0b).
++Only changes: the expected SYS_AUTOSTART of the 'candidate4030' check is the module value AUTOSTART, and (owner 09.11,
++variant A) the expectation files of 'real_parameters_before_arm' are the module value REAL_PARAMS when set; both are set by
++the C8 judge copy (verify_flight_c8.py) from its fixed identity table (it checks the sha of the files). With the defaults
++(4030, None) this file behaves exactly as the original. The check id stays 'candidate4030' (historical name).
++
+ Example (host):
+   analysis/layout/.venv/bin/python -I analysis/exp_scripts/verify_package1b_gates.py \
+     sim/runs/TAG --out sim/runs/TAG/passive_verification.json
+@@ -23,6 +29,8 @@
+ WORKSPACE = Path(__file__).resolve().parents[2]
+ sys.path.insert(0, str(WORKSPACE / 'analysis/codex_python'))
+ PX4_COMMIT = '94cb2012792b2ae89f0b147cfee53ee31ae550be'
++AUTOSTART = 4030   # C8 copy: set by verify_flight_c8.py from its identity table (4030 = the accepted judge)
++REAL_PARAMS = None  # C8 copy: {file name: pinned path} for c8_4061; None = the original lookup (run copy, else sim/ros_stack)
+ PX4_STATUS_SOURCE = 'https://raw.githubusercontent.com/PX4/PX4-Autopilot/v1.16.1/msg/versioned/VehicleStatus.msg'
+ PX4_POSITION_SOURCE = 'https://raw.githubusercontent.com/PX4/PX4-Autopilot/v1.16.1/msg/versioned/VehicleLocalPosition.msg'
+ # Commander casts its internal events enum into latest_disarming_reason. That
+@@ -341,7 +349,7 @@
+     params = log.parameters_at(snapshot_time) if log and snapshot_time is not None else {}
+     result['parameter_snapshot'] = {'at_us': snapshot_time,
+                                     'basis': 'before_first_arm' if first_arm is not None else 'no_arm_final_snapshot'}
+-    identity = {'SYS_AUTOSTART': 4030, 'SIM_GZ_EN': 1, 'COM_OBL_RC_ACT': 4}
++    identity = {'SYS_AUTOSTART': AUTOSTART, 'SIM_GZ_EN': 1, 'COM_OBL_RC_ACT': 4}
+     missing = [k for k in identity if not number(params.get(k))]
+     mismatches = {k: {'actual': params.get(k), 'expected': v} for k, v in identity.items()
+                   if number(params.get(k)) and abs(float(params[k]) - v) > .001}
+@@ -352,9 +360,13 @@
+     sim_expected = {}
+     sources = []
+     for name in ['flight_real_params.json', 'rc_real_params.json']:
+-        path = run / name
+-        if not path.exists():
+-            path = WORKSPACE / 'sim/ros_stack' / name
++        if REAL_PARAMS is not None:
++            # C8 copy (variant A): the identity's pinned expectation; a run copy cannot replace it
++            path = Path(REAL_PARAMS[name])
++        else:
++            path = run / name
++            if not path.exists():
++                path = WORKSPACE / 'sim/ros_stack' / name
+         obj = read_json(path, errors, {}) or {}
+         expected.update({k: v['value'] for k, v in obj.get('parameters', {}).items()})
+         sim_expected.update({k: v['value'] for k, v in obj.get('sim_only', {}).items()})

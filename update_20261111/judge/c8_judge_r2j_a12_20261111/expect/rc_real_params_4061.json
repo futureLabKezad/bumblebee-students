@@ -1,0 +1,383 @@
+{
+  "source": "/Users/arsenij/Documents/Bumbl code/bumblebee-students/PX4_parameters/px4_v0_0_2.params",
+  "parameters": {
+    "COM_FLTMODE1": {
+      "value": 8.0,
+      "type": 6
+    },
+    "COM_FLTMODE2": {
+      "value": 8.0,
+      "type": 6
+    },
+    "COM_FLTMODE3": {
+      "value": 1.0,
+      "type": 6
+    },
+    "COM_FLTMODE4": {
+      "value": 1.0,
+      "type": 6
+    },
+    "COM_FLTMODE5": {
+      "value": 2.0,
+      "type": 6
+    },
+    "COM_FLTMODE6": {
+      "value": 2.0,
+      "type": 6
+    },
+    "COM_RCL_EXCEPT": {
+      "value": 0.0,
+      "type": 6
+    },
+    "COM_RC_IN_MODE": {
+      "value": 0.0,
+      "type": 6
+    },
+    "MAN_ARM_GESTURE": {
+      "value": 0.0,
+      "type": 6
+    },
+    "NAV_RCL_ACT": {
+      "value": 3.0,
+      "type": 6
+    },
+    "RC1_DZ": {
+      "value": 10.0,
+      "type": 9
+    },
+    "RC1_MAX": {
+      "value": 1999.0,
+      "type": 9
+    },
+    "RC1_MIN": {
+      "value": 1000.0,
+      "type": 9
+    },
+    "RC1_REV": {
+      "value": 1.0,
+      "type": 9
+    },
+    "RC1_TRIM": {
+      "value": 1499.0,
+      "type": 9
+    },
+    "RC2_DZ": {
+      "value": 10.0,
+      "type": 9
+    },
+    "RC2_MAX": {
+      "value": 1999.0,
+      "type": 9
+    },
+    "RC2_MIN": {
+      "value": 1000.0,
+      "type": 9
+    },
+    "RC2_REV": {
+      "value": 1.0,
+      "type": 9
+    },
+    "RC2_TRIM": {
+      "value": 1500.0,
+      "type": 9
+    },
+    "RC3_DZ": {
+      "value": 10.0,
+      "type": 9
+    },
+    "RC3_MAX": {
+      "value": 1999.0,
+      "type": 9
+    },
+    "RC3_MIN": {
+      "value": 1000.0,
+      "type": 9
+    },
+    "RC3_REV": {
+      "value": 1.0,
+      "type": 9
+    },
+    "RC3_TRIM": {
+      "value": 1000.0,
+      "type": 9
+    },
+    "RC4_DZ": {
+      "value": 10.0,
+      "type": 9
+    },
+    "RC4_MAX": {
+      "value": 1999.0,
+      "type": 9
+    },
+    "RC4_MIN": {
+      "value": 1000.0,
+      "type": 9
+    },
+    "RC4_REV": {
+      "value": 1.0,
+      "type": 9
+    },
+    "RC4_TRIM": {
+      "value": 1497.0,
+      "type": 9
+    },
+    "RC5_DZ": {
+      "value": 10.0,
+      "type": 9
+    },
+    "RC5_MAX": {
+      "value": 1988.0,
+      "type": 9
+    },
+    "RC5_MIN": {
+      "value": 1011.0,
+      "type": 9
+    },
+    "RC5_REV": {
+      "value": 1.0,
+      "type": 9
+    },
+    "RC5_TRIM": {
+      "value": 1499.0,
+      "type": 9
+    },
+    "RC6_DZ": {
+      "value": 10.0,
+      "type": 9
+    },
+    "RC6_MAX": {
+      "value": 1999.0,
+      "type": 9
+    },
+    "RC6_MIN": {
+      "value": 1000.0,
+      "type": 9
+    },
+    "RC6_REV": {
+      "value": 1.0,
+      "type": 9
+    },
+    "RC6_TRIM": {
+      "value": 1499.0,
+      "type": 9
+    },
+    "RC7_DZ": {
+      "value": 10.0,
+      "type": 9
+    },
+    "RC7_MAX": {
+      "value": 2000.0,
+      "type": 9
+    },
+    "RC7_MIN": {
+      "value": 1000.0,
+      "type": 9
+    },
+    "RC7_REV": {
+      "value": 1.0,
+      "type": 9
+    },
+    "RC7_TRIM": {
+      "value": 1500.0,
+      "type": 9
+    },
+    "RC8_DZ": {
+      "value": 10.0,
+      "type": 9
+    },
+    "RC8_MAX": {
+      "value": 1999.0,
+      "type": 9
+    },
+    "RC8_MIN": {
+      "value": 1000.0,
+      "type": 9
+    },
+    "RC8_REV": {
+      "value": 1.0,
+      "type": 9
+    },
+    "RC8_TRIM": {
+      "value": 1499.0,
+      "type": 9
+    },
+    "RC_ARMSWITCH_TH": {
+      "value": 0.75,
+      "type": 9
+    },
+    "RC_FAILS_THR": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_KILLSWITCH_TH": {
+      "value": 0.75,
+      "type": 9
+    },
+    "RC_LOITER_TH": {
+      "value": 0.75,
+      "type": 9
+    },
+    "RC_MAP_ARM_SW": {
+      "value": 5.0,
+      "type": 6
+    },
+    "RC_MAP_FLTMODE": {
+      "value": 6.0,
+      "type": 6
+    },
+    "RC_MAP_KILL_SW": {
+      "value": 8.0,
+      "type": 6
+    },
+    "RC_MAP_LOITER_SW": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_MODE_SW": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_OFFB_SW": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_PITCH": {
+      "value": 2.0,
+      "type": 6
+    },
+    "RC_MAP_RETURN_SW": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_ROLL": {
+      "value": 1.0,
+      "type": 6
+    },
+    "RC_MAP_THROTTLE": {
+      "value": 3.0,
+      "type": 6
+    },
+    "RC_MAP_YAW": {
+      "value": 4.0,
+      "type": 6
+    },
+    "RC_OFFB_TH": {
+      "value": 0.75,
+      "type": 9
+    },
+    "RC_RETURN_TH": {
+      "value": 0.75,
+      "type": 9
+    },
+    "RC_CHAN_CNT": {
+      "value": 16.0,
+      "type": 6
+    }
+  },
+  "excluded_from_test": {
+    "RC_CRSF_PRT_CFG": {
+      "value": 103.0,
+      "type": 6
+    },
+    "RC_CRSF_TEL_EN": {
+      "value": 1.0,
+      "type": 6
+    },
+    "RC_ENG_MOT_TH": {
+      "value": 0.75,
+      "type": 9
+    },
+    "RC_GEAR_TH": {
+      "value": 0.75,
+      "type": 9
+    },
+    "RC_MAP_AUX1": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_AUX2": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_AUX3": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_AUX4": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_AUX5": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_AUX6": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_ENG_MOT": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_FAILSAFE": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_FLAPS": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_FLTM_BTN": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_GEAR_SW": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_PARAM1": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_PARAM2": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_PARAM3": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_PAY_SW": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_MAP_TRANS_SW": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_PAYLOAD_TH": {
+      "value": 0.75,
+      "type": 9
+    },
+    "RC_PORT_CONFIG": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_RSSI_PWM_CHAN": {
+      "value": 0.0,
+      "type": 6
+    },
+    "RC_RSSI_PWM_MAX": {
+      "value": 2000.0,
+      "type": 6
+    },
+    "RC_RSSI_PWM_MIN": {
+      "value": 1000.0,
+      "type": 6
+    },
+    "RC_TRANS_TH": {
+      "value": 0.75,
+      "type": 9
+    }
+  }
+}

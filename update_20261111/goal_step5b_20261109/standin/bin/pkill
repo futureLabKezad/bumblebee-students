@@ -1,0 +1,136 @@
+#!/usr/bin/python3 -I
+"""pkill stand-in - goal step 5b (Claude, 09.11.2026). SIMULATOR STAND ONLY, never on the drone.
+
+WHY: the image's drone.set_aruco_map() (examples/drone.py:1557) runs `pkill -f aruco_pose/aruco_map`. A real
+`pkill -f` searches EVERY process of the PC; on the PC that is forbidden (rule 13: no broad pkill -f). The launcher
+(run_scenario2.sh) puts this file FIRST in PATH of the scenario script process only, so the unmodified script
+finds it instead of /usr/bin/pkill.
+
+WHAT IT DOES (and nothing else):
+  * accepts only the form the image uses: [-SIGNAL | --signal SIGNAL] -f PATTERN, with PATTERN a literal string
+    (no regex metacharacters; for a literal, procps' extended-regex search is a plain substring search, so the
+    match is exactly the one `pkill -f PATTERN` makes). Any other form -> exit 2, nothing signalled.
+  * runs only inside the run's script session: env BB_STANDIN_SID must equal its own session id (set by the
+    launcher right after setsid), and BB_STANDIN_LOG must name the log file. Otherwise -> exit 3, nothing signalled.
+  * candidates = every process whose command line (argv joined by single spaces, as procps does; the process
+    name if the command line is empty) contains PATTERN, except this process itself (procps excludes itself too).
+  * signals ONLY candidates in its OWN session (= processes started by the scenario script). Candidates outside
+    the session are never touched; they are only listed in the log as "a real pkill -f would also hit these".
+  * prints nothing (the real pkill prints nothing either), logs one JSON line per call to $BB_STANDIN_LOG.
+  * exit status as procps pkill: 0 = one or more processes signalled, 1 = no process matched (in its session),
+    2 = syntax error, 3 = fatal error.
+"""
+import json
+import os
+import signal
+import sys
+import time
+
+META = set('.^$*+?()[]{}|\\')
+
+
+def cmdline_of(pid):
+    try:
+        with open('/proc/%d/cmdline' % pid, 'rb') as f:
+            raw = f.read()
+    except OSError:
+        return None
+    if raw:
+        return raw.rstrip(b'\0').replace(b'\0', b' ').decode('utf-8', 'replace')
+    try:
+        with open('/proc/%d/comm' % pid, encoding='utf-8', errors='replace') as f:
+            return f.read().strip()
+    except OSError:
+        return None
+
+
+def sid_of(pid):
+    try:
+        return os.getsid(pid)
+    except OSError:
+        return None
+
+
+def pgid_of(pid):
+    try:
+        return os.getpgid(pid)
+    except OSError:
+        return None
+
+
+def main():
+    log_path = os.environ.get('BB_STANDIN_LOG', '')
+    rec = {'t_wall': time.strftime('%Y-%m-%dT%H:%M:%S%z'), 'argv': sys.argv[1:], 'pid': os.getpid(),
+           'ppid': os.getppid(), 'pgid': os.getpgid(0), 'sid': os.getsid(0)}
+
+    def finish(code, **kw):
+        rec.update(kw)
+        rec['exit'] = code
+        if log_path:
+            try:
+                with open(log_path, 'a', encoding='utf-8') as f:
+                    f.write(json.dumps(rec, ensure_ascii=False) + '\n')
+            except OSError:
+                code = 3
+        sys.exit(code)
+
+    if not log_path:
+        finish(3, error='BB_STANDIN_LOG not set')
+    want_sid = os.environ.get('BB_STANDIN_SID', '')
+    if not want_sid.isdigit() or int(want_sid) != os.getsid(0):
+        finish(3, error='not inside the run script session (BB_STANDIN_SID=%r, own sid %d)'
+               % (want_sid, os.getsid(0)))
+    # --- parse: [-SIGNAL | --signal SIGNAL] -f PATTERN
+    args = list(sys.argv[1:])
+    sig = signal.SIGTERM
+    pattern = None
+    full = False
+    try:
+        while args:
+            a = args.pop(0)
+            if a == '-f':
+                full = True
+            elif a == '--signal':
+                s = args.pop(0)
+                sig = int(s) if s.isdigit() else getattr(signal, s if s.startswith('SIG') else 'SIG' + s)
+            elif a.startswith('-') and len(a) > 1 and pattern is None and a != '-f':
+                s = a[1:]
+                sig = int(s) if s.isdigit() else getattr(signal, s if s.startswith('SIG') else 'SIG' + s)
+            elif pattern is None and not a.startswith('-'):
+                pattern = a
+            else:
+                raise ValueError('unsupported argument %r' % a)
+    except (IndexError, ValueError, AttributeError) as e:
+        finish(2, error='usage: only [-SIGNAL|--signal SIGNAL] -f LITERAL_PATTERN (%s)' % e)
+    if not full or not pattern:
+        finish(2, error='usage: only [-SIGNAL|--signal SIGNAL] -f LITERAL_PATTERN')
+    if any(c in META for c in pattern):
+        finish(2, error='pattern %r has regex metacharacters; the stand-in accepts literal patterns only' % pattern)
+    rec['signal'] = int(sig)
+    rec['pattern'] = pattern
+    own_sid, me = os.getsid(0), os.getpid()
+    inside, outside = [], []
+    for name in os.listdir('/proc'):
+        if not name.isdigit():
+            continue
+        pid = int(name)
+        if pid == me:
+            continue
+        cl = cmdline_of(pid)
+        if cl is None or pattern not in cl:
+            continue
+        entry = {'pid': pid, 'pgid': pgid_of(pid), 'sid': sid_of(pid), 'cmdline': cl[:300]}
+        (inside if entry['sid'] == own_sid else outside).append(entry)
+    signalled = []
+    for e in inside:
+        try:
+            os.kill(e['pid'], sig)
+            signalled.append(e['pid'])
+        except OSError as err:
+            e['kill_error'] = str(err)
+    finish(0 if signalled else 1, matched_in_own_session=inside,
+           matched_outside_session_untouched=outside, signalled=signalled)
+
+
+if __name__ == '__main__':
+    main()

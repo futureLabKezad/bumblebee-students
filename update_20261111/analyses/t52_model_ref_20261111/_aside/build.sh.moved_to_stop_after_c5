@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e; H=/work/t52_model_ref_20261111; S=/work/goal_step5b_20261109; cd $H
+python3 -I make_t52.py
+bash -n run_scenario7k.sh.new; python3 -I -m py_compile scenarios/t52_hover_yaw.py; rm -rf scenarios/__pycache__
+for v in model_v2 model_v2b; do echo "== $v"; diff /work/goal_t22_flow_20261109/model_v1/bumblebee/model.sdf models/$v/bumblebee/model.sdf | grep "^[<>]" | head -30; done
+diff -u $S/run_scenario7j.sh run_scenario7k.sh.new > DIFF_7j_7k.txt || true; grep "^[-+][^-+]" DIFF_7j_7k.txt | cut -c1-170
+tail -11 af/4074_*

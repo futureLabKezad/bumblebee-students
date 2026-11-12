@@ -1,0 +1,10 @@
+a45a264 commit: a45a2643ddf876d82395f9599724d83c36ef6ffc
+a45a264 package tree = port-rc3 base 394a0f1c1a0c1aedad2da63a40974d6045e3727e tree: 9d267c42d14d241c44a2effe27f8467d77d98baf (equal)
+port-rc3 tag commit: 64438f4dcdb92fb08adee81902ccdf31e5e442e4, working tree clean, HEAD = tag
+a45a264 drone/ files: 337
+port-rc3 overlay: modified 6, added 37, removed 0
+fcu_detect.py: ee174fd1 -> 5932a00a
+camera_fix.py: 4a15d699 -> dabd5076 (pending)
+fixed image files: 374; by change: {'same': 329, 'changed': 8, 'new': 37}
+MAVROS bp02: base b964c117362dc6606b22d3d9839d076425bc597a, tip d63a23674dd80ff4525829ca4bd716bbcc773111
+RESULT: OK

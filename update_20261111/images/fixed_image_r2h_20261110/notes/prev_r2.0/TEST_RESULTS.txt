@@ -1,0 +1,13 @@
+# TEST_RESULTS r2, 09.11.2026 10:25, без ROS
+## Q6
+Ran 17 tests in 3.163s
+
+OK
+## drone.py guards
+Ran 87 tests in 0.956s
+
+OK (skipped=2)
+## профиль
+Ran 16 tests in 0.103s
+
+OK

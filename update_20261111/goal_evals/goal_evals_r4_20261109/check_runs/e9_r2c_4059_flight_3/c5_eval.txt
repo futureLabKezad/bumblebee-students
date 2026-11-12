@@ -1,0 +1,5 @@
+C5 PASS  failed: -
+run e9_r2c_4059_flight_3; valid True []; script /work/fixed_image_r2d_20261109/src/bumblebee/examples/flight/flight.py H=0.8 ; exit 0 (2026-11-09T12:58:10+04:00 exited by itself, code 0)
+window 17.52..22.12 s (left OFFBOARD (nav_state 18)); height dev max 0.1 m at 17.52 s (need <=0.10), mean 0.796 m
+touchdown 25.296 s, motors off 27.744 s, delay 2.448 s (need <=3.0)
+emergencies: -

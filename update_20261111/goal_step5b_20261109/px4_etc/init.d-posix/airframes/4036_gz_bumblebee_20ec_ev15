@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee as 20EC, variant B: vision on (EKF2_EV_CTRL 15)
+#
+# @type Quadrotor
+#
+# SIMULATOR ONLY. Goal step 6 (Claude, 09.11.2026). 4032 (20EC as is) + ONE value: EKF2_EV_CTRL 0 -> 15
+# (the drone s own last vision-on value, logs 112 and 137-144; repo px4_v0_0_2 and old 4030 use 15 too).
+#
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=bumblebee}
+. ${R}etc/init.d-posix/airframes/4032_gz_bumblebee_20ec
+
+param set-default EKF2_EV_CTRL 15

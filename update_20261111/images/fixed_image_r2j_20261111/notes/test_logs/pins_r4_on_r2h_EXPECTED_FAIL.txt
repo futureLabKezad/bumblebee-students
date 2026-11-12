@@ -1,0 +1,48 @@
+test_r4_constants_and_harness (__main__.PinsR4.test_r4_constants_and_harness) ... ok
+test_r4_declared_parts_are_the_accepted_r2i (__main__.PinsR4.test_r4_declared_parts_are_the_accepted_r2i) ... FAIL
+test_r4_docstring_only_the_gate_lines (__main__.PinsR4.test_r4_docstring_only_the_gate_lines) ... FAIL
+test_r4_only_the_declared_parts_differ_from_r2h (__main__.PinsR4.test_r4_only_the_declared_parts_differ_from_r2h) ... FAIL
+test_r4_reference_is_r2h (__main__.PinsR4.test_r4_reference_is_r2h) ... ok
+
+======================================================================
+FAIL: test_r4_declared_parts_are_the_accepted_r2i (__main__.PinsR4.test_r4_declared_parts_are_the_accepted_r2i)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2j_20261111/src/bumblebee/test/vpe_fix_h2_r2/tests_r4/test_pins_r4.py", line 97, in test_r4_declared_parts_are_the_accepted_r2i
+    self.assertEqual(hashlib.sha256(b[k].encode()).hexdigest(), v, k)
+AssertionError: 'f7bfb962bb3258f8cb5b3f31730a61d4cf9a639c1a379eff14d721b979a5ea4b' != 'c86e039fdc23c401a1e22e73faf99e9058ae329f578817327c53ffcdaf6bca1b'
+- f7bfb962bb3258f8cb5b3f31730a61d4cf9a639c1a379eff14d721b979a5ea4b
++ c86e039fdc23c401a1e22e73faf99e9058ae329f578817327c53ffcdaf6bca1b
+ : VpeFix.__init__
+
+======================================================================
+FAIL: test_r4_docstring_only_the_gate_lines (__main__.PinsR4.test_r4_docstring_only_the_gate_lines)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2j_20261111/src/bumblebee/test/vpe_fix_h2_r2/tests_r4/test_pins_r4.py", line 102, in test_r4_docstring_only_the_gate_lines
+    self.assertEqual([x for x in la if x not in lb], DOC_OLD)
+AssertionError: Lists differ: [] != ['    - ARMED in non-OFFBOARD mode.', '   [65 chars]ce.']
+
+Second list contains 2 additional elements.
+First extra element 0:
+'    - ARMED in non-OFFBOARD mode.'
+
+- []
++ ['    - ARMED in non-OFFBOARD mode.',
++  '    - ARMED + OFFBOARD + vision bad. Baro is secondary altitude source.']
+
+======================================================================
+FAIL: test_r4_only_the_declared_parts_differ_from_r2h (__main__.PinsR4.test_r4_only_the_declared_parts_differ_from_r2h)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/fixed_image_r2j_20261111/src/bumblebee/test/vpe_fix_h2_r2/tests_r4/test_pins_r4.py", line 89, in test_r4_only_the_declared_parts_differ_from_r2h
+    self.assertEqual({k for k in a if k in b and a[k] != b[k]}, CHANGED)
+AssertionError: Items in the second set but not the first:
+'VpeFix.state_callback'
+'VpeFix.__init__'
+'VpeFix._evaluate_gate'
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.056s
+
+FAILED (failures=3)

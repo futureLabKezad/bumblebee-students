@@ -1,0 +1,6 @@
+usage: verify_flight_c8.py [-h] --run RUN --expected-manifest
+                           EXPECTED_MANIFEST --frozen-pins FROZEN_PINS --out
+                           OUT [--origin-evidence ORIGIN_EVIDENCE]
+                           [--criteria CRITERIA] --identity
+                           {c8_4061,rel3_4030}
+verify_flight_c8.py: error: the following arguments are required: --identity

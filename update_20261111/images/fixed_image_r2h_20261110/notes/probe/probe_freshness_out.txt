@@ -1,0 +1,98 @@
+NOISY {
+ "r2g": {
+  "first_s_median": 0.008,
+  "first_s_max": 0.008,
+  "sent_in_0.5s_after_first_min": 16,
+  "sent_in_0.5s_after_first_median": 16,
+  "max_gap_first_0.6s_max": 0.033
+ },
+ "r2g+freshness": {
+  "first_s_median": 0.008,
+  "first_s_max": 0.008,
+  "sent_in_0.5s_after_first_min": 16,
+  "sent_in_0.5s_after_first_median": 16,
+  "max_gap_first_0.6s_max": 0.033
+ },
+ "r2h": {
+  "first_s_median": 0.108,
+  "first_s_max": 0.108,
+  "sent_in_0.5s_after_first_min": 16,
+  "sent_in_0.5s_after_first_median": 16,
+  "max_gap_first_0.6s_max": 0.033
+ },
+ "r2h+freshness": {
+  "first_s_median": 0.142,
+  "first_s_max": 0.308,
+  "sent_in_0.5s_after_first_min": 3,
+  "sent_in_0.5s_after_first_median": 8,
+  "max_gap_first_0.6s_max": 0.7
+ }
+}
+PAUSE {
+ "r2g": {
+  "pause_first_after_back_s": 0.008,
+  "n_in_first_0.7s": 21,
+  "gaps_gt_0.1_after_back": [],
+  "freshness_notes": {},
+  "blink_publishes": 330,
+  "blink_pauses_gt_0.4": [
+   1.03,
+   1.03,
+   1.03,
+   1.03,
+   1.03,
+   1.03,
+   1.03,
+   1.03
+  ],
+  "blink_notes": {}
+ },
+ "r2g+freshness": {
+  "pause_first_after_back_s": 0.008,
+  "n_in_first_0.7s": 21,
+  "gaps_gt_0.1_after_back": [],
+  "freshness_notes": {
+   "source_time_validated": 96,
+   "expired_measurement": 17
+  },
+  "blink_publishes": 330,
+  "blink_pauses_gt_0.4": [
+   1.03,
+   1.03,
+   1.03,
+   1.03,
+   1.03,
+   1.03,
+   1.03,
+   1.03
+  ],
+  "blink_notes": {
+   "source_time_validated": 279
+  }
+ },
+ "r2h": {
+  "pause_first_after_back_s": 0.108,
+  "n_in_first_0.7s": 18,
+  "gaps_gt_0.1_after_back": [],
+  "freshness_notes": {},
+  "blink_publishes": 570,
+  "blink_pauses_gt_0.4": [],
+  "blink_notes": {}
+ },
+ "r2h+freshness": {
+  "pause_first_after_back_s": 0.142,
+  "n_in_first_0.7s": 17,
+  "gaps_gt_0.1_after_back": [],
+  "freshness_notes": {
+   "source_time_validated": 96,
+   "expired_measurement": 17,
+   "expired_during_publish": 1
+  },
+  "blink_publishes": 570,
+  "blink_pauses_gt_0.4": [],
+  "blink_notes": {
+   "source_time_validated": 279
+  }
+ }
+}
+FIRST3 {"r2g": [[0.008, 0.0], [0.042, 0.0], [0.075, 0.01]], "r2g+freshness": [[0.008, 0.0], [0.042, 0.0], [0.075, 0.01]], "r2h": [[0.108, 0.01], [0.142, 0.01], [0.175, 0.01]], "r2h+freshness": [[0.142, 0.01], [0.175, 0.01], [0.208, 0.01]]}

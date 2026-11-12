@@ -1,0 +1,59 @@
+ТОЛЬКО СИМУЛЯТОР: scenario s04_4035_flight_arucoalways airframe 4035 script flight.py gui=1 timeout=300s trial_aruco_always=1 2026-11-06T16:05:05+04:00
+date 2026-11-06T16:05:05+04:00
+px4_source_head 94cb2012792b2ae89f0b147cfee53ee31ae550be
+px4_binary_sha256 56931e9da394a7619e6d61e04f5e1a0d77e3fa9f9828f5824c61d5cdb53963d7
+gz 8.15.0
+airframe 4035 53fa775703d799f9057387d896c4cdb76a54b9493c9b3af8ca6fb2b3fc2f4830
+airframe 4032 b1c83fbe8bdc97b9371b61af2314201c1c2434e016a9805448328e2d25c04eb4
+model_sdf a5300d7c749615c50760a26a9953d62074bd959435c74a26e1436a6110590222
+aruco_world 73804e4e01accd7c515b7f3b285f09b0d63de4ad0385945b68bf11505e9b3ec0 map 528b5adb467dc91e819e0c4cb9a5ff44439319fff23c3293799b8ee3fe43e611
+product port-rc3 64438f4dcdb92fb08adee81902ccdf31e5e442e4 (tag object 331eeeb4dc1e7860ff
+script examples/flight/flight.py 7093e4840778b5ddfea3573323876b2c1d88deb6ab9c82f17769bc687691f9b1
+61248db4e2ad8886136b44c9215095164288ffe93e77e6ef184cf50d624cdd30  run_scenario.sh
+104842659e63e126aebb5f1a602f9ad81a25b21befbe88e2a08176dde79037fc  scenario_stack.launch.py
+6fbf061f357874c65c4dadf376d850f95c9bb5154859e2d84d8ab20f45140382  sim_only.json
+300cd79f4abedad37410c98a715d8946428f90008c552fb0980dc738c92dd82f  tools/goal_eval.py
+821006aaafd086eed5b0b03b644fbfa0fba43ab3e5151eafcb6508bdce1dacb5  tools/param_parity.py
+f22ec1d50cbea0eed9501b2e4748b551fb9ece46ed1f6822ff12906926a61288  tools/pins_check.py
+5c3d6eb861cba945153bdfdf5d80eaf5a0c17ec922311aaa2b6726d074dca1b7  tools/rc_hold.py
+aebdc7aeb26166631d16a98bc1ab58e12b8cc1c514ba793d8979cc372e96bb97  tools/sitl_param_names.txt
+pins: 15 same, differs: ['src/python/camera_fix.py']
+clock check exit 0: {"clocksource": "tsc", "kernel": "6.18.54.1-microsoft-standard-WSL2", "tick_us": 10000, "freq_ppm": -0.208, "timesyncd": "inactive", "seconds": 40.0, "ratio": 1.00006, "uncertainty": 0.00377, "realtime_steps": [], "problems": [], "ok": true}
+world: 20 markers
+gz server up after 2s
+px4 startup: INFO  [px4] Startup script returned successfully  after 1s
+logger restarted
+rc_hold ready: yes
+ros: mavros /work/ws_mavros214_bp02_rel/install/mavros bumblebee /work/ws_package1b_port_03/install/bumblebee
+mavros: Got HEARTBEAT, connected. FCU: PX4 Autopilot after 4s
+mavros params: NOT complete after 90s
+script start 2026-11-06T16:08:01+04:00
+/work/goal_step5_20261106/run_scenario.sh: line 196:  3939 Killed                  PYTHONPATH=$EXAMPLES:${PYTHONPATH:-} timeout --signal=INT --kill-after=20 $TIMEOUT /usr/bin/python3 -u "$PRODUCT/src/bumblebee/$SCRIPT_REL" > "$RUN/script.log" 2>&1
+script exit 137 2026-11-06T16:13:21+04:00
+/work/goal_step5_20261106/run_scenario.sh: line 113:  2700 Segmentation fault      (core dumped) setsid gz sim --verbose=2 -r -s --headless-rendering "$RUN/world.sdf" > "$RUN/gz.log" 2>&1 < /dev/null
+stopped 2026-11-06T16:13:32+04:00; alive px4/gz/ruby/mavros_node: 
+airframe 4035: drone params 1107; {"equal": 775, "absent": 230, "sim_only": 101, "control": 1}; sim-only that really differ 61 {"S2": 48, "S6": 2, "S8": 1, "S7": 1, "S5": 4, "S3": 2, "S3b": 1, "S4": 1, "S1": 1}
+UNEXPLAINED 0
+parity exit 0
+criteria: PROPOSED 05.11, not approved by the owner (question 3); trial runs do not count
+script height 1.5 m; flight height 1.527 m (err 0.027); h max 1.606 m; air 24.9 s; hover runs [{"from_s": 13.8, "len_s": 7.0, "h_mean_m": 1.527, "h_p95_abs_err_m": 0.096}]
+touchdown 27.024 s, motors off 30.896 s, delta 3.87 s; failsafe while armed False; kill False
+EKF xy jumps > 0.10 m in air: 0; xy resets 0
+nav: OFFBOARD@-0.0 -> LAND@21.55 -> OFFBOARD@30.9
+verdict vs PROPOSED (trial, not counted): {"C5_height": true, "C5_motors_off": false, "C5_no_failsafe": true}
+[LAND] z=0.52 vz=-0.31 armed=True
+[LAND] z=0.37 vz=-0.31 armed=True
+[LAND] z=0.21 vz=-0.31 armed=True
+[LAND] z=0.06 vz=-0.31 armed=True
+[LAND] z=-0.08 vz=-0.31 armed=True
+[LAND] z=-0.07 vz=0.00 armed=True
+[LAND] z=-0.04 vz=0.01 armed=True
+[LAND] z=-0.03 vz=0.01 armed=True
+[LAND] z=-0.03 vz=0.01 armed=True
+[LAND] z=-0.04 vz=0.01 armed=True
+[LAND] z=-0.04 vz=0.00 armed=True
+[LAND] z=-0.05 vz=0.00 armed=True
+[LAND] z=-0.05 vz=0.00 armed=False
+Landed and disarmed.
+[WARN] [1793967181.312016215] [flight]: Interrupt received -- cancelling takeoff / landing
+done s04_4035_flight_arucoalways 2026-11-06T16:13:33+04:00

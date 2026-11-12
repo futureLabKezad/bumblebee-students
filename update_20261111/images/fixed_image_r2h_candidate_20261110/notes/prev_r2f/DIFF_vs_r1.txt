@@ -1,0 +1,945 @@
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/CMakeLists.txt src/bumblebee/CMakeLists.txt
+--- /work/fixed_image_r1_20261109/src/bumblebee/CMakeLists.txt	2026-11-02 09:56:15.260665030 +0400
++++ src/bumblebee/CMakeLists.txt	2026-11-09 14:09:40.000000000 +0400
+@@ -72,7 +72,7 @@
+ add_executable(simple_offboard src/cpp/simple_offboard.cpp)
+ ament_target_dependencies(simple_offboard
+   rclcpp tf2 tf2_ros tf2_geometry_msgs
+-  std_srvs geometry_msgs sensor_msgs mavros_msgs)
++  std_srvs std_msgs geometry_msgs sensor_msgs mavros_msgs)
+ target_link_libraries(simple_offboard ${GeographicLib_LIBRARIES})
+ rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+ target_link_libraries(simple_offboard ${cpp_typesupport_target})
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/examples/drone.py src/bumblebee/examples/drone.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/examples/drone.py	2026-11-09 10:11:41.429882958 +0400
++++ src/bumblebee/examples/drone.py	2026-11-10 09:28:01.217389542 +0400
+@@ -87,6 +87,7 @@
+ QoSProfile        = None
+ ReliabilityPolicy = None
+ DurabilityPolicy  = None
++PoseWithCovarianceStamped = None   # r2f (T35): vision watchdog subscription to /mavros/mavros/pose_cov
+ 
+ 
+ def _ros2_import():
+@@ -96,6 +97,7 @@
+     global GetParameters
+     global PlayTuneV2
+     global State, BatteryState, QoSProfile, ReliabilityPolicy, DurabilityPolicy
++    global PoseWithCovarianceStamped   # r2f (T35)
+     if rclpy is not None:
+         return
+     import rclpy as _rclpy
+@@ -109,11 +111,13 @@
+     from std_msgs.msg import Int32 as _I32, Bool as _BO
+     from mavros_msgs.msg import State as _State
+     from sensor_msgs.msg import BatteryState as _BatteryState
++    from geometry_msgs.msg import PoseWithCovarianceStamped as _PWCS_vpe   # r2f (T35)
+     from rclpy.qos import (QoSProfile as _QoSP,
+                            QoSReliabilityPolicy as _RP,
+                            QoSDurabilityPolicy as _DP)
+     State        = _State
+     BatteryState = _BatteryState
++    PoseWithCovarianceStamped = _PWCS_vpe
+     QoSProfile        = _QoSP
+     ReliabilityPolicy = _RP
+     DurabilityPolicy  = _DP
+@@ -568,6 +572,10 @@
+ # frames are dropped (reproj-error gate), so _aruco_markers_used_time alone
+ # cannot detect "camera alive but no usable markers".
+ _aruco_markers_pos_time  = None
++# r2f (T35): vision watchdogs count only NEW poses vpe_fix actually published on /mavros/mavros/pose_cov.
++# Raw markers_used frames that vpe_fix rejected (false detections) no longer extend vision.
++_vpe_pose_time = None   # time.monotonic() of the last NEW vpe_fix pose
++_vpe_pose_last = None   # (x, y, z, qx, qy, qz, qw) of that pose; vpe_fix repeats it for up to 0.5 s, a repeat does not count
+ _aruco_yaw_locked        = False
+ _aruco_yaw_locked_last_true_time = None  # rclpy Time of last True observation
+ 
+@@ -782,6 +790,13 @@
+     _node.create_subscription(Int32, '/aruco_detect/markers_used', _on_markers_used, 10)
+     _node.create_subscription(Bool,  '/aruco_detect/yaw_locked',   _on_yaw_locked,   10)
+ 
++    # r2f (T35): new poses vpe_fix published (vision_pose_age()). BEST_EFFORT like require_vpe_link.
++    _vpe_qos = QoSProfile(
++        depth=10,
++        reliability=ReliabilityPolicy.BEST_EFFORT,
++        durability=DurabilityPolicy.VOLATILE)
++    _node.create_subscription(PoseWithCovarianceStamped, '/mavros/mavros/pose_cov', _on_vpe_pose, _vpe_qos)
++
+     # Cheap FCU status subscriptions (see get_fcu_status). /mavros/state is
+     # RELIABLE + TRANSIENT_LOCAL; /mavros/battery is BEST_EFFORT.
+     def _on_battery(msg):
+@@ -810,6 +825,14 @@
+     _spin_thread = threading.Thread(
+         target=_executor.spin, name='drone-spin', daemon=False)
+     _spin_thread.start()
++    # F4 (09.11.2026): Python joins non-daemon threads BEFORE it runs atexit
++    # handlers, so with only atexit.register(_shutdown) the spin thread kept
++    # the process alive and a finished script hung until Ctrl+C.
++    # threading._register_atexit hooks run before that join (Python >= 3.9).
++    try:
++        threading._register_atexit(_shutdown)
++    except Exception:
++        pass
+ 
+     # Clean rclpy shutdown on interpreter exit. Without this, sys.exit() with
+     # the executor still spinning makes rmw_fastrtps abort the process with
+@@ -834,6 +857,8 @@
+     if not _initialized:
+         return
+     _initialized = False
++    _stop_detector_wake()   # F1: no wakes after the script ends
++    _stop_script_lease()    # T25: armed in OFFBOARD after this -> simple_offboard lands
+     try:
+         if _executor is not None:
+             _executor.shutdown(timeout_sec=2.0)
+@@ -1195,11 +1220,22 @@
+     return time.monotonic() - entry[1]
+ 
+ 
++# F5 (09.11.2026, r2c): float32 fields of the Navigate request. Each must hold
++# a Python float: an int (fly_to(x=0)) or a numpy.float32 passes the Python
++# setter (ROS_PYTHON_CHECK_FIELDS is off by default) and then aborts the whole
++# process in the rosidl C converter (assert PyFloat_Check, core dump), leaving
++# the drone in OFFBOARD without a script. float() keeps nan as nan.
++_NAVIGATE_FLOAT_FIELDS = ('x', 'y', 'z', 'yaw', 'speed')
++
++
+ def navigate(**kwargs):
+     global _arm_ref_z, _auto_arm_ok_t
+     _init()
++    _start_script_lease()   # T25: simple_offboard lands if this process dies
+     req = srv.Navigate.Request()
+     for k, v in kwargs.items():
++        if k in _NAVIGATE_FLOAT_FIELDS:
++            v = float(v)
+         setattr(req, k, v)
+     # Pilot wins (A4): never start or retarget OFFBOARD control while the
+     # pilot / a PX4 failsafe owns the armed vehicle or the state is unknown.
+@@ -1546,62 +1582,77 @@
+ # ArUco map management
+ # ---------------------------------------------------------------------------
+ 
++def _map_rows(markers):
++    """{id: (length, x, y, rot_z)} from a set_aruco_map() marker list (same defaults as before)."""
++    return {int(m['id']): (float(m['length']), float(m['x']), float(m['y']), float(m.get('rot_z', 1.571)))
++            for m in markers}
++
++
++def _read_map_file(path):
++    """{id: (length, x, y, rot_z)} from an aruco_pose map file; RuntimeError if it cannot be read."""
++    try:
++        with open(path) as f:
++            lines = f.read().splitlines()
++    except OSError as e:
++        raise RuntimeError('set_aruco_map: cannot read map %s: %s' % (path, e))
++    rows = {}
++    for n, line in enumerate(lines, 1):
++        p = line.split()
++        if not p or p[0].startswith('#'):
++            continue
++        try:
++            if len(p) < 4:
++                raise ValueError('%d columns, need at least 4: id length x y' % len(p))
++            i = int(p[0])
++            if i in rows:
++                raise ValueError('id %d twice' % i)
++            rows[i] = (float(p[1]), float(p[2]), float(p[3]), float(p[5]) if len(p) > 5 else 1.571)
++        except ValueError as e:
++            raise RuntimeError('set_aruco_map: bad line %d in map %s: %r (%s)' % (n, path, line, e))
++    if not rows:
++        raise RuntimeError('set_aruco_map: no markers in map %s' % path)
++    return rows
++
++
+ def set_aruco_map(markers=None, map_file=None):
+     """
+-    Load an ArUco map and reload the aruco_map node.
++    Check that the ArUco map a script wants is the map the detector already uses.
+ 
+-    Two ways to use:
++    Since 09.11.2026 (finding F2) this does NOT write the map and does NOT
++    restart any node. The image's detector (aruco_detect.py) reads its map once
++    at start (map_file parameter, launch/aruco.launch.py) and the C++ aruco_map
++    node that used to be restarted is disabled, so a map written during a
++    session never reached the detector: the route silently used the old map.
+ 
+-    1. Pass a file path -- copies that file to map.txt and reloads:
+-        drone.set_aruco_map(map_file='/home/lb/maps/arena.txt')
++    Now: the same map -> OK; a different map -> RuntimeError before takeoff.
++    To fly another map, put it into MAP_FILE and restart the drone stack.
+ 
+-    2. Pass a list of markers -- writes them to map.txt and reloads:
+-        drone.set_aruco_map([
+-            {'id': 0, 'length': 0.19, 'x': 0,    'y': 0},
+-            {'id': 1, 'length': 0.29, 'x': 0,    'y': 1.88},
+-        ])
++    Two ways to use (as before):
++        drone.set_aruco_map(map_file='/home/lb/maps/arena.txt')
++        drone.set_aruco_map([{'id': 0, 'length': 0.19, 'x': 0, 'y': 0}, ...])
+     """
+     _init()
+-    import shutil
+-
+     if map_file is not None:
+-        if not os.path.exists(map_file):
+-            _node.get_logger().error('Map file not found: ' + map_file)
+-            return
+-        shutil.copy(map_file, MAP_FILE)
+-        print('Map loaded from file: ' + map_file)
+-
++        want = _read_map_file(map_file)
+     elif markers is not None:
+-        lines = ['# id\tlength\tx\ty\tz\trot_z\trot_y\trot_x']
+-        for m in markers:
+-            z     = m.get('z', -DRONE_REST_Z_OFFSET)
+-            rot_z = m.get('rot_z', 1.571)
+-            rot_y = m.get('rot_y', 0)
+-            rot_x = m.get('rot_x', 0)
+-            lines.append('%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f' % (
+-                m['id'], m['length'], m['x'], m['y'], z, rot_z, rot_y, rot_x))
+-        with open(MAP_FILE, 'w') as f:
+-            f.write('\n'.join(lines) + '\n')
+-        print('Map written (%d markers): %s' % (len(markers), MAP_FILE))
+-
++        want = _map_rows(markers)
+     else:
+-        _node.get_logger().error('set_aruco_map: provide either markers list or map_file path')
+-        return
+-
+-    # Kill aruco_map node -- it has respawn=true so it will reload the file.
+-    # The plain `pkill -f aruco_map` pattern also matches aruco_detect.py
+-    # (its argv contains 'aruco_map' four times in remappings); restrict to
+-    # the aruco_map executable path so aruco_detect keeps running.
+-    print('Reloading aruco_map node...')
+-    subprocess.run(
+-        ['ros2', 'lifecycle', 'set', '/aruco_map', 'shutdown'],
+-        check=False,
+-        stdout=subprocess.DEVNULL,
+-        stderr=subprocess.DEVNULL,
+-    )
+-    subprocess.run(['pkill', '-f', 'aruco_pose/aruco_map'], check=False)
+-    time.sleep(3.0)
+-    print('aruco_map reloaded.')
++        raise RuntimeError('set_aruco_map: provide either markers list or map_file path')
++    have = _read_map_file(MAP_FILE)
++    problems = []
++    for i in sorted(set(want) | set(have)):
++        if i not in have:
++            problems.append('id %d not in loaded map' % i)
++        elif i not in want:
++            problems.append('id %d only in loaded map' % i)
++        elif any(abs(a - b) > 1e-3 for a, b in zip(want[i], have[i])):
++            problems.append('id %d: wanted %s, loaded %s' % (i, want[i], have[i]))
++    if problems:
++        raise RuntimeError(
++            'set_aruco_map: the map differs from the map the detector uses (%s): %s. '
++            'The detector does not reload maps during a session; put the map into %s '
++            'and restart the drone stack.' % (MAP_FILE, '; '.join(problems[:5]), MAP_FILE))
++    print('Map check OK: %d markers, same as the loaded map %s' % (len(want), MAP_FILE))
+ 
+ 
+ # ---------------------------------------------------------------------------
+@@ -1671,6 +1722,152 @@
+     return time.monotonic() - _aruco_markers_pos_time
+ 
+ 
++def _on_vpe_pose(msg):
++    """r2f (T35): /mavros/mavros/pose_cov callback; only a pose different from the last one counts."""
++    global _vpe_pose_time, _vpe_pose_last
++    p, o = msg.pose.pose.position, msg.pose.pose.orientation
++    key = (p.x, p.y, p.z, o.x, o.y, o.z, o.w)
++    if key != _vpe_pose_last:
++        _vpe_pose_last = key
++        _vpe_pose_time = time.monotonic()
++
++
++def vision_pose_age():
++    """Seconds since vpe_fix last published a NEW vision pose on /mavros/mavros/pose_cov; +inf if never.
++
++    r2f (T35): this is "vision present" for the flight watchdogs (navigate_wait, safe_land, the example scripts).
++    Raw /aruco_detect/markers_used frames do not count: vpe_fix rejects false detections, this age does not see
++    them. A repeat of the same pose (vpe_fix repeats the last accepted pose for up to 0.5 s) does not count.
++    """
++    if _vpe_pose_time is None:
++        return float('inf')
++    return time.monotonic() - _vpe_pose_time
++
++
++# ---------------------------------------------------------------------------
++# F1 (09.11.2026, r2b): keep the marker detector awake during the preflight
++# ---------------------------------------------------------------------------
++# The image's detector (aruco_detect.py) sleeps until the FCU is armed or in
++# OFFBOARD and stays awake WAKE_HOLD_S (5 s) after each /aruco_detect/wake.
++# A preflight (check_aruco, wait_yaw_lock, wait_position_stable,
++# require_vpe_link, takeoff's vision wait) can take minutes, so a background
++# thread repeats the wake every WAKE_PERIOD_S until the FCU is armed (then the
++# detector's own gate keeps it on), the script shuts down, or WAKE_MAX_S pass
++# after the last preflight call -- no permanent CPU load on the ground.
++WAKE_PERIOD_S = 2.0
++WAKE_MAX_S = 180.0
++_wake_lock = threading.Lock()
++_wake_thread = None
++_wake_stop = None
++_wake_deadline = 0.0
++
++
++def _fcu_is_armed():
++    m = _fcu_state_msg
++    return bool(m is not None and getattr(m, 'armed', False))
++
++
++def _keep_detector_awake():
++    """Start (or extend) the background wake. Idempotent; never raises."""
++    global _wake_thread, _wake_stop, _wake_deadline
++    try:
++        with _wake_lock:
++            _wake_deadline = time.monotonic() + WAKE_MAX_S
++            if _wake_thread is not None and _wake_thread.is_alive():
++                return
++            pub = _node.create_publisher(Bool, '/aruco_detect/wake', 10)
++            stop = threading.Event()
++
++            def run():
++                msg = Bool()
++                msg.data = True
++                try:
++                    while not stop.is_set():
++                        if _fcu_is_armed() or time.monotonic() > _wake_deadline:
++                            break
++                        pub.publish(msg)
++                        stop.wait(WAKE_PERIOD_S)
++                except Exception:
++                    pass
++                finally:
++                    try:
++                        _node.destroy_publisher(pub)
++                    except Exception:
++                        pass
++
++            _wake_stop = stop
++            _wake_thread = threading.Thread(target=run, name='aruco-wake', daemon=True)
++            _wake_thread.start()
++    except Exception as e:
++        print('  WARN  detector wake not started: %s' % e)
++
++
++def _stop_detector_wake():
++    stop = _wake_stop
++    if stop is not None:
++        stop.set()
++    t = _wake_thread
++    if t is not None and t.is_alive() and t is not threading.current_thread():
++        t.join(timeout=1.0)
++
++
++# T25 (r2d, 09.11.2026): script lease. A flight script that died alone
++# (SIGKILL, OOM, a crash of python itself) left the drone in OFFBOARD:
++# simple_offboard kept streaming the last setpoint and the drone hovered
++# (Gazebo k1_r2c_4059_kill_hover). From the first flight command on, this
++# thread sends True on LEASE_TOPIC every LEASE_PERIOD_S. simple_offboard lands
++# with its own /land when the lease is silent for script_lease_timeout (2 s)
++# while armed in OFFBOARD; it never acts in another mode (the pilot's switch
++# wins). Ctrl+C keeps the process, and so the lease, alive: safe_land runs as
++# before. The lease ends with the process or in _shutdown().
++LEASE_TOPIC = '/simple_offboard/script_lease'
++LEASE_PERIOD_S = 0.5
++_lease_lock = threading.Lock()
++_lease_thread = None
++_lease_stop = None
++
++
++def _start_script_lease():
++    """Start the lease once. Idempotent; never raises."""
++    global _lease_thread, _lease_stop
++    try:
++        with _lease_lock:
++            if _lease_thread is not None and _lease_thread.is_alive():
++                return
++            pub = _node.create_publisher(Bool, LEASE_TOPIC, 10)
++            stop = threading.Event()
++
++            def run():
++                msg = Bool()
++                msg.data = True
++                warned = False
++                while not stop.is_set():
++                    # r2e: a failed publish must not end the lease for good
++                    # (simple_offboard would land a healthy flight 2 s later)
++                    try:
++                        pub.publish(msg)
++                    except Exception as e:
++                        if not warned:
++                            print('  WARN  script lease publish failed (retrying): %s' % e)
++                            warned = True
++                    stop.wait(LEASE_PERIOD_S)
++
++            _lease_stop = stop
++            _lease_thread = threading.Thread(target=run, name='script-lease', daemon=True)
++            _lease_thread.start()
++    except Exception as e:
++        print('  WARN  script lease not started: %s' % e)
++
++
++def _stop_script_lease():
++    stop = _lease_stop
++    if stop is not None:
++        stop.set()
++    t = _lease_thread
++    if t is not None and t.is_alive() and t is not threading.current_thread():
++        t.join(timeout=1.0)
++
++
+ def check_aruco(timeout=10, min_markers=1):
+     """
+     Wait until at least `min_markers` ArUco markers are visible.
+@@ -1689,6 +1886,7 @@
+             result['ids'] = [m.id for m in msg.markers]
+ 
+     sub = _node.create_subscription(MarkerArray, '/aruco_detect/markers', cb, 1)
++    _keep_detector_awake()   # F1: detector awake from here until arming
+     deadline = time.time() + timeout
+     try:
+         while rclpy.ok() and not result['ids']:
+@@ -1729,6 +1927,7 @@
+     eventually hit the IPPE mirror flip when down to a single marker.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     print('=== WAITING FOR YAW LOCK (timeout %.0fs) ===' % timeout)
+     deadline = time.time() + timeout
+     while time.time() < deadline and not _aruco_yaw_locked:
+@@ -1760,6 +1959,7 @@
+     stuck, pose_cov stops flowing and EKF2 will fly on baro+IMU only.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     from geometry_msgs.msg import PoseWithCovarianceStamped as _PWCS
+     from rclpy.qos import QoSProfile as _QoS, ReliabilityPolicy as _RP, DurabilityPolicy as _DP
+     import collections as _collections
+@@ -1825,6 +2025,7 @@
+     Returns True when stable, False on timeout.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     base_tolerance = tolerance
+     print('=== POSITION STABLE CHECK ===')
+     print('Waiting for stable position (%.1fs window, timeout %.0fs, multi=%s, adaptive=%s)...'
+@@ -1895,7 +2096,7 @@
+ 
+ def navigate_wait(x=0.0, y=0.0, z=0.0, yaw=float('nan'), speed=0.5, frame_id='body',
+                   tolerance=0.2, auto_arm=False, phase='FLIGHT', timeout=60.0,
+-                  tolerance_adaptive=False, vision_timeout=6.0):
++                  tolerance_adaptive=False, vision_timeout=6.0, settle_speed=None):
+     """
+     Send a navigation command and block until the drone reaches the target.
+     Returns True if reached within tolerance, False on timeout/disarm/interrupt,
+@@ -1905,6 +2106,11 @@
+     If tolerance_adaptive=True, override `tolerance` based on the current
+     /aruco_detect/markers_used: >=2 markers -> 0.15 m, ==1 marker -> 0.25 m,
+     otherwise the passed-in `tolerance` is kept.
++
++    settle_speed (F7, r2d; default None = arrive at the first sample within
++    tolerance, as before): also require the horizontal speed below
++    settle_speed m/s on 2 successive samples within tolerance, so the point
++    counts only once the drone has nearly stopped there.
+     """
+     global _vision_abort
+     _init()
+@@ -1944,6 +2150,7 @@
+     # Catastrophic-EKF-divergence guard. Set on first valid sample.
+     last_pos = None    # (x, y, z) from previous iteration
+     last_t = None      # wall time of previous sample
++    settled = 0        # F7: successive samples within tolerance below settle_speed
+     while rclpy.ok() and not should_land:
+         telem = get_telemetry(frame_id='navigate_target')
+         t = _get_telemetry_robust(frame_id='map')
+@@ -1976,13 +2183,15 @@
+         # markers — land now. Takeoff passes a larger value: motor spin-up
+         # vibration + the marker leaving the frame at ground level make a
+         # vision gap during the climb expected, not an emergency.
+-        if t.armed and _aruco_markers_pos_time is not None \
+-                and _markers_pos_age() > vision_timeout:
++        # r2f (T35): vision = a NEW pose vpe_fix published (vision_pose_age()); raw markers_used frames that
++        # vpe_fix rejected (false detections) no longer extend it. Active from the first vpe_fix pose.
++        if t.armed and _vpe_pose_time is not None \
++                and vision_pose_age() > vision_timeout:
+             _vision_abort = True
+             _node.get_logger().error(
+-                'Vision lost for %.1fs (markers_used=0, limit %.1fs) -- EKF '
++                'Vision lost for %.1fs (no new vpe_fix pose, limit %.1fs) -- EKF '
+                 'is coasting, landing'
+-                % (_markers_pos_age(), vision_timeout))
++                % (vision_pose_age(), vision_timeout))
+             _land_if_offboard()
+             return False
+         # Stale-telemetry watchdog: _get_telemetry_robust(allow_stale=True)
+@@ -2041,7 +2250,16 @@
+             last_pos = (t.x, t.y, t.z)
+             last_t = now
+         if dist < tolerance:
+-            return True
++            if settle_speed is None:
++                return True
++            # F7 (r2d): count the point only once the drone has nearly stopped
++            # there; a NaN speed compares False and does not count
++            v_xy = math.hypot(t.vx, t.vy)
++            settled = settled + 1 if v_xy < settle_speed else 0
++            if settled >= 2:
++                return True
++        else:
++            settled = 0
+         if time.time() > deadline:
+             _node.get_logger().warn('Navigate timed out after %.0fs (dist=%.2f)' % (timeout, dist))
+             return False
+@@ -2070,6 +2288,7 @@
+     drops it. Returns True when the target height was reached.
+     """
+     _init()
++    _keep_detector_awake()   # F1: keep the detector awake until arming
+     known, armed, mode = _fcu_mode_state(wait=_FCU_STATE_WAIT)
+     reason = _no_control_reason(known, armed, mode)
+     if reason is not None:
+@@ -2104,18 +2323,26 @@
+         time.sleep(0.05)
+     # Lock X/Y in map frame using current position so arming/setpoint timing
+     # cannot shift the horizontal target (body→map transform race).
++    if _vpe_pose_time is None:
++        # r2f (T35): the vision watchdog starts at the first vpe_fix pose; say so instead of staying silent
++        _node.get_logger().warn('takeoff: no vpe_fix pose seen yet -- vision watchdog inactive until the first one')
+     print('=== TAKEOFF to %.1fm ===' % height)
+     return navigate_wait(x=t.x, y=t.y, z=t.z + height, speed=speed, frame_id='map',
+                          auto_arm=True, phase='TAKEOFF', tolerance=0.15, timeout=30.0,
+                          vision_timeout=vision_timeout)
+ 
+ 
+-def fly_to(x, y, z=1.0, speed=0.5, tolerance=0.2, tolerance_adaptive=False):
+-    """Fly to absolute map coordinates (x, y, z)."""
++def fly_to(x, y, z=1.0, speed=0.5, tolerance=0.2, tolerance_adaptive=False,
++           settle_speed=None):
++    """Fly to absolute map coordinates (x, y, z).
++
++    settle_speed (F7, r2d): see navigate_wait; None keeps the old arrival.
++    """
+     _init()
+     print('=== FLY TO (%.2f, %.2f, %.2f) ===' % (x, y, z))
+     return navigate_wait(x=x, y=y, z=z, speed=speed, frame_id='map', phase='FLY_TO',
+-                         tolerance=tolerance, tolerance_adaptive=tolerance_adaptive)
++                         tolerance=tolerance, tolerance_adaptive=tolerance_adaptive,
++                         settle_speed=settle_speed)
+ 
+ 
+ def move(x=0, y=0, z=0, speed=0.5):
+@@ -2218,9 +2445,10 @@
+     # mission aborted on vision loss, or markers are silent right now, the
+     # EKF position cannot be trusted — navigating to (x, y) may carry the
+     # drone metres away. Land in place instead.
++    # r2f (T35): "silent" = no new vpe_fix pose for >3 s (raw detector frames no longer count)
+     if x is not None and (_vision_abort or
+-                          (_aruco_markers_pos_time is not None
+-                           and _markers_pos_age() > 3.0)):
++                          (_vpe_pose_time is not None
++                           and vision_pose_age() > 3.0)):
+         print('safe_land: vision unhealthy -> straight land (no precision approach)')
+         x, y = None, None
+ 
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight.py src/bumblebee/examples/flight/flight.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight.py	2026-11-09 10:11:41.434354406 +0400
++++ src/bumblebee/examples/flight/flight.py	2026-11-10 09:28:01.217710908 +0400
+@@ -104,15 +104,15 @@
+ 
+ try:
+     # Lower than 1.0 m -- at this altitude marker 0 (0.19m) stays in frame.
+-    drone.takeoff(height=1.5, speed=0.4)
++    drone.takeoff(height=0.8, speed=0.4)
+ 
+     # Hover with vision watchdog: bail to safe_land only if vision goes
+     # completely silent (no markers at all) for >3s.
+     deadline = time.time() + 5.0
+     vision_silent_since = None
+     while time.time() < deadline and not drone.should_land:
+-        m_age = drone._markers_used_age()
+-        if drone._aruco_markers_used == 0 or m_age > 1.0:
++        # r2f (T35): silent = no NEW vpe_fix pose for >1 s (raw detector frames no longer count)
++        if drone.vision_pose_age() > 1.0:
+             if vision_silent_since is None:
+                 vision_silent_since = time.time()
+             elif time.time() - vision_silent_since > 3.0:
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight_marker.py src/bumblebee/examples/flight/flight_marker.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight_marker.py	2026-11-09 10:11:41.434593056 +0400
++++ src/bumblebee/examples/flight/flight_marker.py	2026-11-10 09:28:01.217768389 +0400
+@@ -53,14 +53,14 @@
+     """Hover with a vision watchdog.
+ 
+     Returns True if the full duration elapses with vision healthy.
+-    Returns False if /aruco_detect/markers_used stayed at 0 (or stale >1s)
++    Returns False if vpe_fix published no NEW pose (drone.vision_pose_age() > 1 s, r2f)
+     for longer than silent_limit -- caller should abort the mission and
+     fall through to safe_land.
+     """
+     end = time.time() + seconds
+     silent_since = None
+     while time.time() < end and not drone.should_land:
+-        if drone._aruco_markers_used == 0 or drone._markers_used_age() > 1.0:
++        if drone.vision_pose_age() > 1.0:   # r2f (T35): new vpe_fix poses only
+             if silent_since is None:
+                 silent_since = time.time()
+             elif time.time() - silent_since > silent_limit:
+@@ -167,7 +167,9 @@
+     # give the EKF a clean baseline before the first long sideways trip.
+     if not wait_quorum(min_markers=2, timeout=15.0):
+         raise SystemExit('no multi-marker quorum before forward leg')
+-    drone.fly_to(x=0, y=1.4, z=cruise_z, speed=0.10, tolerance=0.25)
++    # F7 (r2d): 0.12 m and nearly stopped -- a margin under the 0.25 m of C7
++    if not drone.fly_to(x=0, y=1.4, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
++        raise SystemExit('waypoint above marker 2 not reached')   # r2e: finally -> safe_land
+     if not hover_vw(2.0):
+         raise SystemExit('vision lost above marker 2')
+ 
+@@ -175,13 +177,15 @@
+     # before the final approach segment.
+     if not wait_quorum(min_markers=2, timeout=15.0):
+         raise SystemExit('no multi-marker quorum before return mid waypoint')
+-    drone.fly_to(x=0, y=0.7, z=cruise_z, speed=0.10, tolerance=0.25)
++    if not drone.fly_to(x=0, y=0.7, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
++        raise SystemExit('waypoint above marker 1 not reached')
+     if not hover_vw(1.0):
+         raise SystemExit('vision lost above marker 1')
+ 
+     if not wait_quorum(min_markers=2, timeout=15.0):
+         raise SystemExit('no multi-marker quorum before final approach')
+-    drone.fly_to(x=0, y=0, z=cruise_z, speed=0.10, tolerance=0.25)
++    if not drone.fly_to(x=0, y=0, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
++        raise SystemExit('waypoint above marker 0 not reached')
+ 
+ finally:
+     drone.safe_land(x=0, y=0, precision_speed=0.1)
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight_marker_loop.py src/bumblebee/examples/flight/flight_marker_loop.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/examples/flight/flight_marker_loop.py	2026-11-09 10:11:41.434819775 +0400
++++ src/bumblebee/examples/flight/flight_marker_loop.py	2026-11-10 09:28:01.217809751 +0400
+@@ -92,11 +92,11 @@
+     ( 0.00, 0.70),  # 1
+     ( 0.00, 1.40),  # 2
+     ( 0.00, 2.10),  # 3
+-    (-0.50, 2.10),  # bridge 3 -> 13
+-    (-1.00, 2.10),  # 13
+-    (-1.00, 1.40),  # 12
+-    (-1.00, 0.70),  # 11
+-    (-0.50, 0.70),  # bridge 11 -> 1
++    (-0.36, 2.10),  # bridge 3 -> 13 (over marker 7)
++    (-0.72, 2.10),  # 13 (its map: x=-0.72)
++    (-0.72, 1.40),  # 12
++    (-0.72, 0.70),  # 11
++    (-0.36, 0.70),  # bridge 11 -> 1 (over marker 5)
+     ( 0.00, 0.70),  # 1 (back)
+ ]
+ 
+@@ -108,7 +108,8 @@
+ 
+     aborted = False
+     for (wx, wy) in WAYPOINTS:
+-        if not drone.fly_to(x=wx, y=wy, z=cruise_z, speed=0.1, tolerance=0.25):
++        # F7 (r2d): 0.12 m and nearly stopped -- a margin under the 0.25 m of C7
++        if not drone.fly_to(x=wx, y=wy, z=cruise_z, speed=0.1, tolerance=0.12, settle_speed=0.05):
+             print('Waypoint (%.2f, %.2f) failed -- aborting mission' % (wx, wy))
+             aborted = True
+             break
+@@ -117,7 +118,7 @@
+         hover_end = time.time() + 1.0
+         vision_silent_since = None
+         while time.time() < hover_end and not drone.should_land:
+-            if drone._aruco_markers_used == 0 or drone._markers_used_age() > 1.0:
++            if drone.vision_pose_age() > 1.0:   # r2f (T35): new vpe_fix poses only
+                 if vision_silent_since is None:
+                     vision_silent_since = time.time()
+                 elif time.time() - vision_silent_since > 3.0:
+@@ -131,6 +132,6 @@
+             break
+ 
+     if not aborted:
+-        drone.fly_to(x=0.0, y=0.0, z=cruise_z, speed=0.1, tolerance=0.25)
++        drone.fly_to(x=0.0, y=0.0, z=cruise_z, speed=0.1, tolerance=0.12, settle_speed=0.05)
+ finally:
+     drone.safe_land(x=0, y=0, precision_speed=0.1)
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/src/cpp/script_lease.h src/bumblebee/src/cpp/script_lease.h
+--- /work/fixed_image_r1_20261109/src/bumblebee/src/cpp/script_lease.h	1970-01-01 04:00:00.000000000 +0400
++++ src/bumblebee/src/cpp/script_lease.h	2026-11-09 14:38:19.111067700 +0400
+@@ -0,0 +1,61 @@
++// T25 (r2d, 09.11.2026; r2e after the independent review): script lease watchdog decision for simple_offboard.
++// No ROS: unit-tested by test/test_script_lease.cpp of the r2e folder with plain g++.
++//
++// drone.py sends a lease every 0.5 s from its first flight command. The watchdog lands (simple_offboard's own
++// /land) when the lease is older than timeout while the vehicle is armed in OFFBOARD and the lease was seen fresh
++// while armed in OFFBOARD in this arm cycle, or an auto_arm request came with a fresh lease. Pilot wins: armed in
++// any other mode (pilot switch, PX4 failsafe, our own AUTO.LAND) disengages it until the next disarm.
++// r2e: it acts only on a State received after the lease became overdue, and only after it has ticked regularly
++// for 1 s: after a stall of this node the cached "armed in OFFBOARD" may be old (the reviewer's probe: a 1.8-2 s
++// SIGSTOP made it land over PX4's offboard-loss failsafe), and queued lease and State messages must drain first.
++#pragma once
++#include <cstdint>
++
++constexpr int64_t kScriptLeaseRetryNs = 1000000000LL;      // a failed /land is retried after 1 s
++constexpr int64_t kScriptLeaseTickGapNs = 500000000LL;     // a longer gap between ticks: this node stalled
++constexpr int64_t kScriptLeaseResumeNs = 1000000000LL;     // regular ticks needed before acting
++constexpr int64_t kScriptLeaseArmWindowNs = 15000000000LL; // an auto_arm request engages an arm within this
++
++struct ScriptLease {
++    bool engaged = false;          // the lease belongs to this arm cycle
++    bool stepped_back = false;     // armed outside OFFBOARD after engaging: off until disarmed
++    bool armed_seen = false;       // this arm cycle has had a tick
++    int64_t last_try_ns = 0;       // last landing attempt, 0 = none
++    int64_t last_tick_ns = 0;      // previous tick, 0 = none
++    int64_t regular_since_ns = 0;  // ticks no more than kScriptLeaseTickGapNs apart since then
++};
++
++// One watchdog tick. state_ok: FCU state connected and fresh (an unknown state never acts).
++// lease_rx_ns: receipt of the last lease; state_rx_ns: receipt of the State that armed/offboard come from;
++// arm_req_ns: last auto_arm request made while the lease was fresh. All steady clock, 0 = never. True = land now.
++inline bool scriptLeaseLandDue(ScriptLease& l, bool state_ok, bool armed, bool offboard,
++                               int64_t lease_rx_ns, int64_t state_rx_ns, int64_t arm_req_ns,
++                               int64_t now_ns, int64_t timeout_ns, int64_t retry_ns) {
++    if (l.last_tick_ns == 0 || now_ns - l.last_tick_ns > kScriptLeaseTickGapNs) l.regular_since_ns = now_ns;
++    l.last_tick_ns = now_ns;
++    if (timeout_ns <= 0 || !state_ok) return false;
++    if (!armed) {
++        l.engaged = l.stepped_back = l.armed_seen = false;
++        l.last_try_ns = 0;
++        return false;
++    }
++    const bool first_armed_tick = !l.armed_seen;
++    l.armed_seen = true;
++    if (!offboard) {
++        if (l.engaged) l.stepped_back = true;
++        l.engaged = false;
++        return false;
++    }
++    if (l.stepped_back) return false;
++    if (first_armed_tick && arm_req_ns != 0 && now_ns - arm_req_ns <= kScriptLeaseArmWindowNs) l.engaged = true;
++    // A receipt after now (another thread) is fresh too
++    const bool fresh = lease_rx_ns != 0 && now_ns - lease_rx_ns <= timeout_ns;
++    if (fresh) { l.engaged = true; return false; }
++    if (!l.engaged) return false;
++    if (now_ns - l.regular_since_ns < kScriptLeaseResumeNs) return false;
++    const int64_t base = lease_rx_ns > arm_req_ns ? lease_rx_ns : arm_req_ns;
++    if (state_rx_ns <= base + timeout_ns || state_rx_ns < l.regular_since_ns) return false;
++    if (l.last_try_ns != 0 && now_ns - l.last_try_ns < retry_ns) return false;
++    l.last_try_ns = now_ns;
++    return true;
++}
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/src/cpp/simple_offboard.cpp src/bumblebee/src/cpp/simple_offboard.cpp
+--- /work/fixed_image_r1_20261109/src/bumblebee/src/cpp/simple_offboard.cpp	2026-10-30 12:33:01.461213256 +0400
++++ src/bumblebee/src/cpp/simple_offboard.cpp	2026-11-10 09:28:01.218015156 +0400
+@@ -33,6 +33,8 @@
+ #include <tf2_ros/static_transform_broadcaster.h>
+ #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+ #include <std_srvs/srv/trigger.hpp>
++#include <std_msgs/msg/bool.hpp>
++#include "script_lease.h"
+ #include <geometry_msgs/msg/point_stamped.hpp>
+ #include <geometry_msgs/msg/pose_stamped.hpp>
+ #include <geometry_msgs/msg/twist_stamped.hpp>
+@@ -233,6 +235,13 @@
+         arm_hold_after_land_ = rclcpp::Duration::from_seconds(declare_parameter("arm_hold_after_land", 3.0));
+         setpoint_rate_ = declare_parameter("setpoint_rate", 30.0);
+         setpoint_smooth_alpha_ = declare_parameter("setpoint_smooth_alpha", 0.3);
++        // T25 (r2d): land when the flight script's lease (drone.py, every 0.5 s) is silent this long while armed in
++        // OFFBOARD; 0 = off. Engaged only by a lease seen while armed in OFFBOARD (scripts without one: as before)
++        const double lease_timeout = declare_parameter("script_lease_timeout", 2.0);
++        if (!std::isfinite(lease_timeout) || lease_timeout < 0.0 || lease_timeout > 30.0 ||
++            (lease_timeout > 0.0 && lease_timeout < 1.0))
++            throw std::invalid_argument("script_lease_timeout must be 0 (off) or within [1, 30] s");
++        script_lease_timeout_ns_ = static_cast<int64_t>(lease_timeout * 1e9);
+ 
+         // reference_frames param: passed as key:value pairs via yaml
+         declare_parameter("reference_frames", std::vector<std::string>());
+@@ -411,6 +420,15 @@
+             [this]() { publishSetpoint(); }, cb_grp_concurrent_);
+         setpoint_timer_->cancel();
+ 
++        // T25 (r2d): script lease. Receipt on the concurrent group; the watchdog in the land group, so it never
++        // overlaps a /land call and calls the same land()
++        if (script_lease_timeout_ns_ > 0) {
++            lease_sub_ = create_subscription<std_msgs::msg::Bool>("~/script_lease", rclcpp::QoS(10),
++                [this](const std_msgs::msg::Bool::SharedPtr) { lease_rx_ns_ = steadyNs(); }, sub_opts);
++            lease_timer_ = create_wall_timer(std::chrono::milliseconds(200),
++                [this]() { scriptLeaseTick(); }, cb_grp_land_);
++        }
++
+         position_msg_.header.frame_id = local_frame_;
+         position_raw_msg_.header.frame_id = local_frame_;
+         position_raw_msg_.coordinate_frame = PositionTarget::FRAME_LOCAL_NED;
+@@ -532,6 +550,13 @@
+     std::atomic<int64_t> land_done_ns_{0};
+     // Set while land() switches to AUTO.LAND: that exit from OFFBOARD is our own
+     std::atomic<bool> landing_{false};
++    // T25 (r2d) script lease: steadyNs() of the last lease (any thread); watchdog state (lease timer only)
++    std::atomic<int64_t> lease_rx_ns_{0};
++    std::atomic<int64_t> lease_arm_req_ns_{0};  // r2e: steadyNs() of the last auto_arm request with a fresh lease
++    ScriptLease lease_;
++    int64_t script_lease_timeout_ns_ = 0;
++    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr lease_sub_;
++    rclcpp::TimerBase::SharedPtr lease_timer_;
+     bool wait_armed_ = false;
+     // navigate/set_position(auto_arm) started disarmed (on the ground): the setpoint is held ground_hold_offset_
+     // below ground_hold_z_ until the takeoff is committed (see groundHoldActive())
+@@ -1363,6 +1388,13 @@
+                 checkState(state);
+                 checkPilot(state);
+                 if (auto_arm) {
++                    // T25 (r2e): an auto_arm request while the script's lease is fresh engages the arm it starts,
++                    // even if the script dies before PX4 reports armed
++                    if (script_lease_timeout_ns_ > 0) {
++                        const int64_t lease_now = steadyNs(), lease_rx = lease_rx_ns_.load();
++                        if (lease_rx != 0 && lease_now - lease_rx <= script_lease_timeout_ns_)
++                            lease_arm_req_ns_ = lease_now;
++                    }
+                     serve_land_seq_ = land_seq_.load(); checkArmCancel();
+                     if (queuedArmBlocked(monotonicNs(), srvs_run_start_ns_, land_done_ns_.load()))
+                         throw std::runtime_error("Auto-arm cancelled: request waited behind flight commands before the last /land; send it again");
+@@ -1608,6 +1640,9 @@
+                 if (setpoint_type_ == NONE)
+                     throw std::runtime_error("Setpoint stream stopped while arming, not flying");
+                 arm_complete_ns_ = monotonicNs();
++                // r2f (T34): handleState() cleared nav_from_sp_flag_ on every State not yet in OFFBOARD
++                // while arming; set it again so the next navigate starts from the setpoint
++                if (setpoint_type_ == NAVIGATE || setpoint_type_ == NAVIGATE_GLOBAL) nav_from_sp_flag_ = true;
+             } else if (state_.mode != "OFFBOARD") {
+                 setpoint_timer_->cancel();
+                 throw std::runtime_error("Copter is not in OFFBOARD mode, use auto_arm?");
+@@ -1770,6 +1805,32 @@
+         if (acquired) busy_ = false;
+     }
+ 
++    // T25 (r2d): the flight script stopped sending its lease while we fly it in OFFBOARD -> our own /land
++    void scriptLeaseTick() {
++        mavros_msgs::msg::State s;
++        int64_t state_rx = 0;
++        {
++            std::lock_guard<std::mutex> lock(mutex_);
++            s = state_;
++            state_rx = state_rx_steady_ns_;  // r2e: receipt of that State, steady clock like the lease
++        }
++        const int64_t now = steadyNs();
++        const int64_t rx = lease_rx_ns_.load();
++        if (!scriptLeaseLandDue(lease_, s.connected && stateFresh(), s.armed, s.mode == "OFFBOARD",
++                                rx, state_rx, lease_arm_req_ns_.load(), now, script_lease_timeout_ns_,
++                                kScriptLeaseRetryNs))
++            return;
++        RCLCPP_ERROR(get_logger(), "Script lease silent for %.1f s while armed in OFFBOARD: the flight script "
++                     "stopped -- landing", (now - rx) / 1e9);
++        auto req = std::make_shared<std_srvs::srv::Trigger::Request>();
++        auto res = std::make_shared<std_srvs::srv::Trigger::Response>();
++        land(req, res);
++        if (res->success)
++            RCLCPP_WARN(get_logger(), "Script lease landing started %s", res->message.c_str());
++        else
++            RCLCPP_ERROR(get_logger(), "Script lease landing failed: %s (retry in 1 s)", res->message.c_str());
++    }
++
+     void release(const std_srvs::srv::Trigger::Request::SharedPtr,
+                  std_srvs::srv::Trigger::Response::SharedPtr res) {
+         auto flight_run = beginFlightRun();
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/src/python/aruco_detect.py src/bumblebee/src/python/aruco_detect.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/src/python/aruco_detect.py	2026-10-30 12:33:01.461213256 +0400
++++ src/bumblebee/src/python/aruco_detect.py	2026-11-09 10:20:08.000000000 +0400
+@@ -29,6 +29,7 @@
+ """
+ 
+ import collections
++import time
+ import math
+ import numpy as np
+ import cv2
+@@ -238,6 +239,7 @@
+         self.full_rate_when_armed = bool(self.get_parameter('full_rate_when_armed').value)
+         self._fcu_mode = ''
+         self._fcu_armed = False
++        self._wake_until = 0.0  # F1: monotonic time until which a preflight wake keeps detection on
+         self._image_sub = None      # created/destroyed by _apply_detection_gate
+         self._img_qos = None        # stored so the sub can be recreated
+         self.map_frame_id = self.get_parameter('map_frame_id').value
+@@ -523,6 +525,9 @@
+                 durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+             )
+             self.create_subscription(State, '/mavros/state', self._state_cb, state_qos)
++            # F1 (09.11.2026): drone.check_aruco() publishes True here while it
++            # waits for markers before arming; each message keeps detection on 5 s.
++            self.create_subscription(Bool, '/aruco_detect/wake', self._wake_cb, 10)
+             self.create_timer(0.2, self._apply_detection_gate)
+ 
+         self.get_logger().info(
+@@ -534,10 +539,18 @@
+         self._fcu_mode = str(msg.mode)
+         self._fcu_armed = bool(msg.armed)
+ 
++    WAKE_HOLD_S = 5.0
++
++    def _wake_cb(self, msg):
++        if bool(msg.data):
++            self._wake_until = time.monotonic() + self.WAKE_HOLD_S
++
+     def _detect_full_rate(self):
+         """True when detection is warranted (autonomous mission armed/OFFBOARD)."""
+         if not self.gate_by_flight_state:
+             return True
++        if time.monotonic() < self._wake_until:
++            return True
+         if self._fcu_mode == 'OFFBOARD':
+             return True
+         if self.full_rate_when_armed and self._fcu_armed:
+diff -ruN /work/fixed_image_r1_20261109/src/bumblebee/test/test_drone_flight_guards.py src/bumblebee/test/test_drone_flight_guards.py
+--- /work/fixed_image_r1_20261109/src/bumblebee/test/test_drone_flight_guards.py	2026-10-30 12:33:01.463671813 +0400
++++ src/bumblebee/test/test_drone_flight_guards.py	2026-11-10 09:28:01.218388211 +0400
+@@ -425,7 +425,7 @@
+     def test_takeover_mid_flight_stops_before_the_vision_guard(self):
+         """The pilot flips to POSCTL; the vision watchdog would have fired AUTO.LAND."""
+         d, fcu = self.make(armed=True, mode='OFFBOARD', z=1.0, floor=0.0)
+-        d._aruco_markers_pos_time = self.clock.now - 5.8   # trips 6 s limit next loop
++        d._vpe_pose_time = self.clock.now - 5.8   # trips 6 s limit next loop
+         fcu.at(0.3, lambda f: setattr(f, 'mode', 'POSCTL'))
+         self.assertFalse(self.run_quiet(d.fly_to, 3.0, 0.0, 1.0))
+         self.assertIn('pilot/failsafe has control (armed, mode=POSCTL) -- FLY_TO stopped',
+@@ -448,7 +448,7 @@
+     def test_vision_guard_still_lands_in_offboard(self):
+         """Control for the test above: same flight, no takeover -> AUTO.LAND."""
+         d, fcu = self.make(armed=True, mode='OFFBOARD', z=1.0, floor=0.0)
+-        d._aruco_markers_pos_time = self.clock.now - 5.8
++        d._vpe_pose_time = self.clock.now - 5.8
+         self.assertFalse(self.run_quiet(d.fly_to, 3.0, 0.0, 1.0))
+         self.assertIn('Vision lost', self.text())
+         self.assertEqual(self.calls('set_mode'), ['AUTO.LAND'])
+@@ -536,7 +536,7 @@
+     def test_guard_abort_then_safe_land_watches_own_descent(self):
+         """Example scripts: takeoff/fly_to abort on a guard, then safe_land in finally."""
+         d, fcu = self.make(armed=True, mode='OFFBOARD', z=1.0, floor=0.0)
+-        d._aruco_markers_pos_time = self.clock.now - 5.8   # vision guard -> AUTO.LAND
++        d._vpe_pose_time = self.clock.now - 5.8   # vision guard -> AUTO.LAND
+         self.assertFalse(self.run_quiet(d.fly_to, 3.0, 0.0, 1.0))
+         self.assertEqual(fcu.mode, 'AUTO.LAND')
+         self.assertTrue(fcu.armed)
+@@ -980,7 +980,7 @@
+ 
+     def test_guard_during_ground_hold_disarms_through_land(self):
+         d, fcu = self.make(armed=False, mode='POSCTL', z=0.0, ground_hold_s=1.5)
+-        d._aruco_markers_pos_time = self.clock.now - 30.0   # beyond takeoff's 25 s limit
++        d._vpe_pose_time = self.clock.now - 30.0   # beyond takeoff's 25 s limit
+         self.assertFalse(self.run_quiet(d.takeoff, 1.0))
+         self.assertIn('Vision lost', self.text())
+         self.assertEqual(self.calls('land'), [None])
+@@ -995,7 +995,7 @@
+     def test_guard_on_platform_hold_then_safe_land_is_not_a_fall(self):
+         """Review SDK7-1: the disarm edge cleared the arm height before safe_land ran."""
+         d, fcu = self.make(armed=False, mode='POSCTL', z=0.6, ground_hold_s=1.5)
+-        d._aruco_markers_pos_time = self.clock.now - 30.0
++        d._vpe_pose_time = self.clock.now - 30.0
+         self.assertFalse(self.run_quiet(d.takeoff, 1.0))
+         self.assertFalse(fcu.armed)
+         self.assertIsNone(d._arm_ref_z)
+@@ -1007,7 +1007,7 @@
+         d, fcu = self.make(armed=False, mode='POSCTL', z=0.0, ground_hold_s=1.5)
+         self.assertTrue(self.run_quiet(d.takeoff, 1.0))
+         self.assertFalse(d._in_takeoff_hold())
+-        d._aruco_markers_pos_time = self.clock.now - 10.0   # beyond fly_to's 6 s limit
++        d._vpe_pose_time = self.clock.now - 10.0   # beyond fly_to's 6 s limit
+         self.assertFalse(self.run_quiet(d.fly_to, 1.0, 0.0, 1.0))
+         self.assertEqual(self.calls('land'), [])
+         self.assertEqual(self.calls('set_mode'), ['AUTO.LAND'])

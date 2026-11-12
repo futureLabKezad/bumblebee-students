@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/work/c8_judge_r2j_a13_20261111/tests/a13_checks.py", line 54, in <module>
+    assert [l.replace('4070', 'X') for l in minus] == [l.replace('4074', 'X').replace('; A13: X', '').replace('+', '-', 1) for l in plus] \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (["-    if audit.get('sitl_autostart')!=4070 or audit.get('sitl_autostart_source')!='rc_ready.json:sys_autostart':  # A8: airframe 4070", "-        raise RuntimeError('SITL airframe is not 4070')"], ["+    if audit.get('sitl_autostart')!=4074 or audit.get('sitl_autostart_source')!='rc_ready.json:sys_autostart':  # A8: airframe 4070; A13: 4074", "+        raise RuntimeError('SITL airframe is not 4074')"])

@@ -1,0 +1,3 @@
+# ACCEPTED_PINS_b.txt of launcher v34-c8-r2e-a7 (host_run_wsl_c8_r2e_b.sh of c8_judge_r2e_a7_20261110 reads only this list)
+# frozen_inputs_c8_r2e_a7_01.json = pins A6 (d61b25d7) renamed + run.sh and vision_c8.launch.py of A7
+12a0543824841ee023ff7d97bd26c053331b3e50bfd999b5063fa2f50a73e73f  /work/c8_judge_r2e_a7_20261110/pins/frozen_inputs_c8_r2e_a7_01.json

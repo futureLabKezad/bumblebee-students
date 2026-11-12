@@ -1,0 +1,4 @@
+heartbeat_13: short r2i none, r2h 66.967 s; long r2i 74.967 s (5.503 s after the drop began)
+S9 phases: 143, r2h stopped the 3.5 s gap in 72 of them, r2i in none
+link loss: stop after the loss began r2i <= 4.510 s, r2h <= 4.510 s
+test_state_link: all cases OK

@@ -1,0 +1,12 @@
+# PROGRESS T42, 10.11.2026
+- Поручение чата 1 (16:01): скачки оценки EKF на взлёте в s10. Только чтение, без Gazebo; итог — README и SHA256SUMS здесь, чату 1 — 5 строк.
+- Прочитал:
+  - прогоны `/work/goal_step5b_20261109/runs/s10_*` (ULog, ros.log, vision_throttle.log, params_sitl.json);
+  - разбор чата 1 `/work/review_s10_pass_20261110/anomalies/a34_c6jump.py`;
+  - `vpe_fix.py` и `aruco_detect.py` из `/work/fixed_image_r2g_20261110` (только чтение);
+  - PX4 v1.16.1 `ev_control.cpp`, `ev_pos_control.cpp`, `position_fusion.cpp`, `common.h`;
+  - T30 и T37 (свои и чужие выводы о зрении у пола).
+- Скрипты: `tools/` (6), выводы: `out/`. Python — `/home/user/px4-venv` (pyulog), `nice -n 19`.
+- Сбой: первый запуск в фоне через `nohup … &` оборвался вместе с оболочкой WSL. Перезапустил обычным способом, 40 из 40 прогонов.
+- Проверка через замок не делалась: в поручении её нет, это разбор журналов без правки кода.
+- Готово: README.md, SHA256SUMS.txt. Дальше T41.

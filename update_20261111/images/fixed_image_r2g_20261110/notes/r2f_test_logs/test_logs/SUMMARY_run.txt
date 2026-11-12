@@ -1,0 +1,27 @@
+# r2f tests 10.11.2026 09:29
+## no ROS
+r2f.txt exit=1 | Ran 16 tests in 0.130s FAILED (failures=2) 
+test_q6_fixes.txt exit=0 | Ran 17 tests in 3.176s OK 
+test_r2b_wake.txt exit=0 | Ran 5 tests in 3.267s OK 
+test_r2c_navigate_float.txt exit=0 | Ran 6 tests in 0.074s OK (skipped=2) 
+test_r2d.txt exit=0 | Ran 14 tests in 1.079s OK 
+test_r2e.txt exit=0 | Ran 2 tests in 0.416s OK 
+guards.txt exit=0 | Ran 87 tests in 1.202s OK (skipped=2) 
+notify.txt exit=0 | Ran 37 tests in 0.571s OK (skipped=2) 
+script_lease.txt exit=0 | test_script_lease: 19 cases OK
+## ROS, no Gazebo
+gtest_simple_offboard.txt exit=0
+[----------] Global test environment tear-down
+[==========] 23 tests from 7 test suites ran. (0 ms total)
+[  PASSED  ] 23 tests.
+flag_ros_r2f.txt exit=0
+R2F_FLAG_ROS_PASS expect=r2f [{"kind": "race", "first": "", "second": "Navigating from current setpoint", "mode_requests": ["OFFBOARD"]}, {"kind": "race", "first": "", "second": "Navigating from current setpoint", "mode_requests": ["OFFBOARD"]}, {"kind": "race", "first": "", "second": "Navigating from current setpoint", "mode_requests": ["OFFBOARD"]}, {"kind": "plain", "first": "", "second": "Navigating from current setpoint", "mode_requests": ["OFFBOARD"]}]
+flag_ros_r2e_control.txt exit=0
+R2F_FLAG_ROS_PASS expect=r2e [{"kind": "race", "first": "", "second": "", "mode_requests": ["OFFBOARD"]}, {"kind": "race", "first": "", "second": "", "mode_requests": ["OFFBOARD"]}, {"kind": "race", "first": "", "second": "", "mode_requests": ["OFFBOARD"]}, {"kind": "plain", "first": "", "second": "Navigating from current setpoint", "mode_requests": ["OFFBOARD"]}]
+vpe_sub_ros.txt exit=0
+R2F_VPE_SUB_ROS_PASS age_after_new=0.033 age_after_1s_repeats=1.218
+cancel_launch.txt exit=0
+1 passed in 32.69s
+lease_ros.txt exit=0
+R2D_LEASE_ROS_PASS [{"kind": "kill", "kill_to_auto_land_s": 2.44, "kill_to_disarm_s": 5.43}, {"kind": "pilot", "mode_after_5s": "POSCTL", "armed": true}, {"kind": "normal", "rc": 0, "auto_land_requests": 1}, {"kind": "sigint", "rc": 0, "auto_land_requests": 1}]
+r2f.txt rerun after the test bound fix (6.5 -> <= 6.5): Ran 16 tests OK; the failed first log is notes/_failed_first_run/r2f_test_bound_6.5.txt

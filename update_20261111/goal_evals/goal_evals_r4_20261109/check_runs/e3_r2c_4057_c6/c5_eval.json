@@ -1,0 +1,40 @@
+{
+ "run": "/work/goal_step5b_20261109/runs/e3_r2c_4057_c6",
+ "criteria": "C5 approved 09.11 + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "height_tol_m": 0.1,
+  "motors_off_s": 3.0,
+  "touch_h_m": 0.01
+ },
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.999,
+  "clock_ok": true
+ },
+ "script": {
+  "path": "/work/goal_step5b_20261109/scenarios/hover_marker0.py",
+  "problem": "drone.takeoff height is not a number literal"
+ },
+ "script_height_m": null,
+ "script_exit": {
+  "code": 0,
+  "how": "2026-11-09T12:24:27+04:00 exited by itself, code 0"
+ },
+ "ulog": "/work/goal_step5b_20261109/runs/e3_r2c_4057_c6/rootfs/log/2026-11-09/08_23_02.ulg",
+ "verdict_lines": {
+  "run_valid": true,
+  "script_height_known": false
+ },
+ "failed": [
+  "script_height_known",
+  "not evaluated: took_off",
+  "not evaluated: height_window_found",
+  "not evaluated: height_within_0p10",
+  "not evaluated: touchdown_found",
+  "not evaluated: motors_off_found",
+  "not evaluated: motors_off_le_3s",
+  "not evaluated: no_emergency"
+ ],
+ "C5": "FAIL"
+}

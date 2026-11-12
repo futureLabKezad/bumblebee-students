@@ -1,0 +1,47 @@
+{
+ "scope": "combined_c8_r2j (A13, T55 11.11.2026; A12: airframe 4070; A11: r2i; A10: r2h; A9: r2g; A8: r2f; T28: r2e): combined_13 + fixed image r2j parts for C8 on airframe 4074. SIMULATOR ONLY.",
+ "files": {
+  "parameters/deadline_lock.py": "8510ffd0bff6038adc0ba028cd0fae426b22f89f6ddd5821156654919be53d08",
+  "parameters/flight_profile.py": "5b8e2a12a91445a1aba867fc22d84a8fd884a50ebd835da008a31c737633695b",
+  "parameters/fresh_param_adapter.py": "86178bffafa376b8ec0e05a70074d5f15c6949c854d6bee3ff45c6131a96013f",
+  "parameters/mavlink_fault_proxy_profile.py": "d3c66e8acefc8f97dfbb721c64dfa0533d2c47f38bcca29b3d9e586d8bab1746",
+  "parameters/optin_control.py": "9070451b8538827bd17012b4e02c78e0f8d8bbe102bb0dcde89fe458d765f74c",
+  "parameters/param_set_audit.py": "c97b414f95f941bd01d443b2ea86bf7e293d41f86e338f894cbea3c2d594a58b",
+  "parameters/profile_transaction.py": "7253e3930761457d2258caf6b84b29271e5084cab88b8e1234146d1389484911",
+  "parameters/proxy_profile_policy.py": "51efd3e3d60968db9bc1bbd2f18555acaac853abe98faa61afe7a911de72d789",
+  "parameters/rc_expected09.json": "9fd2b34bec9fb13b95ef8d630f70a2dfe86710689e9bcf841bc0b14c05eda722",
+  "parameters/ros_raw_bridge.py": "e9c70a2b472c1702306cbc7c719dd07eba07dcd06df961203ba1e0e8d82dd14a",
+  "parameters/sitl_profile_closure_candidate.py": "3430236a358499d1be184dd095e40cb6c992ba2b66a5ea75029bd0ce5f18ffff",
+  "parameters/vpe_fix.py": "f0dc7c18f2fa24ffd7c9baffd92e8f3dd723c0521c27eedb4eeef408faa8642d",
+  "parameters/vpe_profile_optin.py": "a11f755eb08913aa10f9fc1f540b39dfc4ad9c6fa3f0353651f88dd1fcd7a74d",
+  "vision/aruco_detect.py": "66f061ecc14445de5901cee8d4dfcd59be98fcaa697b97cbf939a89bd0be9bd3",
+  "parameters/vpe_freshness_optin.py": "fddfa6ec0693683e1e032ee40e3b2829677613aed9653f496d6205d4206931c3"
+ },
+ "origins": {
+  "parameters/deadline_lock.py": "parallel_work/20261015/integration/combined_03/parameters/deadline_lock.py",
+  "parameters/flight_profile.py": "fixed_image_r2j_20261111/src/bumblebee/examples/flight_profile.py",
+  "parameters/fresh_param_adapter.py": "parallel_work/20261015/integration/restore_fast_01/submitted/candidate/fresh_param_adapter.py",
+  "parameters/mavlink_fault_proxy_profile.py": "parallel_work/20261015/integration/combined_03/parameters/mavlink_fault_proxy_profile.py",
+  "parameters/optin_control.py": "parallel_work/20261015/integration/proxy_arm_review_01/submitted/candidate/optin_control.py",
+  "parameters/param_set_audit.py": "parallel_work/20261015/integration/combined_03/parameters/param_set_audit.py",
+  "parameters/profile_transaction.py": "parallel_work/20261015/integration/restore_fast_01/submitted/candidate/profile_transaction.py",
+  "parameters/proxy_profile_policy.py": "parallel_work/20261015/integration/proxy_arm_review_01/submitted/candidate/proxy_profile_policy.py",
+  "parameters/rc_expected09.json": "parallel_work/20261015/integration/combined_03/parameters/rc_expected09.json + COM_ARM_AUTH_REQ: 0 (owner 20.10.2026)",
+  "parameters/ros_raw_bridge.py": "parallel_work/20261015/integration/restore_fast_01/submitted/candidate/ros_raw_bridge.py",
+  "parameters/sitl_profile_closure_candidate.py": "parallel_work/20261015/integration/combined_03/parameters/sitl_profile_closure_candidate.py",
+  "parameters/vpe_fix.py": "fixed_image_r2j_20261111/src/bumblebee/src/python/vpe_fix.py",
+  "parameters/vpe_profile_optin.py": "combined_12/parameters/vpe_profile_optin.py with the pinned vpe_fix sha changed to the P1+P1b candidate (p1_integrate_01); A8: SITL airframe check 4070; A11: pinned vpe_fix sha = r2i (A10: r2h); A13: SITL airframe check 4074",
+  "vision/aruco_detect.py": "fixed_image_r2j_20261111/src/bumblebee/src/python/aruco_detect.py",
+  "parameters/vpe_freshness_optin.py": "combined_12/parameters/vpe_freshness_optin.py with the pinned vpe_fix sha changed to the P1+P1b candidate (p1_integrate_01); A10: NOT loaded (variant B: vpe_fix as on the drone), file as A9"
+ },
+ "flight_accepted": false,
+ "changed_from_combined_13": [
+  "parameters/flight_profile.py",
+  "parameters/rc_expected09.json",
+  "parameters/sitl_profile_closure_candidate.py",
+  "parameters/vpe_fix.py",
+  "parameters/vpe_freshness_optin.py",
+  "parameters/vpe_profile_optin.py",
+  "vision/aruco_detect.py"
+ ]
+}

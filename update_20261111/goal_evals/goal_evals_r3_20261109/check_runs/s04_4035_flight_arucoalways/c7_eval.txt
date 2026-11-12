@@ -1,0 +1,4 @@
+C7 FAIL  failed: route_from_code, not evaluated: route_flown_as_coded, not evaluated: holds_match_route, not evaluated: all_points_reached, not evaluated: points_within_0p25, not evaluated: landing_found, not evaluated: landing_within_0p15, not evaluated: offboard_until_land, not evaluated: no_emergency
+run s04_4035_flight_arucoalways; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py no drone.fly_to() call found; exit 137 (None)
+route (code): None; flown (log): []
+emergencies: not evaluated; modes before land: None

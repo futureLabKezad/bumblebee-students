@@ -1,0 +1,3 @@
+# ACCEPTED_PINS_b.txt of launcher v37-c8-r2h-a10 (host_run_wsl_c8_r2e_b.sh of c8_judge_r2h_a10_20261110 reads only this list)
+# frozen_inputs_c8_r2h_a10_01.json = pins A9 (4b46f4d4) renamed + image final r2h (tools/make_a10.py)
+9ec805e7360beca7646c4a7d337ff7056e8776ae11862537b9b9fb6145544358  /work/c8_judge_r2h_a10_20261110/pins/frozen_inputs_c8_r2h_a10_01.json

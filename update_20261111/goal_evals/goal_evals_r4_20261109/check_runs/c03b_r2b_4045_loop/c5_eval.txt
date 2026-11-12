@@ -1,0 +1,5 @@
+C5 FAIL  failed: height_within_0p10, motors_off_le_3s, no_emergency
+run c03b_r2b_4045_loop; valid True []; script /work/fixed_image_r2d_20261109/notes/prev_r2c/flight_marker_loop.py H=1.3 ; exit 0 (2026-11-09T11:40:43+04:00 exited by itself, code 0)
+window 17.94..57.26 s (left OFFBOARD (nav_state 18)); height dev max 0.138 m at 54.57 s (need <=0.10), mean 1.196 m
+touchdown 61.46 s, motors off 65.316 s, delay 3.856 s (need <=3.0)
+emergencies: ['drone.py emergency landing: [ERROR] [1794210033.142767846] [flight]: Vision lost for 6.5s (markers_used=0, limit 6.0s) -- EKF is coasting, landing', 'script emergency landing / abort: Waypoint (-0.72, 1.40) failed -- aborting mission']

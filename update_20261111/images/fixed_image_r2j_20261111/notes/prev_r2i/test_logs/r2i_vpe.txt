@@ -1,0 +1,19 @@
+test_auto_land_fcu_state_unknown_closes (__main__.AutoLand.test_auto_land_fcu_state_unknown_closes)
+P1 kept in AUTO.LAND: connected=False closes at once; no State for > 4.5 s closes ... ok
+test_auto_land_from_the_start_publishes (__main__.AutoLand.test_auto_land_from_the_start_publishes) ... ok
+test_auto_land_to_posctl_closes_at_once (__main__.AutoLand.test_auto_land_to_posctl_closes_at_once)
+the pilot takes over during the landing: the POSCTL State closes the gate at once (P1b) ... ok
+test_auto_land_vision_bad_suspends_as_in_offboard (__main__.AutoLand.test_auto_land_vision_bad_suspends_as_in_offboard)
+markers stop at 4 s (empty frames): the gate closes as in OFFBOARD (>= 1 marker within 1.5 s, B1, + 0.5 s) ... ok
+test_b2_reentry_in_auto_land (__main__.AutoLand.test_b2_reentry_in_auto_land)
+r2h B2 works in AUTO.LAND too: after a pause the first samples are the medoid ... ok
+test_disarm_after_landing_is_the_warm_up (__main__.AutoLand.test_disarm_after_landing_is_the_warm_up) ... ok
+test_manual_and_other_auto_modes_never_publish (__main__.AutoLand.test_manual_and_other_auto_modes_never_publish)
+armed in STAB, ALTCTL, POSCTL (pilot) or other AUTO modes: silent, as r2h ... ok
+test_offboard_to_auto_land_keeps_publishing (__main__.AutoLand.test_offboard_to_auto_land_keeps_publishing)
+OFFBOARD until 3 s, AUTO.LAND after (the script's own /land or a PX4 failsafe land), markers seen: ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.086s
+
+OK

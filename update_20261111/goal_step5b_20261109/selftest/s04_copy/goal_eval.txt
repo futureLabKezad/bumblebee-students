@@ -1,0 +1,6 @@
+criteria: PROPOSED 05.11, not approved by the owner (question 3); trial runs do not count
+script height 1.5 m; flight height 1.527 m (err 0.027); h max 1.606 m; air 24.9 s; hover runs [{"from_s": 13.8, "len_s": 7.0, "h_mean_m": 1.527, "h_p95_abs_err_m": 0.096}]
+touchdown 27.024 s, motors off 30.896 s, delta 3.87 s; failsafe while armed False; kill False
+EKF xy jumps > 0.10 m in air: 0; xy resets 0
+nav: OFFBOARD@-0.0 -> LAND@21.55 -> OFFBOARD@30.9
+verdict vs PROPOSED (trial, not counted): {"C5_height": true, "C5_motors_off": false, "C5_no_failsafe": true}

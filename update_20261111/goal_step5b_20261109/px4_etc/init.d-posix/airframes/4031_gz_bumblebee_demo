@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# @name Bumblebee DEMO (flow + compass, NOT the real drone's estimator setup)
+#
+# @type Quadrotor
+#
+# SIMULATOR DEMO ONLY: the Bumblebee physics/visual model of 4030_gz_bumblebee, but the
+# estimator uses the compass + optical flow + barometer like 4021_gz_x500_flow, so it can
+# fly without our ArUco vision pipeline. The real drone takes position, height and yaw
+# from vision (4030); use 4030 for any verification.
+#
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=bumblebee}
+. ${R}etc/init.d-posix/airframes/4030_gz_bumblebee
+param set-default EKF2_EV_CTRL 0
+param set-default EKF2_HGT_REF 1
+param set-default EKF2_MAG_TYPE 0

@@ -1,0 +1,3 @@
+C5 FAIL  failed: script_height_known, not evaluated: took_off, not evaluated: height_window_found, not evaluated: height_within_0p10, not evaluated: touchdown_found, not evaluated: motors_off_found, not evaluated: motors_off_le_3s, not evaluated: no_emergency
+run e3_r2c_4057_c6; valid True []; script /work/goal_step5b_20261109/scenarios/hover_marker0.py H=None ; exit 0 (2026-11-09T12:24:27+04:00 exited by itself, code 0)
+emergencies: not evaluated

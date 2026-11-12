@@ -1,0 +1,3 @@
+# ACCEPTED_PINS_b.txt of launcher v32-c8-r2e-b (host_run_wsl_c8_r2e_b.sh reads only this list)
+# frozen_inputs_c8_r2e_b_01.json: combined_c8_r2e + executor revision b + airframe 4061 chain + r2e + T22 model_v1/plugin_v1 + MAVROS bp02 + C8 judge copy
+a4660b2bd4f9b0bf12059fc7b2c92fce9097ede8e2a74dae59c22cd84a1ba484  /work/c8_judge_r2e_20261109/pins/frozen_inputs_c8_r2e_b_01.json

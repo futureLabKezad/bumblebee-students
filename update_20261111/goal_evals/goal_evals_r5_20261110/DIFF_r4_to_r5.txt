@@ -1,0 +1,186 @@
+--- /work/goal_evals_r4_20261109/c6_eval.py	2026-11-09 14:49:14.978522781 +0400
++++ c6_eval.py	2026-11-10 16:18:47.797226300 +0400
+@@ -18,10 +18,12 @@
+                STRICTER: safe_land's approach and 1.5 s hold, still in OFFBOARD, stay inside the window.
+   offset       horizontal truth distance to the centre of marker 0 (item 1), NOT to the takeoff point.
+   share_10cm   time share of the window (each sample weighted by its interval) with offset <= 0.10 m.
+-  jump a       in the window: (1) an EKF reset: xy_reset_counter grows with |delta_xy| > 0.10 m, or
++  jump a       r5: on the whole armed flight, from arming to disarming (EKF samples while actuator_armed is
++               true), NOT only in the window: (1) an EKF reset: xy_reset_counter grows with |delta_xy| > 0.10 m, or
+                (STRICTER, z also) z_reset_counter grows with |delta_z| > 0.10 m; (2) the EKF position (3D) changes
+                by > 0.10 m between two samples less than 0.2 s apart (STRICTER: any two samples, not only
+-               neighbours).
++               neighbours). Before arming (the initial alignment on the floor, ~0.107 m in s10) and after
++               disarming nothing counts.
+   jump b       in the window: the truth position (3D, STRICTER than horizontal only) moves > 0.10 m within any
+                0.5 s. The horizontal-only value is printed as information.
+   settling     time from the window start until offset <= 0.10 m and |h - 1.0| <= 0.10 m hold to the window
+@@ -36,6 +38,9 @@
+   list of goal_common r3 (drone.py guard landings, missing data = not evaluated, Hold by the request log).
+ Edition r4 (09.11): the shared list of goal_common r4 (the scripts' own emergency landings / aborts). Code of
+   this file unchanged otherwise.
++Edition r5 (10.11, chat 1): item 2a of КРИТЕРИИ_ТОЛКОВАНИЯ has no window ("во время висения" is only in 2b), so
++  by the rule "of two readings the stricter" jump a is checked on the whole armed flight (arming .. disarming).
++  Same tests (resets xy/z > 0.10 m, EKF move > 0.10 m within < 0.2 s); window, jump b and the rest unchanged.
+ Usage: python3 -I c6_eval.py RUN_DIR [--out DIR] [--map MAP] [--ulog ULG]
+ Writes OUT/c6_eval.json and c6_eval.txt (OUT defaults to RUN_DIR; never overwrites). Exit 0 PASS, 1 FAIL, 2 error.
+ """
+@@ -238,9 +243,11 @@
+         res['settling_note'] = 'never settled until the window end'
+     else:
+         res['settling_s'] = rd(tw[bad_idx[-1] + 1] - tw[0], 2)
+-    # jump a: EKF
++    # jump a: EKF -- r5: the whole armed flight (arming .. disarming), not only the window (item 2a has no window)
+     et = d['ekf_t']
+-    ew = (et >= t[i0]) & (et < t_end)
++    ew = _step(d['arm_t'], d['armed'], et, False).astype(bool)
++    res['jump_a_scope'] = 'armed flight: %d EKF samples, %s..%s s' % (
++        int(ew.sum()), rd(et[ew][0], 2) if ew.any() else None, rd(et[ew][-1], 2) if ew.any() else None)
+     resets = []
+     for key, dkey, name in (('ekf_xy_reset', 'ekf_delta_xy', 'xy'), ('ekf_z_reset', 'ekf_delta_z', 'z')):
+         cnt, dl = d[key], d[dkey]
+@@ -363,8 +370,9 @@
+         L.append('offset to marker 0: <=10 cm %.1f %% of the time (need >=95), max %.3f m (need <=0.20); '
+                  'height err max %.3f m (need <=0.10)' % (100 * res['offset_share_le_10cm'], res['offset_max_m'],
+                                                          res['height_err_max_m']))
+-        L.append('jump a (EKF): resets >0.10 m %s; max move <0.2 s %.3f m at %s' % (
+-            res['jump_a_ekf_resets'], res['jump_a_ekf_max_move_lt_0p2s_m'], res['jump_a_ekf_at_s']))
++        L.append('jump a (EKF, %s): resets >0.10 m %s; max move <0.2 s %.3f m at %s' % (
++            res['jump_a_scope'], res['jump_a_ekf_resets'], res['jump_a_ekf_max_move_lt_0p2s_m'],
++            res['jump_a_ekf_at_s']))
+         L.append('jump b (truth): max move in 0.5 s %.3f m at %s (horizontal only %.3f m, information)' % (
+             res['jump_b_truth_max_move_0p5s_m'], res['jump_b_truth_at_s'],
+             res['jump_b_truth_max_move_0p5s_xy_only_m']))
+--- /work/goal_evals_r4_20261109/tests/test_c6_eval.py	2026-11-09 14:49:14.973527969 +0400
++++ tests/test_c6_eval.py	2026-11-10 16:29:41.220875727 +0400
+@@ -165,11 +165,78 @@
+         d['ekf_delta_xy'][k] = 0.05
+         self.assertEqual(judge(d)[0], 'PASS')
+ 
+-    def test_a_reset_outside_window_ok(self):
++    # r5: item 2a is checked on the whole armed flight (arming 1.0 s .. disarming 90.0 s in flight())
++    def reset_at(self, t_s, delta, key='ekf_xy_reset', dkey='ekf_delta_xy'):
+         d = flight()
+-        k = np.searchsorted(d['ekf_t'], 3.0)    # during the climb
+-        d['ekf_xy_reset'][k:] = 1
+-        d['ekf_delta_xy'][k] = 0.5
++        k = np.searchsorted(d['ekf_t'], t_s)
++        d[key][k:] = 1
++        d[dkey][k] = delta
++        return d
++
++    def test_a_reset_during_climb_fails(self):
++        # r5: before the window (climb, armed) -> counts; r4 passed this
++        word, failed, res = judge(self.reset_at(3.0, 0.11))
++        self.assertIn('no_jump_a_ekf', failed)
++        self.assertEqual(res['jump_a_ekf_resets'][0]['t_s'], 3.0)
++
++    def test_a_z_reset_on_the_floor_armed_fails(self):
++        # r5: armed, still on the floor (1.0-2.0 s) -> counts
++        self.assertIn('no_jump_a_ekf', judge(self.reset_at(1.5, 0.11, 'ekf_z_reset', 'ekf_delta_z'))[1])
++
++    def test_a_reset_at_the_arming_sample_fails(self):
++        # r5: the first armed sample (t = arming time) is inside
++        self.assertIn('no_jump_a_ekf', judge(self.reset_at(1.0, 0.11))[1])
++
++    def test_a_reset_before_arming_ok(self):
++        # r5: initial alignment on the floor before arming (~0.107 m in s10) does not count
++        self.assertEqual(judge(self.reset_at(0.99, 0.5))[0], 'PASS')
++        self.assertEqual(judge(self.reset_at(0.99, 0.5, 'ekf_z_reset', 'ekf_delta_z'))[0], 'PASS')
++
++    def test_a_reset_after_disarming_ok(self):
++        self.assertEqual(judge(self.reset_at(90.0, 0.5))[0], 'PASS')
++
++    def test_a_reset_just_before_disarming_fails(self):
++        # review r5 S2: the last armed samples (disarming at 90.0 s) are inside
++        self.assertIn('no_jump_a_ekf', judge(self.reset_at(89.95, 0.11))[1])
++
++    def test_a_reset_in_a_second_arm_period_fails(self):
++        # review r5 S1: armed 1-90 s, disarmed, armed again 92-98 s on the floor: a reset at 95 s counts,
++        # a reset at 91 s (disarmed in between) does not
++        def rearm(t_s):
++            d = self.reset_at(t_s, 0.11)
++            d['arm_t'] = np.array([0.0, 1.0, 90.0, 92.0, 98.0])
++            d['armed'] = np.array([False, True, False, True, False])
++            return d
++        self.assertIn('no_jump_a_ekf', judge(rearm(95.0))[1])
++        self.assertEqual(judge(rearm(91.0))[0], 'PASS')
++
++    def test_a_reset_during_landing_fails(self):
++        # r5: after the window (descent, still armed) -> counts
++        self.assertIn('no_jump_a_ekf', judge(self.reset_at(84.0, 0.11))[1])
++
++    def test_a_estimate_step_during_climb_fails(self):
++        d = flight()
++        d['ekf_xyz'][d['ekf_t'] >= 4.0, 1] += 0.11
++        word, failed, res = judge(d)
++        self.assertIn('no_jump_a_ekf', failed)
++        a, b = res['jump_a_ekf_at_s']
++        self.assertTrue(a < 4.0 <= b < 4.2, (a, b))   # the pair spans the step (climb adds a little)
++
++    def test_a_estimate_step_after_window_armed_fails(self):
++        d = flight()
++        d['ekf_xyz'][d['ekf_t'] >= 89.0, 0] += 0.11     # on the floor after landing, before disarming at 90 s
++        self.assertIn('no_jump_a_ekf', judge(d)[1])
++
++    def test_a_estimate_step_before_arming_ok(self):
++        d = flight()
++        d['ekf_xyz'][d['ekf_t'] >= 0.5, 0] += 0.5
++        word, failed, res = judge(d)
++        self.assertEqual(word, 'PASS', failed)
++        self.assertTrue(res['jump_a_scope'].startswith('armed flight'))
++
++    def test_a_estimate_step_after_disarming_ok(self):
++        d = flight()
++        d['ekf_xyz'][d['ekf_t'] >= 90.5, 0] += 0.5
+         self.assertEqual(judge(d)[0], 'PASS')
+ 
+     def test_a_z_reset_big(self):
+--- /work/goal_evals_r4_20261109/tests/mutation_check_c6.py	2026-11-09 14:49:14.971765570 +0400
++++ tests/mutation_check_c6.py	2026-11-10 16:21:02.322290700 +0400
+@@ -1,6 +1,7 @@
+ #!/usr/bin/env python3
+ """Do the synthetic tests catch a loosened or broken c6_eval.py (edition r2)? Each mutation goes into a COPY in a
+ temporary folder (with goal_common.py, c5_eval.py, c7_eval.py next to it); the tests must FAIL on every copy.
++r5: mutations named 'r5:' also run tests/test_c6_s10_runs.py (real runs s10_c6r6_01..10); both results are printed.
+ Run: python3 -I -B tests/mutation_check_c6.py"""
+ import os
+ import shutil
+@@ -30,6 +31,16 @@
+      "v['script_matches_versions'] = True"),
+     ('r3: sha line not needed', "'no_emergency', 'script_matches_versions']", "'no_emergency']"),
+     ('missing line counts as pass', "failed += ['not evaluated: ' + k for k in need if k not in lines]", "pass"),
++    ('r5: jump a only in the hover window (r4)', "    ew = _step(d['arm_t'], d['armed'], et, False).astype(bool)",
++     "    ew = (et >= t[i0]) & (et < t_end)"),
++    ('r5: jump a ends at the window end', "    ew = _step(d['arm_t'], d['armed'], et, False).astype(bool)",
++     "    ew = _step(d['arm_t'], d['armed'], et, False).astype(bool) & (et < t_end)"),
++    ('r5: jump a starts at the window', "    ew = _step(d['arm_t'], d['armed'], et, False).astype(bool)",
++     "    ew = _step(d['arm_t'], d['armed'], et, False).astype(bool) & (et >= t[i0])"),
++    ('r5: jump a also before arming', "    ew = _step(d['arm_t'], d['armed'], et, False).astype(bool)",
++     "    ew = np.ones(len(et), bool)"),
++    ('r5: arming sample left out', "    ew = _step(d['arm_t'], d['armed'], et, False).astype(bool)",
++     "    ew = _step(d['arm_t'] + 1e-6, d['armed'], et, False).astype(bool)"),
+     ('settling forgiven', "tw, xyw, hw = t[w], xy[w], h[w]",
+      "tw, xyw, hw = t[w][250:], xy[w][250:], h[w][250:]"),
+ ]
+@@ -44,11 +55,19 @@
+             shutil.copy(os.path.join(os.path.dirname(HERE), f), d)
+         open(os.path.join(d, 'c6_eval.py'), 'w', encoding='utf-8').write(SRC.replace(old, new))
+         shutil.copy(os.path.join(HERE, 'test_c6_eval.py'), os.path.join(d, 'tests'))
++        shutil.copy(os.path.join(HERE, 'test_c6_s10_runs.py'), os.path.join(d, 'tests'))
+         r = subprocess.run([sys.executable, '-I', '-B', '-W', 'ignore', os.path.join(d, 'tests', 'test_c6_eval.py')],
+                            capture_output=True, text=True)
+         caught = r.returncode != 0
++        extra = ''
++        if name.startswith('r5:'):
++            r2 = subprocess.run([sys.executable, '-I', '-B', '-W', 'ignore',
++                                 os.path.join(d, 'tests', 'test_c6_s10_runs.py')], capture_output=True, text=True)
++            extra = '   (synthetic %s, s10 runs %s)' % ('fail' if caught else 'pass',
++                                                     'fail' if r2.returncode != 0 else 'pass')
++            caught = caught or r2.returncode != 0
+         missed += not caught
+-        print('%-8s %s' % ('CAUGHT' if caught else 'MISSED', name))
++        print('%-8s %s%s' % ('CAUGHT' if caught else 'MISSED', name, extra))
+     finally:
+         shutil.rmtree(d)
+ print('%d/%d mutations caught' % (len(MUTATIONS) - missed, len(MUTATIONS)))

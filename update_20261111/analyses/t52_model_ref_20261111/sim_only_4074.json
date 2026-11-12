@@ -1,0 +1,491 @@
+{
+ "title": "Goal step 4 (06.11.2026): what may differ between Gazebo and the real drone 20EC, and why + goal step 6 variant B (09.11.2026) + T22 flow model edition (09.11.2026) + final set 4070 and stand vision limiter M-V12 (10.11.2026) + 4070 v2 (EKF2_OF_QMIN 50) + 4074 (T52, эталон размеров)",
+ "reference": {
+  "file": "/work/pc_inventory_20261019/incident_motors_20261104/params_20261104_1145.params",
+  "sha256": "3eab859527afe4a44f777467c60b5c873a7ec9c25ead47babdd939c2e378c58b",
+  "component": 1,
+  "note": "Only component 1 (the flight controller). Component 125 (H-Flow board) is not used."
+ },
+ "tolerance": {
+  "float_rel": 1e-06,
+  "float_abs": 1e-07
+ },
+ "absent_groups": [
+  {
+   "id": "A1",
+   "patterns": [
+    "UAVCAN_*"
+   ],
+   "reason_ru": "Шина DroneCAN: на дроне по ней приходят поток и дальномер H-Flow. В Gazebo их данные приходят через мост Gazebo в те же сообщения PX4.",
+   "reason_en": "DroneCAN bus; in SITL flow and range come from GZBridge into the same uORB topics."
+  },
+  {
+   "id": "A2",
+   "patterns": [
+    "PWM_*",
+    "DSHOT_*",
+    "MOT_POLE_COUNT"
+   ],
+   "reason_ru": "Выходы на регуляторы моторов (ШИМ, DShot). В Gazebo моторы крутит модель через SIM_GZ_EC_*.",
+   "reason_en": "Motor output hardware; SITL drives the model motors through SIM_GZ_EC_*."
+  },
+  {
+   "id": "A3",
+   "patterns": [
+    "SER_*",
+    "MAV_*_CONFIG",
+    "GPS_*_CONFIG",
+    "RC_PORT_CONFIG",
+    "RC_CRSF_*",
+    "SEP_*",
+    "TEL_*",
+    "USB_MAV_MODE",
+    "SYS_USB_AUTO",
+    "VERTIQ_IO_CFG",
+    "SENS_*_CFG",
+    "PWM_SBUS_MODE"
+   ],
+   "reason_ru": "Последовательные порты и USB. В SITL связь с программами и пультом идёт по сети (UDP).",
+   "reason_en": "Serial ports and USB; SITL links run over UDP."
+  },
+  {
+   "id": "A4",
+   "patterns": [
+    "SENS_EN_*"
+   ],
+   "reason_ru": "Драйверы датчиков на шинах I2C/SPI. В Gazebo датчики свои.",
+   "reason_en": "I2C/SPI sensor drivers that SITL does not build."
+  },
+  {
+   "id": "A5",
+   "patterns": [
+    "BAT*_A_PER_V",
+    "BAT*_V_DIV"
+   ],
+   "reason_ru": "Делители напряжения и тока батареи на плате (АЦП). В PX4 дрона батарея всё равно не видна.",
+   "reason_en": "Battery ADC dividers (board hardware)."
+  },
+  {
+   "id": "A6",
+   "patterns": [
+    "CAM_CAP_FBACK"
+   ],
+   "reason_ru": "Вход обратной связи камеры на плате.",
+   "reason_en": "Camera capture feedback input (board hardware)."
+  }
+ ],
+ "force_set": {
+  "params": [
+   "COM_MODE_ARM_CHK",
+   "IMU_INTEG_RATE",
+   "SENS_DPRES_OFF"
+  ],
+  "found_in": "run r01_probe_4032_ground (parity v1: 3 UNEXPLAINED)",
+  "reason_ru": "Скрипты запуска SITL пишут свои значения поверх набора: rcS — SENS_DPRES_OFF 0,001 (param set до набора), px4-rc.simulator — IMU_INTEG_RATE 250 и COM_MODE_ARM_CHK 1 (после набора). Набор пишет значения дрона командой param set. Действует это только для SENS_DPRES_OFF (итог 0, как на дроне). Для IMU_INTEG_RATE 200 и COM_MODE_ARM_CHK 0 запись равна значению по умолчанию и ничего не меняет (поправка по проверке 06.11); их объясняют S7 и S8.",
+  "reason_en": "SITL start scripts overwrite these; the airframe writes the drone values with param set."
+ },
+ "sim_only": [
+  {
+   "id": "S1",
+   "patterns": [
+    "SYS_AUTOSTART"
+   ],
+   "sim_expected": "airframe",
+   "reason_ru": "Номер набора настроек: по нему PX4 выбирает модель Gazebo. На дроне 4001 (обычный квадрокоптер), в Gazebo 4032 (и 4033/4034 для контрольных прогонов).",
+   "reason_en": "Airframe id selects the Gazebo model."
+  },
+  {
+   "id": "S2",
+   "patterns": [
+    "CAL_*"
+   ],
+   "sim_expected": "any",
+   "reason_ru": "Калибровка настоящих датчиков: номера устройств, смещения, масштабы. Датчики Gazebo идеальные и со своими номерами; их SITL ставит сам.",
+   "reason_en": "Real sensor calibration; SITL sensors are ideal and carry their own device ids."
+  },
+  {
+   "id": "S3",
+   "patterns": [
+    "SENS_BOARD_ROT",
+    "SENS_BOARD_Y_OFF",
+    "SENS_BOARD_Z_OFF"
+   ],
+   "sim_expected": 0,
+   "reason_ru": "Поворот платы контроллера на корпусе (90°) и подстройка горизонта. В модели датчики стоят ровно по осям корпуса.",
+   "reason_en": "Board mounting rotation and level trim; the model IMU is body-aligned."
+  },
+  {
+   "id": "S3b",
+   "patterns": [
+    "SENS_BOARD_X_OFF"
+   ],
+   "sim_expected": [
+    0,
+    1e-06
+   ],
+   "reason_ru": "То же (подстройка горизонта). SITL сам ставит 0,000001.",
+   "reason_en": "Level trim; SITL rcS writes 1e-6."
+  },
+  {
+   "id": "S4",
+   "patterns": [
+    "SENS_FLOW_ROT"
+   ],
+   "sim_expected": 0,
+   "reason_ru": "Поворот платы H-Flow на дроне (270°). В модели датчик потока стоит по осям корпуса, поворот не нужен.",
+   "reason_en": "H-Flow board mount rotation; the simulated flow sensor is body-aligned."
+  },
+  {
+   "id": "S5",
+   "patterns": [
+    "PWM_MAIN_FUNC*"
+   ],
+   "sim_expected": 0,
+   "reason_ru": "К каким выходам контроллера подключены регуляторы на дроне. В Gazebo моторы подключены через SIM_GZ_EC_FUNC1–4; какой мотор где, задают CA_ROTOR* — они как на дроне.",
+   "reason_en": "Physical ESC wiring; SITL motors use SIM_GZ_EC_FUNC1-4, geometry CA_ROTOR* equals the drone."
+  },
+  {
+   "id": "S6",
+   "patterns": [
+    "COM_FLIGHT_UUID",
+    "LND_FLIGHT_T_HI",
+    "LND_FLIGHT_T_LO"
+   ],
+   "sim_expected": "any",
+   "reason_ru": "Счётчики полётов и налёта, не настройка.",
+   "reason_en": "Lifetime counters, not configuration."
+  },
+  {
+   "id": "S7",
+   "patterns": [
+    "IMU_INTEG_RATE"
+   ],
+   "sim_expected": 250,
+   "found_in": "run r02_4032_fly (parity v2)",
+   "reason_ru": "SITL ставит 250 после набора (px4-rc.simulator), и набор это не перебивает: запись 200 (значение по умолчанию) просто сбрасывает параметр. Влияния нет: датчики Gazebo дают 250 Гц, а PX4 при 200 и при 250 интегрирует по 1 отсчёту (VehicleIMU.cpp:689) — те же 250 Гц.",
+   "reason_en": "px4-rc.simulator sets default 250 after the airframe; with 250 Hz sim IMU both 200 and 250 give 1-sample integration."
+  },
+  {
+   "id": "S8",
+   "patterns": [
+    "COM_MODE_ARM_CHK"
+   ],
+   "sim_expected": 1,
+   "found_in": "run r02_4032_fly (parity v2)",
+   "reason_ru": "SITL ставит 1 после набора (px4-rc.simulator). Параметр только разрешает внешним режимам ROS 2 регистрироваться при взведённом дроне; внешних режимов у нас нет — на полёт не влияет.",
+   "reason_en": "px4-rc.simulator sets default 1 after the airframe; only affects ROS 2 external mode registration while armed (none used)."
+  }
+ ],
+ "variants": {
+  "4032": {
+   "name": "20ec",
+   "changes": {},
+   "note_ru": "Настройки 20EC как есть (компонент 1 файла 04.11)."
+  },
+  "4033": {
+   "name": "20ec_rngctrl1",
+   "changes": {
+    "EKF2_RNG_CTRL": 1
+   },
+   "note_ru": "Контроль (одна правка): дальномер «по условию» (EKF2_RNG_CTRL 2 → 1). Только для проверки причины; на дрон — только решение владельца."
+  },
+  "4034": {
+   "name": "20ec_hgtref0_rngctrl1",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_RNG_CTRL": 1
+   },
+   "note_ru": "Контроль (как до 11.08): высота по барометру и дальномер «по условию» (EKF2_HGT_REF 2 → 0, EKF2_RNG_CTRL 2 → 1). Только для проверки; на дрон — только решение владельца."
+  },
+  "4035": {
+   "name": "20ec_hgtref0",
+   "changes": {
+    "EKF2_HGT_REF": 0
+   },
+   "added": "after run r03 (06.11 ~10:10): RNG_CTRL 2->1 alone did not start the flow; PX4 1.16.1 makes range the height reference also in conditional mode on the ground (range_height_control.cpp:131-139, isConditionalRangeAidSuitable has no in-air condition)",
+   "note_ru": "Контроль (одна правка): опора высоты — барометр (EKF2_HGT_REF 2 → 0), дальномер «всегда» как на дроне. Только для проверки причины; на дрон — только решение владельца."
+  },
+  "4036": {
+   "name": "20ec_ev15",
+   "changes": {
+    "EKF2_EV_CTRL": 15
+   },
+   "note_ru": "Вариант Б: 20EC как есть + зрение (EKF2_EV_CTRL 0 → 15, одно значение). Только симулятор; на дрон — решение владельца."
+  },
+  "4037": {
+   "name": "20ec_hgtref0_ev15",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_EV_CTRL": 15
+   },
+   "note_ru": "Вариант Б на кандидате 4035: HGT_REF 2 → 0 + зрение (EV_CTRL 0 → 15). Только симулятор."
+  },
+  "4038": {
+   "name": "20ec_hgtref0_rngctrl1_ev15",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_RNG_CTRL": 1,
+    "EKF2_EV_CTRL": 15
+   },
+   "note_ru": "Вариант Б на кандидате 4034 (как до 11.08): HGT_REF 0 + RNG_CTRL 1 + зрение (EV_CTRL 15). Только симулятор."
+  },
+  "4044": {
+   "name": "card_on_4034",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_RNG_CTRL": 1,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05
+   },
+   "note_ru": "4034 + 4 значения карточки (кандидат, ещё не на дроне)"
+  },
+  "4045": {
+   "name": "card_on_4035",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05
+   },
+   "note_ru": "4035 + 4 значения карточки (кандидат, ещё не на дроне)"
+  },
+  "4046": {
+   "name": "card_on_4036",
+   "changes": {
+    "EKF2_EV_CTRL": 15,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05
+   },
+   "note_ru": "4036 + 4 значения карточки (кандидат, ещё не на дроне)"
+  },
+  "4047": {
+   "name": "card_on_4037",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_EV_CTRL": 15,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05
+   },
+   "note_ru": "4037 + 4 значения карточки (кандидат, ещё не на дроне)"
+  },
+  "4055": {
+   "name": "4055",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05,
+    "COM_DISARM_LAND": 0.5
+   },
+   "note_ru": "4045 + COM_DISARM_LAND 0.5 (выбор 1б, кандидат)"
+  },
+  "4056": {
+   "name": "4056",
+   "changes": {
+    "EKF2_EV_CTRL": 13,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05
+   },
+   "note_ru": "4046 + EV_CTRL 13 (без высоты по зрению, F6)"
+  },
+  "4057": {
+   "name": "4057",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_EV_CTRL": 13,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05
+   },
+   "note_ru": "4047 + EV_CTRL 13 (без высоты по зрению, F6)"
+  },
+  "4058": {
+   "name": "4058",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_RNG_CTRL": 1,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05,
+    "EKF2_EV_CTRL": 13
+   },
+   "note_ru": "4044 + EV_CTRL 13 (вариант Б-в)"
+  },
+  "4059": {
+   "name": "4059",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_EV_CTRL": 13,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05,
+    "COM_DISARM_LAND": 0.5
+   },
+   "note_ru": "4057 + COM_DISARM_LAND 0.5"
+  },
+  "4060": {
+   "name": "4060",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_EV_CTRL": 13,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05,
+    "EKF2_MIN_RNG": 0.28
+   },
+   "note_ru": "4057 + EKF2_MIN_RNG 0,28 (T23 контроль, только SITL)"
+  },
+  "4061": {
+   "name": "4061",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_EV_CTRL": 13,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05,
+    "EKF2_MIN_RNG": 0.28,
+    "COM_DISARM_LAND": 0.5,
+    "NAV_RCL_ACT": 3,
+    "COM_RCL_EXCEPT": 0,
+    "COM_OBL_RC_ACT": 4
+   },
+   "note_ru": "Набор-кандидат чата 1 (09.11): 4060 + COM_DISARM_LAND 0,5 + NAV_RCL_ACT 3 + COM_RCL_EXCEPT 0 + COM_OBL_RC_ACT 4. Только SITL, не утверждён владельцем."
+  },
+  "4070": {
+   "name": "final_4061_bat0_sdlog1_ofqmin50",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_EV_CTRL": 13,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05,
+    "EKF2_MIN_RNG": 0.28,
+    "COM_DISARM_LAND": 0.5,
+    "NAV_RCL_ACT": 3,
+    "COM_RCL_EXCEPT": 0,
+    "COM_OBL_RC_ACT": 4,
+    "BAT1_SOURCE": 0,
+    "SDLOG_MODE": 1,
+    "EKF2_OF_QMIN": 50
+   },
+   "reasons_ru": {
+    "EKF2_HGT_REF": "Опора высоты — барометр (2 → 0): с 11.08 поток 0 % из-за HGT_REF 2 (доказано в Gazebo 06.11). Группа 3 карточек QGC.",
+    "EKF2_EV_CTRL": "Зрение по горизонтали и рысканью без высоты (0 → 13, F6). Группа 3.",
+    "MPC_XY_P": "Плавность XY (карточка, группа 4).",
+    "MPC_XY_VEL_P_ACC": "Плавность XY (карточка, группа 4).",
+    "MPC_XY_VEL_I_ACC": "Плавность XY (карточка, группа 4).",
+    "MPC_XY_VEL_D_ACC": "Плавность XY (карточка, группа 4).",
+    "EKF2_MIN_RNG": "0,28 (T23): высота дальномера на земле в модели; в 4060 помечено «только SITL» — статус на дроне сверить с карточкой (чат 1).",
+    "COM_DISARM_LAND": "0,5 с — выбор 1б (моторы стоп быстрее после касания).",
+    "NAV_RCL_ACT": "3 = LAND при потере пульта (С8 «пропал пульт»).",
+    "COM_RCL_EXCEPT": "0 — потеря пульта действует и в OFFBOARD.",
+    "COM_OBL_RC_ACT": "4 = LAND при потере OFFBOARD с пультом (правило 14).",
+    "BAT1_SOURCE": "0 — утверждённый набор дрона: напряжение видно (с 1 его не было, доказано 06.11). В SITL батарея — симулятор, проверить контрольным прогоном.",
+    "SDLOG_MODE": "1 — журнал с включения (решение владельца «В»): иначе прогон без взвода (cancel_before) остаётся без ULog.",
+    "EKF2_OF_QMIN": "50 (было 1) — решение владельца по T33 (10.11 10:18): поток низкого качества не идёт в EKF; посадка без потока и без меток у пола — уход 0,79 м вместо 1,12 (Gazebo, 1 прогон); обычный полёт не ломается (поток в EKF 100 % в воздухе). Группа 3 карточек QGC."
+   },
+   "note_ru": "Окончательный набор для зачёта (10.11): 4061 + BAT1_SOURCE 0 + SDLOG_MODE 1 + EKF2_OF_QMIN 50 (MPC_LAND_CRWL не меняется, 0,3)."
+  },
+  "4074": {
+   "name": "t52_ref_dims_4070v2",
+   "changes": {
+    "EKF2_HGT_REF": 0,
+    "EKF2_EV_CTRL": 13,
+    "MPC_XY_P": 0.25,
+    "MPC_XY_VEL_P_ACC": 1.2,
+    "MPC_XY_VEL_I_ACC": 0.1,
+    "MPC_XY_VEL_D_ACC": 0.05,
+    "EKF2_MIN_RNG": 0.23,
+    "COM_DISARM_LAND": 0.5,
+    "NAV_RCL_ACT": 3,
+    "COM_RCL_EXCEPT": 0,
+    "COM_OBL_RC_ACT": 4,
+    "BAT1_SOURCE": 0,
+    "SDLOG_MODE": 1,
+    "EKF2_OF_QMIN": 50,
+    "EKF2_IMU_POS_X": -0.059,
+    "EKF2_IMU_POS_Y": 0.007,
+    "EKF2_IMU_POS_Z": -0.016,
+    "EKF2_RNG_POS_X": 0.082,
+    "EKF2_RNG_POS_Y": -0.028,
+    "EKF2_RNG_POS_Z": 0.034,
+    "EKF2_OF_POS_X": 0.082,
+    "EKF2_OF_POS_Y": -0.028,
+    "EKF2_OF_POS_Z": 0.034
+   },
+   "reasons_ru": {
+    "EKF2_HGT_REF": "Опора высоты — барометр (2 → 0): с 11.08 поток 0 % из-за HGT_REF 2 (доказано в Gazebo 06.11). Группа 3 карточек QGC.",
+    "EKF2_EV_CTRL": "Зрение по горизонтали и рысканью без высоты (0 → 13, F6). Группа 3.",
+    "MPC_XY_P": "Плавность XY (карточка, группа 4).",
+    "MPC_XY_VEL_P_ACC": "Плавность XY (карточка, группа 4).",
+    "MPC_XY_VEL_I_ACC": "Плавность XY (карточка, группа 4).",
+    "MPC_XY_VEL_D_ACC": "Плавность XY (карточка, группа 4).",
+    "EKF2_MIN_RNG": "EKF2_MIN_RNG = 0.23: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)",
+    "COM_DISARM_LAND": "0,5 с — выбор 1б (моторы стоп быстрее после касания).",
+    "NAV_RCL_ACT": "3 = LAND при потере пульта (С8 «пропал пульт»).",
+    "COM_RCL_EXCEPT": "0 — потеря пульта действует и в OFFBOARD.",
+    "COM_OBL_RC_ACT": "4 = LAND при потере OFFBOARD с пультом (правило 14).",
+    "BAT1_SOURCE": "0 — утверждённый набор дрона: напряжение видно (с 1 его не было, доказано 06.11). В SITL батарея — симулятор, проверить контрольным прогоном.",
+    "SDLOG_MODE": "1 — журнал с включения (решение владельца «В»): иначе прогон без взвода (cancel_before) остаётся без ULog.",
+    "EKF2_OF_QMIN": "50 (было 1) — решение владельца по T33 (10.11 10:18): поток низкого качества не идёт в EKF; посадка без потока и без меток у пола — уход 0,79 м вместо 1,12 (Gazebo, 1 прогон); обычный полёт не ломается (поток в EKF 100 % в воздухе). Группа 3 карточек QGC.",
+    "EKF2_IMU_POS_X": "EKF2_IMU_POS_X = -0.059: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)",
+    "EKF2_IMU_POS_Y": "EKF2_IMU_POS_Y = 0.007: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)",
+    "EKF2_IMU_POS_Z": "EKF2_IMU_POS_Z = -0.016: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)",
+    "EKF2_RNG_POS_X": "EKF2_RNG_POS_X = 0.082: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)",
+    "EKF2_RNG_POS_Y": "EKF2_RNG_POS_Y = -0.028: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)",
+    "EKF2_RNG_POS_Z": "EKF2_RNG_POS_Z = 0.034: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)",
+    "EKF2_OF_POS_X": "EKF2_OF_POS_X = 0.082: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)",
+    "EKF2_OF_POS_Y": "EKF2_OF_POS_Y = -0.028: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)",
+    "EKF2_OF_POS_Z": "EKF2_OF_POS_Z = 0.034: эталон размеров 20EC по модели владельца 1:1 (ЭТАЛОН_РАЗМЕРОВ_20EC.md §3.1); утверждено владельцем 11.11, реестр настроек; на дрон — только карточкой QGC владельца (T54)"
+   },
+   "note_ru": "T52 (11.11): 4070 v2 + места датчиков и EKF2_MIN_RNG по эталону размеров. Для Gazebo вместе с моделью model_v2."
+  }
+ },
+ "source_policy": {
+  "file": "sim_only_4070.json (same folder)",
+  "note": "copy; variant 4070 gets EKF2_OF_QMIN 50 (owner, T33)"
+ },
+ "model_differences": [
+  {
+   "id": "M-T22",
+   "what": "optical flow sensor timing",
+   "model": "/work/goal_t22_flow_20261109/model_v1/bumblebee/model.sdf (flow_camera + optical_flow update_rate 62.5)",
+   "plugin": "/work/goal_t22_flow_20261109/plugin_v1/libOpticalFlowSystemT22.so (copy of PX4 94cb2012 OpticalFlowSensor/System, one change: OpticalFlowOpenCV output_rate 0 = rate limiter off)",
+   "drone": "20EC H-Flow: 63 Hz, 15.872 ms (August logs, goal step 2)",
+   "sim": "62.5 Hz, 16.000 ms on the 4 ms physics step (-0.8 %)",
+   "reason_ru": "Правка модели по замеру дрона (правило 11 /work). Было: Gazebo брал период 15 мс, кадры 16/16/16/12 мс; ограничитель плагина склеивал кадр 12 мс (16/16/28, 50 Гц) и слал лишние сообщения quality −1, которые PX4 копил. Ровно 15,872 мс при шаге 4 мс невозможно; 16,0 мс принято чатом 1 как отличие модели. На дрон не идёт (часть симулятора), С1 не касается.",
+   "approved_by": "чат 1 (local_90c584c7), 09.11.2026"
+  }
+ ],
+ "stand_differences": [
+  {
+   "id": "M-V12",
+   "what": "vision rate to PX4",
+   "stand": "/work/goal_af4070_20261110/vision_throttle.py on the stand path vpe_publisher -> /mavros/mavros/pose_cov (launch remap), max 12 Hz by header stamp slots",
+   "drone": "20EC August marker flights 100-114: ~12 Hz (T37, proven by logs)",
+   "sim_without": "30 Hz (vpe_fix timer on 30 fps camera)",
+   "reason_ru": "Зачёт идёт с частотой зрения как у дрона (12 Гц), строже чем 30 Гц. Образ не тронут: ограничение на стенде. Средняя частота 12 Гц, интервалы 66/100 мс (из 30 Гц).",
+   "approved_by": "чат 1 (local_90c584c7), 10.11.2026 (решение по T37)"
+  }
+ ],
+ "source_policy_t52": {
+  "file": "sim_only_4070_v2.json (a6b91c1c... as accepted)",
+  "note": "copy + variant 4074; nothing else changed"
+ }
+}

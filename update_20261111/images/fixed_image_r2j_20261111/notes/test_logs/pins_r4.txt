@@ -1,0 +1,10 @@
+test_r4_constants_and_harness (__main__.PinsR4.test_r4_constants_and_harness) ... ok
+test_r4_declared_parts_are_the_accepted_r2i (__main__.PinsR4.test_r4_declared_parts_are_the_accepted_r2i) ... ok
+test_r4_docstring_only_the_gate_lines (__main__.PinsR4.test_r4_docstring_only_the_gate_lines) ... ok
+test_r4_only_the_declared_parts_differ_from_r2h (__main__.PinsR4.test_r4_only_the_declared_parts_differ_from_r2h) ... ok
+test_r4_reference_is_r2h (__main__.PinsR4.test_r4_reference_is_r2h) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.057s
+
+OK

@@ -1,0 +1,2 @@
+static ok: no freshness in the entry; profile class overrides ['__init__', '_arm_ttl', '_handle_revert_all', '_handle_set_param', '_initial_pull_tick', '_param_set_once', '_restore_one', '_result', '_revert_all', '_revert_all_non_persistent', 'allow_profile_flight', 'prepare_profile', 'profile_pending_tick'] ; one wrapper (_evaluate_gate)
+A10 composition: 20/20 seeds 16 of 16 after the pause, gap <= 1/30 s, = plain vpe_fix; control A9 composition on r2h: min 3 of 16, max gap 0.70 s; r2g + freshness = r2g after the pause (20/20); whole run r2g minus r2g+freshness samples: [1]

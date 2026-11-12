@@ -1,0 +1,6 @@
+C7 FAIL  failed: route_flown_as_coded, holds_match_route, landing_within_0p15, no_emergency, not evaluated: all_points_reached, not evaluated: points_within_0p25
+run c03b_r2b_4045_loop; valid True []; script /work/fixed_image_r2d_20261109/notes/prev_r2c/flight_marker_loop.py ; exit 0 (2026-11-09T11:40:43+04:00 exited by itself, code 0)
+route (code): [(0.0, 0.7), (0.0, 1.4), (0.0, 2.1), (-0.36, 2.1), (-0.72, 2.1), (-0.72, 1.4), (-0.72, 0.7), (-0.36, 0.7), (0.0, 0.7), (0.0, 0.0)]; flown (log): [(0.0, 0.7), (0.0, 1.4), (0.0, 2.1), (-0.36, 2.1), (-0.72, 2.1), (-0.72, 1.4)]
+landing: 1.867 m from marker 0 (need <=0.15)
+holds (setpoint) 7 for 10 route points; legs []
+emergencies: ['drone.py emergency landing: [ERROR] [1794210033.142767846] [flight]: Vision lost for 6.5s (markers_used=0, limit 6.0s) -- EKF is coasting, landing']; modes before land: []

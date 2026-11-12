@@ -1,0 +1,73 @@
+Running main() from /opt/ros/jazzy/src/gtest_vendor/src/gtest_main.cc
+[==========] Running 23 tests from 7 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from NavigateProgress
+[ RUN      ] NavigateProgress.RealEpochStampsKeepPrecision
+[       OK ] NavigateProgress.RealEpochStampsKeepPrecision (0 ms)
+[ RUN      ] NavigateProgress.OldTimeZeroLurchIsGone
+[       OK ] NavigateProgress.OldTimeZeroLurchIsGone (0 ms)
+[ RUN      ] NavigateProgress.ClockStepBackHoldsStart
+[       OK ] NavigateProgress.ClockStepBackHoldsStart (0 ms)
+[ RUN      ] NavigateProgress.ClockStepForwardStopsAtTarget
+[       OK ] NavigateProgress.ClockStepForwardStopsAtTarget (0 ms)
+[ RUN      ] NavigateProgress.ZeroDistanceIsComplete
+[       OK ] NavigateProgress.ZeroDistanceIsComplete (0 ms)
+[ RUN      ] NavigateProgress.InvalidSpeedHoldsStart
+[       OK ] NavigateProgress.InvalidSpeedHoldsStart (0 ms)
+[ RUN      ] NavigateProgress.ClampedAndOnSegment
+[       OK ] NavigateProgress.ClampedAndOnSegment (0 ms)
+[ RUN      ] NavigateProgress.MidpointAndExactTarget
+[       OK ] NavigateProgress.MidpointAndExactTarget (0 ms)
+[----------] 8 tests from NavigateProgress (0 ms total)
+
+[----------] 1 test from SteadyClock
+[ RUN      ] SteadyClock.IsMonotonic
+[       OK ] SteadyClock.IsMonotonic (0 ms)
+[----------] 1 test from SteadyClock (0 ms total)
+
+[----------] 1 test from ArmReply
+[ RUN      ] ArmReply.AckTimeoutIsUnknown
+[       OK ] ArmReply.AckTimeoutIsUnknown (0 ms)
+[----------] 1 test from ArmReply (0 ms total)
+
+[----------] 1 test from ArmSend
+[ RUN      ] ArmSend.RequiresFreshHeartbeatAndKnownRejection
+[       OK ] ArmSend.RequiresFreshHeartbeatAndKnownRejection (0 ms)
+[----------] 1 test from ArmSend (0 ms total)
+
+[----------] 1 test from Disarm
+[ RUN      ] Disarm.DoesNotTakeControlFromPilot
+[       OK ] Disarm.DoesNotTakeControlFromPilot (0 ms)
+[----------] 1 test from Disarm (0 ms total)
+
+[----------] 2 tests from FlightRun
+[ RUN      ] FlightRun.IdleAndResetBoundaries
+[       OK ] FlightRun.IdleAndResetBoundaries (0 ms)
+[ RUN      ] FlightRun.QueuedArmAfterLand
+[       OK ] FlightRun.QueuedArmAfterLand (0 ms)
+[----------] 2 tests from FlightRun (0 ms total)
+
+[----------] 9 tests from SetpointResume
+[ RUN      ] SetpointResume.GapBoundaryAndClockReset
+[       OK ] SetpointResume.GapBoundaryAndClockReset (0 ms)
+[ RUN      ] SetpointResume.InactiveInitialAndDisarmedDoNotBlock
+[       OK ] SetpointResume.InactiveInitialAndDisarmedDoNotBlock (0 ms)
+[ RUN      ] SetpointResume.PausedRosClockAndLostHeartbeatsWithLiveWallTimer
+[       OK ] SetpointResume.PausedRosClockAndLostHeartbeatsWithLiveWallTimer (0 ms)
+[ RUN      ] SetpointResume.NewExplicitStreamStartDoesNotInheritOldGap
+[       OK ] SetpointResume.NewExplicitStreamStartDoesNotInheritOldGap (0 ms)
+[ RUN      ] SetpointResume.MultipleQueuedCommandsRequireStateAfterTheStop
+[       OK ] SetpointResume.MultipleQueuedCommandsRequireStateAfterTheStop (0 ms)
+[ RUN      ] SetpointResume.FreshLandingPilotAndDisconnectedStatesCannotResume
+[       OK ] SetpointResume.FreshLandingPilotAndDisconnectedStatesCannotResume (0 ms)
+[ RUN      ] SetpointResume.CapturedTickExposesPauseBetweenFirstGuardAndCommit
+[       OK ] SetpointResume.CapturedTickExposesPauseBetweenFirstGuardAndCommit (0 ms)
+[ RUN      ] SetpointResume.FinalGuardDetectsPauseBeforeFreshRosStampCapture
+[       OK ] SetpointResume.FinalGuardDetectsPauseBeforeFreshRosStampCapture (0 ms)
+[ RUN      ] SetpointResume.StartingExplicitStreamCannotBypassFinalGuard
+[       OK ] SetpointResume.StartingExplicitStreamCannotBypassFinalGuard (0 ms)
+[----------] 9 tests from SetpointResume (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 7 test suites ran. (0 ms total)
+[  PASSED  ] 23 tests.

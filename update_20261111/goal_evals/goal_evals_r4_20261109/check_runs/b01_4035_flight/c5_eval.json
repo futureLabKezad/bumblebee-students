@@ -1,0 +1,41 @@
+{
+ "run": "/work/goal_step5b_20261109/runs/b01_4035_flight",
+ "criteria": "C5 approved 09.11 + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "height_tol_m": 0.1,
+  "motors_off_s": 3.0,
+  "touch_h_m": 0.01
+ },
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.992,
+  "clock_ok": true
+ },
+ "script": {
+  "path": "/work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py",
+  "problem": null
+ },
+ "script_height_m": 1.5,
+ "script_exit": {
+  "code": 3,
+  "how": "2026-11-09T10:08:45+04:00 exited by itself, code 3"
+ },
+ "ulog": null,
+ "note": "no ULog: the vehicle never armed",
+ "verdict_lines": {
+  "run_valid": true,
+  "script_height_known": true,
+  "took_off": false
+ },
+ "failed": [
+  "took_off",
+  "not evaluated: height_window_found",
+  "not evaluated: height_within_0p10",
+  "not evaluated: touchdown_found",
+  "not evaluated: motors_off_found",
+  "not evaluated: motors_off_le_3s",
+  "not evaluated: no_emergency"
+ ],
+ "C5": "FAIL"
+}

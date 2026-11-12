@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee 4057 + EKF2_MIN_RNG 0.28
+#
+# @type Quadrotor
+#
+# SIMULATOR ONLY. 09.11: T23 контроль (прыжок высоты при отрыве), Б-б + MIN_RNG 0,28 (HAGL на земле модели). Кандидат, на дроне нет.
+#
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=bumblebee}
+. ${R}etc/init.d-posix/airframes/4057_gz_bumblebee_4047_ekf2_ev_ctrl13
+
+param set-default EKF2_MIN_RNG 0.28

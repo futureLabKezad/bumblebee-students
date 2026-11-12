@@ -1,0 +1,13 @@
+src/bumblebee/launch/bumblebee.launch.py: main_camera_frame (down camera)
+src/bumblebee/launch/bumblebee.launch.py: second_camera_frame (forward camera)
+src/bumblebee/launch/main_camera.launch.py: down + backward
+src/bumblebee/launch/main_camera.launch.py: down + forward
+src/bumblebee/launch/second_camera.launch.py: second_camera_frame
+src/bumblebee/examples/flight/flight.py: flight.py header: 0.9m
+src/bumblebee/examples/flight/flight.py: flight.py takeoff 0.8 -> 0.9 m (owner 11.11)
+test/test_q6_fixes.py: Q6 E1 docstring: 0.9 m
+test/test_q6_fixes.py: Q6 E1: 0.9 m
+test/test_r2j_changes.py: new
+test/test_r2h.py: folder -> r2j
+test/test_r2h_vpe.py: folder -> r2j
+test/test_r2i_vpe.py: folder -> r2j

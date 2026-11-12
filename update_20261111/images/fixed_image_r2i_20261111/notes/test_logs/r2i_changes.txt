@@ -1,0 +1,11 @@
+test_drone_py_flight_py_camera_fix_are_r2h (__main__.Changes.test_drone_py_flight_py_camera_fix_are_r2h) ... ok
+test_edits_backwards_give_r2h_bytes (__main__.Changes.test_edits_backwards_give_r2h_bytes) ... ok
+test_flight_marker_one_line (__main__.Changes.test_flight_marker_one_line) ... ok
+test_manifest_rows (__main__.Changes.test_manifest_rows) ... ok
+test_r2h_is_the_accepted_one (__main__.Changes.test_r2h_is_the_accepted_one) ... ok
+test_src_files_differ_only_as_declared (__main__.Changes.test_src_files_differ_only_as_declared) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.024s
+
+OK

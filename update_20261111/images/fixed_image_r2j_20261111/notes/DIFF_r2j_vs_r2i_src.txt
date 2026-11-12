@@ -1,0 +1,77 @@
+diff -ruN /work/fixed_image_r2i_20261111/src/bumblebee/examples/flight/flight.py src/bumblebee/examples/flight/flight.py
+--- /work/fixed_image_r2i_20261111/src/bumblebee/examples/flight/flight.py	2026-11-10 09:28:01.217710908 +0400
++++ src/bumblebee/examples/flight/flight.py	2026-11-11 13:29:22.315638518 +0400
+@@ -13,7 +13,7 @@
+ # limitations under the License.
+ 
+ """
+-flight.py -- single- or multi-marker ArUco preflight, takeoff to 0.8m, hover, land.
++flight.py -- single- or multi-marker ArUco preflight, takeoff to 0.9m, hover, land.
+ 
+ Preflight gates:
+   1. >=1 ArUco marker visible.
+@@ -104,7 +104,7 @@
+ 
+ try:
+     # Lower than 1.0 m -- at this altitude marker 0 (0.19m) stays in frame.
+-    drone.takeoff(height=0.8, speed=0.4)
++    drone.takeoff(height=0.9, speed=0.4)
+ 
+     # Hover with vision watchdog: bail to safe_land only if vision goes
+     # completely silent (no markers at all) for >3s.
+diff -ruN /work/fixed_image_r2i_20261111/src/bumblebee/launch/bumblebee.launch.py src/bumblebee/launch/bumblebee.launch.py
+--- /work/fixed_image_r2i_20261111/src/bumblebee/launch/bumblebee.launch.py	2026-10-30 12:33:01.000000000 +0400
++++ src/bumblebee/launch/bumblebee.launch.py	2026-11-11 13:29:22.315041607 +0400
+@@ -270,7 +270,8 @@
+         executable='static_transform_publisher',
+         name='main_camera_frame',
+         # down + backward orientation
+-        arguments=['0.05', '0', '-0.07', '-1.5707963', '0', '3.1415926',
++        # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
++        arguments=['0.081', '0', '-0.034', '-1.5707963', '0', '3.1415926',
+                    'base_link', 'main_camera_optical'],
+     )
+ 
+@@ -278,7 +279,8 @@
+         package='tf2_ros',
+         executable='static_transform_publisher',
+         name='second_camera_frame',
+-        arguments=['0.05', '0', '0.05', '-1.5707963', '0', '0',
++        # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
++        arguments=['0.113', '0', '-0.002', '-1.5707963', '0', '0',
+                    'base_link', 'second_camera_optical'],
+     )
+ 
+diff -ruN /work/fixed_image_r2i_20261111/src/bumblebee/launch/main_camera.launch.py src/bumblebee/launch/main_camera.launch.py
+--- /work/fixed_image_r2i_20261111/src/bumblebee/launch/main_camera.launch.py	2026-10-30 12:33:01.000000000 +0400
++++ src/bumblebee/launch/main_camera.launch.py	2026-11-11 13:29:22.315346147 +0400
+@@ -42,12 +42,14 @@
+         DeclareLaunchArgument('simulator', default_value='false'),
+ 
+         # TF: down + backward (default)
++        # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
+         Node(package='tf2_ros', executable='static_transform_publisher', name='main_camera_frame',
+-             arguments=['0.05', '0', '-0.07', '-1.5707963', '0', '3.1415926', 'base_link', 'main_camera_optical'],
++             arguments=['0.081', '0', '-0.034', '-1.5707963', '0', '3.1415926', 'base_link', 'main_camera_optical'],
+              condition=IfCondition(PythonExpression(["'", dir_z, "' == 'down' and '", dir_y, "' == 'backward'"]))),
+         # TF: down + forward
++        # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
+         Node(package='tf2_ros', executable='static_transform_publisher', name='main_camera_frame',
+-             arguments=['0.05', '0', '-0.07', '1.5707963', '0', '3.1415926', 'base_link', 'main_camera_optical'],
++             arguments=['0.081', '0', '-0.034', '1.5707963', '0', '3.1415926', 'base_link', 'main_camera_optical'],
+              condition=IfCondition(PythonExpression(["'", dir_z, "' == 'down' and '", dir_y, "' == 'forward'"]))),
+         # TF: up + backward
+         Node(package='tf2_ros', executable='static_transform_publisher', name='main_camera_frame',
+diff -ruN /work/fixed_image_r2i_20261111/src/bumblebee/launch/second_camera.launch.py src/bumblebee/launch/second_camera.launch.py
+--- /work/fixed_image_r2i_20261111/src/bumblebee/launch/second_camera.launch.py	2026-10-30 12:33:01.000000000 +0400
++++ src/bumblebee/launch/second_camera.launch.py	2026-11-11 13:29:22.315429311 +0400
+@@ -30,7 +30,8 @@
+             package='tf2_ros',
+             executable='static_transform_publisher',
+             name='second_camera_frame',
+-            arguments=['0.05', '0', '0.05', '-1.5707963', '0', '0',
++            # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
++            arguments=['0.113', '0', '-0.002', '-1.5707963', '0', '0',
+                        'base_link', 'second_camera_optical'],
+         ),
+ 

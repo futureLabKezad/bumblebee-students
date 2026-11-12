@@ -1,0 +1,1376 @@
+{
+  "schema": 1,
+  "run": "/work/sim/runs/INT_flight_C8a9_mavros_restart_03",
+  "scenario": "mavros_restart",
+  "scenario_gate": "S4",
+  "scenario_status": "pass",
+  "scenario_checks": {
+    "raw_gate_result": {
+      "status": "pass",
+      "reason": "",
+      "evidence": {}
+    },
+    "success_before_cleanup": {
+      "status": "pass",
+      "reason": "",
+      "evidence": {}
+    },
+    "independent_profile19": {
+      "status": "pass",
+      "reason": "",
+      "evidence": {}
+    },
+    "frozen_provenance": {
+      "status": "pass",
+      "reason": "",
+      "evidence": {}
+    },
+    "complete_proxy": {
+      "status": "pass",
+      "reason": "",
+      "evidence": {}
+    },
+    "fresh_single_ulog": {
+      "status": "pass",
+      "reason": "",
+      "evidence": {}
+    },
+    "scenario_identity": {
+      "status": "pass",
+      "reason": "",
+      "evidence": {}
+    },
+    "existing_core": {
+      "status": "pass",
+      "reason": "",
+      "evidence": {}
+    }
+  },
+  "raw_gate_result": true,
+  "success_before_cleanup": true,
+  "profile_restored_flag": true,
+  "profile19": {
+    "status": "pass",
+    "checks": {
+      "journal_restored": {
+        "status": "pass",
+        "reason": "",
+        "evidence": {
+          "journal_status": "restored"
+        }
+      },
+      "journal_names": {
+        "status": "pass",
+        "reason": "",
+        "evidence": {
+          "expected_count": 18,
+          "actual_count": 18
+        }
+      },
+      "independent_before": {
+        "status": "pass",
+        "reason": "Exact names, float values, REAL32 type and FCU source 1/1; no tolerance silently broadens equality",
+        "evidence": {
+          "bad": [],
+          "unexpected": [],
+          "received_interval": [
+            23547.726695521,
+            23547.757615248
+          ]
+        }
+      },
+      "independent_after": {
+        "status": "pass",
+        "reason": "Exact names, float values, REAL32 type and FCU source 1/1; no tolerance silently broadens equality",
+        "evidence": {
+          "bad": [],
+          "unexpected": [],
+          "received_interval": [
+            23607.073430686,
+            23607.103644574
+          ]
+        }
+      },
+      "independent_stable": {
+        "status": "pass",
+        "reason": "Exact names, float values, REAL32 type and FCU source 1/1; no tolerance silently broadens equality",
+        "evidence": {
+          "bad": [],
+          "unexpected": [],
+          "received_interval": [
+            23609.722742526,
+            23609.752153609
+          ]
+        }
+      },
+      "journal_expected": {
+        "status": "pass",
+        "reason": "",
+        "evidence": {}
+      },
+      "journal_final_readback": {
+        "status": "pass",
+        "reason": "",
+        "evidence": {}
+      },
+      "scan_order": {
+        "status": "pass",
+        "reason": "Before/apply/after/stable are distinct chronological scans; armed flights require post-disarm restoration",
+        "evidence": {
+          "intervals": {
+            "independent_before": [
+              23547.726695521,
+              23547.757615248
+            ],
+            "independent_after": [
+              23607.073430686,
+              23607.103644574
+            ],
+            "independent_stable": [
+              23609.722742526,
+              23609.752153609
+            ]
+          },
+          "ignored_state_rows": 0,
+          "ignored_state_examples": []
+        }
+      },
+      "no_armed_fcu_heartbeat_after_disarm": {
+        "status": "pass",
+        "reason": "No source-identified armed FCU heartbeat after the first disarm that follows the last armed State; unknown when the proxy record is incomplete",
+        "evidence": {
+          "first_disarm_state": 23600.715693024,
+          "armed_heartbeats": 23,
+          "armed_heartbeats_after_disarm": [],
+          "armed_states": 17,
+          "proxy_complete": true
+        }
+      },
+      "three_stability_heartbeats": {
+        "status": "pass",
+        "reason": "Three source-identified disarmed FCU heartbeats must separate after and stable scans",
+        "evidence": {
+          "count": 3
+        }
+      },
+      "final_connected_disarmed": {
+        "status": "pass",
+        "reason": "",
+        "evidence": {}
+      },
+      "profile_restored_flag": {
+        "status": "pass",
+        "reason": "",
+        "evidence": {}
+      }
+    },
+    "independent_scans": {
+      "independent_before": {
+        "COM_DISARM_PRFLT": {
+          "value": 30.0,
+          "type": 9,
+          "received": 23547.726695521,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_ACC_HOR": {
+          "value": 1.0,
+          "type": 9,
+          "received": 23547.728387603,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_JERK_MAX": {
+          "value": 1.5,
+          "type": 9,
+          "received": 23547.729860758,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_LAND_SPEED": {
+          "value": 0.30000001192092896,
+          "type": 9,
+          "received": 23547.73207623,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_TKO_SPEED": {
+          "value": 0.800000011920929,
+          "type": 9,
+          "received": 23547.733834283,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_VEL_MANUAL": {
+          "value": 0.25,
+          "type": 9,
+          "received": 23547.735681774,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_VEL_MAN_BACK": {
+          "value": -1.0,
+          "type": 9,
+          "received": 23547.737053054,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_VEL_MAN_SIDE": {
+          "value": -1.0,
+          "type": 9,
+          "received": 23547.738482101,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_CRUISE": {
+          "value": 0.20000000298023224,
+          "type": 9,
+          "received": 23547.740130844,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_P": {
+          "value": 0.25,
+          "type": 9,
+          "received": 23547.74144714,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_D_ACC": {
+          "value": 0.05000000074505806,
+          "type": 9,
+          "received": 23547.74353944,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_I_ACC": {
+          "value": 0.10000000149011612,
+          "type": 9,
+          "received": 23547.745306293,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_MAX": {
+          "value": 0.25,
+          "type": 9,
+          "received": 23547.747582867,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_P_ACC": {
+          "value": 1.2000000476837158,
+          "type": 9,
+          "received": 23547.749356416,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_VEL_MAX_DN": {
+          "value": 0.4000000059604645,
+          "type": 9,
+          "received": 23547.752469977,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_VEL_MAX_UP": {
+          "value": 1.0,
+          "type": 9,
+          "received": 23547.753940495,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_V_AUTO_DN": {
+          "value": 0.4000000059604645,
+          "type": 9,
+          "received": 23547.756163531,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_V_AUTO_UP": {
+          "value": 1.0,
+          "type": 9,
+          "received": 23547.757615248,
+          "source": [
+            1,
+            1
+          ]
+        }
+      },
+      "independent_after": {
+        "COM_DISARM_PRFLT": {
+          "value": 30.0,
+          "type": 9,
+          "received": 23607.073430686,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_ACC_HOR": {
+          "value": 1.0,
+          "type": 9,
+          "received": 23607.075447397,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_JERK_MAX": {
+          "value": 1.5,
+          "type": 9,
+          "received": 23607.077187528,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_LAND_SPEED": {
+          "value": 0.30000001192092896,
+          "type": 9,
+          "received": 23607.078920322,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_TKO_SPEED": {
+          "value": 0.800000011920929,
+          "type": 9,
+          "received": 23607.080682621,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_VEL_MANUAL": {
+          "value": 0.25,
+          "type": 9,
+          "received": 23607.082202583,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_VEL_MAN_BACK": {
+          "value": -1.0,
+          "type": 9,
+          "received": 23607.085291508,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_VEL_MAN_SIDE": {
+          "value": -1.0,
+          "type": 9,
+          "received": 23607.08676979,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_CRUISE": {
+          "value": 0.20000000298023224,
+          "type": 9,
+          "received": 23607.088414851,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_P": {
+          "value": 0.25,
+          "type": 9,
+          "received": 23607.089880873,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_D_ACC": {
+          "value": 0.05000000074505806,
+          "type": 9,
+          "received": 23607.091816127,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_I_ACC": {
+          "value": 0.10000000149011612,
+          "type": 9,
+          "received": 23607.093341135,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_MAX": {
+          "value": 0.25,
+          "type": 9,
+          "received": 23607.095675411,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_P_ACC": {
+          "value": 1.2000000476837158,
+          "type": 9,
+          "received": 23607.09705747,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_VEL_MAX_DN": {
+          "value": 0.4000000059604645,
+          "type": 9,
+          "received": 23607.098360002,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_VEL_MAX_UP": {
+          "value": 1.0,
+          "type": 9,
+          "received": 23607.100371497,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_V_AUTO_DN": {
+          "value": 0.4000000059604645,
+          "type": 9,
+          "received": 23607.10169395,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_V_AUTO_UP": {
+          "value": 1.0,
+          "type": 9,
+          "received": 23607.103644574,
+          "source": [
+            1,
+            1
+          ]
+        }
+      },
+      "independent_stable": {
+        "COM_DISARM_PRFLT": {
+          "value": 30.0,
+          "type": 9,
+          "received": 23609.722742526,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_ACC_HOR": {
+          "value": 1.0,
+          "type": 9,
+          "received": 23609.725086187,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_JERK_MAX": {
+          "value": 1.5,
+          "type": 9,
+          "received": 23609.726684064,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_LAND_SPEED": {
+          "value": 0.30000001192092896,
+          "type": 9,
+          "received": 23609.728271276,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_TKO_SPEED": {
+          "value": 0.800000011920929,
+          "type": 9,
+          "received": 23609.729645035,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_VEL_MANUAL": {
+          "value": 0.25,
+          "type": 9,
+          "received": 23609.731427822,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_VEL_MAN_BACK": {
+          "value": -1.0,
+          "type": 9,
+          "received": 23609.732964606,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_VEL_MAN_SIDE": {
+          "value": -1.0,
+          "type": 9,
+          "received": 23609.734704452,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_CRUISE": {
+          "value": 0.20000000298023224,
+          "type": 9,
+          "received": 23609.736845302,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_P": {
+          "value": 0.25,
+          "type": 9,
+          "received": 23609.738166963,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_D_ACC": {
+          "value": 0.05000000074505806,
+          "type": 9,
+          "received": 23609.739810826,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_I_ACC": {
+          "value": 0.10000000149011612,
+          "type": 9,
+          "received": 23609.741146296,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_MAX": {
+          "value": 0.25,
+          "type": 9,
+          "received": 23609.742501066,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_XY_VEL_P_ACC": {
+          "value": 1.2000000476837158,
+          "type": 9,
+          "received": 23609.744468053,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_VEL_MAX_DN": {
+          "value": 0.4000000059604645,
+          "type": 9,
+          "received": 23609.745854461,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_VEL_MAX_UP": {
+          "value": 1.0,
+          "type": 9,
+          "received": 23609.748203213,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_V_AUTO_DN": {
+          "value": 0.4000000059604645,
+          "type": 9,
+          "received": 23609.749840499,
+          "source": [
+            1,
+            1
+          ]
+        },
+        "MPC_Z_V_AUTO_UP": {
+          "value": 1.0,
+          "type": 9,
+          "received": 23609.752153609,
+          "source": [
+            1,
+            1
+          ]
+        }
+      }
+    },
+    "limits": [
+      "PARAM has no nonce and reads are not an atomic snapshot.",
+      "Only these 18 known dependencies are covered."
+    ]
+  },
+  "provenance": {
+    "status": "pass",
+    "checks": {
+      "accepted_manifest": {
+        "status": "pass",
+        "reason": "Expected SHA comes from the separately frozen trusted pins, not from the run",
+        "evidence": {}
+      },
+      "run_manifest": {
+        "status": "pass",
+        "reason": "",
+        "evidence": {}
+      },
+      "combined_sources": {
+        "status": "pass",
+        "reason": "Accepted candidate files are checked independently of its saved run ledger",
+        "evidence": {
+          "mismatched": [],
+          "missing": []
+        }
+      },
+      "repo_files": {
+        "status": "pass",
+        "reason": "Run copies and current frozen sources must agree with the trusted pre-run snapshot",
+        "evidence": {
+          "mismatched": [],
+          "missing": []
+        }
+      },
+      "run_files": {
+        "status": "pass",
+        "reason": "Run copies and current frozen sources must agree with the trusted pre-run snapshot",
+        "evidence": {
+          "mismatched": [],
+          "missing": []
+        }
+      },
+      "pre_run_source_ledger": {
+        "status": "pass",
+        "reason": "A recorded source ledger is provenance evidence, not proof of every process memory page",
+        "evidence": {
+          "mismatched": [],
+          "missing": []
+        }
+      },
+      "field_files": {
+        "status": "pass",
+        "reason": "Field files of the run equal the pinned owner field (field_measurements_01/SHA256SUMS.json generated/)",
+        "evidence": {
+          "files": 64,
+          "expected": 64,
+          "differ": [],
+          "bad_lines": []
+        }
+      }
+    }
+  },
+  "existing_core": {
+    "gate": "S4",
+    "status": "pass",
+    "required_checks": [
+      "px4_version",
+      "candidate4030",
+      "real_parameters_before_arm",
+      "simulation_only_parameters",
+      "physical_takeoff",
+      "rc_valid_while_armed",
+      "land_actual_disarm",
+      "landing_disarm_within_3s",
+      "offboard_no_armed_reentry",
+      "offboard_loss_reaction_within_1_5s",
+      "setpoints_after_respawn_or_resume"
+    ],
+    "raw_runner_result": true,
+    "raw_runner_result_was_not_modified": true,
+    "scope": "One recorded scenario, not a complete deployment authorization; Vision policy/source unknown; this scenario cannot establish acceptance of the original vision stack",
+    "full_cancel_land_reply_bound_status": null,
+    "other_checks_unknown": [
+      "arm_sequence_at_cancel",
+      "no_additional_arm_after_cancel",
+      "cancel_before_no_arm",
+      "cancel_external_nonforced_disarm",
+      "cancel_true_rise_below_5cm",
+      "ack_delay_four_seconds",
+      "land_reply_actual_client_event",
+      "disarm_within_2sim_s_of_land_reply",
+      "disarm_within_2s_of_land_reply",
+      "cancel_offset_observed",
+      "s1_first_target_true_offset"
+    ],
+    "vision_policy": {
+      "source": "unknown",
+      "vpe_source": "unknown",
+      "metadata_file": null,
+      "metadata_sha256": null,
+      "metadata": null,
+      "vpe_policy": "unknown",
+      "classification": "unknown",
+      "vpe_policy_changed": null,
+      "aruco_policy": {
+        "source": "unknown",
+        "metadata": null,
+        "aruco_policy": "unknown",
+        "policy_changed": null,
+        "classification": "unknown",
+        "snapshot_file": null,
+        "snapshot_sha256": null,
+        "wrapper_sha_matches_snapshot": null
+      },
+      "policy_changed": null,
+      "wrapper_startup_evidence": [],
+      "strict_original_vision_acceptance": "unknown",
+      "scope": "Vision policy/source unknown; this scenario cannot establish acceptance of the original vision stack"
+    },
+    "strict_original_vision_acceptance": "unknown"
+  },
+  "supplementary": {
+    "checks": {},
+    "status": "unknown",
+    "measurements": {}
+  },
+  "s1": {
+    "status": "unknown",
+    "physical_target_check": {
+      "status": "unknown",
+      "reason": "Position packet, physical truth and explicit verified NED-to-world origin required",
+      "evidence": {}
+    },
+    "scope": "No complete S1 verdict: single MODE/accepted ARM and text evidence also require review"
+  },
+  "legacy_full_report": {
+    "run": "/work/sim/runs/INT_flight_C8a9_mavros_restart_03",
+    "checks": {
+      "runner_completed": {
+        "status": "pass",
+        "reason": "Runner assertion result, independently checked below",
+        "evidence": {
+          "runner_pass": true
+        }
+      },
+      "px4_version": {
+        "status": "pass",
+        "reason": "Exact pinned PX4 source commit",
+        "evidence": {
+          "actual": "94cb2012792b2ae89f0b147cfee53ee31ae550be",
+          "expected": "94cb2012792b2ae89f0b147cfee53ee31ae550be"
+        }
+      },
+      "candidate4030": {
+        "status": "pass",
+        "reason": "ULog values after folding parameter changes",
+        "evidence": {
+          "values": {
+            "SYS_AUTOSTART": 4070,
+            "SIM_GZ_EN": 1,
+            "COM_OBL_RC_ACT": 4
+          },
+          "missing": [],
+          "mismatches": {}
+        }
+      },
+      "real_parameters_before_arm": {
+        "status": "pass",
+        "reason": "Real commander/RC values, not ULog initial defaults alone",
+        "evidence": {
+          "actual_arm_observed": true,
+          "expected_count": 83,
+          "values": {
+            "BAT1_N_CELLS": 6,
+            "BAT1_SOURCE": 0,
+            "BAT1_V_CHARGED": 4.199999809265137,
+            "CBRK_SUPPLY_CHK": 894281,
+            "COM_ARM_SDCARD": 0,
+            "COM_DISARM_LAND": 0.5,
+            "COM_DISARM_PRFLT": 30.0,
+            "COM_FAIL_ACT_T": 5.0,
+            "COM_LOW_BAT_ACT": 0,
+            "COM_OF_LOSS_T": 1.0,
+            "COM_RC_OVERRIDE": 1,
+            "COM_SPOOLUP_TIME": 1.0,
+            "IMU_GYRO_CAL_EN": 1,
+            "SDLOG_MODE": 1,
+            "EKF2_OF_QMIN": 50,
+            "COM_FLTMODE1": 8,
+            "COM_FLTMODE2": 8,
+            "COM_FLTMODE3": 1,
+            "COM_FLTMODE4": 1,
+            "COM_FLTMODE5": 2,
+            "COM_FLTMODE6": 2,
+            "COM_RCL_EXCEPT": 0,
+            "COM_RC_IN_MODE": 0,
+            "MAN_ARM_GESTURE": 0,
+            "NAV_RCL_ACT": 3,
+            "RC1_DZ": 10.0,
+            "RC1_MAX": 1999.0,
+            "RC1_MIN": 1000.0,
+            "RC1_REV": 1.0,
+            "RC1_TRIM": 1499.0,
+            "RC2_DZ": 10.0,
+            "RC2_MAX": 1999.0,
+            "RC2_MIN": 1000.0,
+            "RC2_REV": 1.0,
+            "RC2_TRIM": 1500.0,
+            "RC3_DZ": 10.0,
+            "RC3_MAX": 1999.0,
+            "RC3_MIN": 1000.0,
+            "RC3_REV": 1.0,
+            "RC3_TRIM": 1000.0,
+            "RC4_DZ": 10.0,
+            "RC4_MAX": 1999.0,
+            "RC4_MIN": 1000.0,
+            "RC4_REV": 1.0,
+            "RC4_TRIM": 1497.0,
+            "RC5_DZ": 10.0,
+            "RC5_MAX": 1988.0,
+            "RC5_MIN": 1011.0,
+            "RC5_REV": 1.0,
+            "RC5_TRIM": 1499.0,
+            "RC6_DZ": 10.0,
+            "RC6_MAX": 1999.0,
+            "RC6_MIN": 1000.0,
+            "RC6_REV": 1.0,
+            "RC6_TRIM": 1499.0,
+            "RC7_DZ": 10.0,
+            "RC7_MAX": 2000.0,
+            "RC7_MIN": 1000.0,
+            "RC7_REV": 1.0,
+            "RC7_TRIM": 1500.0,
+            "RC8_DZ": 10.0,
+            "RC8_MAX": 1999.0,
+            "RC8_MIN": 1000.0,
+            "RC8_REV": 1.0,
+            "RC8_TRIM": 1499.0,
+            "RC_ARMSWITCH_TH": 0.75,
+            "RC_FAILS_THR": 0,
+            "RC_KILLSWITCH_TH": 0.75,
+            "RC_LOITER_TH": 0.75,
+            "RC_MAP_ARM_SW": 5,
+            "RC_MAP_FLTMODE": 6,
+            "RC_MAP_KILL_SW": 8,
+            "RC_MAP_LOITER_SW": 0,
+            "RC_MAP_MODE_SW": 0,
+            "RC_MAP_OFFB_SW": 0,
+            "RC_MAP_PITCH": 2,
+            "RC_MAP_RETURN_SW": 0,
+            "RC_MAP_ROLL": 1,
+            "RC_MAP_THROTTLE": 3,
+            "RC_MAP_YAW": 4,
+            "RC_OFFB_TH": 0.75,
+            "RC_RETURN_TH": 0.75,
+            "RC_CHAN_CNT": 16
+          },
+          "missing": [],
+          "mismatches": {},
+          "sources": [
+            {
+              "path": "/work/c8_judge_r2g_a9_20261110/expect/flight_real_params_4070.json",
+              "sha256": "9e471a6e3fcad40958fab2eaa040713479759ef815581ebeb9761590634900d1",
+              "source": "/Users/arsenij/Documents/Bumbl code/bumblebee-students/PX4_parameters/px4_v0_0_2.params"
+            },
+            {
+              "path": "/work/c8_judge_r2g_a9_20261110/expect/rc_real_params_4070.json",
+              "sha256": "99002dc26d073659b2ba567b8d6c67122bb710b896c8c05499b9e65bcc0c1d9c",
+              "source": "/Users/arsenij/Documents/Bumbl code/bumblebee-students/PX4_parameters/px4_v0_0_2.params"
+            }
+          ]
+        }
+      },
+      "simulation_only_parameters": {
+        "status": "pass",
+        "reason": "Separate simulator-only values, not claimed as physical drone parameters",
+        "evidence": {
+          "values": {
+            "SIM_BAT_ENABLE": 0
+          },
+          "missing": [],
+          "mismatches": {}
+        }
+      },
+      "rc_valid_while_armed": {
+        "status": "pass",
+        "reason": "Actual RC source 1, valid manual input, no RC loss throughout logged armed intervals",
+        "evidence": {
+          "samples": 118,
+          "flags_samples": 44,
+          "sources": [
+            1
+          ],
+          "invalid_manual_samples": 0,
+          "lost_flag_samples": 0
+        }
+      },
+      "arm_sequence_at_cancel": {
+        "status": "unknown",
+        "reason": "Cancellation event and complete proxy recording required",
+        "evidence": {}
+      },
+      "no_additional_arm_after_cancel": {
+        "status": "unknown",
+        "reason": "Cancellation event and complete proxy recording required",
+        "evidence": {}
+      },
+      "cancel_before_no_arm": {
+        "status": "unknown",
+        "reason": "Not a cancel_before scenario",
+        "evidence": {}
+      },
+      "cancel_external_nonforced_disarm": {
+        "status": "unknown",
+        "reason": "Not an after-ARM cancellation scenario",
+        "evidence": {}
+      },
+      "cancel_true_rise_below_5cm": {
+        "status": "unknown",
+        "reason": "Cancellation ground/reference/end events and physical truth required",
+        "evidence": {}
+      },
+      "physical_takeoff": {
+        "status": "pass",
+        "reason": "At least 0.35 m physical Gazebo body rise at the airborne boundary, independent of estimated height",
+        "evidence": {
+          "maximum_rise_before_boundary_m": 0.3505426875168926,
+          "physical_rise_at_airborne_event_m": 0.3505426875168926,
+          "reference_z": 0.21690883069505468,
+          "airborne_event": {
+            "wall": 23591.654343064,
+            "elapsed": 21.790232655999716,
+            "sim": 57.504,
+            "kind": "airborne",
+            "estimated_z": 0.3272349238395691,
+            "truth_z": 0.5674515182119473
+          },
+          "samples": 751,
+          "physical_rise_at_fault_m": 0.4195408830386617,
+          "truth_age_at_fault_wall_s": 0.013324037001439137
+        }
+      },
+      "ulog_gazebo_sim_clock_alignment": {
+        "status": "pass",
+        "reason": "Moving physical Gazebo truth agrees with ULog groundtruth at the same simulation timestamps",
+        "evidence": {
+          "samples": 1584,
+          "moving_trajectory": true,
+          "maximum_position_residual_m": 7.683426771279826e-06,
+          "median_position_residual_m": 4.673188242237659e-09
+        }
+      },
+      "px4_boot_gazebo_clock_alignment": {
+        "status": "pass",
+        "reason": "Source-identified PX4 boot clock compared with timestamped Gazebo truth, including stationary runs",
+        "evidence": {
+          "samples": 1230,
+          "maximum_observed_clock_skew_sim_s": 0.021722369300213984,
+          "px4_clock_source": "PX4 source 1/1 time_boot_ms messages"
+        }
+      },
+      "offboard_no_armed_reentry": {
+        "status": "pass",
+        "reason": "Actual PX4 ULog state: armed LAND followed by DISARM; OFFBOARD after DISARM is allowed",
+        "evidence": {
+          "first_land_sim_s": 60.588,
+          "disarm_sim_s": 66.348,
+          "reentries": [],
+          "resume_event": null,
+          "respawn_event": {
+            "wall": 23598.687698811,
+            "elapsed": 28.82358840300003,
+            "sim": 64.54,
+            "kind": "mavros_respawn",
+            "pid": 347873,
+            "pgid": 347873,
+            "start_ticks": 2359868,
+            "executable": "/work/ws_mavros214_bp02/install/mavros/lib/mavros/mavros_node",
+            "requested_delay_sim": 5.0,
+            "measured_delay_sim": 5.020000000000003,
+            "measured_delay_wall": 5.01919754499977
+          },
+          "heartbeat_limitation": "Old proxy heartbeats lack source identity, so armed=false is not treated as FCU DISARM"
+        }
+      },
+      "land_actual_disarm": {
+        "status": "pass",
+        "reason": "Physical airborne scenario reached armed AUTO.LAND and PX4 auto-disarmed by landing",
+        "evidence": {
+          "land_sim_s": 60.588,
+          "disarm_sim_s": 66.348,
+          "disarm_reason": 6,
+          "disarm_reason_name": "auto_disarm_land",
+          "explicit_cleanup_land": false
+        }
+      },
+      "landing_disarm_within_3s": {
+        "status": "pass",
+        "reason": "PX4 DISARM no later than three simulation seconds after land detector transition",
+        "evidence": {
+          "delay_sim_s": 0.516,
+          "landed_sim_s": 65.832
+        }
+      },
+      "offboard_loss_reaction_within_1_5s": {
+        "status": "pass",
+        "reason": "Injected stop/kill to actual armed AUTO.LAND, on validated simulation clock",
+        "evidence": {
+          "injected_sim_s": 59.52,
+          "land_sim_s": 60.588,
+          "reaction_sim_s": 1.0679999999999978,
+          "px4_loss_detected_sim_s": 60.576,
+          "loss_detection_to_land_sim_s": 0.012000000000000455
+        }
+      },
+      "setpoints_after_respawn_or_resume": {
+        "status": "pass",
+        "reason": "All forwarded setpoints after the recorded boundary, with no excluded grace interval",
+        "evidence": {
+          "count": 0,
+          "count_after_0_3s": 0,
+          "boundary_wall": 23598.687698811
+        }
+      },
+      "ack_delay_four_seconds": {
+        "status": "unknown",
+        "reason": "ack_cancel held/released ACK records required",
+        "evidence": {}
+      },
+      "land_reply_actual_client_event": {
+        "status": "unknown",
+        "reason": "Matching real ROS client REQUEST_SENT/RESPONSE_RECEIVED metadata, not navigate completion or observer wall time",
+        "evidence": {
+          "request": null,
+          "reply": null,
+          "introspection": {
+            "wall": 23569.866730384,
+            "elapsed": 0.002619975999550661,
+            "sim": 0.0,
+            "kind": "land_introspection_enabled",
+            "client_clock": "RCL_STEADY_TIME / Linux CLOCK_MONOTONIC",
+            "mode": "METADATA",
+            "command_path_unchanged": true,
+            "measured_max_clock_skew_wall_s": 1.3115997717250139e-05,
+            "python_monotonic_before": 23569.866310604,
+            "rcl_steady_time": 23569.866313299,
+            "python_monotonic_after": 23569.866326415
+          }
+        }
+      },
+      "disarm_within_2sim_s_of_land_reply": {
+        "status": "unknown",
+        "reason": "Matching actual LAND client service-event metadata required",
+        "evidence": {}
+      },
+      "disarm_within_2s_of_land_reply": {
+        "status": "unknown",
+        "reason": "Actual land_reply_received or explicit legacy land_reply required; navigate_reply is not a LAND reply",
+        "evidence": {}
+      },
+      "cancel_offset_observed": {
+        "status": "unknown",
+        "reason": "Not a cancellation scenario",
+        "evidence": {}
+      },
+      "s1_first_target_true_offset": {
+        "status": "unknown",
+        "reason": "Position packet, physical truth and explicit verified NED-to-world origin required",
+        "evidence": {}
+      },
+      "s1_first_armed_trajectory_estimated_offset": {
+        "status": "failed",
+        "reason": "ULog target versus estimated position in the same NED frame; not a physical-position proof",
+        "evidence": {
+          "offset_m": 0.5014859149656421,
+          "at_us": 42724000
+        }
+      }
+    },
+    "errors": [],
+    "vision_policy": {
+      "source": "unknown",
+      "vpe_source": "unknown",
+      "metadata_file": null,
+      "metadata_sha256": null,
+      "metadata": null,
+      "vpe_policy": "unknown",
+      "classification": "unknown",
+      "vpe_policy_changed": null,
+      "aruco_policy": {
+        "source": "unknown",
+        "metadata": null,
+        "aruco_policy": "unknown",
+        "policy_changed": null,
+        "classification": "unknown",
+        "snapshot_file": null,
+        "snapshot_sha256": null,
+        "wrapper_sha_matches_snapshot": null
+      },
+      "policy_changed": null,
+      "wrapper_startup_evidence": [],
+      "strict_original_vision_acceptance": "unknown",
+      "scope": "Vision policy/source unknown; this scenario cannot establish acceptance of the original vision stack"
+    },
+    "aruco_policy": {
+      "source": "unknown",
+      "metadata": null,
+      "aruco_policy": "unknown",
+      "policy_changed": null,
+      "classification": "unknown",
+      "snapshot_file": null,
+      "snapshot_sha256": null,
+      "wrapper_sha_matches_snapshot": null
+    },
+    "strict_original_vision_acceptance": "unknown",
+    "scenario": "mavros_restart",
+    "offset_ms": 500,
+    "proxy": {
+      "records": 1875,
+      "complete": true,
+      "advertised_packet_types": [
+        "COMMAND_ACK",
+        "COMMAND_INT",
+        "COMMAND_LONG",
+        "HEARTBEAT",
+        "SET_ATTITUDE_TARGET",
+        "SET_MODE",
+        "SET_POSITION_TARGET_LOCAL_NED"
+      ]
+    },
+    "arming_intervals": [
+      {
+        "arm_us": 42600000,
+        "disarm_us": 66348000,
+        "reason": 6,
+        "reason_name": "auto_disarm_land"
+      }
+    ],
+    "ulog_command_counts": {
+      "external_arm": 1,
+      "external_disarm": 0,
+      "dataset_present": true
+    },
+    "ulog": {
+      "datasets": [
+        "failsafe_flags",
+        "manual_control_setpoint",
+        "trajectory_setpoint",
+        "vehicle_command",
+        "vehicle_command_ack",
+        "vehicle_land_detected",
+        "vehicle_local_position",
+        "vehicle_local_position_groundtruth",
+        "vehicle_status"
+      ],
+      "dropouts": 0,
+      "path": "/work/sim/runs/INT_flight_C8a9_mavros_restart_03/flight.ulg",
+      "disarm_reason_enum": {
+        "0": "transition_to_standby",
+        "1": "stick_gesture",
+        "10": "failure_detector",
+        "11": "shutdown",
+        "12": "unit_test",
+        "13": "rc_button",
+        "14": "failsafe",
+        "2": "rc_switch",
+        "3": "command_internal",
+        "4": "command_external",
+        "5": "mission_start",
+        "6": "auto_disarm_land",
+        "7": "auto_disarm_preflight",
+        "8": "kill_switch",
+        "9": "lockdown"
+      },
+      "reason_enum_source": "embedded_metadata_events"
+    },
+    "parameter_snapshot": {
+      "at_us": 42600000,
+      "basis": "before_first_arm"
+    },
+    "counts": {
+      "pass": 14,
+      "failed": 1,
+      "unknown": 11
+    },
+    "status": "failed",
+    "independent_acceptance": {
+      "gate": "S4",
+      "status": "pass",
+      "required_checks": [
+        "px4_version",
+        "candidate4030",
+        "real_parameters_before_arm",
+        "simulation_only_parameters",
+        "physical_takeoff",
+        "rc_valid_while_armed",
+        "land_actual_disarm",
+        "landing_disarm_within_3s",
+        "offboard_no_armed_reentry",
+        "offboard_loss_reaction_within_1_5s",
+        "setpoints_after_respawn_or_resume"
+      ],
+      "raw_runner_result": true,
+      "raw_runner_result_was_not_modified": true,
+      "scope": "One recorded scenario, not a complete deployment authorization; Vision policy/source unknown; this scenario cannot establish acceptance of the original vision stack",
+      "full_cancel_land_reply_bound_status": null,
+      "other_checks_unknown": [
+        "arm_sequence_at_cancel",
+        "no_additional_arm_after_cancel",
+        "cancel_before_no_arm",
+        "cancel_external_nonforced_disarm",
+        "cancel_true_rise_below_5cm",
+        "ack_delay_four_seconds",
+        "land_reply_actual_client_event",
+        "disarm_within_2sim_s_of_land_reply",
+        "disarm_within_2s_of_land_reply",
+        "cancel_offset_observed",
+        "s1_first_target_true_offset"
+      ],
+      "vision_policy": {
+        "source": "unknown",
+        "vpe_source": "unknown",
+        "metadata_file": null,
+        "metadata_sha256": null,
+        "metadata": null,
+        "vpe_policy": "unknown",
+        "classification": "unknown",
+        "vpe_policy_changed": null,
+        "aruco_policy": {
+          "source": "unknown",
+          "metadata": null,
+          "aruco_policy": "unknown",
+          "policy_changed": null,
+          "classification": "unknown",
+          "snapshot_file": null,
+          "snapshot_sha256": null,
+          "wrapper_sha_matches_snapshot": null
+        },
+        "policy_changed": null,
+        "wrapper_startup_evidence": [],
+        "strict_original_vision_acceptance": "unknown",
+        "scope": "Vision policy/source unknown; this scenario cannot establish acceptance of the original vision stack"
+      },
+      "strict_original_vision_acceptance": "unknown"
+    },
+    "deployment_gate": "not_established_by_this_report_alone",
+    "enum_sources": [
+      "Ulog metadata_events embedded arm_disarm_reason_t enum",
+      "https://raw.githubusercontent.com/PX4/PX4-Autopilot/94cb2012792b2ae89f0b147cfee53ee31ae550be/src/modules/commander/Commander.cpp",
+      "https://raw.githubusercontent.com/PX4/PX4-Autopilot/v1.16.1/msg/versioned/VehicleLocalPosition.msg"
+    ]
+  },
+  "errors": [],
+  "strict_original_vision_acceptance": false,
+  "deployment_accepted": false,
+  "limits": [
+    "One saved combined candidate scenario; no hardware or publication acceptance.",
+    "Missing evidence remains unknown. Cleanup success cannot promote an earlier failure.",
+    "Values are independent wire scans but PARAM has no nonce or atomic snapshot.",
+    "Source ledgers and immutable copies establish recorded inputs, not every runtime memory page."
+  ],
+  "review_input_sha256": {
+    "frozen_pins": "4b46f4d421c7b311d1de18e6ec2f8dc81ee65bc095a8540b380077c8740c05f6",
+    "verifier": "1ab83ca41f435250d523cb6697f6cda0331f8e2db6d6a9fd6051c9495924c27d",
+    "expected_manifest": "4af0cf632f6d991dfb35f6810ce042777083cd180c77c1cb32e4c1ff9451fc68",
+    "criteria": null,
+    "origin_evidence": null
+  },
+  "judge_identity": {
+    "identity": "c8_4070",
+    "autostart": 4070,
+    "names": [
+      "COM_DISARM_PRFLT",
+      "MPC_ACC_HOR",
+      "MPC_JERK_MAX",
+      "MPC_LAND_SPEED",
+      "MPC_TKO_SPEED",
+      "MPC_VEL_MANUAL",
+      "MPC_VEL_MAN_BACK",
+      "MPC_VEL_MAN_SIDE",
+      "MPC_XY_CRUISE",
+      "MPC_XY_P",
+      "MPC_XY_VEL_D_ACC",
+      "MPC_XY_VEL_I_ACC",
+      "MPC_XY_VEL_MAX",
+      "MPC_XY_VEL_P_ACC",
+      "MPC_Z_VEL_MAX_DN",
+      "MPC_Z_VEL_MAX_UP",
+      "MPC_Z_V_AUTO_DN",
+      "MPC_Z_V_AUTO_UP"
+    ],
+    "legacy": "/work/c8_judge_r2g_a9_20261110/legacy/verify_package1b_gates_c8.py",
+    "real_params": {
+      "flight_real_params.json": [
+        "/work/c8_judge_r2g_a9_20261110/expect/flight_real_params_4070.json",
+        "9e471a6e3fcad40958fab2eaa040713479759ef815581ebeb9761590634900d1"
+      ],
+      "rc_real_params.json": [
+        "/work/c8_judge_r2g_a9_20261110/expect/rc_real_params_4070.json",
+        "99002dc26d073659b2ba567b8d6c67122bb710b896c8c05499b9e65bcc0c1d9c"
+      ]
+    }
+  },
+  "evidence_sha256": {
+    "gate_events.json": "7f26ca62665bdb9e481c05497f4a0fa500bbbd0fd722caa3aaee9e134c997613",
+    "groundtruth.json": "55a51fa1f03d8075d26b65a5c0ce5728516a0b70b557089c58f0dcb5562b9921",
+    "flight_result.json": "ece16f3fbd9b63bc69b1c31d3365310ac34538d0490e5dc9fc445db41d14c473",
+    "gate_result.json": "03863605cb075ddb3624ba071d1b122c4b54ab50021b0fcf99edcdae6177ebe7",
+    "combined_manifest.json": "4af0cf632f6d991dfb35f6810ce042777083cd180c77c1cb32e4c1ff9451fc68",
+    "ulog_copy_status.json": "a0f68fe63da986e8889adfaa5e229b9076b6f89cfcb3eae329839480111e502b",
+    "flight.ulg": "e8282cf4822549f9d90e8971d0321eb3555c13bd5bcd25588e30f48a54d59bfb",
+    "flight_source.sha256": "23506ec135c271c60e881c5254cdc7b34a352287fe5feda0d92746edeefa8e91",
+    "mavlink_proxy.jsonl": "b3f5f4059962195015beabc8a086e964d2f85f3a13128fee3b4d7711aafcd843",
+    "guard_final/profile_journal.json": "1adada699c4b97fdb791761b4839b5bc4539599c4fd7ee4061f1a44234de9caf"
+  }
+}

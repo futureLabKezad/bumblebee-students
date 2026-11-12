@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee 4075 = 4074 + rotor positions by the reference (arm 0.2262, PZ -0.016)
+#
+# @type Quadrotor x
+#
+# Claude 11.11 (chat 1; owner «везде реальные размеры надо»). Signs PX/PY as on the drone; only the arm 0.25 -> 0.2262.
+#
+
+. ${R}etc/init.d-posix/airframes/4074_gz_bumblebee_t52_ref_dims
+
+param set-default CA_ROTOR0_PX 0.2262
+param set-default CA_ROTOR0_PY 0.2262
+param set-default CA_ROTOR0_PZ -0.016
+param set-default CA_ROTOR1_PX -0.2262
+param set-default CA_ROTOR1_PY -0.2262
+param set-default CA_ROTOR1_PZ -0.016
+param set-default CA_ROTOR2_PX 0.2262
+param set-default CA_ROTOR2_PY -0.2262
+param set-default CA_ROTOR2_PZ -0.016
+param set-default CA_ROTOR3_PX -0.2262
+param set-default CA_ROTOR3_PY 0.2262
+param set-default CA_ROTOR3_PZ -0.016

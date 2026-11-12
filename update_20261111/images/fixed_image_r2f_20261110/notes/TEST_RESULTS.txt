@@ -1,0 +1,60 @@
+# TEST_RESULTS r2b, 09.11.2026 10:36, без ROS
+## Q6
+Ran 17 tests in 3.144s
+
+OK
+## r2b: wake на всю проверку + строки карты
+Ran 8 tests in 3.310s
+
+OK
+## drone.py guards
+Ran 87 tests in 0.822s
+
+OK (skipped=2)
+## профиль: 16/16 (test_flight_profile_check.py из param_profile_fix_01 против examples r2b, копия в notes/moved_aside/proftest_*)
+## map_read.sh: bash -n OK; пробный прогон на ПК без дрона -> VERDICT UNKNOWN (ожидаемо)
+
+# TEST_RESULTS r2c, 09.11.2026 12:05
+## r2c: test_r2c_navigate_float.py
+- без ROS: Ran 6 tests OK (skipped=2) — 9 значений x 5 полей, заглушка как C-проверка.
+- с настоящим rosidl (jazzy + ws_sitl + mavros bp02 + install r2c, как run_scenario2.sh): Ran 6 tests OK — 35 отдельных процессов (int0, int7, nan, bool, numpy int64/float32/float64 x 5 полей) rc 0; контроль r2b с x=0 -> SIGABRT PyFloat_Check.
+## прежние на r2c: Q6 17/17 OK; r2b 8/8 OK; drone.py guards 87/87 OK (skipped=2)
+
+# TEST_RESULTS r2d, 09.11.2026 14:15
+## без ROS
+- test/test_r2d.py: Ran 14 tests OK (F7: прибытие с settle_speed, примеры 0.12/0.05; T25: аренда в drone.py — старт с первой команды, одна, период, стоп, _shutdown, сбой публикации не ломает navigate)
+- test/test_script_lease.cpp (g++ -std=c++17 -Wall -Wextra -Werror): 13 cases OK
+- прежние: Q6 17/17 OK; r2b 8/8 OK; r2c 6/6 OK (skipped=2); drone.py guards 87/87 OK (skipped=2)
+## с ROS, без Gazebo (jazzy + ws_sitl + mavros bp02 + install r2d, домен 89/90, только localhost)
+- gtest build/bumblebee/test_simple_offboard: 23/23 PASSED
+- src/bumblebee/test/test_drone_py_cancel_launch.py (настоящий drone.py + simple_offboard, SIGINT во взлёте): 1 passed
+- test/test_r2d_lease_ros.py (настоящий drone.py + simple_offboard r2d + fake_mavros faithful), exit 0, 89 с:
+R2D_LEASE_ROS_PASS [{"kind": "kill", "kill_to_auto_land_s": 1.88, "kill_to_disarm_s": 4.86}, {"kind": "pilot", "mode_after_5s": "POSCTL", "armed": true}, {"kind": "normal", "rc": 0, "auto_land_requests": 1}, {"kind": "sigint", "rc": 0, "auto_land_requests": 1}]
+  kill: SIGKILL скрипта в висении -> AUTO.LAND через 1.88 с, моторы выключены через 4.86 с, в журнале узла «Script lease silent»
+  pilot: пилот в POSCTL, потом SIGKILL -> 5 с без AUTO.LAND, POSCTL, вооружён
+  normal: взлёт, висение, safe_land -> код 0, один AUTO.LAND, строки аренды нет; 4 с после выхода — ничего
+  sigint: Ctrl+C в висении -> safe_land, код 0, строки аренды нет
+- контроль «без аренды дрон висит» — это Gazebo k1_r2c_4059_kill_hover (r2c)
+
+# TEST_RESULTS r2e, 09.11.2026 14:46
+## без ROS
+- test/test_script_lease.cpp: 19 cases OK (g++ -Wall -Wextra -Werror)
+- test/test_r2e.py: 2 OK; test_r2d.py 14 OK; r2c 6 OK (skipped=2); r2b 8 OK; Q6 17 OK; drone.py guards 87 OK (skipped=2)
+## с ROS, без Gazebo
+- gtest test_simple_offboard 23/23; test_drone_py_cancel_launch.py 1 passed
+- test/test_r2d_lease_ros.py (порог 4.5 с): kill -> AUTO.LAND 2.46 с, disarm 5.53 с; pilot POSCTL без посадки; normal и sigint код 0, один AUTO.LAND
+- test/probe_review/exp_lease_r2e.py (проба ревьюера, домен 94, run_r2e.txt): stall 1.8/2.0/2.0/1.5/2.3/3.0 -> mode_requests [] (на r2d 1.8 и 2.0 -> AUTO.LAND); kill_at_offboard, kill_at_arm, kill_at_offboard_late x2 -> AUTO.LAND, disarmed (на r2d late -> висит)
+
+# TEST_RESULTS r2f, 10.11.2026 09:29-09:40 (tools/test_all_r2f.sh, logs notes/test_logs/)
+## без ROS
+- test/test_r2f.py: 16 OK (r2f-сторож: ложные кадры не продлевают зрение - посадка через 6,0-6,5 с после последней позы; новые позы продлевают; повтор той же позы не продлевает; vpe_fix молчит - посадка; до первой позы сторож выключен + предупреждение во взлёте; safe_land: ложный кадр -> посадка на месте, свежие позы -> точный подлёт; _init подписывает pose_cov BEST_EFFORT; hover_vw; строки сторожей flight.py/loop; контроль r2e: ложные кадры продлевают зрение и держат точный подлёт)
+- прежние: Q6 17 OK; r2b 5 OK; r2c 6 OK (skipped=2); r2d 14 OK; r2e 2 OK; drone.py guards 87 OK (skipped=2, 6 мест переведены на _vpe_pose_time); notify_manager 37 OK (skipped=2); test_script_lease.cpp 19 OK
+- первый прогон test_r2f.py: 2 FAIL из-за границы теста (6,5 не < 6,5; цикл navigate_wait 0,5 с) - notes/_failed_first_run/r2f_test_bound_6.5.txt
+## с ROS, без Gazebo (jazzy + ws_sitl + mavros bp02 + install r2f, домен 91, только localhost; аренда - домен 89)
+- gtest test_simple_offboard 23/23
+- test/test_r2f_flag_ros.py (настоящий simple_offboard + fake_mavros faithful; гонка T34 воспроизведена: heartbeat POSCTL до переключения в OFFBOARD):
+  r2f: 3/3 гонки -> второй navigate "Navigating from current setpoint"; без гонки - тоже
+  контроль r2e: 3/3 гонки -> старт не от уставки (ответ ""); без гонки - "from current setpoint"
+- test/test_r2f_vpe_sub_ros.py (настоящий drone.py r2f, публикатор с QoS vpe_fix): сырые markers_used=1 2 с -> vision_pose_age = inf; новые позы -> 0,033 с; повтор той же позы 1 с -> 1,218 с
+- test_drone_py_cancel_launch.py 1 passed; test/test_r2d_lease_ros.py: kill -> AUTO.LAND 2,44 с, disarm 5,43 с; pilot POSCTL без посадки; normal и sigint код 0, один AUTO.LAND
+- первый вариант drone.py (импорт geometry_msgs внутри _init) ронял ArmingD3.test_arming_service_name без ROS; импорт перенесён в _ros2_import (как у остальных типов). Первый сборщик и журналы - notes/_failed_first_run/

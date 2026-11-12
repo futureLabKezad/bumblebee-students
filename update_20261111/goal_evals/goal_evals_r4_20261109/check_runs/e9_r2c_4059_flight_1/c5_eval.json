@@ -1,0 +1,56 @@
+{
+ "run": "/work/goal_step5b_20261109/runs/e9_r2c_4059_flight_1",
+ "criteria": "C5 approved 09.11 + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "height_tol_m": 0.1,
+  "motors_off_s": 3.0,
+  "touch_h_m": 0.01
+ },
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.998,
+  "clock_ok": true
+ },
+ "script": {
+  "path": "/work/fixed_image_r2d_20261109/src/bumblebee/examples/flight/flight.py",
+  "problem": null
+ },
+ "script_height_m": 0.8,
+ "script_exit": {
+  "code": 0,
+  "how": "2026-11-09T12:50:06+04:00 exited by itself, code 0"
+ },
+ "ulog": "/work/goal_step5b_20261109/runs/e9_r2c_4059_flight_1/rootfs/log/2026-11-09/08_49_37.ulg",
+ "h_max_m": 0.815,
+ "failsafe_flags_on_at_start": [
+  "auto_mission_missing",
+  "global_position_invalid",
+  "home_position_invalid"
+ ],
+ "emergencies": [],
+ "window": {
+  "from_s": 17.79,
+  "to_s": 22.09,
+  "ends_because": "left OFFBOARD (nav_state 18)"
+ },
+ "height_dev_max_m": 0.1,
+ "height_mean_m": 0.771,
+ "height_dev_max_at_s": 17.79,
+ "touchdown_s": 25.072,
+ "motors_off_s": 27.5,
+ "motors_off_after_touchdown_s": 2.428,
+ "verdict_lines": {
+  "run_valid": true,
+  "script_height_known": true,
+  "took_off": true,
+  "no_emergency": true,
+  "height_window_found": true,
+  "height_within_0p10": true,
+  "touchdown_found": true,
+  "motors_off_found": true,
+  "motors_off_le_3s": true
+ },
+ "failed": [],
+ "C5": "PASS"
+}

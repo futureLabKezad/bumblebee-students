@@ -1,0 +1,9 @@
+C6 FAIL  failed: hover_60s, share_10cm_ge_95pct, offset_max_le_20cm, height_err_le_10cm, no_emergency
+run s04_4035_flight_arucoalways; valid True []; ulog /work/goal_step5_20261106/runs/s04_4035_flight_arucoalways/rootfs/log/2026-11-06/12_08_47.ulg
+trial deviations: None
+window 9.65..21.56 s (11.9 s, ends: left OFFBOARD (nav_state 18)); settling None s
+offset to marker 0: <=10 cm 0.0 % of the time (need >=95), max 0.412 m (need <=0.20); height err max 0.604 m (need <=0.10)
+jump a (EKF): resets >0.10 m []; max move <0.2 s 0.025 m at [9.66, 9.86]
+jump b (truth): max move in 0.5 s 0.077 m at [9.65, 10.15] (horizontal only 0.024 m, information)
+verdict lines: {'took_off': True, 'hover_window_found': True, 'hover_60s': False, 'share_10cm_ge_95pct': False, 'offset_max_le_20cm': False, 'height_err_le_10cm': False, 'no_jump_a_ekf': True, 'no_jump_b_truth': True, 'landed_and_disarmed_after_hover': True, 'no_emergency': False, 'script_matches_versions': True, 'run_valid': True}
+emergencies: ['script exit code 137 (launcher.log) = ended by the stand']

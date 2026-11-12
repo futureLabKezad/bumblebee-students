@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "$*" >> /work/c8_judge_r2h_a10_20261110/tests/out_184229/a9_logger/a9_mode1/calls.txt
+case "$1" in start) echo flight > /work/c8_judge_r2h_a10_20261110/tests/out_184229/a9_logger/a9_mode1/out/rootfs/log/2026-11-10/09_00_30.ulg ;; esac

@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee 4057 + COM_DISARM_LAND 0.5
+#
+# @type Quadrotor
+#
+# SIMULATOR ONLY. 09.11: вариант Б-б + выбор 1б. Кандидат, на дроне нет.
+#
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=bumblebee}
+. ${R}etc/init.d-posix/airframes/4057_gz_bumblebee_4047_ekf2_ev_ctrl13
+
+param set-default COM_DISARM_LAND 0.5

@@ -1,0 +1,10 @@
+test_r2_added_methods (__main__.PinsR2.test_r2_added_methods) ... ok
+test_r2_keep_untouched_code_and_constants_vs_c33 (__main__.PinsR2.test_r2_keep_untouched_code_and_constants_vs_c33) ... ok
+test_r2_not_sent_constant_is_the_literal_of_param_set_once (__main__.PinsR2.test_r2_not_sent_constant_is_the_literal_of_param_set_once) ... ok
+test_r2_only_the_declared_h2_set_differs_from_7f107882 (__main__.PinsR2.test_r2_only_the_declared_h2_set_differs_from_7f107882) ... ok
+test_r2_p1_code_identical_to_7f107882 (__main__.PinsR2.test_r2_p1_code_identical_to_7f107882) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.074s
+
+OK

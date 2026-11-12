@@ -1,0 +1,5 @@
+C5 FAIL  failed: height_within_0p10, motors_off_le_3s, no_emergency
+run s04_4035_flight_arucoalways; valid True []; script /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py H=1.5 ; exit 137 (None)
+window 14.1..21.56 s (left OFFBOARD (nav_state 18)); height dev max 0.104 m at 21.54 s (need <=0.10), mean 1.54 m
+touchdown 27.144 s, motors off 30.896 s, delay 3.752 s (need <=3.0)
+emergencies: ['script exit code 137 (launcher.log) = ended by the stand']

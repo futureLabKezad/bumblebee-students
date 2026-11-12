@@ -1,0 +1,21 @@
+# TEST_RESULTS r2b, 09.11.2026 10:36, без ROS
+## Q6
+Ran 17 tests in 3.144s
+
+OK
+## r2b: wake на всю проверку + строки карты
+Ran 8 tests in 3.310s
+
+OK
+## drone.py guards
+Ran 87 tests in 0.822s
+
+OK (skipped=2)
+## профиль: 16/16 (test_flight_profile_check.py из param_profile_fix_01 против examples r2b, копия в notes/moved_aside/proftest_*)
+## map_read.sh: bash -n OK; пробный прогон на ПК без дрона -> VERDICT UNKNOWN (ожидаемо)
+
+# TEST_RESULTS r2c, 09.11.2026 12:05
+## r2c: test_r2c_navigate_float.py
+- без ROS: Ran 6 tests OK (skipped=2) — 9 значений x 5 полей, заглушка как C-проверка.
+- с настоящим rosidl (jazzy + ws_sitl + mavros bp02 + install r2c, как run_scenario2.sh): Ran 6 tests OK — 35 отдельных процессов (int0, int7, nan, bool, numpy int64/float32/float64 x 5 полей) rc 0; контроль r2b с x=0 -> SIGABRT PyFloat_Check.
+## прежние на r2c: Q6 17/17 OK; r2b 8/8 OK; drone.py guards 87/87 OK (skipped=2)

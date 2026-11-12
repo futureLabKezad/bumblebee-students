@@ -1,0 +1,6 @@
+test_no_extra_write_while_armed (__main__.InAirWrites.test_no_extra_write_while_armed) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.458s
+
+OK

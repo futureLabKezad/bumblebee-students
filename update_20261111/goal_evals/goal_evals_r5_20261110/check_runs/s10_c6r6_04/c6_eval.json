@@ -1,0 +1,97 @@
+{
+ "run": "/work/goal_step5b_20261109/runs/s10_c6r6_04",
+ "criteria": "C6 approved 09.11 (КРИТЕРИИ_УТВЕРЖДЕНЫ_20261109.md) + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "height_m": 1.0,
+  "height_tol_m": 0.1,
+  "hover_s": 60.0,
+  "offset_10cm_m": 0.1,
+  "share_min": 0.95,
+  "offset_max_m": 0.2,
+  "jump_m": 0.1,
+  "jump_ekf_dt_s": 0.2,
+  "jump_truth_dt_s": 0.5
+ },
+ "ulog": "/work/goal_step5b_20261109/runs/s10_c6r6_04/rootfs/log/2026-11-10/09_06_22.ulg",
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.999,
+  "clock_ok": true
+ },
+ "trial_deviations": [
+  "trial-map-file (F2): drone.MAP_FILE -> RUN/aruco_map_written/map.txt instead of /home/lb/..."
+ ],
+ "script_events": [
+  "=== HOVER END held=65.1s reason=full time ===",
+  "C6 HOVER RESULT: OK held=65.1s reason=full time landed=True"
+ ],
+ "script": {
+  "path": "/work/c6_hover_script_r6_20261110/hover_marker0.py",
+  "problem": null
+ },
+ "world_to_map": {
+  "n_markers": 20,
+  "max_residual_m": 0.0,
+  "marker0_map_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "script_exit": {
+  "code": 0,
+  "how": "2026-11-10T13:10:07+04:00 exited by itself, code 0"
+ },
+ "failsafe_flags_on_at_start": [
+  "auto_mission_missing",
+  "gcs_connection_lost",
+  "global_position_invalid",
+  "home_position_invalid",
+  "manual_control_signal_lost",
+  "offboard_control_signal_lost"
+ ],
+ "h_max_m": 1.044,
+ "window": {
+  "from_s": 148.33,
+  "to_s": 216.58,
+  "len_s": 68.25,
+  "ends_because": "left OFFBOARD (nav_state 18)"
+ },
+ "offset_share_le_10cm": 1.0,
+ "offset_max_m": 0.06,
+ "offset_mean_m": 0.026,
+ "height_err_max_m": 0.1,
+ "height_mean_m": 0.998,
+ "settling_s": 0.0,
+ "jump_a_scope": "armed flight: 11891 EKF samples, 127.36..222.48 s",
+ "jump_a_ekf_resets": [],
+ "jump_a_ekf_max_move_lt_0p2s_m": 0.071,
+ "jump_a_ekf_at_s": [
+  140.01,
+  140.02
+ ],
+ "jump_b_truth_max_move_0p5s_m": 0.04,
+ "jump_b_truth_at_s": [
+  148.33,
+  148.83
+ ],
+ "jump_b_truth_max_move_0p5s_xy_only_m": 0.013,
+ "motors_off_s": 222.49,
+ "emergencies": [],
+ "verdict_lines": {
+  "took_off": true,
+  "hover_window_found": true,
+  "hover_60s": true,
+  "share_10cm_ge_95pct": true,
+  "offset_max_le_20cm": true,
+  "height_err_le_10cm": true,
+  "no_jump_a_ekf": true,
+  "no_jump_b_truth": true,
+  "landed_and_disarmed_after_hover": true,
+  "no_emergency": true,
+  "script_matches_versions": true,
+  "run_valid": true
+ },
+ "failed": [],
+ "C6": "PASS"
+}

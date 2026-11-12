@@ -1,0 +1,13 @@
+{"t": 0.977, "kind": "connected", "target": [1, 1]}
+{"t": 1.977, "kind": "state", "armed": false, "mode": "7.0"}
+{"t": 15.665, "kind": "params", "count": 1052, "listed": 1053}
+{"t": 167.125, "kind": "state", "armed": false, "mode": "6.0"}
+{"t": 167.157, "kind": "statustext", "severity": 6, "text": "Armed by external command\t"}
+{"t": 167.209, "kind": "statustext", "severity": 6, "text": "[logger] ./log/2026-11-06/12_08_47.ulg\t"}
+{"t": 168.125, "kind": "state", "armed": true, "mode": "6.0"}
+{"t": 171.117, "kind": "statustext", "severity": 6, "text": "Takeoff detected\t"}
+{"t": 189.166, "kind": "state", "armed": true, "mode": "4.6"}
+{"t": 196.093, "kind": "statustext", "severity": 6, "text": "Landing detected\t"}
+{"t": 198.098, "kind": "statustext", "severity": 6, "text": "Disarmed by landing\t"}
+{"t": 198.166, "kind": "state", "armed": false, "mode": "6.0"}
+{"t": 446.72, "kind": "rc_end", "armed": false}

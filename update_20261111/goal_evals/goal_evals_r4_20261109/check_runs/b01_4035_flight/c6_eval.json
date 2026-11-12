@@ -1,0 +1,59 @@
+{
+ "run": "/work/goal_step5b_20261109/runs/b01_4035_flight",
+ "criteria": "C6 approved 09.11 (КРИТЕРИИ_УТВЕРЖДЕНЫ_20261109.md) + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "height_m": 1.0,
+  "height_tol_m": 0.1,
+  "hover_s": 60.0,
+  "offset_10cm_m": 0.1,
+  "share_min": 0.95,
+  "offset_max_m": 0.2,
+  "jump_m": 0.1,
+  "jump_ekf_dt_s": 0.2,
+  "jump_truth_dt_s": 0.5
+ },
+ "ulog": null,
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.992,
+  "clock_ok": true
+ },
+ "trial_deviations": [
+  "trial-aruco-always (F1): aruco_detect gate_by_flight_state=False, detector works before arming"
+ ],
+ "script_events": [
+  "PREFLIGHT FAIL: only 7/13 profile params applied (<90%). Refusing takeoff -- PX4 would fly on defaults, not INDOOR_ARUCO_SLOW. Check /tmp/bumblebee.log for vpe_fix gate state."
+ ],
+ "script": {
+  "path": "/work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py",
+  "problem": null
+ },
+ "world_to_map": {
+  "n_markers": 20,
+  "max_residual_m": 0.0,
+  "marker0_map_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "note": "no ULog: the vehicle never armed",
+ "verdict_lines": {
+  "took_off": false,
+  "script_matches_versions": true,
+  "run_valid": true
+ },
+ "failed": [
+  "took_off",
+  "not evaluated: hover_window_found",
+  "not evaluated: hover_60s",
+  "not evaluated: share_10cm_ge_95pct",
+  "not evaluated: offset_max_le_20cm",
+  "not evaluated: height_err_le_10cm",
+  "not evaluated: no_jump_a_ekf",
+  "not evaluated: no_jump_b_truth",
+  "not evaluated: landed_and_disarmed_after_hover",
+  "not evaluated: no_emergency"
+ ],
+ "C6": "FAIL"
+}

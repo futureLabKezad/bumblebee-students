@@ -1,0 +1,17 @@
+# r2i ROS tests 11.11.2026 12:36
+colcon test exit=0
+
+Summary: 1 package finished [3min 52s]
+Summary: 118 tests, 0 errors, 0 failures, 0 skipped
+test_simple_offboard.gtest.xml tests="23" failures="0" errors="0" 
+test_simple_offboard_launch.xunit.xml tests="25" failures="0" errors="0" 
+test_simple_offboard_px4model_launch.xunit.xml tests="8" failures="0" errors="0" 
+test_simple_offboard_simtime_launch.xunit.xml tests="3" failures="0" errors="0" 
+test_vpe_fix_h2_r2.xunit.xml 
+test_vpe_fix_h2_r2_in_air.xunit.xml 
+test_vpe_fix_h2_r2_pins.xunit.xml 
+test_vpe_fix_pins_r3.xunit.xml 
+test_vpe_fix_pins_r4.xunit.xml 
+baseline r2h test file on the r2h install exit=0 (expected 0): 
+control r2h test_06 on the r2i install exit=1 (expected != 0): AssertionError: 782.636153954 not less than 782.6330997350001 : timeout: real C++ heartbeat watchdog stop 
+control r2i test_06 on the r2h install exit=1 (expected != 0): AssertionError: 4.523982271000023 not greater than or equal to 5.45 

@@ -1,0 +1,1 @@
+c5/c7 here: --script /work/fixed_image_r2d_20261109/notes/prev_r2c/flight_marker_loop.py (sha cade97b5 = versions.txt); c6 without it

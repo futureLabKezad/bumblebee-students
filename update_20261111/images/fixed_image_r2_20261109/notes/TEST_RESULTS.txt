@@ -1,0 +1,15 @@
+# TEST_RESULTS r2b, 09.11.2026 10:36, без ROS
+## Q6
+Ran 17 tests in 3.144s
+
+OK
+## r2b: wake на всю проверку + строки карты
+Ran 8 tests in 3.310s
+
+OK
+## drone.py guards
+Ran 87 tests in 0.822s
+
+OK (skipped=2)
+## профиль: 16/16 (test_flight_profile_check.py из param_profile_fix_01 против examples r2b, копия в notes/moved_aside/proftest_*)
+## map_read.sh: bash -n OK; пробный прогон на ПК без дрона -> VERDICT UNKNOWN (ожидаемо)

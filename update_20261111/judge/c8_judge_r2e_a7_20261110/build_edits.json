@@ -1,0 +1,86 @@
+[
+ [
+  "executor/vision_c8.launch.py",
+  "Header: what this copy is."
+ ],
+ [
+  "executor/vision_c8.launch.py",
+  "A7: the candidate must be exactly this package candidate (was: only .../integration/combined_*)."
+ ],
+ [
+  "executor/vision_c8.launch.py",
+  "New file (A7)."
+ ],
+ [
+  "executor/run.sh",
+  "Own folder."
+ ],
+ [
+  "executor/run.sh",
+  "A7: launch the package copy of the camera chain (the shared one refuses a candidate outside .../integration/combined_*)."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Header."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "First line."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Refusal text."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Pins runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Banner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "host_check runner."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Test paths -> A7 (2 places)."
+ ],
+ [
+  "tests/d1_check.py",
+  "Test paths -> A7 (1 places)."
+ ],
+ [
+  "tests/ledger_check.py",
+  "Test paths -> A7 (1 places)."
+ ],
+ [
+  "tests/a6_apply_order.py",
+  "Test paths -> A7 (1 places)."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Pre-check uses pins A7."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Ledger test uses pins A7."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Control: the A6 pins are refused by the A7 launcher."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "A7 test added."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "New test (A7)."
+ ]
+]

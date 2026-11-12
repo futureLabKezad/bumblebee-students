@@ -1,0 +1,47 @@
+test_4hz_all_good_frames_publish_continuously (ctl.B2SlowDetector.test_4hz_all_good_frames_publish_continuously) ... FAIL
+test_6hz_after_a_pause_resumes_within_the_max_wait (ctl.B2SlowDetector.test_6hz_after_a_pause_resumes_within_the_max_wait) ... ERROR
+test_6hz_every_3rd_frame_empty_publishes_continuously (ctl.B2SlowDetector.test_6hz_every_3rd_frame_empty_publishes_continuously) ... FAIL
+test_a_frame_missing_during_the_hold_does_not_silence (ctl.B2SlowDetector.test_a_frame_missing_during_the_hold_does_not_silence)
+review S1: after a pause, one empty frame inside the 0.5 s medoid hold ... ok
+test_reseed_restarts_the_pose_history (ctl.B2Reseed.test_reseed_restarts_the_pose_history)
+review S2: after a reseed the medoid can only use the seed and later poses ... FAIL
+
+======================================================================
+ERROR: test_6hz_after_a_pause_resumes_within_the_max_wait (ctl.B2SlowDetector.test_6hz_after_a_pause_resumes_within_the_max_wait)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test/test_r2h_vpe.py", line 273, in test_6hz_after_a_pause_resumes_within_the_max_wait
+    self.assertLessEqual(first - back, R2H._REENTRY_MAX_WAIT + 1.0 / 30.0 + 1e-6)
+                                       ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'vpe_fix_r2h' has no attribute '_REENTRY_MAX_WAIT'
+
+======================================================================
+FAIL: test_4hz_all_good_frames_publish_continuously (ctl.B2SlowDetector.test_4hz_all_good_frames_publish_continuously)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test/test_r2h_vpe.py", line 247, in test_4hz_all_good_frames_publish_continuously
+    self.assertGreater(len(s.sent()), 0.95 * len(c.sent()))
+AssertionError: 0 not greater than 826.5
+
+======================================================================
+FAIL: test_6hz_every_3rd_frame_empty_publishes_continuously (ctl.B2SlowDetector.test_6hz_every_3rd_frame_empty_publishes_continuously)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test/test_r2h_vpe.py", line 262, in test_6hz_every_3rd_frame_empty_publishes_continuously
+    self.assertGreater(len(s.sent()), 0.95 * len(c.sent()))
+AssertionError: 0 not greater than 0.0
+
+======================================================================
+FAIL: test_reseed_restarts_the_pose_history (ctl.B2Reseed.test_reseed_restarts_the_pose_history)
+review S2: after a reseed the medoid can only use the seed and later poses
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test/test_r2h_vpe.py", line 307, in test_reseed_restarts_the_pose_history
+    self.assertEqual(len(n._recent_poses), 1)
+AssertionError: 3 != 1
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.032s
+
+FAILED (failures=3, errors=1)
+CONTROL: the review M1/S1/S2 tests on the PRE-REVIEW r2h vpe_fix: failures 3 errors 1 of 5

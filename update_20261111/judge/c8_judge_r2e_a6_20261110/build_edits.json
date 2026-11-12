@@ -1,0 +1,82 @@
+[
+ [
+  "executor/supervisor.py",
+  "A6: import the candidate closure order (parents before children)."
+ ],
+ [
+  "executor/supervisor.py",
+  "A6: apply the profile parents-before-children; same names and values, only the order changes."
+ ],
+ [
+  "executor/run.sh",
+  "Own folder is the new copy."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Header: version and runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "First printed line: version."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Version in a refusal."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Runner = A6."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Pins must cover this runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "launcher.log banner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "host_check names the real runner."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Test paths -> the A6 folder (2 places)."
+ ],
+ [
+  "tests/d1_check.py",
+  "Test paths -> the A6 folder (1 places)."
+ ],
+ [
+  "tests/ledger_check.py",
+  "Test paths -> the A6 folder (1 places)."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Pre-check uses pins A6."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Ledger test uses pins A6."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Control: the previous pins (02 of build 2) are refused by the A6 launcher."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Overwrite refusal is tested on a guard file in the A6 reviews folder."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "The rel3 proof of the identical judge (sha c3757935) stays in the build-2 folder."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "A6 test added."
+ ],
+ [
+  "tests/a6_apply_order.py",
+  "New test (A6)."
+ ]
+]

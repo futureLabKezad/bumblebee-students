@@ -1,0 +1,62 @@
+{
+ "run": "/work/goal_step5b_20261109/runs/c03b_r2b_4045_loop",
+ "criteria": "C5 approved 09.11 + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "height_tol_m": 0.1,
+  "motors_off_s": 3.0,
+  "touch_h_m": 0.01
+ },
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.999,
+  "clock_ok": true
+ },
+ "script": {
+  "path": "/work/fixed_image_r2d_20261109/notes/prev_r2c/flight_marker_loop.py",
+  "problem": null
+ },
+ "script_height_m": 1.3,
+ "script_exit": {
+  "code": 0,
+  "how": "2026-11-09T11:40:43+04:00 exited by itself, code 0"
+ },
+ "ulog": "/work/goal_step5b_20261109/runs/c03b_r2b_4045_loop/rootfs/log/2026-11-09/07_39_35.ulg",
+ "h_max_m": 1.248,
+ "failsafe_flags_on_at_start": [
+  "auto_mission_missing",
+  "global_position_invalid",
+  "home_position_invalid"
+ ],
+ "emergencies": [
+  "drone.py emergency landing: [ERROR] [1794210033.142767846] [flight]: Vision lost for 6.5s (markers_used=0, limit 6.0s) -- EKF is coasting, landing"
+ ],
+ "window": {
+  "from_s": 17.94,
+  "to_s": 57.26,
+  "ends_because": "left OFFBOARD (nav_state 18)"
+ },
+ "height_dev_max_m": 0.138,
+ "height_mean_m": 1.196,
+ "height_dev_max_at_s": 54.57,
+ "touchdown_s": 61.46,
+ "motors_off_s": 65.316,
+ "motors_off_after_touchdown_s": 3.856,
+ "verdict_lines": {
+  "run_valid": true,
+  "script_height_known": true,
+  "took_off": true,
+  "no_emergency": false,
+  "height_window_found": true,
+  "height_within_0p10": false,
+  "touchdown_found": true,
+  "motors_off_found": true,
+  "motors_off_le_3s": false
+ },
+ "failed": [
+  "height_within_0p10",
+  "motors_off_le_3s",
+  "no_emergency"
+ ],
+ "C5": "FAIL"
+}

@@ -1,0 +1,193 @@
+# TEST_RESULTS r4 2026-11-09T14:48:51+04:00 Python 3.12.3
+## test_goal_evals
+test_clean_passes (__main__.C5Tests.test_clean_passes) ... ok
+test_emergencies (__main__.C5Tests.test_emergencies) ... ok
+test_failsafe_flags (__main__.C5Tests.test_failsafe_flags) ... ok
+test_guard_landing_is_emergency (__main__.C5Tests.test_guard_landing_is_emergency)
+r3 (chat 1): a drone.py guard landing fails C5 even though safe_land printed '=== LANDING ==='. ... ok
+test_height_limit_inclusive (__main__.C5Tests.test_height_limit_inclusive) ... ok
+test_height_max_not_mean (__main__.C5Tests.test_height_max_not_mean) ... ok
+test_hold (__main__.C5Tests.test_hold)
+r3: Hold is the script's only with '=== HOLD ===' in script.log AND an external DO_SET_MODE AUTO/LOITER ... ok
+test_land_not_requested (__main__.C5Tests.test_land_not_requested) ... ok
+test_landing_command_kind (__main__.C5Tests.test_landing_command_kind) ... ok
+test_missing_data_not_evaluated (__main__.C5Tests.test_missing_data_not_evaluated)
+r3: no failsafe_flags topic / no from_external field = not evaluated = fail. ... ok
+test_motors_off_limit (__main__.C5Tests.test_motors_off_limit) ... ok
+test_never_armed (__main__.C5Tests.test_never_armed) ... ok
+test_no_motors_off (__main__.C5Tests.test_no_motors_off) ... ok
+test_no_touchdown (__main__.C5Tests.test_no_touchdown) ... ok
+test_script_height_from_code (__main__.C5Tests.test_script_height_from_code) ... ok
+test_stand_ended_exit (__main__.C5Tests.test_stand_ended_exit) ... ok
+test_touchdown_first_contact_of_a_bounce (__main__.C5Tests.test_touchdown_first_contact_of_a_bounce) ... ok
+test_touchdown_is_contact_not_5cm (__main__.C5Tests.test_touchdown_is_contact_not_5cm) ... ok
+test_window_end_edge (__main__.C5Tests.test_window_end_edge) ... ok
+test_window_start_edge (__main__.C5Tests.test_window_start_edge) ... ok
+test_wrong_script_height (__main__.C5Tests.test_wrong_script_height) ... ok
+test_clean_log_lines_are_not_aborts (__main__.C7Tests.test_clean_log_lines_are_not_aborts)
+r4: lines of a normal flight (drone.py / scripts) must not match the abort or guard patterns. ... ok
+test_clean_passes_with_offset_ekf_frame (__main__.C7Tests.test_clean_passes_with_offset_ekf_frame) ... ok
+test_emergencies (__main__.C7Tests.test_emergencies) ... ok
+test_error_at_the_moment_of_the_next_command (__main__.C7Tests.test_error_at_the_moment_of_the_next_command)
+Truth off the point only from 0.15 s before the setpoint moves on (the first moved sample ends the window). ... ok
+test_error_right_after_arrival (__main__.C7Tests.test_error_right_after_arrival) ... ok
+test_extra_stop_cannot_match (__main__.C7Tests.test_extra_stop_cannot_match) ... ok
+test_flown_shorter_than_code (__main__.C7Tests.test_flown_shorter_than_code) ... ok
+test_intervention (__main__.C7Tests.test_intervention) ... ok
+test_landing (__main__.C7Tests.test_landing) ... ok
+test_landing_mean_over_first_second (__main__.C7Tests.test_landing_mean_over_first_second) ... ok
+test_never_lands (__main__.C7Tests.test_never_lands) ... ok
+test_no_rounding_before_compare (__main__.C7Tests.test_no_rounding_before_compare)
+r3: 0.2504 m point error and 0.1504 m landing are fails (r2 rounded them to 0.250 / 0.150). ... ok
+test_point_error (__main__.C7Tests.test_point_error) ... ok
+test_point_limit_inclusive (__main__.C7Tests.test_point_limit_inclusive) ... ok
+test_point_not_reached (__main__.C7Tests.test_point_not_reached) ... ok
+test_retarget_beyond_tolerance_fails (__main__.C7Tests.test_retarget_beyond_tolerance_fails) ... ok
+test_retarget_hold_at_point_ok (__main__.C7Tests.test_retarget_hold_at_point_ok)
+r3: hover() re-aims the setpoint 6 cm at a reached point: an extra hold, not a route point. ... ok
+test_route_of_the_image_examples (__main__.C7Tests.test_route_of_the_image_examples) ... ok
+test_route_patterns (__main__.C7Tests.test_route_patterns) ... ok
+test_script_own_abort_landing_is_emergency (__main__.C7Tests.test_script_own_abort_landing_is_emergency)
+r4 (review of r3): the scripts' own emergency landings / aborts fail, even with '=== LANDING ==='. ... ok
+test_setpoints_not_the_coded_route (__main__.C7Tests.test_setpoints_not_the_coded_route) ... ok
+test_stop_on_a_leg_fails (__main__.C7Tests.test_stop_on_a_leg_fails) ... ok
+test_fingerprint_ignores_date (__main__.FileTests.test_fingerprint_ignores_date) ... ok
+test_main_no_ulog_and_no_overwrite (__main__.FileTests.test_main_no_ulog_and_no_overwrite) ... ok
+test_numbers (__main__.FileTests.test_numbers) ... ok
+test_script_exit (__main__.FileTests.test_script_exit) ... ok
+test_script_source_product (__main__.FileTests.test_script_source_product) ... ok
+test_script_source_sha (__main__.FileTests.test_script_source_sha) ... ok
+test_both_scripts_both_need_ten (__main__.SeriesTests.test_both_scripts_both_need_ten) ... ok
+test_change_restarts (__main__.SeriesTests.test_change_restarts) ... ok
+test_fail_resets (__main__.SeriesTests.test_fail_resets) ... ok
+test_only_one_script (__main__.SeriesTests.test_only_one_script) ... ok
+test_ten_in_a_row_both (__main__.SeriesTests.test_ten_in_a_row_both) ... ok
+
+----------------------------------------------------------------------
+Ran 54 tests in 0.093s
+
+OK
+## test_c6_eval
+test_clean_hover_passes (__main__.Clean.test_clean_hover_passes) ... ok
+test_invalid_run_fails (__main__.Clean.test_invalid_run_fails) ... ok
+test_missing_line_is_not_a_pass (__main__.Clean.test_missing_line_is_not_a_pass) ... ok
+test_window_starts_at_end_of_climb (__main__.Clean.test_window_starts_at_end_of_climb) ... ok
+test_main_no_ulog_fails_and_never_overwrites (__main__.Files.test_main_no_ulog_fails_and_never_overwrites) ... ok
+test_main_script_sha_checked (__main__.Files.test_main_script_sha_checked) ... ok
+test_numbers_are_the_approved_ones (__main__.Files.test_numbers_are_the_approved_ones) ... ok
+test_world_to_map_rotation_and_shift (__main__.Files.test_world_to_map_rotation_and_shift) ... ok
+test_height_err_above_10cm (__main__.Height.test_height_err_above_10cm) ... ok
+test_height_inside (__main__.Height.test_height_inside) ... ok
+test_never_reaches_height (__main__.Height.test_never_reaches_height) ... ok
+test_overshoot_hover_too_high (__main__.Height.test_overshoot_hover_too_high) ... ok
+test_a_estimate_fast_ramp (__main__.Jumps.test_a_estimate_fast_ramp) ... ok
+test_a_estimate_slow_ramp_ok (__main__.Jumps.test_a_estimate_slow_ramp_ok) ... ok
+test_a_estimate_step (__main__.Jumps.test_a_estimate_step) ... ok
+test_a_reset_outside_window_ok (__main__.Jumps.test_a_reset_outside_window_ok) ... ok
+test_a_xy_reset_big (__main__.Jumps.test_a_xy_reset_big) ... ok
+test_a_xy_reset_small_ok (__main__.Jumps.test_a_xy_reset_small_ok) ... ok
+test_a_z_reset_big (__main__.Jumps.test_a_z_reset_big) ... ok
+test_b_truth_jump (__main__.Jumps.test_b_truth_jump) ... ok
+test_b_truth_slow_ok (__main__.Jumps.test_b_truth_slow_ok) ... ok
+test_b_vertical_counts (__main__.Jumps.test_b_vertical_counts) ... ok
+test_emergency_list_fails (__main__.Landing.test_emergency_list_fails) ... ok
+test_emergency_not_evaluated_fails (__main__.Landing.test_emergency_not_evaluated_fails) ... ok
+test_no_disarm (__main__.Landing.test_no_disarm) ... ok
+test_script_sha_must_match (__main__.Landing.test_script_sha_must_match)
+r3: the run's script must be the one in versions.txt, as in C5 and C7. ... ok
+test_shared_list_with_c5_c7 (__main__.Landing.test_shared_list_with_c5_c7)
+r2: C6 uses goal_common.emergencies, the same function as c5_eval.py and c7_eval.py. ... ok
+test_limits_inclusive (__main__.Offsets.test_limits_inclusive) ... ok
+test_max_above_20cm (__main__.Offsets.test_max_above_20cm) ... ok
+test_offset_is_from_marker0_not_takeoff_point (__main__.Offsets.test_offset_is_from_marker0_not_takeoff_point) ... ok
+test_share_95_ok (__main__.Offsets.test_share_95_ok) ... ok
+test_share_below_95 (__main__.Offsets.test_share_below_95) ... ok
+test_pilot_takeover_ends_window (__main__.Window.test_pilot_takeover_ends_window) ... ok
+test_settling_reported_not_forgiven (__main__.Window.test_settling_reported_not_forgiven) ... ok
+test_short_hover (__main__.Window.test_short_hover) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.167s
+
+OK
+## mutation_check
+CAUGHT   C5 height tol 0.15
+CAUGHT   C5 motors 3.5 s
+CAUGHT   C5 mean instead of max
+CAUGHT   C5 touchdown at 5 cm
+CAUGHT   C5 height from default
+CAUGHT   C5 touchdown waits for low speed (r1)
+CAUGHT   failsafe_flags ignored
+CAUGHT   any flag allowed after landing
+CAUGHT   Hold not an emergency
+CAUGHT   r3: Hold by the text of the source (r2)
+CAUGHT   r3: Hold by any DO_SET_MODE
+CAUGHT   r3: guard landing ignored
+CAUGHT   r3: Guard /land line not a guard
+CAUGHT   r3: guard reason list shortened
+CAUGHT   r3: no script.log passes
+CAUGHT   r3: no failsafe_flags passes
+CAUGHT   r3: no from_external passes
+CAUGHT   r3: from_external ignored
+CAUGHT   r3: any DO_SET_MODE is a landing
+CAUGHT   r4: script abort ignored
+CAUGHT   r4: only flight.py abort wording
+CAUGHT   r4: abort pattern too broad
+CAUGHT   r4: abort wording case-sensitive
+CAUGHT   r4: C5 window starts 0.2 s late
+CAUGHT   r4: C5 window starts 3 samples late
+CAUGHT   r4: C5 window ends 0.36 s early
+CAUGHT   r4: C5 window ends 3 samples early
+CAUGHT   r4: C7 window starts 0.25 s after arrival
+CAUGHT   r3: C5 window starts 1 s late
+CAUGHT   r3: C5 window ends 1 s early
+CAUGHT   r3: C7 rounding before the point compare
+CAUGHT   r3: C7 rounding before the landing compare
+CAUGHT   r3: re-target radius 1 m
+CAUGHT   r3: no re-targets allowed (r2)
+CAUGHT   r3: point ends at its own hold (re-target ends it)
+CAUGHT   C7 hold ends one sample early
+CAUGHT   C7 window ends 1 s before the next command
+CAUGHT   C7 window starts 2 s after arrival
+CAUGHT   C7 hold merge 0.3 m
+CAUGHT   C7 landing mean 3-4 s after motors off
+CAUGHT   AUTO.LAND always counted as landing
+CAUGHT   script.log not needed for landing
+CAUGHT   landing command window 10 s
+CAUGHT   C5 emergencies ignored
+CAUGHT   exit code ignored
+CAUGHT   unknown exit passes
+CAUGHT   DESCEND not an emergency
+CAUGHT   took-over ignored
+CAUGHT   missing line passes
+CAUGHT   sha not checked
+CAUGHT   date in fingerprint
+CAUGHT   C7 point 0.30
+CAUGHT   C7 landing 0.20
+CAUGHT   C7 9 in a row
+CAUGHT   C7 only the moment of the next command
+CAUGHT   C7 flown not compared
+CAUGHT   C7 intervention ignored
+CAUGHT   C7 leg check off
+CAUGHT   C7 fail does not reset
+CAUGHT   C7 change does not restart
+CAUGHT   C7 one script enough
+61/61 mutations caught
+## mutation_check_c6
+CAUGHT   share 0.90
+CAUGHT   max offset 0.25
+CAUGHT   height tol 0.15
+CAUGHT   hover 50 s
+CAUGHT   jump b horizontal only
+CAUGHT   jump a neighbours only
+CAUGHT   z resets ignored
+CAUGHT   offset from takeoff point
+CAUGHT   window ignores leaving OFFBOARD
+CAUGHT   emergency list ignored
+CAUGHT   emergency not computed passes
+CAUGHT   own short list instead of the shared one
+CAUGHT   r3: script sha not required
+CAUGHT   r3: sha line not needed
+CAUGHT   missing line counts as pass
+CAUGHT   settling forgiven
+16/16 mutations caught

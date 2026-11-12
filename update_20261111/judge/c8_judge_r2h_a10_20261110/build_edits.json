@@ -1,0 +1,238 @@
+[
+ [
+  "candidate/parameters/vpe_fix.py",
+  "A10: copy of the final r2h vpe_fix (66d806ba)."
+ ],
+ [
+  "candidate/parameters/vpe_profile_optin.py",
+  "A10: the profile opt-in pins the r2h vpe_fix."
+ ],
+ [
+  "executor/vpe_gate_diagnostic_p1.py",
+  "A10: the gate diagnostic pins the r2h vpe_fix."
+ ],
+ [
+  "executor/vpe_diagnostic_entry.py",
+  "A10: entry pins the new diagnostic helper."
+ ],
+ [
+  "executor/vpe_diagnostic_entry.py",
+  "A10 (variant B): the freshness opt-in is not installed (vpe_fix as on the drone)."
+ ],
+ [
+  "candidate/manifest.json:scope",
+  "Scope text."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/flight_profile.py",
+  "Origin r2g -> r2h."
+ ],
+ [
+  "candidate/manifest.json:origins:parameters/vpe_fix.py",
+  "Origin r2g -> r2h."
+ ],
+ [
+  "candidate/manifest.json:origins:vision/aruco_detect.py",
+  "Origin r2g -> r2h."
+ ],
+ [
+  "candidate/manifest.json:origins",
+  "A10 notes (profile pin r2h; freshness not loaded)."
+ ],
+ [
+  "candidate/manifest.json:files:parameters/vpe_fix.py",
+  "A10: new sha."
+ ],
+ [
+  "candidate/manifest.json:files:parameters/vpe_profile_optin.py",
+  "A10: new sha."
+ ],
+ [
+  "candidate/README.md",
+  "One line appended."
+ ],
+ [
+  "executor/PRODUCT_SHA256SUMS.txt",
+  "Regenerated from the r2h install (505 paths = the A9 522 without the 17 __pycache__ files, same order)."
+ ],
+ [
+  "executor/run.sh",
+  "Own folder."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "A10: product sums of the r2h install."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "Comment."
+ ],
+ [
+  "executor/run.sh",
+  "A10: r2h drone.py."
+ ],
+ [
+  "executor/sitl_setup.py",
+  "A10: profile path r2h (byte-identical file)."
+ ],
+ [
+  "executor/vision_c8.launch.py",
+  "A10: own candidate path (header + location check)."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Header."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "First line."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Refusal text."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Comment."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "A10: default image r2h."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Pins runner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "Banner."
+ ],
+ [
+  "launcher/host_run_wsl_c8_r2e_b.sh",
+  "host_check runner."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Paths -> A10 (2), image -> r2h (6), builder -> make_a10.py (0)."
+ ],
+ [
+  "tests/d1_check.py",
+  "Paths -> A10 (1), image -> r2h (0), builder -> make_a10.py (0)."
+ ],
+ [
+  "tests/ledger_check.py",
+  "Paths -> A10 (1), image -> r2h (2), builder -> make_a10.py (0)."
+ ],
+ [
+  "tests/a6_apply_order.py",
+  "Paths -> A10 (1), image -> r2h (0), builder -> make_a10.py (0)."
+ ],
+ [
+  "tests/a7_vision_launch.py",
+  "Paths -> A10 (3), image -> r2h (0), builder -> make_a10.py (0)."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Paths -> A10 (4), image -> r2h (4), builder -> make_a10.py (2)."
+ ],
+ [
+  "tests/a8_judge_effect.py",
+  "Paths -> A10 (1), image -> r2h (0), builder -> make_a10.py (1)."
+ ],
+ [
+  "tests/a8_judge_on_a7_run.py",
+  "Paths -> A10 (1), image -> r2h (0), builder -> make_a10.py (1)."
+ ],
+ [
+  "tests/a9_logger_restart.py",
+  "Paths -> A10 (1), image -> r2h (0), builder -> make_a10.py (0)."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Tests use pins A10."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d2: the composition pins the r2h vpe_fix."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d2 comment."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d2: composition without freshness (as the A10 entry)."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d2: no freshness in the node class."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d2_entry comment."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "d2_entry: helper pinned, freshness not loaded."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "a10_vpe_as_drone added."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "Control: the A9 pins are refused by the A10 launcher."
+ ],
+ [
+  "tests/test_c8_b2.sh",
+  "a9_checks -> a10_checks."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A10: candidate image copies = r2h; vpe_fix differs from A7 on purpose."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A10: vpe_profile_optin differs from A7 by the airframe check and the vpe_fix pin."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A10: manifest files differ from A7 also in vpe_fix."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Pins A10."
+ ],
+ [
+  "tests/a8_checks.py",
+  "Accepted pins A10."
+ ],
+ [
+  "tests/a8_checks.py",
+  "A10: the reviewed r2h MANIFEST."
+ ],
+ [
+  "tests/a10_checks.py",
+  "New test (A10)."
+ ],
+ [
+  "tests/a10_vpe_as_drone.py",
+  "New test (A10)."
+ ],
+ [
+  "pins/frozen_inputs_c8_r2h_a10_01.json",
+  "Changed entries: ['@run/drone.py', 'c8_judge_r2h_a10_20261110/candidate/parameters/vpe_fix.py', 'c8_judge_r2h_a10_20261110/candidate/parameters/vpe_profile_optin.py', 'c8_judge_r2h_a10_20261110/executor/PRODUCT_SHA256SUMS.txt', 'c8_judge_r2h_a10_20261110/executor/run.sh', 'c8_judge_r2h_a10_20261110/executor/sitl_setup.py', 'c8_judge_r2h_a10_20261110/executor/vision_c8.launch.py', 'c8_judge_r2h_a10_20261110/executor/vpe_diagnostic_entry.py', 'c8_judge_r2h_a10_20261110/executor/vpe_gate_diagnostic_p1.py', 'fixed_image_r2h_20261110/MANIFEST_SHA256.txt', 'fixed_image_r2h_20261110/image_manifest_r2.tsv', 'fixed_image_r2h_20261110/install/bumblebee/lib/bumblebee/simple_offboard', 'fixed_image_r2h_20261110/src/bumblebee/examples/drone.py', 'fixed_image_r2h_20261110/src/bumblebee/src/python/vpe_fix.py', 'run_files:drone.py', 'run_files:run.sh', 'run_files:sitl_setup.py', 'run_files:vision_c8.launch.py', 'run_files:vpe_diagnostic_entry.py', 'run_files:vpe_gate_diagnostic_p1.py']"
+ ]
+]

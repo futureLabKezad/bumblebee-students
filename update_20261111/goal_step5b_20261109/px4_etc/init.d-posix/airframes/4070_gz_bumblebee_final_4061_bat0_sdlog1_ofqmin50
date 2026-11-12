@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# @name Gazebo Bumblebee final set 4070 v2 (4061 + BAT1_SOURCE 0 + SDLOG_MODE 1 + EKF2_OF_QMIN 50)
+#
+# @type Quadrotor x
+#
+# Claude «Симулятор» 10.11.2026: final Gazebo set for the scoring pass (r2g). Owner decisions:
+#   BAT1_SOURCE 0 (approved drone set), SDLOG_MODE 1 («В», log from boot), EKF2_OF_QMIN 50 (T33, 10:18:
+#   «плавно садился, погрешность небольшая, моторы согласованно»). MPC_LAND_CRWL unchanged (0.3).
+#
+
+. ${R}etc/init.d-posix/airframes/4061_gz_bumblebee_candidate_4060_disarm_rcl_obl
+
+param set-default BAT1_SOURCE 0
+param set-default SDLOG_MODE 1
+param set-default EKF2_OF_QMIN 50

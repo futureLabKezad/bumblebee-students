@@ -1,0 +1,5 @@
+07_order {"mro": ["ProfileVpe", "FreshVpe", "FreshnessMixin", "VpeFix", "Node", "object"], "fresh_is_sub_of_c33": true, "c33_gate_untouched": true, "gate_is_wrapper": true, "pose_timeout_ns": 500000000, "mixin_in_mro": true}
+PASS 07_order
+06_order_control {"refused": "loaded c33 method was modified: _evaluate_gate"}
+PASS 06_order_control
+ALL OK

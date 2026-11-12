@@ -1,0 +1,24 @@
+--- notes/prev_r2b/drone.py	2026-11-09 10:32:24.263037668 +0400
++++ src/bumblebee/examples/drone.py	2026-11-09 11:59:07.487773212 +0400
+@@ -1204,11 +1204,21 @@
+     return time.monotonic() - entry[1]
+ 
+ 
++# F5 (09.11.2026, r2c): float32 fields of the Navigate request. Each must hold
++# a Python float: an int (fly_to(x=0)) or a numpy.float32 passes the Python
++# setter (ROS_PYTHON_CHECK_FIELDS is off by default) and then aborts the whole
++# process in the rosidl C converter (assert PyFloat_Check, core dump), leaving
++# the drone in OFFBOARD without a script. float() keeps nan as nan.
++_NAVIGATE_FLOAT_FIELDS = ('x', 'y', 'z', 'yaw', 'speed')
++
++
+ def navigate(**kwargs):
+     global _arm_ref_z, _auto_arm_ok_t
+     _init()
+     req = srv.Navigate.Request()
+     for k, v in kwargs.items():
++        if k in _NAVIGATE_FLOAT_FIELDS:
++            v = float(v)
+         setattr(req, k, v)
+     # Pilot wins (A4): never start or retarget OFFBOARD control while the
+     # pilot / a PX4 failsafe owns the armed vehicle or the state is unknown.

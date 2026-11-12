@@ -1,0 +1,10 @@
+C6 FAIL  failed: hover_60s
+run e3_r2c_4057_c6; valid True []; ulog /work/goal_step5b_20261109/runs/e3_r2c_4057_c6/rootfs/log/2026-11-09/08_23_02.ulg
+trial deviations: ['trial-map-file (F2): drone.MAP_FILE -> RUN/aruco_map_written/map.txt instead of /home/lb/...']
+window 15.98..75.58 s (59.6 s, ends: left OFFBOARD (nav_state 18)); settling 38.81 s
+offset to marker 0: <=10 cm 99.5 % of the time (need >=95), max 0.100 m (need <=0.20); height err max 0.100 m (need <=0.10)
+jump a (EKF): resets >0.10 m []; max move <0.2 s 0.030 m at [42.88, 43.08]
+jump b (truth): max move in 0.5 s 0.027 m at [15.98, 16.48] (horizontal only 0.023 m, information)
+verdict lines: {'took_off': True, 'hover_window_found': True, 'hover_60s': False, 'share_10cm_ge_95pct': True, 'offset_max_le_20cm': True, 'height_err_le_10cm': True, 'no_jump_a_ekf': True, 'no_jump_b_truth': True, 'landed_and_disarmed_after_hover': True, 'no_emergency': True, 'script_matches_versions': True, 'run_valid': True}
+emergencies: -
+script: === HOVER END held=60.0s reason=full time === | C6 HOVER RESULT: OK held=60.0s reason=full time landed=True

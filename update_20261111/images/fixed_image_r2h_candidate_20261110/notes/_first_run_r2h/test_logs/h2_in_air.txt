@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/work/fixed_image_r2h_candidate_20261110/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_in_air_writes.py", line 20, in <module>
+    OUT = os.environ['H2_OUT']
+          ~~~~~~~~~~^^^^^^^^^^
+  File "<frozen os>", line 685, in __getitem__
+KeyError: 'H2_OUT'

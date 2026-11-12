@@ -1,0 +1,30 @@
+src/bumblebee/src/python/vpe_fix.py: module docstring: the gate
+src/bumblebee/src/python/vpe_fix.py: __init__: in_auto_land
+src/bumblebee/src/python/vpe_fix.py: _evaluate_gate: OFFBOARD or AUTO.LAND
+src/bumblebee/src/python/vpe_fix.py: state_callback: previous AUTO.LAND
+src/bumblebee/src/python/vpe_fix.py: state_callback: record AUTO.LAND
+src/bumblebee/src/python/vpe_fix.py: state_callback: a change of AUTO.LAND re-evaluates the gate at once
+src/bumblebee/src/cpp/simple_offboard.cpp: include
+src/bumblebee/src/cpp/simple_offboard.cpp: parameter state_heartbeat_period 1.0 s
+src/bumblebee/src/cpp/simple_offboard.cpp: member
+src/bumblebee/src/cpp/simple_offboard.cpp: member pose_rx_ns_
+src/bumblebee/src/cpp/simple_offboard.cpp: handleLocalPosition: receipt time
+src/bumblebee/src/cpp/simple_offboard.cpp: watchdog: fcuLinkSilentNs
+src/bumblebee/test/test_simple_offboard_px4model_launch.py: test_06 docstring
+src/bumblebee/test/test_simple_offboard_px4model_launch.py: test_06 wait
+src/bumblebee/test/test_simple_offboard_px4model_launch.py: test_06 stop bound and gap length
+src/bumblebee/test/test_simple_offboard_px4model_launch.py: test_06 restore bound
+src/bumblebee/test/test_simple_offboard_px4model_launch.py: test_06 last setpoint bound
+src/bumblebee/examples/flight/flight_marker.py: takeoff 0.7 -> 0.9 m (owner 11.11)
+src/bumblebee/CMakeLists.txt: pins r3 -> r2h copy, r4 -> r2i
+src/bumblebee/test/vpe_fix_h2_r2/README.md: README: round 4 row
+image_manifest_r2.tsv: camera_fix row: same, no PENDING
+src/bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_r2h_66d806ba.py: byte copy of r2h vpe_fix
+src/bumblebee/src/cpp/state_link.h: new
+src/bumblebee/test/vpe_fix_h2_r2/tests_r4/test_pins_r4.py: new
+test/test_state_link.cpp: new
+test/test_r2i_vpe.py: new
+test/test_r2i_changes.py: new
+test/test_r2h.py: folder -> r2i
+test/test_r2h_vpe.py: folder -> r2i
+tests_r4/test_pins_r4.py: DIGESTS of the built r2i parts

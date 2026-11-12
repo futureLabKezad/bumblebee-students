@@ -1,0 +1,70 @@
+{
+  "source": "/Users/arsenij/Documents/Bumbl code/bumblebee-students/PX4_parameters/px4_v0_0_2.params",
+  "parameters": {
+    "BAT1_N_CELLS": {
+      "value": 6,
+      "type": 6
+    },
+    "BAT1_SOURCE": {
+      "value": 0,
+      "type": 6
+    },
+    "BAT1_V_CHARGED": {
+      "value": 4.199999809265137,
+      "type": 9
+    },
+    "CBRK_SUPPLY_CHK": {
+      "value": 894281,
+      "type": 6
+    },
+    "COM_ARM_SDCARD": {
+      "value": 0,
+      "type": 6
+    },
+    "COM_DISARM_LAND": {
+      "value": 0.5,
+      "type": 9
+    },
+    "COM_DISARM_PRFLT": {
+      "value": 30.0,
+      "type": 9
+    },
+    "COM_FAIL_ACT_T": {
+      "value": 5.0,
+      "type": 9
+    },
+    "COM_LOW_BAT_ACT": {
+      "value": 0,
+      "type": 6
+    },
+    "COM_OF_LOSS_T": {
+      "value": 1.0,
+      "type": 9
+    },
+    "COM_RC_OVERRIDE": {
+      "value": 1,
+      "type": 6
+    },
+    "COM_SPOOLUP_TIME": {
+      "value": 1.0,
+      "type": 9
+    },
+    "IMU_GYRO_CAL_EN": {
+      "value": 1,
+      "type": 6
+    },
+    "SDLOG_MODE": {
+      "value": 1,
+      "type": 6
+    }
+  },
+  "sim_only": {
+    "SIM_BAT_ENABLE": {
+      "value": 0,
+      "type": 6
+    }
+  },
+  "candidate_only": {
+    "COM_OBL_RC_ACT": 4
+  }
+}

@@ -1,0 +1,494 @@
+diff -ruN '--exclude=.git' '--exclude=__pycache__' /work/ws_package1b_port_03/src/bumblebee/examples/drone.py src/bumblebee/examples/drone.py
+--- /work/ws_package1b_port_03/src/bumblebee/examples/drone.py	2026-10-30 12:33:01.456685894 +0400
++++ src/bumblebee/examples/drone.py	2026-11-09 10:11:41.429882958 +0400
+@@ -83,6 +83,7 @@
+ PlayTuneV2     = None
+ State          = None
+ BatteryState   = None
++GetParameters  = None
+ QoSProfile        = None
+ ReliabilityPolicy = None
+ DurabilityPolicy  = None
+@@ -92,6 +93,7 @@
+     """Import ROS2 modules on first flight call."""
+     global rclpy, Node, srv, Trigger, CommandBool, SetMode
+     global ParamSetV2, ParamPull, ParameterValue, ParameterType, MarkerArray, Int32, Bool
++    global GetParameters
+     global PlayTuneV2
+     global State, BatteryState, QoSProfile, ReliabilityPolicy, DurabilityPolicy
+     if rclpy is not None:
+@@ -102,6 +104,7 @@
+     from std_srvs.srv import Trigger as _Trigger
+     from mavros_msgs.srv import CommandBool as _CB, SetMode as _SM, ParamSetV2 as _PS, ParamPull as _PP
+     from rcl_interfaces.msg import ParameterValue as _PV, ParameterType as _PT
++    from rcl_interfaces.srv import GetParameters as _GP
+     from aruco_pose.msg import MarkerArray as _MA
+     from std_msgs.msg import Int32 as _I32, Bool as _BO
+     from mavros_msgs.msg import State as _State
+@@ -122,6 +125,7 @@
+     SetMode     = _SM
+     ParamSetV2  = _PS
+     ParamPull   = _PP
++    GetParameters = _GP
+     ParameterValue = _PV
+     ParameterType  = _PT
+     MarkerArray = _MA
+@@ -553,6 +557,7 @@
+ _set_mode_client      = None
+ _gate_param_client    = None  # /vpe_fix/set_param -- sole channel for PX4 param writes
+ _param_pull_client    = None  # /mavros/mavros/pull -- nudge MAVROS to re-emit ParameterEvent stream so gate cache can backfill missing PX4 params
++_param_get_client     = None  # /mavros/mavros/get_parameters -- read PX4 params straight from MAVROS (check_flight_profile)
+ _play_tune_pub        = None  # /mavros/play_tune -- created lazily on first play_tune() call
+ 
+ # ArUco quality signals from /aruco_detect/{markers_used,yaw_locked}.
+@@ -727,6 +732,7 @@
+     global _initialized, _node, _executor
+     global _get_telemetry_client, _navigate_client, _land_client
+     global _arming_client, _set_mode_client, _gate_param_client, _param_pull_client
++    global _param_get_client
+ 
+     if _initialized:
+         return
+@@ -753,6 +759,11 @@
+     _set_mode_client      = _node.create_client(SetMode,          '/mavros/set_mode')
+     _gate_param_client    = _node.create_client(srv.SetParam,     '/vpe_fix/set_param')
+     _param_pull_client    = _node.create_client(ParamPull,       '/mavros/mavros/pull')
++    # The MAVROS param plugin node is renamed to /mavros/mavros (launch
++    # mavros_scoped_config.py: -r param:__node:=mavros), so its own
++    # GetParameters sits next to /mavros/mavros/pull and answers from
++    # MAVROS's parameter table (no /parameter_events stream).
++    _param_get_client     = _node.create_client(GetParameters,   '/mavros/mavros/get_parameters')
+ 
+     # Subscribe to ArUco quality signals so preflight helpers can gate on them.
+     def _on_markers_used(msg):
+@@ -1387,10 +1398,9 @@
+ def _trigger_param_pull(timeout_s=10.0):
+     """Call /mavros/mavros/pull(force_pull=True) and wait for completion.
+ 
+-    Used by apply_flight_profile to force MAVROS to re-emit /parameter_events
+-    for every PX4 param so the vpe_fix gate cache can backfill any param that
+-    was declared by MAVROS BEFORE the gate subscribed (and therefore never
+-    showed up as a ParameterEvent).
++    Used by read_px4_params: makes MAVROS fetch the PX4 parameter list again,
++    so names MAVROS missed become readable through GetParameters (and, for
++    the vpe_fix gate, show up again on /parameter_events).
+ 
+     Returns True on completion, False on timeout. Does NOT touch the gate.
+     """
+@@ -1410,91 +1420,126 @@
+     return ok
+ 
+ 
+-def apply_flight_profile(profile_name='INDOOR_ARUCO'):
+-    """Apply every PX4 param in the named profile through the vpe_fix gate.
++def _param_value_to_float(pv):
++    """rcl_interfaces/ParameterValue -> float, or None if MAVROS does not have the param."""
++    if pv is None:
++        return None
++    t = getattr(pv, 'type', 0)
++    if t == 1:    # PARAMETER_BOOL
++        return 1.0 if pv.bool_value else 0.0
++    if t == 2:    # PARAMETER_INTEGER
++        return float(pv.integer_value)
++    if t == 3:    # PARAMETER_DOUBLE
++        return float(pv.double_value)
++    return None   # PARAMETER_NOT_SET: MAVROS has not received this param from PX4
++
++
++def read_px4_params(names, pull_rounds=3, wait_s=5.0):
++    """Read PX4 params straight from MAVROS's parameter table. Never writes anything.
++
++    Uses the MAVROS param plugin's own GetParameters service
++    (/mavros/mavros/get_parameters, the same node as /mavros/mavros/pull). It
++    answers from MAVROS's table, so the /parameter_events stream is not
++    involved (that stream drops events when ~1100 arrive in a burst: finding
++    F3, 06.11.2026). A name MAVROS has not received from PX4 comes back as
++    PARAMETER_NOT_SET; then MAVROS is asked to fetch the list again
++    (ParamPull force_pull=True) and the read is retried, up to pull_rounds
++    times. Returns {name: float} for every name that was read; names that
++    could not be read are absent.
++    """
++    _init()
++    values = {}
++    missing = list(names)
++    for round_idx in range(int(pull_rounds) + 1):
++        if round_idx > 0:
++            print('  ... read pass %d: %d params not in MAVROS yet (%s); '
++                  'ParamPull(force=True) + %.0fs wait'
++                  % (round_idx + 1, len(missing), ', '.join(missing), wait_s))
++            try:
++                _trigger_param_pull(timeout_s=10.0)
++            except Exception as e:
++                print('  WARN  ParamPull raised: %s' % e)
++            time.sleep(wait_s)
++        req = GetParameters.Request()
++        req.names = list(missing)
++        try:
++            resp = _call(_param_get_client, req, timeout=5.0)
++        except Exception as e:
++            print('  WARN  GetParameters failed: %s' % e)
++            continue
++        got = list(getattr(resp, 'values', None) or [])
++        still = []
++        for i, name in enumerate(missing):
++            v = _param_value_to_float(got[i]) if i < len(got) else None
++            if v is None:
++                still.append(name)
++            else:
++                values[name] = v
++        missing = still
++        if not missing:
++            break
++    return values
++
++
++def _same_value(px4_value, wanted):
++    """PX4 stores float32 (0.1 comes back as 0.10000000149): small relative tolerance."""
++    return abs(float(px4_value) - float(wanted)) <= 1e-4 * max(1.0, abs(float(wanted)))
++
++
++def check_flight_profile(profile_name):
++    """Check that PX4 already holds every value of the profile. Never writes anything.
++
++    Since 09.11.2026 the scripts do not write PX4 params. PX4 saves every
++    parameter write it gets over MAVLink to flash (PX4 v1.16.1
++    src/lib/parameters/parameters.cpp:449-450, param_autosave), so a value
++    written before a flight would stay after a crash or a lost Pi. The owner
++    sets the profile values once in QGC; a script checks them here and must
++    refuse to fly when any value differs or cannot be read.
+ 
+-    Every value is pushed with persistent=False and ttl_sec=0, so the gate
+-    reverts the lot on the ARMED->DISARMED edge (i.e. when the auto-flight
+-    ends) and on a clean shutdown. PX4 RAM is changed for the flight's
+-    duration; nothing is intentionally persisted to PX4 EEPROM.
+-
+-    Call once near the top of an auto-flight script, AFTER drone.enable_safe_
+-    interrupt() but BEFORE drone.takeoff(). The gate skips writes for params
+-    that already hold the requested value, so re-running is cheap.
+-
+-    Returns the number of params that were applied successfully (or already
+-    matched). On any failure the function logs a warning and keeps going --
+-    one missing param should not block the rest of the profile.
++    Returns (matched, total, problems); problems lists 'NAME: PX4 x, profile y'
++    or 'NAME: not read from PX4'.
+     """
+     _init()
+     try:
+         import flight_profile as _fp
+     except ImportError as e:
+         raise RuntimeError(
+-            'apply_flight_profile: flight_profile.py not importable: %s' % e)
++            'check_flight_profile: flight_profile.py not importable: %s' % e)
+     if profile_name not in _fp.PROFILES:
+         raise ValueError(
+-            'apply_flight_profile: unknown profile %r (have: %s)'
++            'check_flight_profile: unknown profile %r (have: %s)'
+             % (profile_name, sorted(_fp.PROFILES.keys())))
+     profile = _fp.PROFILES[profile_name]
+-    print('Applying flight profile %r through vpe_fix gate (%d params)...'
++    print('Checking flight profile %r: %d PX4 params (read only, nothing is written)...'
+           % (profile_name, len(profile)))
+-    ok = 0
+-    # 2026-06-05: two-pass strategy. The gate marks cache HOT at 800 params,
+-    # but PX4 publishes ~1127; ~327 params arrive on /parameter_events AFTER
+-    # HOT-threshold fires. Profile params that fall in that tail get rejected
+-    # with 'not in PX4 cache'. Collect those, wait 5s for backfill, retry.
+-    cache_misses = []  # [(name, value), ...]
+-    for name, value in profile.items():
+-        try:
+-            resp = set_param(name, value, ttl_sec=0.0, persistent=False)
+-            if resp is not None and resp.success:
+-                ok += 1
+-            else:
+-                msg = resp.message if resp is not None else 'no response'
+-                if 'not in PX4 cache' in msg or 'cache warming up' in msg:
+-                    cache_misses.append((name, value))
+-                else:
+-                    print('  WARN  %s=%s rejected: %s' % (name, value, msg))
+-        except Exception as e:
+-            print('  ERR   %s=%s raised: %s' % (name, value, e))
+-    # Up to 3 force_pull rounds: pump /parameter_events again, sleep, retry.
+-    # MAVROS does not re-emit events for params it has already declared, so we
+-    # need to nudge it via ParamPull(force_pull=True). The slowest tail (3-5
+-    # params) sometimes needs >7 s to surface, so we iterate.
+-    round_idx = 1
+-    while cache_misses and round_idx <= 3:
+-        print('  ... pass %d: %d params still not in cache; triggering ParamPull(force=True) + 12s wait'
+-              % (round_idx + 1, len(cache_misses)))
+-        try:
+-            _trigger_param_pull(timeout_s=10.0)
+-        except Exception as e:
+-            print('  WARN  /mavros/mavros/pull call raised: %s' % e)
+-        time.sleep(12.0)
+-        next_misses = []
+-        for name, value in cache_misses:
+-            try:
+-                resp = set_param(name, value, ttl_sec=0.0, persistent=False)
+-                if resp is not None and resp.success:
+-                    ok += 1
+-                    print('  OK    %s=%s (pass %d)' % (name, value, round_idx + 1))
+-                else:
+-                    msg = resp.message if resp is not None else 'no response'
+-                    if 'not in PX4 cache' in msg or 'cache warming up' in msg:
+-                        next_misses.append((name, value))
+-                    else:
+-                        print('  WARN  %s=%s rejected (pass %d): %s' % (name, value, round_idx + 1, msg))
+-            except Exception as e:
+-                print('  ERR   %s=%s raised (pass %d): %s' % (name, value, round_idx + 1, e))
+-        cache_misses = next_misses
+-        round_idx += 1
+-    # Anything still missing after 3 rounds is reported once.
+-    for name, value in cache_misses:
+-        print('  WARN  %s=%s rejected (final): param not in PX4 cache after %d ParamPull rounds'
+-              % (name, value, round_idx - 1))
+-    print('Flight profile %r: %d/%d params applied. Auto-revert on disarm.'
+-          % (profile_name, ok, len(profile)))
+-    return ok
++    values = read_px4_params(list(profile.keys()))
++    matched = 0
++    problems = []
++    for name, wanted in profile.items():
++        if name not in values:
++            problems.append('%s: not read from PX4' % name)
++        elif _same_value(values[name], wanted):
++            matched += 1
++        else:
++            problems.append('%s: PX4 %g, profile %g' % (name, values[name], wanted))
++    for p in problems:
++        print('  MISMATCH  ' + p)
++    print('Flight profile %r: %d/%d PX4 params match.' % (profile_name, matched, len(profile)))
++    return matched, len(profile), problems
++
++
++def apply_flight_profile(profile_name='INDOOR_ARUCO'):
++    """Kept for old scripts. Since 09.11.2026 it does NOT write anything.
++
++    It only runs check_flight_profile() and returns how many PX4 params
++    already hold the profile value. A script must refuse to fly unless that
++    number equals the profile size (see examples/flight/flight.py).
++    Call it before arming, never in flight: a value MAVROS lacks triggers
++    ParamPull(force_pull=True), which refetches MAVROS's whole parameter table.
++    """
++    print('NOTE: apply_flight_profile() no longer writes PX4 params; it only checks them.')
++    matched, _total, _problems = check_flight_profile(profile_name)
++    return matched
+ 
+ 
+ # ---------------------------------------------------------------------------
+diff -ruN '--exclude=.git' '--exclude=__pycache__' /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py src/bumblebee/examples/flight/flight.py
+--- /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight.py	2026-10-30 12:33:01.457684332 +0400
++++ src/bumblebee/examples/flight/flight.py	2026-11-09 10:11:41.434354406 +0400
+@@ -38,36 +38,28 @@
+ import flight_profile as _fp
+ 
+ PROFILE_NAME = "INDOOR_ARUCO_SLOW"
+-PROFILE_MIN_RATIO = 0.9   # refuse takeoff if gate applied fewer than this
+ 
+ # Register Ctrl+C handler for graceful landing on interrupt
+ drone.enable_safe_interrupt()
+ 
+-# Apply slow-speed profile through vpe_fix gate. Every MPC override reverts
+-# automatically on ARMED->DISARMED, so the drone "borrows" these settings only
+-# for the duration of this script. Strict check: if the gate is degraded
+-# (cache cold, MAVROS slow, FCU silent) it silently returns 0 and the drone
+-# would otherwise fly on default PX4 MPC (aggressive). Refuse takeoff in that
+-# case instead of silently flying with the wrong tuning.
+-expected = len(_fp.PROFILES[PROFILE_NAME])
++# Check (read only) that PX4 already holds the slow-speed profile. Since
++# 09.11.2026 nothing is written to PX4 (a write is saved to PX4 flash and
++# could stay after a crash): the owner sets these values once in QGC. Refuse
++# takeoff if any value differs or cannot be read.
+ try:
+-    applied = drone.apply_flight_profile(PROFILE_NAME)
++    matched, expected, problems = drone.check_flight_profile(PROFILE_NAME)
+ except Exception as e:
+-    print("PREFLIGHT FAIL: apply_flight_profile raised: %s" % e)
++    print("PREFLIGHT FAIL: check_flight_profile raised: %s" % e)
+     drone._shutdown()
+     sys.exit(3)
+ 
+-if applied is None:
+-    applied = 0
+-threshold = int(math.ceil(expected * PROFILE_MIN_RATIO))
+-if applied < threshold:
+-    print("PREFLIGHT FAIL: only %d/%d profile params applied (<%d%%)."
+-          " Refusing takeoff -- PX4 would fly on defaults, not %s."
+-          " Check /tmp/bumblebee.log for vpe_fix gate state."
+-          % (applied, expected, int(PROFILE_MIN_RATIO * 100), PROFILE_NAME))
++if matched < expected:
++    print("PREFLIGHT FAIL: only %d/%d PX4 params match profile %s (%s)."
++          " Refusing takeoff. Set these values in QGC (owner card)."
++          % (matched, expected, PROFILE_NAME, '; '.join(problems)))
+     drone._shutdown()
+     sys.exit(3)
+-print("Profile gate OK: %d/%d %s params applied" % (applied, expected, PROFILE_NAME))
++print("Profile check OK: %d/%d %s params match" % (matched, expected, PROFILE_NAME))
+ 
+ # Preflight gate 1 -- at least one marker visible.
+ try:
+diff -ruN '--exclude=.git' '--exclude=__pycache__' /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight_marker.py src/bumblebee/examples/flight/flight_marker.py
+--- /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight_marker.py	2026-10-30 12:33:01.457684332 +0400
++++ src/bumblebee/examples/flight/flight_marker.py	2026-11-09 10:11:41.434593056 +0400
+@@ -96,11 +96,23 @@
+ # Register Ctrl+C handler for graceful landing on interrupt
+ drone.enable_safe_interrupt()
+ 
+-# Apply the slow indoor-ArUco PX4 tuning profile via the vpe_fix gate.
+-# Softer MPC + lower jerk/accel keeps the drone level enough during
+-# direction reversals to retain ArUco lock. All param changes auto-revert
+-# on the ARMED -> DISARMED edge so PX4 EEPROM stays untouched.
+-drone.apply_flight_profile('INDOOR_ARUCO_SLOW')
++# Check (read only) the slow indoor-ArUco PX4 tuning profile. Softer MPC +
++# lower jerk/accel keeps the drone level enough during direction reversals
++# to retain ArUco lock. Since 09.11.2026 nothing is written to PX4 (a write
++# is saved to PX4 flash and could stay after a crash): the owner sets these
++# values once in QGC; refuse to fly if they differ.
++try:
++    _matched, _total, _problems = drone.check_flight_profile('INDOOR_ARUCO_SLOW')
++except Exception as e:
++    print('PREFLIGHT FAIL: check_flight_profile raised: %s' % e)
++    drone._shutdown()
++    sys.exit(3)
++if _matched < _total:
++    print('PREFLIGHT FAIL: only %d/%d PX4 params match INDOOR_ARUCO_SLOW (%s).'
++          ' Refusing to fly. Set these values in QGC (owner card).'
++          % (_matched, _total, '; '.join(_problems)))
++    drone._shutdown()
++    sys.exit(3)
+ 
+ # ---------------------------------------------------------------------------
+ # Define the ArUco map for this mission
+diff -ruN '--exclude=.git' '--exclude=__pycache__' /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight_marker_loop.py src/bumblebee/examples/flight/flight_marker_loop.py
+--- /work/ws_package1b_port_03/src/bumblebee/examples/flight/flight_marker_loop.py	2026-10-30 12:33:01.457684332 +0400
++++ src/bumblebee/examples/flight/flight_marker_loop.py	2026-11-09 10:11:41.434819775 +0400
+@@ -38,9 +38,22 @@
+ 
+ drone.enable_safe_interrupt()
+ 
+-# Apply indoor-ArUco PX4 tuning through the vpe_fix gate.
+-# Auto-reverts to original PX4 values on disarm; nothing is persisted.
+-drone.apply_flight_profile('INDOOR_ARUCO')
++# Check (read only) the indoor-ArUco PX4 tuning. Until 09.11.2026 this script
++# wrote INDOOR_ARUCO in flight; a write is saved to PX4 flash and could stay
++# after a crash. PX4 can hold one set of values, so all examples now check
++# INDOOR_ARUCO_SLOW, set once by the owner in QGC; refuse to fly if they differ.
++try:
++    _matched, _total, _problems = drone.check_flight_profile('INDOOR_ARUCO_SLOW')
++except Exception as e:
++    print('PREFLIGHT FAIL: check_flight_profile raised: %s' % e)
++    drone._shutdown()
++    sys.exit(3)
++if _matched < _total:
++    print('PREFLIGHT FAIL: only %d/%d PX4 params match INDOOR_ARUCO_SLOW (%s).'
++          ' Refusing to fly. Set these values in QGC (owner card).'
++          % (_matched, _total, '; '.join(_problems)))
++    drone._shutdown()
++    sys.exit(3)
+ 
+ drone.set_aruco_map([
+     {'id':  0, 'length': 0.19, 'x':  0.00, 'y':  0.00},
+diff -ruN '--exclude=.git' '--exclude=__pycache__' /work/ws_package1b_port_03/src/bumblebee/examples/flight_profile.py src/bumblebee/examples/flight_profile.py
+--- /work/ws_package1b_port_03/src/bumblebee/examples/flight_profile.py	2026-10-30 12:33:01.457684332 +0400
++++ src/bumblebee/examples/flight_profile.py	2026-11-09 10:11:41.433712345 +0400
+@@ -13,29 +13,37 @@
+ # limitations under the License.
+ 
+ """
+-flight_profile.py -- declarative PX4 tuning profiles for auto-flight.
++flight_profile.py -- PX4 tuning profiles for auto-flight (checked, not written).
+ 
+-Each profile is a dict mapping PX4 param name -> the value to apply for the
+-duration of the auto-flight. Values are pushed through the vpe_fix gate by
+-`drone.apply_flight_profile()`. The gate:
+-
+-  - reads the current PX4 value first and stores it as the "original",
+-  - writes the profile value,
+-  - reverts every override on the ARMED->DISARMED edge (auto-flight end)
+-    and on a clean shutdown.
+-
+-Nothing is persisted to PX4 EEPROM by this stack: the moment auto-flight
+-finishes, PX4'"'"'s active config is identical to whatever it was before the
+-script started. Manual PX4 tuning via QGC is sacred.
+-
+-Adding a new profile: drop another entry into PROFILES below. Keep the
+-"INDOOR_ARUCO" profile in sync with what your indoor ArUco flights expect.
++Each profile is a dict mapping PX4 param name -> the value PX4 must already
++hold for the auto-flight. Since 09.11.2026 the scripts do NOT write these
++values: PX4 saves every parameter write it gets over MAVLink to flash
++(PX4 v1.16.1 src/lib/parameters/parameters.cpp:449-450), so a value written
++before a flight would stay after a crash, a kill switch or a lost Pi. Earlier
++text here said these writes never reach PX4 storage; that was wrong.
++
++How it works now:
++  - the owner sets the profile values once in QGC (owner card, old values
++    saved first, PX4 param rule 5);
++  - `drone.check_flight_profile(name)` reads them (read only) straight from
++    MAVROS and returns (matched, total, problems);
++  - a script refuses to fly unless matched == total.
++
++PX4 can hold only one set of values, so all examples check the same profile,
++INDOOR_ARUCO_SLOW. COM_SPOOLUP_TIME is not in any profile: 0 would also switch
++off PX4's check window right after arming (failsafe.cpp:592-601); the drone
++keeps its own value (1 s on 20EC).
++
++Adding a new profile: drop another entry into PROFILES below, and change the
++same values on the drone and in the Gazebo airframe (the simulator follows
++the drone).
+ """
+ 
+-# Profile: indoor ArUco map flights (flight_marker.py, flight_marker_loop.py).
++# Profile: indoor ArUco map flights. Not used by the examples since 09.11.2026:
++# 12 of its 14 values differ from 20EC; all examples check INDOOR_ARUCO_SLOW.
+ # EKF2 sensor-fusion config is intentionally NOT in any profile: it is owned
+ # by the operator via QGC (EEPROM) so manual flight and auto flight share the
+-# same EKF settings. Touching EKF2 here clobbered the operator'"'"'s baro fallback
++# same EKF settings. Touching EKF2 here clobbered the operator's baro fallback
+ # (BARO_NOISE was being inflated to 20.0, which silenced the barometer once
+ # vpe_fix gate closed during takeoff -- caused IMU-only drift / runaway).
+ INDOOR_ARUCO = {
+@@ -53,8 +61,7 @@
+     'MPC_Z_VEL_MAX_UP':       0.5,
+     'MPC_Z_VEL_MAX_DN':       0.5,
+ 
+-    # --- Safety / arming behaviour ---
+-    'COM_SPOOLUP_TIME':       0.0,
++    # --- Safety / arming behaviour (COM_SPOOLUP_TIME: drone's own value) ---
+     'COM_DISARM_PRFLT':       30.0,
+ }
+ 
+@@ -69,8 +76,8 @@
+ # MPC_ACC_UP/DOWN_MAX, which left the altitude controller too slow to catch
+ # the baro/IMU drift during takeoff when the vpe_fix gate briefly closes,
+ # causing PX4 to AUTO.LAND mid-climb (incident on flight.py, 2026-06-08).
+-# All overrides revert through vpe_fix on ARMED->DISARMED -- same temporary
+-# contract as the other profiles. EKF2 config stays in QGC (see INDOOR_ARUCO).
++# Since 09.11.2026 the owner sets these values once in QGC and the scripts
++# only check them. EKF2 config stays in QGC too (see INDOOR_ARUCO).
+ INDOOR_ARUCO_SLOW = {
+     # --- XY position/velocity loop: gentle corrections ---
+     'MPC_XY_P':               0.25,    # softer XY position loop (was 0.4)
+@@ -78,16 +85,19 @@
+     'MPC_XY_VEL_I_ACC':       0.10,    # less integral wind-up
+     'MPC_XY_VEL_D_ACC':       0.05,    # less differential kick
+     'MPC_ACC_HOR':            1.0,     # slow horizontal accel (was 2.5)
+-    'MPC_JERK_MAX':           1.5,     # smoother trajectories
++    # MPC_JERK_MAX and MPC_TKO_SPEED are not checked (09.11.2026). PX4 v1.16.1
++    # does not use them in OFFBOARD: auto smoothing uses MPC_JERK_AUTO, and the
++    # OFFBOARD climb limit is MPC_Z_VEL_MAX_UP (MulticopterPositionControl.cpp:
++    # 486-488). Both shape the owner's manual Altitude flight instead
++    # (FlightTaskManualAltitudeSmoothVel.cpp:94, FlightTaskManualAltitude.cpp:
++    # 246-257), so their drone values are chosen there, not by this profile.
+     'MPC_XY_CRUISE':          0.2,     # cruise XY
+     'MPC_XY_VEL_MAX':         0.25,    # hard XY cap
+-    'MPC_TKO_SPEED':          0.2,     # slow takeoff
+     'MPC_LAND_SPEED':         0.3,     # slow landing
+     'MPC_YAWRAUTO_MAX':       30.0,    # deg/s -- slow auto yaw
+ 
+-    # --- Safety / arming behaviour (same as INDOOR_ARUCO) ---
+-    'COM_SPOOLUP_TIME':       0.0,
+-    'COM_DISARM_PRFLT':       30.0,
++    # --- Safety / arming behaviour (COM_SPOOLUP_TIME: drone's own value) ---
++    'COM_DISARM_PRFLT':       30.0,     # = 20EC
+ }
+ 
+ 

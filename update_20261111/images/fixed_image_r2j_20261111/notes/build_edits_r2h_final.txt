@@ -1,0 +1,12 @@
+copied src, test, tools, notes, image_manifest_r2.tsv; candidate README/PROGRESS/sums/reviews/test_logs -> notes/prev_r2h_candidate/
+src/bumblebee/src/python/vpe_fix.py: docstring of _reentry_pose
+src/bumblebee/src/python/vpe_fix.py: _reentry_pose: medoid of the fresh poses newest first
+src/bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_r2g_3b8a93d4.py: byte copy of r2g vpe_fix; tests_r3/test_pins_r3.py: new
+src/bumblebee/CMakeLists.txt: pins: round 2 on the r2g copy, round 3 on r2h
+src/bumblebee/test/vpe_fix_h2_r2/README.md: README: round 3 row
+image_manifest_r2.tsv: camera_fix row: PENDING kept, what r2h src holds
+test/test_r2h.py: folder -> final
+test/test_r2h_vpe.py: folder -> final
+test/test_r2h_vpe.py: candidate as a control
+test/test_r2h_vpe.py: B2TwoPoses tests
+test/test_r2h_final.py: new; tools: make_r2h_final.py, test_all_r2h_final.sh, finish_r2h_final.sh

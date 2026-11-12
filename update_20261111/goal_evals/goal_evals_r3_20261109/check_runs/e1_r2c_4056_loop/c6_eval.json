@@ -1,0 +1,98 @@
+{
+ "run": "/work/goal_step5b_20261109/runs/e1_r2c_4056_loop",
+ "criteria": "C6 approved 09.11 (КРИТЕРИИ_УТВЕРЖДЕНЫ_20261109.md) + КРИТЕРИИ_ТОЛКОВАНИЯ_20261109.md",
+ "numbers": {
+  "height_m": 1.0,
+  "height_tol_m": 0.1,
+  "hover_s": 60.0,
+  "offset_10cm_m": 0.1,
+  "share_min": 0.95,
+  "offset_max_m": 0.2,
+  "jump_m": 0.1,
+  "jump_ekf_dt_s": 0.2,
+  "jump_truth_dt_s": 0.5
+ },
+ "ulog": "/work/goal_step5b_20261109/runs/e1_r2c_4056_loop/rootfs/log/2026-11-09/08_12_13.ulg",
+ "validity": {
+  "valid": true,
+  "invalid_reasons": [],
+  "rtf_min": 0.994,
+  "clock_ok": true
+ },
+ "trial_deviations": [
+  "trial-map-file (F2): drone.MAP_FILE -> RUN/aruco_map_written/map.txt instead of /home/lb/...",
+  "pkill stand-in (F2): `pkill` in the script PATH acts only inside the script session (rule 13)"
+ ],
+ "script_events": [],
+ "script": {
+  "path": "/work/ws_package1b_port_03/src/bumblebee/examples/flight/flight_marker_loop.py",
+  "problem": "script sha256 fd94839ab735... differs from versions.txt cade97b5fc96... (file changed after the run)"
+ },
+ "world_to_map": {
+  "n_markers": 20,
+  "max_residual_m": 0.0,
+  "marker0_map_xy": [
+   0.0,
+   0.0
+  ]
+ },
+ "script_exit": {
+  "code": 2,
+  "how": "2026-11-09T12:14:08+04:00 exited by itself, code 2"
+ },
+ "failsafe_flags_on_at_start": [
+  "auto_mission_missing",
+  "global_position_invalid",
+  "home_position_invalid"
+ ],
+ "h_max_m": 0.982,
+ "window": {
+  "from_s": 12.44,
+  "to_s": 104.46,
+  "len_s": 92.02,
+  "ends_because": "left OFFBOARD (nav_state 18)"
+ },
+ "offset_share_le_10cm": 0.0272,
+ "offset_max_m": 2.17,
+ "offset_mean_m": 1.111,
+ "height_err_max_m": 0.1,
+ "height_mean_m": 0.969,
+ "settling_s": 89.52,
+ "jump_a_ekf_resets": [],
+ "jump_a_ekf_max_move_lt_0p2s_m": 0.036,
+ "jump_a_ekf_at_s": [
+  21.07,
+  21.27
+ ],
+ "jump_b_truth_max_move_0p5s_m": 0.062,
+ "jump_b_truth_at_s": [
+  42.84,
+  43.34
+ ],
+ "jump_b_truth_max_move_0p5s_xy_only_m": 0.062,
+ "motors_off_s": 113.77,
+ "emergencies": [
+  "script exit code 2 (2026-11-09T12:14:08+04:00 exited by itself, code 2)"
+ ],
+ "verdict_lines": {
+  "took_off": true,
+  "hover_window_found": true,
+  "hover_60s": true,
+  "share_10cm_ge_95pct": false,
+  "offset_max_le_20cm": false,
+  "height_err_le_10cm": true,
+  "no_jump_a_ekf": true,
+  "no_jump_b_truth": true,
+  "landed_and_disarmed_after_hover": true,
+  "no_emergency": false,
+  "script_matches_versions": false,
+  "run_valid": true
+ },
+ "failed": [
+  "share_10cm_ge_95pct",
+  "offset_max_le_20cm",
+  "no_emergency",
+  "script_matches_versions"
+ ],
+ "C6": "FAIL"
+}

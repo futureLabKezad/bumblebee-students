@@ -1,0 +1,632 @@
+--- /work/c6_hover_script_r5_20261110/hover_marker0.py	2026-11-10 10:16:11.936902409 +0400
++++ /mnt/c/Users/User/AppData/Local/Temp/claude/de720d79c195c1ef/9a28e29e-1fc8-4191-90c1-53f842da94c1/scratchpad/hv6_final/hover_marker0.py	2026-11-10 11:52:37.002276800 +0400
+@@ -13,9 +13,10 @@
+ # limitations under the License.
+ 
+ """
+-hover_marker0.py -- take off to 1.0 m, fly to the centre of marker 0, hover 65 s there,
+-land (goal criteria C6 / Zh4). r3: variant B. r4: waits for the takeoff height before fly_to.
+-r5: vision watchdog on new vpe_fix poses (image r2f), silence counted from the takeoff.
++hover_marker0.py -- take off to 0.75 m, fly to the centre of marker 0, climb there to 1.0 m,
++hover 65 s, land (goal criteria C6 / Zh4). r3: variant B. r4: waits for the takeoff height
++before fly_to. r5: vision watchdog on new vpe_fix poses (image r2f), silence counted from the
++takeoff. r6: the move to marker 0 is done below the C6 height band, then the climb.
+ 
+ The same file runs in Gazebo (C6) and on the drone (Zh4, started by the owner only).
+ Needs the fixed image (drone.check_flight_profile, /work/param_profile_fix_01): this
+@@ -25,8 +26,9 @@
+ Where it hovers (r3, variant B, chat 1 09.11): over map (0, 0) = the centre of marker 0.
+ In variant B PX4 fuses the vision pose, so 'map' is the marker frame. The drone is
+ placed on marker 0, but not exactly on its centre (the Gazebo stand puts it 8 cm off,
+-like an imprecise placement live); takeoff climbs straight up, then fly_to() moves it
+-slowly to (0, 0) at the same height. Height stays as in r2: START z + 1.0 m (in the
++like an imprecise placement live); r6: takeoff climbs straight up to START z + LOW_H, then
++fly_to() moves it slowly to (0, 0) at that height, then a second fly_to() climbs slowly
++over (0, 0) to the hover height. Hover height stays as in r2: START z + 1.0 m (in the
+ variant B runs 'map' z on the ground is not 0, e.g. -0.31 in s9_c6_04).
+ Safety: if START is more than MAX_START_OFFSET_M from map (0, 0), 'map' is not the
+ marker frame (variant A: in Gazebo run s04, 06.11, START read (0.00, 1.53) on marker 0)
+@@ -56,6 +58,28 @@
+ takeoff, not from the first pose, so a drone that never got a pose, or lost vision during
+ the climb or fly_to, is not given a fresh 4 s when the watch starts. Needs image r2f or later.
+ 
++r6 (chat 1, 10.11; T40): the C6 evaluator opens its window at the first entry into the height
++band 1.0 +- 0.10 m (criteria, not changed here). In r4/r5 that entry happened during the
++takeoff climb, before the move to the marker 0 centre; when the lift-off drift was large
++(0.18-0.26 m; near the floor vision drops for up to 3.5 s), the slow 0.1 m/s move to the
++centre fell inside the window (control A, 10.11: 93.9 % within 10 cm). r6 changes the order
++only: takeoff() to LOW_H = 0.75 m, wait for that height (r4 settle), fly_to() the marker 0
++centre at that height, then fly_to() straight up to 1.0 m over the centre at CLIMB_SPEED,
++wait for that height (the same settle), then the 65 s hover and the landing as in r5. Why
++0.75 m and not lower (Gazebo ULogs, 27 runs, read only): on the climb a vision pose reached
++PX4 in only 16-70 % of 0.25 s slots below 0.70 m, but in 95 % at 0.70-0.75 m and 100 % at
++0.75-0.95 m (a hold below 0.70 m would risk the 4 s watchdog cut); the takeoff overshoot above
++its target was at most +0.053 m, so a 0.75 m takeoff stays below the band edge 0.90 m.
++Vision after the low takeoff (variant A, chat 1): takeoff() returns 0.15 m short of its target,
++at about 0.60 m, but after the spin-up vision came back only at 0.64-0.73 m (Gazebo); at 0.60 m
++the last pose was up to 6.5 s old. So in the FIRST settle only (still the takeoff leg, below the
++band) the silence limit is TAKEOFF_VISION_S = 25 s from the takeoff, the same limit the image's
++takeoff() applies to its climb, and that settle ends only when the height is reached AND a new
++pose is at most VISION_AGE_S old. The height must still come within SETTLE_TIMEOUT_S (15 s) of
++the settle start; if it did but vision is not back yet, the wait goes on until the watchdog
++cuts at 25 s from the takeoff ('vision silent >24s', review 10.11). From then on the r5
++watchdog is unchanged (4 s, counted from the takeoff at the latest).
++
+ Finding F1 is NOT worked around here: the marker detector sleeps until the drone is
+ armed in OFFBOARD, so require_aruco() before arming sees 0 markers and the script
+ refuses (exit 1) on an image without the F1 fix. Gazebo trials use the launcher's
+@@ -79,6 +103,8 @@
+ 
+ PROFILE_NAME = 'INDOOR_ARUCO_SLOW'
+ HOVER_H = 1.0             # m above the takeoff point (the drone stands on marker 0)
++LOW_H = 0.75              # r6: takeoff and the move to marker 0 at this height (below the C6 band 0.90-1.10)
++CLIMB_SPEED = 0.1         # r6: slow climb over marker 0 from LOW_H to HOVER_H
+ HOVER_S = 65.0            # r2 (chat 1, 09.11): the C6 window (from the band entry) must reach 60 s; e3 had 59.6
+ MARKER0_X = 0.0           # r3: centre of marker 0 in 'map' (variant B: map = marker frame)
+ MARKER0_Y = 0.0
+@@ -91,6 +117,7 @@
+ SETTLE_TIMEOUT_S = 15.0   # r4: not there after this -> flight cut, land (r3 EKF replay: 4-5 s)
+ VISION_AGE_S = 1.0        # r5: vision present = new vpe_fix pose within this (r2f README, flight.py)
+ VISION_SILENT_S = 3.0     # as flight.py: land if vision absent for longer than this (no new pose > 4 s)
++TAKEOFF_VISION_S = 25.0   # r6 A: first settle only -- no new pose this long since the takeoff -> cut (= drone.takeoff vision_timeout)
+ FCU_UNKNOWN_S = 3.0       # land if /mavros/state stays stale longer than this
+ 
+ 
+@@ -126,20 +153,44 @@
+     return held, reason
+ 
+ 
+-def settle_at_takeoff_height():
++def settle_at_target_height(what, after_takeoff=False):
+     """r4: wait, sending nothing, until the estimate is within SETTLE_DZ below the
+-    takeoff target on SETTLE_SAMPLES successive checks. Returns reason or None."""
+-    print('=== SETTLE: waiting until <=%.2f m below the takeoff height (max %.0fs) ==='
+-          % (SETTLE_DZ, SETTLE_TIMEOUT_S))
++    current navigate target on SETTLE_SAMPLES successive checks. Returns reason or None.
++    r6: used after takeoff() (what='takeoff height') and after the climb over marker 0
++    (what='hover height').
++    r6 A: after_takeoff=True (first settle, below the band): vision may still be absent from the
++    spin-up; the silence limit is TAKEOFF_VISION_S from the takeoff and the settle ends only with
++    a new pose at most VISION_AGE_S old."""
++    print('=== SETTLE: waiting until <=%.2f m below the %s%s (max %.0fs) ==='
++          % (SETTLE_DZ, what, ' and a new vpe_fix pose' if after_takeoff else '', SETTLE_TIMEOUT_S))
+     count = [0]
+ 
+     def reached():
+         b = below_takeoff_target()
+         count[0] = count[0] + 1 if b is not None and b <= SETTLE_DZ else 0
++        if after_takeoff and not drone.vision_pose_age() <= VISION_AGE_S:
++            return False
+         return count[0] >= SETTLE_SAMPLES
+-    waited, reason, done = watch(SETTLE_TIMEOUT_S, '[SETTLE]', reached)
++    limit = TAKEOFF_VISION_S if after_takeoff else None
++    waited, reason, done = watch(SETTLE_TIMEOUT_S, '[SETTLE]', reached, vision_limit=limit)
++    if reason is None and not done and after_takeoff and count[0] >= SETTLE_SAMPLES:
++        # r6 A (review 10.11): the height is there, vision is not back yet: wait on, up to
++        # TAKEOFF_VISION_S from the takeoff; the watchdog cuts at that limit ('vision silent >').
++        more = t_takeoff + TAKEOFF_VISION_S + 0.5 - time.monotonic()
++        if more > 0:
++            print('=== SETTLE: height reached, waiting for a new vpe_fix pose (until %.0fs after the takeoff) ==='
++                  % TAKEOFF_VISION_S)
++            more_waited, reason, done = watch(more, '[SETTLE]', reached, vision_limit=limit)
++            waited += more_waited
++        if reason is None and not done:
++            silent = vision_silent_for(time.monotonic())
++            if silent <= VISION_AGE_S:
++                reason = '%s not held until vision came back' % what
++            else:
++                reason = 'vision silent >%.0fs at %.0fs after the takeoff (no new vpe_fix pose for %.1fs)' % (
++                    VISION_AGE_S, TAKEOFF_VISION_S, silent)
+     if reason is None and not done:
+-        reason = 'takeoff height not reached in %.0fs' % SETTLE_TIMEOUT_S
++        reason = '%s not reached in %.0fs' % (what, SETTLE_TIMEOUT_S)
+     print('=== SETTLE END waited=%.1fs reason=%s ===' % (waited, reason or 'height reached'))
+     return reason
+ 
+@@ -155,9 +206,18 @@
+     return age
+ 
+ 
+-def watch(seconds, tag, done=None):
++def not_reached(what):
++    """fly_to() returned False: say whether the pilot/failsafe has the drone (read only)."""
++    fs = drone.get_fcu_status()
++    return '%s not reached (fcu ok=%s armed=%s mode=%s)' % (
++        what, fs.get('ok'), fs.get('armed'), fs.get('mode'))
++
++
++def watch(seconds, tag, done=None, vision_limit=None):
+     """Watch the flight for up to `seconds`, sending nothing. Stops early when done()
+-    is true. Returns (elapsed_s, reason, done_hit); reason is None unless cut short."""
++    is true. Returns (elapsed_s, reason, done_hit); reason is None unless cut short.
++    vision_limit (r6 A, first settle only): silence limit in s instead of the r5 one."""
++    limit = VISION_AGE_S + VISION_SILENT_S if vision_limit is None else vision_limit
+     t0 = time.monotonic()
+     fcu_unknown_since = None
+     next_print = t0
+@@ -186,8 +246,8 @@
+                 reason = 'pilot/failsafe has control (mode=%s)' % s['mode']
+                 break
+         silent = vision_silent_for(now)
+-        if not silent <= VISION_AGE_S + VISION_SILENT_S:   # NaN counts as silent
+-            reason = 'vision silent >%.0fs (no new vpe_fix pose for %.1fs)' % (VISION_SILENT_S, silent)
++        if not silent <= limit:   # NaN counts as silent
++            reason = 'vision silent >%.0fs (no new vpe_fix pose for %.1fs)' % (limit - VISION_AGE_S, silent)
+             break
+         if done is not None and done():
+             done_hit = True
+@@ -254,32 +314,39 @@
+            'marker frame (variant B needs the vision pose fused) or the drone stands far from marker 0'
+            % (start.x, start.y, start_off, MAX_START_OFFSET_M))
+ hover_z = start.z + HOVER_H
++low_z = start.z + LOW_H
+ print('Hover point = marker 0 centre: map (%.2f, %.2f), z %.2f (START z + %.1f m); '
+       'START (%.2f, %.2f) is %.2f m off' % (MARKER0_X, MARKER0_Y, hover_z, HOVER_H,
+                                            start.x, start.y, start_off))
++print('r6 order: takeoff to z %.2f (START z + %.2f m), move to marker 0 there, climb to z %.2f'
++      % (low_z, LOW_H, hover_z))
+ check_interrupt()
+ 
+ held, reason = 0.0, 'not started'
+ landed = False
+ try:
+-    # takeoff() climbs straight up to (START x, START y, START z + HOVER_H); r4: the script
+-    # waits (sending nothing) until the drone is nearly there; fly_to() then moves slowly
+-    # to marker 0 at the same height and leaves that setpoint in place; nothing else is
+-    # sent during the hover.
++    # r6: takeoff() climbs straight up to (START x, START y, START z + LOW_H), below the C6
++    # band; r4: the script waits (sending nothing) until the drone is nearly there; fly_to()
++    # moves slowly to marker 0 at that height; a second fly_to() climbs slowly over marker 0
++    # to the hover height and leaves that setpoint in place; the script waits for that height
++    # (same settle); nothing else is sent during the hover.
+     t_takeoff = time.monotonic()
+-    if not drone.takeoff(height=HOVER_H, speed=0.4):
++    if not drone.takeoff(height=LOW_H, speed=0.4):
+         reason = 'takeoff not completed'
+     else:
+-        reason = settle_at_takeoff_height()
++        reason = settle_at_target_height('takeoff height', after_takeoff=True)
+         if reason is not None:
+             pass
+-        elif not drone.fly_to(x=MARKER0_X, y=MARKER0_Y, z=hover_z, speed=FLY_SPEED,
++        elif not drone.fly_to(x=MARKER0_X, y=MARKER0_Y, z=low_z, speed=FLY_SPEED,
++                              tolerance=FLY_TOL, settle_speed=FLY_SETTLE):
++            reason = not_reached('marker 0 centre')
++        elif not drone.fly_to(x=MARKER0_X, y=MARKER0_Y, z=hover_z, speed=CLIMB_SPEED,
+                               tolerance=FLY_TOL, settle_speed=FLY_SETTLE):
+-            fs = drone.get_fcu_status()   # read only: says whether the pilot/failsafe has it
+-            reason = 'marker 0 centre not reached (fcu ok=%s armed=%s mode=%s)' % (
+-                fs.get('ok'), fs.get('armed'), fs.get('mode'))
++            reason = not_reached('hover height over marker 0')
+         else:
+-            held, reason = hold_over_marker0(HOVER_S)
++            reason = settle_at_target_height('hover height')
++            if reason is None:
++                held, reason = hold_over_marker0(HOVER_S)
+     if drone.should_land:
+         reason = 'Ctrl+C'
+ finally:
+--- /work/c6_hover_script_r5_20261110/tests/test_hover_marker0.py	2026-11-10 10:16:11.949199910 +0400
++++ /mnt/c/Users/User/AppData/Local/Temp/claude/de720d79c195c1ef/9a28e29e-1fc8-4191-90c1-53f842da94c1/scratchpad/hv6_final/tests/test_hover_marker0.py	2026-11-10 11:52:37.009269100 +0400
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Tests for hover_marker0.py r5 (variant B, settle before fly_to, vision = new vpe_fix poses) without ROS, a simulator or a drone (09.11.2026).
++"""Tests for hover_marker0.py r6 (variant B, settle before fly_to, vision = new vpe_fix poses, move low then climb) without ROS, a simulator or a drone (09.11.2026).
+ 
+ A fake `drone` module records every call. Time is a fake clock (65 s hover runs
+ instantly). Ctrl+C is a real SIGINT raised inside the fake call of the chosen stage;
+@@ -24,7 +24,7 @@
+ 
+ PREFLIGHT = ['check_flight_profile', 'require_aruco', 'wait_yaw_lock',
+              'wait_position_stable', 'require_vpe_link', 'print_pos_fresh']
+-FLIGHT = ['takeoff', 'fly_to', 'safe_land']
++FLIGHT = ['takeoff', 'fly_to', 'fly_to', 'safe_land']   # r6: move low, then climb
+ # Calls that command the drone. None of them may happen before takeoff.
+ COMMANDS = {'takeoff', 'fly_to', 'safe_land', 'navigate', 'navigate_wait', 'hover',
+             'move', 'land', 'arming', 'set_mode', 'set_param', 'apply_flight_profile'}
+@@ -57,13 +57,19 @@
+                         # r5: vision = a NEW vpe_fix pose arrives on a watch tick when markers(n) > 0;
+                         # poses also arrive during takeoff/fly_to unless switched off; no pose at all: never_pose
+                         pose_in_takeoff=True, pose_in_fly=True, never_pose=False, raw_markers=2,
+-                        takeoff_pose_age=0.0)
++                        takeoff_pose_age=0.0, takeoff_s=8.0,
++                        # r6: second fly_to (climb over marker 0) and the settle after it
++                        climb_ok=True, pose_in_climb=True, climb_dz=lambda n: min(-0.06 + 0.01 * n, 0.0),
++                        climb_markers=None, climb_fcu=None, sigint_climb_tick=None)
+         self.cfg.update(cfg)
+         self.hover_ticks = 0
+         self.settle_ticks = 0
+         self.settle_checks = 0
+         self.hovering = False      # armed in the air (after takeoff)
+-        self.at_marker = False     # fly_to done: hover phase
++        self.at_marker = False     # r6: both fly_to done (climb settle, then hover)
++        self.flys = 0              # r6: fly_to calls so far
++        self.climb_ticks = 0
++        self.climb_checks = 0
+         m = types.ModuleType('drone')
+         m.should_land = False
+         # r5: the raw count is fixed (cfg raw_markers) and must not drive the watchdog
+@@ -123,7 +129,16 @@
+                 self._pose()
+             if self.cfg['settle_fcu'] is not None:
+                 return self.cfg['settle_fcu'](self.settle_ticks)
+-        if self.hovering and self.at_marker:
++        if self.hovering and self.at_marker and '=== HOVER' not in sys.stdout.getvalue():
++            # r6: settle after the climb (the script has not started the hover yet)
++            self.climb_ticks += 1
++            if self.cfg['sigint_climb_tick'] == self.climb_ticks:
++                signal.raise_signal(signal.SIGINT)
++            if self.cfg['climb_markers'] is None or self.cfg['climb_markers'](self.climb_ticks) > 0:
++                self._pose()
++            if self.cfg['climb_fcu'] is not None:
++                return self.cfg['climb_fcu'](self.climb_ticks)
++        elif self.hovering and self.at_marker:
+             self.hover_ticks += 1
+             if self.cfg['sigint_hover_tick'] == self.hover_ticks:
+                 signal.raise_signal(signal.SIGINT)
+@@ -170,7 +185,7 @@
+ 
+     def do_takeoff(self, name, **k):
+         self._sigint(name)
+-        self.clock.sleep(8.0)
++        self.clock.sleep(self.cfg['takeoff_s'])
+         if self.cfg['pose_in_takeoff']:
+             self._pose()
+             if self.last_pose_t is not None:
+@@ -180,15 +195,23 @@
+         return ok
+ 
+     def do_fly_to(self, name, **k):
+-        self._sigint(name)
++        self.flys += 1
++        self._sigint(name if self.flys == 1 else 'fly_to_climb')
+         self.clock.sleep(3.0)
+-        if self.cfg['pose_in_fly']:
++        if self.flys == 1:
++            if self.cfg['pose_in_fly']:
++                self._pose()
++            return self.cfg['fly_ok'] and not self.m.should_land
++        if self.cfg['pose_in_climb']:
+             self._pose()
+-        ok = self.cfg['fly_ok'] and not self.m.should_land
++        ok = self.cfg['climb_ok'] and not self.m.should_land
+         self.at_marker = ok
+         return ok
+ 
+     def do_get_pos(self, name, *a, **k):
++        if k.get('frame_id') == 'navigate_target' and self.at_marker:
++            self.climb_checks += 1     # r6: settle after the climb
++            return (0.0, 0.0, self.cfg['climb_dz'](self.climb_checks))
+         if k.get('frame_id') == 'navigate_target':
+             self.settle_checks += 1
+             if self.cfg['settle_raises'] is not None and self.cfg['settle_raises'](self.settle_checks):
+@@ -232,12 +255,16 @@
+         self.assertEqual(first, ['get_fcu_status', 'enable_safe_interrupt'],
+                          'node first, then the Ctrl+C handler')
+         k = {c[0]: c[2] for c in fd.calls}
+-        self.assertEqual(k['takeoff']['height'], 1.0)
+-        # r3: flies to map (0, 0) = marker 0 centre at START z + 1.0, slowly, and lands there
+-        f = k['fly_to']
+-        self.assertEqual((f['x'], f['y']), (0.0, 0.0))
+-        self.assertAlmostEqual(f['z'], 0.01 + 1.0, places=9)
+-        self.assertEqual((f['speed'], f['tolerance'], f['settle_speed']), (0.1, 0.12, 0.05))
++        self.assertEqual(k['takeoff']['height'], 0.75)   # r6: below the C6 band
++        # r3: flies to map (0, 0) = marker 0 centre slowly, and lands there
++        # r6: first at START z + 0.75, then straight up to START z + 1.0
++        f1, f2 = [c[2] for c in fd.calls if c[0] == 'fly_to']
++        self.assertEqual((f1['x'], f1['y']), (0.0, 0.0))
++        self.assertAlmostEqual(f1['z'], 0.01 + 0.75, places=9)
++        self.assertEqual((f1['speed'], f1['tolerance'], f1['settle_speed']), (0.1, 0.12, 0.05))
++        self.assertEqual((f2['x'], f2['y']), (0.0, 0.0))
++        self.assertAlmostEqual(f2['z'], 0.01 + 1.0, places=9)
++        self.assertEqual((f2['speed'], f2['tolerance'], f2['settle_speed']), (0.1, 0.12, 0.05))
+         self.assertEqual((k['safe_land']['x'], k['safe_land']['y']), (0.0, 0.0))
+         self.assertEqual((k['safe_land']['precision_speed'], k['safe_land']['precision_tolerance']),
+                          (0.1, 0.18))
+@@ -257,6 +284,12 @@
+         self.assertIn('=== SETTLE END waited=', out)
+         self.assertIn('reason=height reached ===', out)
+         self.assertLess(out.index('reason=height reached'), hov)
++        # r6: second settle (after the climb), also before the hover: dz -0.05.. -> fly on after check 5
++        self.assertEqual(fd.climb_checks, 5)
++        self.assertEqual(out.count('reason=height reached ==='), 2)
++        self.assertLess(out.index('below the takeoff height'), out.index('below the hover height'))
++        self.assertLess(out.rindex('reason=height reached'), hov)
++        self.assertIn('r6 order: takeoff to z 0.76 (START z + 0.75 m), move to marker 0 there, climb to z 1.01', out)
+         m = re.search(r'HOVER END held=([\d.]+)s reason=full time', out)
+         self.assertTrue(m, out)
+         self.assertGreaterEqual(float(m.group(1)), 65.0)
+@@ -343,7 +376,8 @@
+         """Variant B run s9_c6_04: START (-0.05, -0.05, z -0.31). Hover z = 0.69, as takeoff's target."""
+         code, names, fd, out = run(start=(-0.05, -0.05, -0.31))
+         self.assertEqual(code, 0, out)
+-        f = {c[0]: c[2] for c in fd.calls}['fly_to']
++        f1, f = [c[2] for c in fd.calls if c[0] == 'fly_to']
++        self.assertAlmostEqual(f1['z'], 0.44, places=9)   # r6: START z + 0.75
+         self.assertAlmostEqual(f['z'], 0.69, places=9)
+         self.assertEqual((f['x'], f['y']), (0.0, 0.0))
+         self.assertIn('z 0.69 (START z + 1.0 m); START (-0.05, -0.05) is 0.07 m off', out)
+@@ -383,7 +417,7 @@
+         self.assertIn('reason=Ctrl+C', out)
+         held = float(re.search(r'HOVER END held=([\d.]+)s', out).group(1))
+         self.assertLess(held, 6.0)
+-        self.assertEqual([n for n in names if n in COMMANDS], ['takeoff', 'fly_to', 'safe_land'])
++        self.assertEqual([n for n in names if n in COMMANDS], ['takeoff', 'fly_to', 'fly_to', 'safe_land'])
+ 
+     def test_during_landing_landing_goes_on(self):
+         code, names, fd, out = run(sigint_at='safe_land')
+@@ -400,7 +434,7 @@
+         self.assertEqual(code, 4)
+         self.assertIn('pilot/failsafe has control (mode=POSCTL)', out)
+         # nothing re-sent after the takeover except safe_land (which itself sends nothing then)
+-        self.assertEqual([n for n in names if n in COMMANDS], ['takeoff', 'fly_to', 'safe_land'])
++        self.assertEqual([n for n in names if n in COMMANDS], ['takeoff', 'fly_to', 'fly_to', 'safe_land'])
+ 
+     def test_disarm_during_hover(self):
+         fcu = lambda n: {'ok': True, 'connected': True, 'armed': n < 10, 'mode': 'OFFBOARD', 'cell': 0.0}  # noqa: E731
+@@ -503,7 +537,8 @@
+         self.cut('FCU state unknown >3s', settle_fcu=fcu, settle_dz=lambda n: -0.1)
+ 
+     def test_vision_silent_during_settle(self):
+-        self.cut('vision silent >3s', settle_markers=lambda n: 0, settle_dz=lambda n: -0.1)
++        # r6 A: first settle limit is 25 s from the takeoff; here the settle times out first (8 + 15 s)
++        self.cut('takeoff height not reached in 15s', settle_markers=lambda n: 0, settle_dz=lambda n: -0.1)
+ 
+     def test_safety_checked_before_height(self):
+         # pilot takes over on the very check where the height is reached: the takeover wins
+@@ -544,39 +579,88 @@
+         self.assertIn('vision silent >3s', out)
+ 
+     def test_never_a_pose_counts_from_takeoff(self):
+-        # S4: no pose at all -> at the first settle check 8 s have passed since takeoff() -> cut, no fly_to
++        # S4 + r6 A: no pose at all -> the first settle never ends (height alone is not enough), no fly_to
+         code, names, fd, out = run(never_pose=True)
+         self.assertEqual(code, 4, out)
+         self.assertEqual([n for n in names if n in COMMANDS], ['takeoff', 'safe_land'])
+-        self.assertIn('vision silent >3s (no new vpe_fix pose for 8.0s)', out)
++        # review 10.11: height there after 15 s, no pose -> waits on until 25 s from the takeoff, then the watchdog
++        self.assertIn('height reached, waiting for a new vpe_fix pose (until 25s after the takeoff)', out)
++        self.assertIn('reason=vision silent >24s (no new vpe_fix pose for 25.', out)
+         waited = float(re.search(r'SETTLE END waited=([\d.]+)s', out).group(1))
+-        self.assertLess(waited, 0.05)
++        self.assertTrue(17.0 <= waited < 17.2, waited)
++        # with a long takeoff the 25 s limit (counted from the takeoff) cuts first
++        code, names, fd, out = run(never_pose=True, takeoff_s=20.0)
++        self.assertEqual(code, 4, out)
++        self.assertNotIn('fly_to', names)
++        self.assertIn('vision silent >24s (no new vpe_fix pose for 25.', out)
++        waited = float(re.search(r'SETTLE END waited=([\d.]+)s', out).group(1))
++        self.assertTrue(5.0 <= waited < 5.2, waited)
+ 
+     def test_vision_back_late_in_the_climb(self):
+-        # review r5: in Gazebo vision comes back 2-4 s before takeoff() returns (spin-up gap).
+-        # last pose 3.9 s before the first settle check -> no cut; 4.1 s -> cut at settle t=0
+-        # no new pose on the first settle tick: the first check sees exactly that age
+-        first_quiet = lambda n: 0 if n == 1 else 2  # noqa: E731
+-        code, names, fd, out = run(takeoff_pose_age=3.9, settle_markers=first_quiet)
++        # r6 A: takeoff() to 0.75 m returns at ~0.60 m, vision comes back at 0.64-0.73 m (Gazebo);
++        # last pose 6.5 s old at the first settle check, back after 2 s -> no cut, fly_to only after it is back
++        code, names, fd, out = run(takeoff_pose_age=6.5, settle_markers=lambda n: 0 if n <= 20 else 2)
++        self.assertEqual(code, 0, out)
++        self.assertGreaterEqual(fd.settle_checks, 21)
++        self.assertIn('below the takeoff height and a new vpe_fix pose', out)
++
++    def test_height_reached_but_no_pose_waits(self):
++        # r6 A: height reached at check 11, pose only from tick 30 -> fly_to after tick 30, not at check 11
++        code, names, fd, out = run(settle_markers=lambda n: 0 if n < 30 else 2, takeoff_pose_age=1.0)
++        self.assertEqual(code, 0, out)
++        self.assertEqual(fd.settle_checks, 30)
++
++    def test_old_pose_does_not_end_first_settle(self):
++        # r6 A: last pose at settle tick 1; the height is there from check 13 on, the pose is then 1.2 s old
++        # (VISION_AGE_S 1.0) -> the first settle never ends
++        code, names, fd, out = run(settle_markers=lambda n: 1 if n == 1 else 0,
++                                   settle_dz=lambda n: -0.1 if n <= 12 else 0.0)
++        self.assertEqual(code, 4, out)
++        self.assertNotIn('fly_to', names)
++        # last pose at settle tick 1 (8 s after the takeoff): at 25.5 s it is 17.5 s old -> fallback reason
++        self.assertIn('reason=vision silent >1s at 25s after the takeoff (no new vpe_fix pose for 17.', out)
++
++    def test_vision_back_after_15s_flies_on(self):
++        # review 10.11: no pose for 16 s of the settle (24 s since the takeoff, < 25 s), then back -> flies on
++        code, names, fd, out = run(settle_markers=lambda n: 0 if n <= 160 else 2)
+         self.assertEqual(code, 0, out)
+-        code, names, fd, out = run(takeoff_pose_age=4.1, settle_markers=first_quiet)
++        self.assertEqual(names.count('fly_to'), 2)
++        waited = float(re.search(r'SETTLE END waited=([\d.]+)s', out).group(1))
++        self.assertTrue(16.0 <= waited < 16.3, waited)
++
++    def test_height_lost_while_waiting_for_vision(self):
++        # height there in the first 15 s, then lost while vision is back -> no fly_to, own reason
++        code, names, fd, out = run(settle_markers=lambda n: 0 if n <= 150 else 2, takeoff_pose_age=2.0,
++                                   settle_dz=lambda n: 0.0 if n <= 150 else -0.1)
+         self.assertEqual(code, 4, out)
+         self.assertNotIn('fly_to', names)
+-        self.assertIn('vision silent >3s (no new vpe_fix pose for 4.1s)', out)
++        self.assertIn('reason=takeoff height not held until vision came back', out)
+ 
+     def test_lost_during_climb_not_reset_at_settle(self):
+-        # last pose at print_pos_fresh (before takeoff), none during the 8 s climb -> cut at settle start
+-        code, names, fd, out = run(pose_in_takeoff=False, settle_markers=lambda n: 0)
++        # r6 A: last pose before takeoff, none since -> the first settle never ends; with a 20 s takeoff the
++        # 25 s limit counted from the takeoff cuts 5 s into the settle (not 25 s after the settle start)
++        code, names, fd, out = run(pose_in_takeoff=False, settle_markers=lambda n: 0, takeoff_s=20.0)
+         self.assertEqual(code, 4, out)
+         self.assertNotIn('fly_to', names)
+-        self.assertIn('vision silent >3s', out)
++        self.assertIn('vision silent >24s', out)
++        waited = float(re.search(r'SETTLE END waited=([\d.]+)s', out).group(1))
++        self.assertLess(waited, 5.2)
+ 
+-    def test_lost_during_fly_to_not_reset_at_hover(self):
+-        # last pose at the settle end, none during the 3 s fly_to, none in the hover -> cut ~1 s into the hover
+-        code, names, fd, out = run(pose_in_fly=False, markers=lambda n: 0)
++    def test_lost_during_fly_to_not_reset_at_climb_settle(self):
++        # r6: last pose at the takeoff settle end, none during the two 3 s fly_to -> cut at the climb settle start
++        code, names, fd, out = run(pose_in_fly=False, pose_in_climb=False, climb_markers=lambda n: 0)
++        self.assertEqual(code, 4, out)
++        self.assertEqual([n for n in names if n in COMMANDS], ['takeoff', 'fly_to', 'fly_to', 'safe_land'])
++        self.assertIn('vision silent >3s (no new vpe_fix pose for 6.', out)
++        self.assertNotIn('=== HOVER 65s', out)
++
++    def test_lost_in_climb_settle_not_reset_at_hover(self):
++        # r6: last pose when the climb fly_to returns, none in the climb settle (0.4 s) or the hover
++        # -> cut when 4 s have passed in all, ~3.6 s into the hover (not 4 s)
++        code, names, fd, out = run(climb_markers=lambda n: 0, markers=lambda n: 0)
+         self.assertEqual(code, 4, out)
+         self.assertIn('vision silent >3s', out)
+-        self.assertLess(self.held(out), 1.3)
++        self.assertTrue(3.4 < self.held(out) < 3.8, self.held(out))
+ 
+     def test_image_before_r2f_refuses_before_arming(self):
+         code, names, fd, out = run(no_vpa=True)
+@@ -593,6 +677,65 @@
+         self.assertIn('drone.vision_pose_age()', code)
+ 
+ 
++class OrderR6(unittest.TestCase):
++    """r6 (chat 1, 10.11; T40): the move to marker 0 is done at 0.75 m, below the C6 band; then the climb
++    to 1.0 m over the centre and a second settle; the hover starts only after that."""
++
++    def no_hover(self, text, **cfg):
++        code, names, fd, out = run(**cfg)
++        self.assertEqual(code, 4, out)
++        self.assertEqual([n for n in names if n in COMMANDS], ['takeoff', 'fly_to', 'fly_to', 'safe_land'])
++        self.assertNotIn('=== HOVER 65s', out)
++        self.assertIn(text, out)
++        self.assertIn('C6 HOVER RESULT: CUT', out)
++        return code, names, fd, out
++
++    def test_nothing_sent_between_the_moves(self):
++        code, names, fd, out = run()
++        allc = [c[0] for c in fd.calls]
++        i1 = allc.index('fly_to')
++        i2 = allc.index('fly_to', i1 + 1)
++        self.assertEqual(i2, i1 + 1, fd.calls[i1:i2 + 1])
++        # between the climb and the hover only reads; height checks in navigate_target
++        after = [c for c in fd.calls[i2 + 1:] if c[0] != 'safe_land' and c[0] != '_shutdown']
++        self.assertTrue(all(c[0] in ('get_fcu_status', 'get_pos') for c in after), after)
++
++    def test_climb_fails_no_hover(self):
++        self.no_hover('reason=hover height over marker 0 not reached (fcu ok=True armed=True mode=OFFBOARD)',
++                      climb_ok=False)
++
++    def test_climb_settle_times_out_no_hover(self):
++        code, names, fd, out = self.no_hover('reason=hover height not reached in 15s', climb_dz=lambda n: -0.08)
++        waited = [float(w) for w in re.findall(r'SETTLE END waited=([\d.]+)s', out)]
++        self.assertEqual(len(waited), 2)
++        self.assertTrue(15.0 <= waited[1] < 15.2, waited)
++
++    def test_pilot_takes_over_in_climb_settle(self):
++        fcu = lambda n: {'ok': True, 'connected': True, 'armed': True, 'cell': 0.0,  # noqa: E731
++                         'mode': 'POSCTL' if n >= 2 else 'OFFBOARD'}
++        self.no_hover('reason=pilot/failsafe has control (mode=POSCTL)', climb_fcu=fcu, climb_dz=lambda n: -0.1)
++
++    def test_vision_silent_in_climb_settle(self):
++        self.no_hover('vision silent >3s', pose_in_climb=False, climb_markers=lambda n: 0, climb_dz=lambda n: -0.1)
++
++    def test_ctrl_c_during_climb_lands(self):
++        code, names, fd, out = self.no_hover('reason=Ctrl+C', sigint_at='fly_to_climb')
++        land = [c for c in fd.calls if c[0] == 'safe_land'][0]
++        self.assertTrue(land[3], 'should_land already set when safe_land starts')
++
++    def test_ctrl_c_in_climb_settle_lands(self):
++        code, names, fd, out = self.no_hover('reason=Ctrl+C', sigint_climb_tick=2, climb_dz=lambda n: -0.1)
++        land = [c for c in fd.calls if c[0] == 'safe_land'][0]
++        self.assertTrue(land[3], 'should_land already set when safe_land starts')
++
++    def test_low_height_below_band_with_overshoot_margin(self):
++        # C6 band starts at 0.90; max takeoff overshoot in 27 Gazebo runs +0.053 m; vision >= 95 % from 0.70 m
++        src = open(SCRIPT, encoding='utf-8').read()
++        low = float(re.search(r'^LOW_H = ([\d.]+) ', src, re.M).group(1))
++        self.assertLessEqual(low + 0.053, 0.90 - 0.09)
++        self.assertGreaterEqual(low, 0.70)
++
++
+ class Source(unittest.TestCase):
+     """The script itself: no PX4 parameter writes, no direct mode/arming commands."""
+ 
+@@ -638,7 +781,8 @@
+         for line in ('MARKER0_X = 0.0 ', 'MARKER0_Y = 0.0\n', 'MAX_START_OFFSET_M = 0.5 ',
+                      'FLY_SPEED = 0.1 ', 'FLY_TOL = 0.12 ', 'FLY_SETTLE = 0.05 ',
+                      'SETTLE_DZ = 0.03 ', 'SETTLE_SAMPLES = 3 ', 'SETTLE_TIMEOUT_S = 15.0 ',
+-                     'VISION_AGE_S = 1.0 ', 'VISION_SILENT_S = 3.0 '):
++                     'VISION_AGE_S = 1.0 ', 'VISION_SILENT_S = 3.0 ', 'LOW_H = 0.75 ', 'CLIMB_SPEED = 0.1 ',
++                     'TAKEOFF_VISION_S = 25.0 '):
+             self.assertIn(line, src)
+ 
+ 
+--- /work/c6_hover_script_r5_20261110/tests/mutation_check.py	2026-11-10 10:16:11.944217062 +0400
++++ /mnt/c/Users/User/AppData/Local/Temp/claude/de720d79c195c1ef/9a28e29e-1fc8-4191-90c1-53f842da94c1/scratchpad/hv6_final/tests/mutation_check.py	2026-11-10 11:52:37.013273900 +0400
+@@ -29,26 +29,28 @@
+     ('NaN start check off', "if start is None or any(", "if start is None and any("),
+     ('r3: lands over START instead of marker 0', "safe_land(x=MARKER0_X, y=MARKER0_Y,",
+      "safe_land(x=start.x, y=start.y,"),
+-    ('r3: no fly_to (r2: hovers over START)', "    elif not drone.fly_to(", "    elif False and drone.fly_to("),
+-    ('r3: fly_to START instead of marker 0', "drone.fly_to(x=MARKER0_X, y=MARKER0_Y,",
+-     "drone.fly_to(x=start.x, y=start.y,"),
++    ('r3: no fly_to (r2: hovers over START)', "elif not drone.fly_to(x=MARKER0_X, y=MARKER0_Y, z=low_z,",
++     "elif False and drone.fly_to(x=MARKER0_X, y=MARKER0_Y, z=low_z,"),
++    ('r3: fly_to START instead of marker 0', "drone.fly_to(x=MARKER0_X, y=MARKER0_Y, z=low_z,",
++     "drone.fly_to(x=start.x, y=start.y, z=low_z,"),
+     ('r3: absolute z 1.0 instead of START z + 1.0', "hover_z = start.z + HOVER_H", "hover_z = HOVER_H"),
+     ('r3: START offset check off', "if start_off > MAX_START_OFFSET_M:", "if False:"),
+     ('r3: START offset limit 1.6 m', "MAX_START_OFFSET_M = 0.5 ", "MAX_START_OFFSET_M = 1.6 "),
+     ('r3: START offset limit 0.6 m', "MAX_START_OFFSET_M = 0.5 ", "MAX_START_OFFSET_M = 0.6 "),
+     ('r3: offset from START x only', "math.hypot(start.x - MARKER0_X, start.y - MARKER0_Y)",
+      "abs(start.x - MARKER0_X)"),
+-    ('r3: fly_to failure ignored', "reason = 'marker 0 centre not reached (fcu ok=%s armed=%s mode=%s)' % (",
+-     "_unused = '%s %s %s' % ("),
++    ('r3: fly_to failure ignored', "            reason = not_reached('marker 0 centre')\n", "            reason = None\n"),
+     ('r3: fly_to fast 0.5 m/s', "FLY_SPEED = 0.1 ", "FLY_SPEED = 0.5 "),
+-    ('r3: fly_to no settle', "tolerance=FLY_TOL, settle_speed=FLY_SETTLE)", "tolerance=FLY_TOL)"),
+-    ('r4: no settle (r3)', "        reason = settle_at_takeoff_height()\n", "        reason = None\n"),
++    ('r3: fly_to no settle', "z=low_z, speed=FLY_SPEED,\n                              tolerance=FLY_TOL, settle_speed=FLY_SETTLE)",
++     "z=low_z, speed=FLY_SPEED,\n                              tolerance=FLY_TOL)"),
++    ('r4: no settle (r3)', "        reason = settle_at_target_height('takeoff height', after_takeoff=True)\n", "        reason = None\n"),
+     ('r4: settle 15 cm (= takeoff tolerance)', "SETTLE_DZ = 0.03 ", "SETTLE_DZ = 0.15 "),
+     ('r4: settle 1 sample', "SETTLE_SAMPLES = 3 ", "SETTLE_SAMPLES = 1 "),
+     ('r4: settle timeout 60 s', "SETTLE_TIMEOUT_S = 15.0 ", "SETTLE_TIMEOUT_S = 60.0 "),
+     ('r4: settle sign flipped', "return None if math.isnan(dz) else -dz", "return None if math.isnan(dz) else dz"),
+     ('r4: settle in the map frame', "drone.get_pos(frame_id='navigate_target')", "drone.get_pos(frame_id='map')"),
+-    ('r4: settle timeout flies on', "    if reason is None and not done:\n", "    if False:\n"),
++    ('r4: settle timeout flies on', "    if reason is None and not done:\n        reason = '%s not reached in %.0fs'",
++     "    if False:\n        reason = '%s not reached in %.0fs'"),
+     ('r4: settle read error counts as reached', "    except Exception:\n        return None\n",
+      "    except Exception:\n        return 0.0\n"),
+     ('r4: count not reset on a bad check', "if b is not None and b <= SETTLE_DZ else 0", "if b is not None and b <= SETTLE_DZ else count[0]"),
+@@ -65,8 +67,33 @@
+     ('r5: no r2f image check', "if not hasattr(drone, 'vision_pose_age'):", "if False:"),
+     ('r5: vision age limit 2 s', "VISION_AGE_S = 1.0 ", "VISION_AGE_S = 2.0 "),
+     ('r5: vision silent 6 s', "VISION_SILENT_S = 3.0 ", "VISION_SILENT_S = 6.0 "),
+-    ('r5: vision watchdog off', "            reason = 'vision silent >%.0fs (no new vpe_fix pose for %.1fs)' % (VISION_SILENT_S, silent)\n            break\n",
++    ('r5: vision watchdog off', "            reason = 'vision silent >%.0fs (no new vpe_fix pose for %.1fs)' % (limit - VISION_AGE_S, silent)\n            break\n",
+      "            pass\n"),
++    ('r6: takeoff straight to the hover height (r5)', "drone.takeoff(height=LOW_H,", "drone.takeoff(height=HOVER_H,"),
++    ('r6: move to marker 0 at the hover height', "z=low_z, speed=FLY_SPEED", "z=hover_z, speed=FLY_SPEED"),
++    ('r6: low z absolute', "low_z = start.z + LOW_H", "low_z = LOW_H"),
++    ('r6: no climb', "elif not drone.fly_to(x=MARKER0_X, y=MARKER0_Y, z=hover_z,",
++     "elif False and drone.fly_to(x=MARKER0_X, y=MARKER0_Y, z=hover_z,"),
++    ('r6: climb over START instead of marker 0', "drone.fly_to(x=MARKER0_X, y=MARKER0_Y, z=hover_z,",
++     "drone.fly_to(x=start.x, y=start.y, z=hover_z,"),
++    ('r6: climb failure ignored', "            reason = not_reached('hover height over marker 0')\n", "            reason = None\n"),
++    ('r6: climb no settle_speed', "z=hover_z, speed=CLIMB_SPEED,\n                              tolerance=FLY_TOL, settle_speed=FLY_SETTLE)",
++     "z=hover_z, speed=CLIMB_SPEED,\n                              tolerance=FLY_TOL)"),
++    ('r6: no settle after the climb', "            reason = settle_at_target_height('hover height')\n", "            reason = None\n"),
++    ('r6: hover even if the climb settle failed', "            if reason is None:\n                held, reason = hold_over_marker0(HOVER_S)\n",
++     "            held, reason = hold_over_marker0(HOVER_S)\n"),
++    ('r6: LOW_H 0.5', "\nLOW_H = 0.75 ", "\nLOW_H = 0.5 "),
++    ('r6: LOW_H 0.9', "\nLOW_H = 0.75 ", "\nLOW_H = 0.9 "),
++    ('r6: climb fast 0.4 m/s', "CLIMB_SPEED = 0.1 ", "CLIMB_SPEED = 0.4 "),
++    ('r6 A: first settle ends without a new pose', "        if after_takeoff and not drone.vision_pose_age() <= VISION_AGE_S:\n            return False\n", ""),
++    ('r6 A: first settle with the r5 limit', "settle_at_target_height('takeoff height', after_takeoff=True)",
++     "settle_at_target_height('takeoff height')"),
++    ('r6 A: 25 s limit in every watch', "    limit = TAKEOFF_VISION_S if after_takeoff else None\n", "    limit = TAKEOFF_VISION_S\n"),
++    ('r6 A: no wait for vision after 15 s (review)', "if reason is None and not done and after_takeoff and count[0] >= SETTLE_SAMPLES:",
++     "if False:"),
++    ('r6 A: wait-on cut without the vision silent prefix', "                reason = 'vision silent >%.0fs at", "                reason = 'no pose >%.0fs at"),
++    ('r6 A: first settle limit 60 s', "TAKEOFF_VISION_S = 25.0 ", "TAKEOFF_VISION_S = 60.0 "),
++    ('r6 A: climb settle also waits for vision', "settle_at_target_height('hover height')", "settle_at_target_height('hover height', after_takeoff=True)"),
+     ('F1 bypass: aruco check skipped', "    drone.require_aruco(min_markers=1, timeout=15.0)\n", "    pass\n"),
+ ]
+ 

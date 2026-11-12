@@ -1,0 +1,96 @@
+{
+ "ulog": "12_08_47.ulg",
+ "script_height_m": 1.5,
+ "proposed_criteria": {
+  "C5_height_tol_m": 0.1,
+  "C5_motors_off_s": 3.0,
+  "C6_p95_m": 0.1,
+  "C6_max_m": 0.2,
+  "C6_height_tol_m": 0.1,
+  "C6_jump_m": 0.1
+ },
+ "criteria_status": "PROPOSED 05.11, not approved by the owner (question 3); trial runs do not count",
+ "start_world_xy": [
+  -0.078,
+  0.0
+ ],
+ "h_max_m": 1.606,
+ "air_s": 24.9,
+ "hover_runs": [
+  {
+   "from_s": 13.8,
+   "len_s": 7.0,
+   "h_mean_m": 1.527,
+   "h_p95_abs_err_m": 0.096
+  }
+ ],
+ "flight_height_m": 1.527,
+ "flight_height_err_m": 0.027,
+ "touchdown_s": 27.024,
+ "motors_off_s": 30.896,
+ "motors_off_after_touchdown_s": 3.87,
+ "nav_sequence": [
+  {
+   "t_s": -0.0,
+   "nav": "OFFBOARD",
+   "failsafe": false
+  },
+  {
+   "t_s": 21.55,
+   "nav": "LAND",
+   "failsafe": false
+  },
+  {
+   "t_s": 30.9,
+   "nav": "OFFBOARD",
+   "failsafe": false
+  }
+ ],
+ "failsafe_while_armed": false,
+ "messages": [
+  {
+   "t_s": -0.0,
+   "text": "[commander] Armed by external command"
+  },
+  {
+   "t_s": 0.0,
+   "text": "[logger] Start file log (type: full)"
+  },
+  {
+   "t_s": 0.0,
+   "text": "[logger] [logger] ./log/2026-11-06/12_08_47.ulg"
+  },
+  {
+   "t_s": 0.0,
+   "text": "[logger] Opened full log file: ./log/2026-11-06/12_08_47.ulg"
+  },
+  {
+   "t_s": 0.2,
+   "text": "[tone_alarm] arming warning"
+  },
+  {
+   "t_s": 3.96,
+   "text": "[commander] Takeoff detected"
+  },
+  {
+   "t_s": 28.89,
+   "text": "[commander] Landing detected"
+  },
+  {
+   "t_s": 30.9,
+   "text": "[commander] Disarmed by landing"
+  },
+  {
+   "t_s": 30.9,
+   "text": "[tone_alarm] notify neutral"
+  }
+ ],
+ "kill_engaged": false,
+ "ekf_xy_jumps_over_0p10_m": 0,
+ "ekf_xy_resets": 0,
+ "verdict_vs_proposed": {
+  "C5_height": true,
+  "C5_motors_off": false,
+  "C5_no_failsafe": true
+ }
+}
