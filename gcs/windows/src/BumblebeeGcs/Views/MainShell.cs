@@ -26,11 +26,12 @@ namespace BumblebeeGcs.Views;
 /// <summary>Главный интерфейс после подключения: сайдбар + контент. Порт MainShell из ContentView.swift.</summary>
 public sealed class MainShell : Grid
 {
-    private enum Section { Dashboard, Entertainment, Settings }
+    private enum Section { Dashboard, Flight, Entertainment, Settings }
 
     private static readonly (Section Id, string Label, string Glyph)[] Sections =
     {
         (Section.Dashboard, "Dashboard", IconGlyphs.Dashboard),
+        (Section.Flight, "Flight", IconGlyphs.Flight),
         (Section.Entertainment, "Entertainment", IconGlyphs.Entertainment),
         (Section.Settings, "Settings", IconGlyphs.Wifi),
     };
@@ -39,6 +40,15 @@ public sealed class MainShell : Grid
     private Section _section = Section.Dashboard;
 
     private readonly Grid _pageHost = new();
+    // «Полёт» (WebView2 with the map, the program and Python) is made once per connection and
+    // only hidden when another section is shown: the editor's text and the loaded Python stay.
+    private FlightPage? _flightPage;
+    // The app's own Stop for a flight program, in the header of every section once «Полёт» was
+    // opened: it does not depend on the web page (hidden, busy, broken or under a dialog).
+    private readonly MissionApi _missionApi = new();
+    private readonly StackPanel _stopGroup;
+    private readonly TextBlock _stopNote;
+    private bool _gone;                          // this shell left the window
     private readonly List<(Section Id, Border Row, FontIcon Icon, TextBlock Label)> _navRows = new();
     private readonly StatusDot _connDot;
     private readonly TextBlock _connLabel;
@@ -84,7 +94,7 @@ public sealed class MainShell : Grid
             nav.Children.Add(row);
         }
 
-        var disconnect = Ui.GhostButton("Disconnect", () => _app.Disconnect(), IconGlyphs.Power);
+        var disconnect = Ui.GhostButton("Disconnect", () => _ = DisconnectAsync(), IconGlyphs.Power);
         disconnect.HorizontalAlignment = HorizontalAlignment.Stretch;
         disconnect.HorizontalContentAlignment = HorizontalAlignment.Center;
         disconnect.Margin = new Thickness(Palette.S3);
@@ -128,13 +138,29 @@ public sealed class MainShell : Grid
         header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         var title = Ui.Text(_app.DroneHost, Fonts.Title, Palette.Text);
         Grid.SetColumn(title, 0);
+        _stopNote = Ui.Text("", Fonts.Label, Palette.Muted);
+        _stopNote.VerticalAlignment = VerticalAlignment.Center;
+        var stopFlight = Ui.FlatButton(
+            new Border
+            {
+                Padding = new Thickness(Palette.S3, Palette.S2, Palette.S3, Palette.S2),
+                Child = Ui.Text("STOP FLIGHT", Fonts.BodyStrong, Colors.White),
+            },
+            () => _ = StopFlightAsync(), "Stop the flight program", Palette.Danger, Palette.Danger, Colors.White,
+            radius: Palette.RControl);
+        // Always there, in every section: a program may be flying that this window did not start
+        // (the app was restarted or connected again).
+        _stopGroup = Ui.HStack(Palette.S2, _stopNote, stopFlight);
+        Grid.SetColumn(_stopGroup, 1);
         var reconnect = Ui.ToolbarIconButton(IconGlyphs.Reconnect, "Reconnect", () => _app.Reconnect());
-        Grid.SetColumn(reconnect, 1);
+        Grid.SetColumn(reconnect, 2);
         var rescan = Ui.ToolbarIconButton(IconGlyphs.Rescan, "Rescan network", () => _app.Scanner.Scan());
-        Grid.SetColumn(rescan, 2);
+        Grid.SetColumn(rescan, 3);
         header.Children.Add(title);
+        header.Children.Add(_stopGroup);
         header.Children.Add(reconnect);
         header.Children.Add(rescan);
 
@@ -179,12 +205,16 @@ public sealed class MainShell : Grid
         ssidTimer.Interval = TimeSpan.FromSeconds(15);
         ssidTimer.Tick += (_, _) => { _app.Handoff.RefreshCurrentSsid(); RefreshBanners(); };
         ssidTimer.Start();
-        Unloaded += (_, _) => ssidTimer.Stop();
+        Unloaded += (_, _) => { ssidTimer.Stop(); _gone = true; };
         _app.Handoff.RefreshCurrentSsid();
         _onConnChanged();
         RefreshBanners();
 
-        ShowSection(Section.Dashboard);
+        // Тестовый хук рядом с --connect: BumblebeeGcs.exe --connect <host> --section flight
+        // открывает раздел «Полёт» сразу (end-to-end прогоны со встроенной страницей).
+        var cli = Environment.GetCommandLineArgs();
+        var idx = Array.IndexOf(cli, "--section");
+        ShowSection(idx >= 0 && idx + 1 < cli.Length && cli[idx + 1] == "flight" ? Section.Flight : Section.Dashboard);
     }
 
     private void RefreshBanners()
@@ -213,8 +243,53 @@ public sealed class MainShell : Grid
             RequestedTheme = ElementTheme.Dark,
         };
         ContentDialogResult r;
-        try { r = await dlg.ShowAsync(); } catch { return; }
+        try { r = await dlg.ShowAsync(); }
+        catch
+        {
+            // Another window of the app is open. The question must not be lost (no takeoff is
+            // allowed while it is unanswered): ask again shortly.
+            await Task.Delay(1500);
+            if (!_gone && _app.IdentityMismatch is not null) DispatcherQueue.TryEnqueue(() => _ = AskIdentityAsync());
+            return;
+        }
         if (r == ContentDialogResult.Primary) _app.IdentityMismatch = null; else _app.Disconnect();
+    }
+
+    /// <summary>The app's own Stop for a flight program: one click, no questions; tried again if the drone is silent.</summary>
+    private async Task StopFlightAsync()
+    {
+        _flightPage?.NoteStop();                 // a takeoff request that is still on its way must not win
+        _stopNote.Text = "sending STOP…";
+        var reply = await _missionApi.StopAsync(_app.DroneHost);
+        _stopNote.Text = reply.Code == 200 ? "STOP sent " + DateTime.Now.ToString("HH:mm:ss")
+                                           : "STOP did not reach the drone: use the RC (CH8)";
+    }
+
+    /// <summary>Disconnect takes the Flight page and STOP FLIGHT off the screen while the program
+    /// on the drone flies on: ask first, and offer the stop right there.</summary>
+    private async Task DisconnectAsync()
+    {
+        if (_flightPage?.MissionActive == true && XamlRoot is not null)
+        {
+            var dlg = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title = "A flight program is running",
+                Content = "Disconnecting does not stop it, and the app cannot stop a drone it is not connected to. "
+                        + "The RC (CH8) always stops it.",
+                PrimaryButtonText = "Stop the flight",
+                SecondaryButtonText = "Disconnect anyway",
+                CloseButtonText = "Stay connected",
+                DefaultButton = ContentDialogButton.Close,
+                RequestedTheme = ElementTheme.Dark,
+            };
+            ContentDialogResult answer;
+            try { answer = await dlg.ShowAsync(); }
+            catch { return; }
+            if (answer == ContentDialogResult.Primary) { await StopFlightAsync(); return; }
+            if (answer != ContentDialogResult.Secondary) return;
+        }
+        _app.Disconnect();
     }
 
     /// <summary>A sidebar entry: a real Button around the styled row (Tab, Enter, Narrator).</summary>
@@ -250,7 +325,26 @@ public sealed class MainShell : Grid
             label.Foreground = Palette.Brush(active ? Palette.Text : Palette.Muted);
             label.FontWeight = active ? Fonts.BodyStrong.Weight : Fonts.Body.Weight;
         }
-        _pageHost.Children.Clear();
+        // Every page but «Полёт» is made anew; «Полёт» stays in the tree, shown or collapsed.
+        for (var i = _pageHost.Children.Count - 1; i >= 0; i--)
+            if (!ReferenceEquals(_pageHost.Children[i], _flightPage)) _pageHost.Children.RemoveAt(i);
+        if (id == Section.Flight)
+        {
+            if (_flightPage is null)
+            {
+                var flight = new FlightPage(_app);
+                _flightPage = flight;
+                _pageHost.Children.Add(flight);
+                flight.MissionActiveChanged += () => _stopNote.Text = flight.MissionActive ? "flight program running" : "";
+                flight.TakeoffInFlightChanged += () =>
+                {
+                    if (flight.TakeoffInFlight) _stopNote.Text = "takeoff sent, waiting for the drone…";
+                };
+            }
+            _flightPage.Visibility = Visibility.Visible;
+            return;
+        }
+        if (_flightPage is not null) _flightPage.Visibility = Visibility.Collapsed;
         UIElement page = id switch
         {
             Section.Entertainment => new EntertainmentPage(_app),

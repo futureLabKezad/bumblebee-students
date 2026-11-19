@@ -45,6 +45,10 @@ struct MainShell: View {
     @EnvironmentObject var telemetry: TelemetryStore
     @EnvironmentObject var handoff: WifiHandoff
     @State private var section: Section? = .dashboard
+    /// «Полёт» of this connection: the page, its bridge to the drone and STOP FLIGHT. It lives
+    /// as long as this shell, so the editor's text and Python stay when another section is shown.
+    @StateObject private var flight = FlightModel()
+    @State private var askDisconnect = false
 
     var body: some View {
         NavigationSplitView {
@@ -65,6 +69,7 @@ struct MainShell: View {
                 Group {
                     switch section ?? .dashboard {
                     case .dashboard: DashboardView()
+                    case .flight: FlightView(model: flight)
                     case .entertainment: EntertainmentView()
                     case .settings: SettingsView()
                     }
@@ -87,6 +92,8 @@ struct MainShell: View {
                 Text(app.identityMismatch ?? "")
             }
         }
+        .onAppear { flight.revive(app: app, reopen: section == .flight) }
+        .onDisappear { flight.close() }     // Disconnect, another drone: «Взлёт?» closes as «no», the page stops
     }
 
     // MARK: - Sidebar
@@ -118,19 +125,32 @@ struct MainShell: View {
             Spacer(minLength: 0)
 
             Button {
-                app.disconnect()
+                // Disconnect takes the Flight page and STOP FLIGHT off the screen while the
+                // program on the drone flies on: ask first.
+                if flight.missionActive { askDisconnect = true } else { app.disconnect() }
             } label: {
                 Label("Disconnect", systemImage: "power").frame(maxWidth: .infinity)
             }
             .buttonStyle(GhostButtonStyle())
             .padding(Theme.s3)
+            .alert("A flight program is running", isPresented: $askDisconnect) {
+                Button("Stay connected", role: .cancel) {}
+                Button("Stop the flight") { Task { await flight.stopFlight(app: app) } }
+                Button("Disconnect anyway", role: .destructive) { app.disconnect() }
+            } message: {
+                Text("Disconnecting does not stop it, and the app cannot stop a drone it is not connected to. "
+                     + "The RC (CH8) always stops it.")
+            }
         }
         .background(.ultraThinMaterial)
     }
 
     private func navRow(_ s: Section) -> some View {
         let active = (section ?? .dashboard) == s
-        return Button { section = s } label: {
+        return Button {
+            if s == .flight { flight.open(app: app) }     // the first opening loads the page
+            section = s
+        } label: {
             HStack(spacing: Theme.s2) {
                 Image(systemName: s.icon).frame(width: Theme.iconLg)
                 Text(s.rawValue).font(active ? Theme.bodyStrong : Theme.body)
@@ -163,6 +183,21 @@ struct MainShell: View {
 
     @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
+            // The app's own Stop for a flight program, always there, in every section: it does not
+            // depend on the web page (hidden, busy, broken), and a program may be flying that this
+            // window did not start (the app was restarted or connected again).
+            if !flight.stopNote.isEmpty {
+                Text(flight.stopNote).font(Theme.label).foregroundStyle(Theme.muted)
+            }
+            Button { Task { await flight.stopFlight(app: app) } } label: {
+                Text("STOP FLIGHT")
+                    .font(Theme.bodyStrong).foregroundStyle(Color.white)
+                    .padding(.horizontal, Theme.s3).padding(.vertical, 4)
+                    .background(Theme.danger)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.rControl))
+            }
+            .buttonStyle(.plain)
+            .help("Stop the flight program")
             Button { app.reconnect() } label: { Image(systemName: "arrow.triangle.2.circlepath") }
                 .help("Reconnect")
             Button { app.scanner.scan() } label: { Image(systemName: "dot.radiowaves.left.and.right") }

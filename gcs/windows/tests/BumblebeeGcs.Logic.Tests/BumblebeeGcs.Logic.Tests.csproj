@@ -31,5 +31,6 @@
     <Compile Include="../../src/BumblebeeGcs/Models/Models.cs" Link="App/Models/Models.cs" />
     <Compile Include="../../src/BumblebeeGcs/Services/RosbridgeClient.cs" Link="App/Services/RosbridgeClient.cs" />
     <Compile Include="../../src/BumblebeeGcs/Services/MjpegStream.cs" Link="App/Services/MjpegStream.cs" />
+    <Compile Include="../../src/BumblebeeGcs/Services/MissionApi.cs" Link="App/Services/MissionApi.cs" />
   </ItemGroup>
 </Project>

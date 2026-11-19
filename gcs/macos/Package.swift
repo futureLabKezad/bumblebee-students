@@ -22,6 +22,11 @@ import PackageDescription
 //
 // GCSAppTests covers the screen's decision logic (link state, freshness, armed,
 // battery text, log, chart span...) with XCTest: `swift test`.
+//
+// FlightWeb is the «Полёт» web module (gcs/web): build_app.sh copies its built page
+// (and the local Pyodide copy, if fetched) there before the build; the folder is
+// kept as it is in the bundle (FlightView.swift serves it to its WKWebView). Only a
+// README is checked in, so `swift build` and `swift test` work without the page.
 let package = Package(
     name: "GCSApp",
     platforms: [.macOS(.v14)],
@@ -29,7 +34,7 @@ let package = Package(
         .executableTarget(
             name: "GCSApp",
             path: "Sources/GCSApp",
-            resources: [.process("Resources")]
+            resources: [.process("Resources"), .copy("FlightWeb")]
         ),
         .testTarget(
             name: "GCSAppTests",

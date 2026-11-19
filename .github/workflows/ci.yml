@@ -60,6 +60,8 @@ jobs:
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
         with:
           dotnet-version: '10.0.x'
+      - name: Build the Flight web module (gcs/web/dist goes next to the exe as Web\)
+        run: python gcs/web/build_html.py
       - name: Publish self-contained app (no .NET needed on the PC)
         working-directory: gcs/windows
         run: dotnet publish src\BumblebeeGcs\BumblebeeGcs.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64 -o publish\BumblebeeGCS
