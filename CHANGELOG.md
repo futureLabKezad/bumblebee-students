@@ -5,6 +5,34 @@ Versioning follows [SemVer](https://semver.org/); each release has a tag `vX.Y.Z
 a release page in the [wiki](https://github.com/futureLabKezad/bumblebee-students/wiki)
 and downloadable builds.
 
+## GCS 1.3.0 — 2026-11-19
+
+Ground station **Bumblebee GCS 1.3.0** (Mac and Windows), release `gcs-v1.3.0`.
+Drone code and PX4 parameters are unchanged by this release.
+
+### Ground station (GCS 1.3.0)
+- New **Flight** section in both apps: a marker-map editor with a coloured map
+  of how many markers the down camera sees from each point (height taken from
+  `drone.takeoff(...)` in the program, blind spots hatched, a hint under the
+  cursor, heading arrow), a Python flight program with a code check, and a 2D
+  simulation (Python runs in the page with Pyodide).
+- The page cannot reach the drone by itself: every command goes through the
+  app to the drone's mission server, exactly six paths. Takeoff needs a
+  permission the drone gave for this program, three check marks and the app's
+  own **Take off?** dialog; **STOP** is always there, also as **STOP FLIGHT** in
+  the header. `gcs/tools/check_watch_only.py` knows the six paths.
+- The whole app is in English.
+
+### Known limits
+- The drone's mission server is not installed on any drone yet: the Flight
+  section shows the map, the program check and the simulation, and says that
+  the mission server does not answer.
+- The Flight section loads Python (Pyodide) from the internet the first time
+  it opens; an offline copy (`gcs/web/fetch_pyodide.py`) is not in this build.
+- The macOS build is new: it passed the CI build and unit tests but has not
+  been run on a real Mac yet. Please report problems.
+- Messages from the mission server are still in Russian.
+
 ## v1.0.2 — 2026-10-26
 
 Drone update **1.0.2** (update bundle `bumblebee-update-1.0.2.tgz`, release `v1.0.2`) and ground
