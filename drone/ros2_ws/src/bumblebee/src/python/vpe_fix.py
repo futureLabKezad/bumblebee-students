@@ -204,6 +204,7 @@ _Z_JUMP_MAX      = 0.3
 
 _XY_JUMP_MAX     = 0.15
 _MAX_VISION_SPEED = 1.5
+_SUSPECT_SIGMA_XY = 1.0   # r2jv1 18.11 (B1): xy-jump / speed outliers are forwarded with this xy sigma instead of being dropped
 
 # Reseed hardening (2026-06-10 drift fix): a reseed needs N recent rejected
 # poses that mutually agree (an alternating IPPE mirror-flip can never produce
@@ -983,6 +984,7 @@ class VpeFix(Node):
                 % (z, _Z_FLOOR_GUARD, _Z_CEILING_GUARD))
             return
         now = self.get_clock().now()
+        suspect = False   # r2jv1 (B1)
         if self.last_pose is not None:
             dz = abs(z - self.last_pose.position.z)
             if dz > _Z_JUMP_MAX:
@@ -994,19 +996,21 @@ class VpeFix(Node):
             dy = msg.pose.pose.position.y - self.last_pose.position.y
             horiz = (dx * dx + dy * dy) ** 0.5
             if horiz > _XY_JUMP_MAX:
+                # r2jv1 (B1): not dropped - forwarded with a large xy sigma (a pause > 0.4 s makes PX4 reset xy)
                 self.get_logger().warn(
-                    'vpe_fix: rejected pose xy-jump %.3f (>%.2f)' % (horiz, _XY_JUMP_MAX))
-                self._maybe_reseed(msg.pose.pose, now, 'xy-jump')
-                return
+                    'vpe_fix: suspect pose xy-jump %.3f (>%.2f) -> xy sigma %.1f' % (horiz, _XY_JUMP_MAX, _SUSPECT_SIGMA_XY),
+                    throttle_duration_sec=1.0)
+                suspect = True
             if self.last_pose_time is not None:
                 dt = (now - self.last_pose_time).nanoseconds / 1e9
                 if 0.0 < dt < 0.5:
                     speed = horiz / dt
                     if speed > _MAX_VISION_SPEED:
+                        # r2jv1 (B1): not dropped - forwarded with a large xy sigma
                         self.get_logger().warn(
-                            'vpe_fix: rejected pose vel=%.2f m/s (>%.2f)' % (speed, _MAX_VISION_SPEED))
-                        self._maybe_reseed(msg.pose.pose, now, 'vel')
-                        return
+                            'vpe_fix: suspect pose vel=%.2f m/s (>%.2f) -> xy sigma %.1f' % (speed, _MAX_VISION_SPEED, _SUSPECT_SIGMA_XY),
+                            throttle_duration_sec=1.0)
+                        suspect = True
         self.last_pose = msg.pose.pose
         self.last_pose_time = now
         self._recent_poses.append((now, msg.pose.pose))   # r2h (B2)
@@ -1016,6 +1020,17 @@ class VpeFix(Node):
             self.last_cov = list(msg.pose.covariance)
         else:
             self.last_cov = None
+        if suspect:   # r2jv1 (B1): xy sigma >= _SUSPECT_SIGMA_XY for a pose that used to be dropped
+            c = list(self.last_cov) if self.last_cov is not None else None
+            if c is None:
+                c = [0.0] * 36
+                c[0] = c[7] = _POS_VARIANCE
+                c[14] = _POS_Z_VARIANCE
+                c[21] = c[28] = 1e6
+                c[35] = _YAW_VARIANCE
+            c[0] = max(c[0], _SUSPECT_SIGMA_XY ** 2)
+            c[7] = max(c[7], _SUSPECT_SIGMA_XY ** 2)
+            self.last_cov = c
 
     def markers_callback(self, msg):
         self.visible_ids = [m.id for m in msg.markers]
