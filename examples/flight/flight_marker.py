@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """
+[TEST COPY 16.11 r2 (points rounded to 0.01 m, make_r2.py), map_final.txt: map and points recomputed, make_v2.py; image file sha256 1e0063fb3557a516767122a3031d38678be10e58efb2cc07a3e83df538e529fb]
 flight_marker.py -- fly from marker 0 to marker 2, return, land precisely.
 
 Map: column of ArUco tags along +Y. Drone takes off above marker 0, cruises
@@ -117,27 +118,27 @@ if _matched < _total:
 # ---------------------------------------------------------------------------
 # Define the ArUco map for this mission
 # ---------------------------------------------------------------------------
-drone.set_aruco_map([
-    {'id':  0, 'length': 0.19, 'x':  0.00, 'y':  0.00},
-    {'id':  1, 'length': 0.29, 'x':  0.00, 'y':  0.73},
-    {'id':  2, 'length': 0.29, 'x':  0.00, 'y':  1.42},
-    {'id':  3, 'length': 0.29, 'x':  0.00, 'y':  2.11},
-    {'id':  4, 'length': 0.29, 'x': -0.72, 'y': -0.73, 'rot_z': -1.571},
-    {'id':  5, 'length': 0.29, 'x': -0.36, 'y':  0.73, 'rot_z': -1.571},
-    {'id':  6, 'length': 0.29, 'x': -0.36, 'y':  1.42, 'rot_z': -1.571},
-    {'id':  7, 'length': 0.29, 'x': -0.36, 'y':  2.11, 'rot_z': -1.571},
-    {'id':  8, 'length': 0.29, 'x': -0.36, 'y':  0.00, 'rot_z': -1.571},
-    {'id':  9, 'length': 0.29, 'x':  0.48, 'y':  0.00, 'rot_z': -1.571},
-    {'id': 10, 'length': 0.29, 'x':  0.48, 'y':  0.73, 'rot_z': -1.571},
-    {'id': 11, 'length': 0.29, 'x': -0.72, 'y':  0.73},
-    {'id': 12, 'length': 0.29, 'x': -0.72, 'y':  1.42},
-    {'id': 13, 'length': 0.29, 'x': -0.72, 'y':  2.11},
-    {'id': 14, 'length': 0.29, 'x':  0.48, 'y':  1.42, 'rot_z': -1.571},
-    {'id': 15, 'length': 0.29, 'x': -0.72, 'y':  0.00, 'rot_z': -1.571},
-    {'id': 16, 'length': 0.29, 'x': -0.36, 'y': -0.73},
-    {'id': 20, 'length': 0.29, 'x':  0.00, 'y': -0.73},
-    {'id': 18, 'length': 0.29, 'x':  0.48, 'y': -0.73},
-    {'id': 19, 'length': 0.29, 'x':  0.48, 'y':  2.11},
+drone.set_aruco_map([   # map_final.txt 16.11 (owner field measurement), TEST copy
+    {'id':  0, 'length': 0.19, 'x':  0.000, 'y':  0.000, 'rot_z':  1.5446},
+    {'id':  1, 'length': 0.29, 'x':  0.055, 'y':  0.966, 'rot_z':  1.5341},
+    {'id':  2, 'length': 0.29, 'x':  0.085, 'y':  1.945, 'rot_z':  1.5551},
+    {'id':  3, 'length': 0.29, 'x':  0.021, 'y':  2.921, 'rot_z': -1.5464},
+    {'id':  4, 'length': 0.29, 'x': -1.215, 'y': -0.930, 'rot_z': -1.5830},
+    {'id':  5, 'length': 0.29, 'x': -0.583, 'y':  0.953, 'rot_z': -1.5760},
+    {'id':  6, 'length': 0.29, 'x': -0.590, 'y':  1.924, 'rot_z': -1.5743},
+    {'id':  7, 'length': 0.29, 'x': -0.594, 'y':  2.954, 'rot_z': -1.5882},
+    {'id':  8, 'length': 0.29, 'x': -0.595, 'y': -0.001, 'rot_z': -1.5970},
+    {'id':  9, 'length': 0.29, 'x':  0.733, 'y':  0.016, 'rot_z': -1.5830},
+    {'id': 10, 'length': 0.29, 'x':  0.714, 'y':  0.948, 'rot_z': -1.5656},
+    {'id': 11, 'length': 0.29, 'x': -1.227, 'y':  0.953, 'rot_z':  1.5760},
+    {'id': 12, 'length': 0.29, 'x': -1.227, 'y':  1.933, 'rot_z':  1.5656},
+    {'id': 13, 'length': 0.29, 'x': -1.191, 'y':  2.928, 'rot_z':  1.5865},
+    {'id': 14, 'length': 0.29, 'x':  0.722, 'y':  1.942, 'rot_z': -1.5848},
+    {'id': 15, 'length': 0.29, 'x': -1.249, 'y':  0.013, 'rot_z': -1.5952},
+    {'id': 16, 'length': 0.29, 'x': -0.584, 'y': -0.927, 'rot_z':  1.5691},
+    {'id': 20, 'length': 0.29, 'x':  0.043, 'y': -0.932, 'rot_z':  1.5621},
+    {'id': 18, 'length': 0.29, 'x':  0.752, 'y': -0.934, 'rot_z':  1.5743},
+    {'id': 19, 'length': 0.29, 'x':  0.704, 'y':  2.910, 'rot_z':  1.5464},
 ])
 
 # ---------------------------------------------------------------------------
@@ -168,7 +169,7 @@ try:
     if not wait_quorum(min_markers=2, timeout=15.0):
         raise SystemExit('no multi-marker quorum before forward leg')
     # F7 (r2d): 0.12 m and nearly stopped -- a margin under the 0.25 m of C7
-    if not drone.fly_to(x=0, y=1.4, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
+    if not drone.fly_to(x=0.09, y=1.95, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
         raise SystemExit('waypoint above marker 2 not reached')   # r2e: finally -> safe_land
     if not hover_vw(2.0):
         raise SystemExit('vision lost above marker 2')
@@ -177,7 +178,7 @@ try:
     # before the final approach segment.
     if not wait_quorum(min_markers=2, timeout=15.0):
         raise SystemExit('no multi-marker quorum before return mid waypoint')
-    if not drone.fly_to(x=0, y=0.7, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
+    if not drone.fly_to(x=0.06, y=0.97, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
         raise SystemExit('waypoint above marker 1 not reached')
     if not hover_vw(1.0):
         raise SystemExit('vision lost above marker 1')

@@ -58,6 +58,18 @@ this code.
   setpoint freshness, `simple_offboard` against a fake MAVROS / PX4 model,
   `vpe_fix` code pins.
 
+### Field map (on the drone since 2026-11-17)
+- `aruco_pose/map/map.txt` is the map measured on the real floor on 2026-11-16
+  (20 markers, ids 0–20 without 17, marker 0 at (0, 0); neighbours 0.63–1.0 m
+  apart, were 0.36–0.73 m in 1.0.2). `flight_marker.py`,
+  `flight_marker_loop.py` and `aruco_z_test.py` carry the same map and fly to the
+  measured marker centres. The four files are byte copies of what was installed
+  on the drone, "TEST COPY" / "TEST ONLY" header lines included.
+- Installed as an owner's exception: in Gazebo this map failed the hover test
+  (C6, 0 of 11) and the first marker and loop series (C7).
+- This is the code running on the drone 20EC since 2026-11-17: image r2j plus
+  this field map.
+
 ### Status and known issues
 - Checked in Gazebo only. With the old field map the hover and marker flights
   (C6, C7) passed 10/10 each on 2026-11-14; the sensor and link-loss tests (C8)

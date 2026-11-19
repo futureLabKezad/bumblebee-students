@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""flight_marker_loop.py -- fly U-shaped loop 0->1->2->3->13->12->11->1->0, land precisely on 0.
+"""[TEST COPY 16.11 r2 (points rounded to 0.01 m, make_r2.py), map_final.txt: map and points recomputed, make_v2.py; image file sha256 7f36db429eb26f7e878aa16ee7998b883eeaa00e184b5a5c5dc07544318e1d1d]
+flight_marker_loop.py -- fly U-shaped loop 0->1->2->3->13->12->11->1->0, land precisely on 0.
 
 The map is defined directly in this script.
 
@@ -55,27 +56,27 @@ if _matched < _total:
     drone._shutdown()
     sys.exit(3)
 
-drone.set_aruco_map([
-    {'id':  0, 'length': 0.19, 'x':  0.00, 'y':  0.00},
-    {'id':  1, 'length': 0.29, 'x':  0.00, 'y':  0.73},
-    {'id':  2, 'length': 0.29, 'x':  0.00, 'y':  1.42},
-    {'id':  3, 'length': 0.29, 'x':  0.00, 'y':  2.11},
-    {'id':  4, 'length': 0.29, 'x': -0.72, 'y': -0.73, 'rot_z': -1.571},
-    {'id':  5, 'length': 0.29, 'x': -0.36, 'y':  0.73, 'rot_z': -1.571},
-    {'id':  6, 'length': 0.29, 'x': -0.36, 'y':  1.42, 'rot_z': -1.571},
-    {'id':  7, 'length': 0.29, 'x': -0.36, 'y':  2.11, 'rot_z': -1.571},
-    {'id':  8, 'length': 0.29, 'x': -0.36, 'y':  0.00, 'rot_z': -1.571},
-    {'id':  9, 'length': 0.29, 'x':  0.48, 'y':  0.00, 'rot_z': -1.571},
-    {'id': 10, 'length': 0.29, 'x':  0.48, 'y':  0.73, 'rot_z': -1.571},
-    {'id': 11, 'length': 0.29, 'x': -0.72, 'y':  0.73},
-    {'id': 12, 'length': 0.29, 'x': -0.72, 'y':  1.42},
-    {'id': 13, 'length': 0.29, 'x': -0.72, 'y':  2.11},
-    {'id': 14, 'length': 0.29, 'x':  0.48, 'y':  1.42, 'rot_z': -1.571},
-    {'id': 15, 'length': 0.29, 'x': -0.72, 'y':  0.00, 'rot_z': -1.571},
-    {'id': 16, 'length': 0.29, 'x': -0.36, 'y': -0.73},
-    {'id': 20, 'length': 0.29, 'x':  0.00, 'y': -0.73},
-    {'id': 18, 'length': 0.29, 'x':  0.48, 'y': -0.73},
-    {'id': 19, 'length': 0.29, 'x':  0.48, 'y':  2.11},
+drone.set_aruco_map([   # map_final.txt 16.11 (owner field measurement), TEST copy
+    {'id':  0, 'length': 0.19, 'x':  0.000, 'y':  0.000, 'rot_z':  1.5446},
+    {'id':  1, 'length': 0.29, 'x':  0.055, 'y':  0.966, 'rot_z':  1.5341},
+    {'id':  2, 'length': 0.29, 'x':  0.085, 'y':  1.945, 'rot_z':  1.5551},
+    {'id':  3, 'length': 0.29, 'x':  0.021, 'y':  2.921, 'rot_z': -1.5464},
+    {'id':  4, 'length': 0.29, 'x': -1.215, 'y': -0.930, 'rot_z': -1.5830},
+    {'id':  5, 'length': 0.29, 'x': -0.583, 'y':  0.953, 'rot_z': -1.5760},
+    {'id':  6, 'length': 0.29, 'x': -0.590, 'y':  1.924, 'rot_z': -1.5743},
+    {'id':  7, 'length': 0.29, 'x': -0.594, 'y':  2.954, 'rot_z': -1.5882},
+    {'id':  8, 'length': 0.29, 'x': -0.595, 'y': -0.001, 'rot_z': -1.5970},
+    {'id':  9, 'length': 0.29, 'x':  0.733, 'y':  0.016, 'rot_z': -1.5830},
+    {'id': 10, 'length': 0.29, 'x':  0.714, 'y':  0.948, 'rot_z': -1.5656},
+    {'id': 11, 'length': 0.29, 'x': -1.227, 'y':  0.953, 'rot_z':  1.5760},
+    {'id': 12, 'length': 0.29, 'x': -1.227, 'y':  1.933, 'rot_z':  1.5656},
+    {'id': 13, 'length': 0.29, 'x': -1.191, 'y':  2.928, 'rot_z':  1.5865},
+    {'id': 14, 'length': 0.29, 'x':  0.722, 'y':  1.942, 'rot_z': -1.5848},
+    {'id': 15, 'length': 0.29, 'x': -1.249, 'y':  0.013, 'rot_z': -1.5952},
+    {'id': 16, 'length': 0.29, 'x': -0.584, 'y': -0.927, 'rot_z':  1.5691},
+    {'id': 20, 'length': 0.29, 'x':  0.043, 'y': -0.932, 'rot_z':  1.5621},
+    {'id': 18, 'length': 0.29, 'x':  0.752, 'y': -0.934, 'rot_z':  1.5743},
+    {'id': 19, 'length': 0.29, 'x':  0.704, 'y':  2.910, 'rot_z':  1.5464},
 ])
 
 if not drone.check_aruco(timeout=10):
@@ -88,16 +89,16 @@ drone.print_pos('START')
 # Sequence: 0 -> 1 -> 2 -> 3 -> 13 -> 12 -> 11 -> 1 -> 0
 # Bridge waypoints inserted on the two column-to-column gaps (y=2.1 and y=0.7)
 # to keep at least one ArUco marker in camera view during the 1 m sideways step.
-WAYPOINTS = [
-    ( 0.00, 0.70),  # 1
-    ( 0.00, 1.40),  # 2
-    ( 0.00, 2.10),  # 3
-    (-0.36, 2.10),  # bridge 3 -> 13 (over marker 7)
-    (-0.72, 2.10),  # 13 (its map: x=-0.72)
-    (-0.72, 1.40),  # 12
-    (-0.72, 0.70),  # 11
-    (-0.36, 0.70),  # bridge 11 -> 1 (over marker 5)
-    ( 0.00, 0.70),  # 1 (back)
+WAYPOINTS = [   # map_final.txt: the centres of the same markers
+    ( 0.06,  0.97),  # 1
+    ( 0.09,  1.95),  # 2
+    ( 0.02,  2.92),  # 3
+    (-0.59,  2.95),  # bridge 3 -> 13 (over marker 7)
+    (-1.19,  2.93),  # 13
+    (-1.23,  1.93),  # 12
+    (-1.23,  0.95),  # 11
+    (-0.58,  0.95),  # bridge 11 -> 1 (over marker 5)
+    ( 0.06,  0.97),  # 1 (back)
 ]
 
 try:
