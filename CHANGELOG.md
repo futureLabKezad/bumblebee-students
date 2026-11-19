@@ -9,9 +9,10 @@ and downloadable builds.
 
 The flight code that runs on the drone 20EC: image **r2j** (built 2026-11-11,
 on the drone since 2026-11-13), i.e. the 1.0.2 `bumblebee` package with the
-fixes below. Only `drone/ros2_ws/src/bumblebee` changes (and its student copies
-in `examples/`); `aruco_pose`, `bumblebee_bridge`, `bumblebee_description` and
-`drone/system` are as in 1.0.2. On the drone r2j was built with `colcon build`
+fixes below. Two places change: `drone/ros2_ws/src/bumblebee` (and its student
+copies in `examples/`) and the field map `aruco_pose/map/map.txt`; the rest of
+`aruco_pose`, `bumblebee_bridge`, `bumblebee_description` and `drone/system` are
+as in 1.0.2. See "On the drone but not in this branch" below. On the drone r2j was built with `colcon build`
 in its own workspace overlay. The 1.0.2 update bundle (`drone/tools/MANIFEST`)
 neither carries the new files nor builds, so do not make an update bundle from
 this code.
@@ -67,8 +68,21 @@ this code.
   on the drone, "TEST COPY" / "TEST ONLY" header lines included.
 - Installed as an owner's exception: in Gazebo this map failed the hover test
   (C6, 0 of 11) and the first marker and loop series (C7).
-- This is the code running on the drone 20EC since 2026-11-17: image r2j plus
-  this field map.
+- Together, the `bumblebee` package of image r2j and this field map are what
+  the drone 20EC runs since 2026-11-17, except the items listed below.
+
+### On the drone but not in this branch
+- `fcu_detect.py`: the drone runs a fixed version (sha256 5932a00a…, a fix for a
+  serial-port fault at boot); this branch still has the 1.0.2 file (ee174fd1…).
+- MAVROS: the drone runs a patched MAVROS overlay (backport "bp02"); it is not
+  in this repository.
+- `bumblebee_bridge`: about ten files on the drone differ from this repository;
+  not analysed yet.
+- PX4 parameters set on the drone (the `INDOOR_ARUCO_SLOW` profile and other
+  settings) are not stored here.
+- Four files that `main` removed after 1.0.2 are still on the drone:
+  `scripts/led_default.py`, `scripts/wifi_fallback.sh`,
+  `www/nginx_bumblebee.conf`, `www/sys_metrics.service`.
 
 ### Status and known issues
 - Checked in Gazebo only. With the old field map the hover and marker flights
