@@ -18,12 +18,14 @@ import AppKit
 
 enum Section: String, CaseIterable, Identifiable {
     case dashboard = "Dashboard"
+    case flight = "Flight"
     case entertainment = "Entertainment"
     case settings = "Settings"
     var id: String { rawValue }
     var icon: String {
         switch self {
         case .dashboard: return "gauge.with.dots.needle.bottom.50percent"
+        case .flight: return "airplane"
         case .entertainment: return "music.note"
         case .settings: return "wifi"
         }

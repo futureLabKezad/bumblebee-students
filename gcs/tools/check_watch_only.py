@@ -37,8 +37,12 @@ import re
 import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-SOURCES = ['gcs/macos/Sources', 'gcs/windows/src']
-EXTENSIONS = ('.swift', '.cs')
+# gcs/web: the «Полёт» HTML/JS module (owner 17.11: «Один HTML-модуль»). Its JS talks to
+# the drone too, so the same rules apply to it (only the template: the built page embeds
+# the Python sources, which name forbidden functions in order to refuse them).
+SOURCES = ['gcs/macos/Sources', 'gcs/windows/src', 'gcs/web']
+EXTENSIONS = ('.swift', '.cs', '.js', '.mjs', '.ts', '.html')
+JS_LIKE = ('.js', '.mjs', '.ts', '.html')
 
 ALLOWED_OPS = {'subscribe', 'unsubscribe'}
 
@@ -49,24 +53,39 @@ ALLOWED_API = {
     '/api/led/color', '/api/led/animation', '/api/led/status', '/api/led/reset',
     '/api/fcu/status', '/api/info',
     '/api/sounds/play', '/api/sounds/tts',
+    # The 6 mission-server commands -- owner's decision 17.11.2026 09:50 «Да, 6 команд».
+    # The app still never arms, changes modes, sends setpoints or writes PX4 parameters:
+    # these ask the drone's guarded runner (bb_mission) and are checked there.
+    '/api/map', '/api/map/status',
+    '/api/mission/check', '/api/mission/start', '/api/mission/stop', '/api/mission/status',
 }
 
 # Names that only appear when something commands the flight controller.
 FORBIDDEN = [
-    (re.compile(r'/mavros(/mavros)?/(cmd|param|setpoint|set_mode|mission|rc/override)', re.I), 'MAVROS command, parameter or setpoint topic/service'),
+    (re.compile(r'/mavros(/mavros)?/(cmd|param|setpoint|set_mode|mission|rc/override|arming)', re.I), 'MAVROS command, parameter or setpoint topic/service'),
     (re.compile(r'\b(cmd/arming|set_mode|setpoint_(raw|position|velocity|attitude|accel))\b', re.I), 'arming, mode or setpoint name'),
     (re.compile(r'\b(CommandBool|CommandLong|CommandTOL|SetMode|ParamSet|ParamPush|OverrideRCIn)\b'), 'MAVROS service type'),
     (re.compile(r'\bcall_service\b|\b"?advertise"?\s*[:=]'), 'rosbridge service call or publisher'),
-    (re.compile(r'"/(navigate|navigate_global|set_position|set_velocity|set_attitude|set_rates|land|release)"'), 'simple_offboard service'),
+    (re.compile(r'[\'"`]/(navigate|navigate_global|set_position|set_velocity|set_attitude|set_rates|land|release)[\'"`]'), 'simple_offboard service'),
     (re.compile(r'\b(14550|14540|14557|5760)\b'), 'MAVLink port'),
 ]
 
 OP_PATTERNS = [
     re.compile(r'\\?"op\\?"\s*:\s*\\?"(\w+)'),     # ["op": "subscribe"], {"op":"x"}, escaped JSON
     re.compile(r'\bop\s*=\s*"(\w+)"'),              # C#: new { op = "subscribe" }
+    re.compile(r'\bop\s*:\s*[\'"`](\w+)'),          # JS: { op: 'subscribe' }
+    re.compile(r'[\'"`]op[\'"`]\s*:\s*[\'"`](\w+)'),  # JS: { 'op': 'publish' }
+    re.compile(r'\.op\s*=\s*[\'"`](\w+)'),           # JS: msg.op = 'publish'
 ]
-API_LITERAL = re.compile(r'"(/api/[A-Za-z0-9_./-]*)"')
+# A path counts anywhere in a line, not only at the start of a literal: "http://h:8766/api/x",
+# '/api/x', `${url}/api/x` are all seen, and must be spelled out whole. It is looked for in the
+# RAW line, comments included: what is code and what is a comment cannot be told for sure
+# without a parser (a quote inside a regex, "/*" inside a string), and a path must not hide
+# there. Only a wildcard in prose is let through: `/api/*`, `/api/wifi/*`.
+API_LITERAL = re.compile(r'(/api/[A-Za-z0-9_./-]*)(\*?)')
+API_LITERAL_JS = API_LITERAL
 API_DYNAMIC = re.compile(r'"(/api/[A-Za-z0-9_./-]*)(\\\(|\{)')   # Swift \(x) or C# $"{x}"
+API_DYNAMIC_JS = re.compile(r'`[^`]*?(/api/[A-Za-z0-9_./-]*)\$\{')
 ALLOW_MARK = 'watch-only: allow'
 
 
@@ -74,24 +93,29 @@ def source_files(root):
     for rel in SOURCES:
         base = os.path.join(root, rel)
         for dirpath, dirnames, filenames in os.walk(base):
-            dirnames[:] = [d for d in dirnames if d not in ('bin', 'obj', '.build')]
+            # gcs/web/dist only: the built pages and a fetched Pyodide copy are build products, not our sources
+            skip = ('bin', 'obj', '.build') + (('dist',) if rel == 'gcs/web' and dirpath == base else ())
+            dirnames[:] = [d for d in dirnames if d not in skip]
             for name in sorted(filenames):
                 if name.endswith(EXTENSIONS):
                     yield os.path.join(dirpath, name)
 
 
-def strip_comment(line):
-    """Drop a // comment that is not inside a string literal."""
-    in_str = False
+def strip_comment(line, quotes='"'):
+    """Drop a // comment that is not inside a string literal (JS: '...' and `...` too)."""
+    in_str = None
     i = 0
     while i < len(line) - 1:
         c = line[i]
         if c == '\\' and in_str:
             i += 2
             continue
-        if c == '"':
-            in_str = not in_str
-        elif not in_str and line[i:i + 2] == '//':
+        if in_str:
+            if c == in_str:
+                in_str = None
+        elif c in quotes:
+            in_str = c
+        elif line[i:i + 2] == '//':
             return line[:i]
         i += 1
     return line
@@ -100,7 +124,12 @@ def strip_comment(line):
 def check_text(path, text):
     problems = []
     in_block = False
+    js = path.endswith(JS_LIKE)
+    quotes = '"\'`' if js else '"'
     for n, raw in enumerate(text.splitlines(), 1):
+        for m in API_LITERAL.finditer(raw):
+            if not m.group(2) and m.group(1) not in ALLOWED_API:
+                problems.append((path, n, 'REST path %s is not in ALLOWED_API' % m.group(1)))
         line = raw
         if in_block:
             end = line.find('*/')
@@ -109,12 +138,12 @@ def check_text(path, text):
             line, in_block = line[end + 2:], False
         # A block comment starts in code only: "/*" inside a // comment (say
         # "`/api/*` endpoints" in a doc comment) must not hide the rest of the file.
-        head = strip_comment(line)
+        head = strip_comment(line, quotes)
         start = head.find('/*')
-        if start >= 0 and head.find('*/', start) < 0 and '"' not in head[:start]:
+        if start >= 0 and head.find('*/', start) < 0 and not any(q in head[:start] for q in quotes):
             line, in_block = head[:start], True
         allowed = ALLOW_MARK in raw
-        code = strip_comment(line)
+        code = strip_comment(line, quotes)
         for rx in OP_PATTERNS:
             for m in rx.finditer(code):
                 if m.group(1) not in ALLOWED_OPS:
@@ -124,11 +153,11 @@ def check_text(path, text):
                 m = rx.search(code)
                 if m:
                     problems.append((path, n, '%s: %s' % (why, m.group(0))))
-        for m in API_LITERAL.finditer(code):
-            if m.group(1) not in ALLOWED_API:
-                problems.append((path, n, 'REST path %s is not in ALLOWED_API' % m.group(1)))
         for m in API_DYNAMIC.finditer(code):
             problems.append((path, n, 'REST path built at run time (%s...): spell it out and add it to ALLOWED_API' % m.group(1)))
+        if js:
+            for m in API_DYNAMIC_JS.finditer(code):
+                problems.append((path, n, 'REST path built at run time (%s...): spell it out and add it to ALLOWED_API' % m.group(1)))
     return problems
 
 

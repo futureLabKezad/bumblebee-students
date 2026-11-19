@@ -25,6 +25,16 @@ CONFIG="${1:-release}"
 ARCHS="${ARCHS:-arm64 x86_64}"
 ARCH_FLAGS=()
 for a in $ARCHS; do ARCH_FLAGS+=(--arch "$a"); done
+
+# The «Полёт» (Flight) web module, gcs/web: its embedded page -- and the local Pyodide copy,
+# if gcs/web/fetch_pyodide.py was run -- go into the app as Sources/GCSApp/FlightWeb.
+echo "==> Flight web module"
+python3 ../web/build_html.py
+FLIGHT_WEB="Sources/GCSApp/FlightWeb"
+rm -rf "$FLIGHT_WEB/pyodide" "$FLIGHT_WEB/flight_embedded.html"
+cp ../web/dist/flight_embedded.html "$FLIGHT_WEB/"
+if [ -f ../web/dist/pyodide/pyodide.js ]; then cp -R ../web/dist/pyodide "$FLIGHT_WEB/"; fi
+
 echo "==> swift build ($CONFIG, $ARCHS)"
 swift build -c "$CONFIG" "${ARCH_FLAGS[@]}"
 BIN_DIR="$(swift build -c "$CONFIG" "${ARCH_FLAGS[@]}" --show-bin-path)"

@@ -33,4 +33,39 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <!--
+    The «Полёт» (Flight) web module, gcs/web: its embedded page (and the local Pyodide copy,
+    if fetched) go next to the exe as Web\. Build them first:  python gcs/web/build_html.py
+    The page's SHA-256 goes into the assembly: Views/FlightPage.cs loads only that file.
+  -->
+  <ItemGroup>
+    <Content Include="..\..\..\web\dist\flight_embedded.html" Link="Web\flight_embedded.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\web\dist\pyodide\**" Link="Web\pyodide\%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Target Name="CheckFlightWebModule" BeforeTargets="BeforeBuild">
+    <Error Condition="!Exists('..\..\..\web\dist\flight_embedded.html')"
+           Text="gcs/web/dist/flight_embedded.html is missing. Run first:  python gcs/web/build_html.py" />
+  </Target>
+  <Target Name="FlightPageHash" BeforeTargets="GetAssemblyAttributes" DependsOnTargets="CheckFlightWebModule">
+    <ItemGroup>
+      <FlightPyodideFile Include="..\..\..\web\dist\pyodide\**" />
+      <FlightWebFile Include="..\..\..\web\dist\flight_embedded.html">
+        <WebName>flight_embedded.html</WebName>
+      </FlightWebFile>
+      <FlightWebFile Include="@(FlightPyodideFile)">
+        <WebName>pyodide/%(FlightPyodideFile.RecursiveDir)%(FlightPyodideFile.Filename)%(FlightPyodideFile.Extension)</WebName>
+      </FlightWebFile>
+    </ItemGroup>
+    <GetFileHash Files="@(FlightWebFile)" Algorithm="SHA256" HashEncoding="hex">
+      <Output TaskParameter="Items" ItemName="FlightWebHashed" />
+    </GetFileHash>
+    <ItemGroup>
+      <AssemblyMetadata Include="FlightWeb:%(FlightWebHashed.WebName)" Value="%(FlightWebHashed.FileHash)" />
+    </ItemGroup>
+  </Target>
 </Project>

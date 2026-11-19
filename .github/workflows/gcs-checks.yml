@@ -46,7 +46,13 @@ jobs:
       - name: The apps only watch the drone
         run: python3 gcs/tools/check_watch_only.py
       - name: Tests of the watch-only check
-        run: python3 gcs/tools/test_check_watch_only.py -v
+        run: |
+          python3 gcs/tools/test_check_watch_only.py -v
+          python3 gcs/tools/test_check_watch_only_web.py -v
+      - name: The Flight web module (map, code check, simulation) and its pages
+        run: |
+          python3 -m unittest discover -s gcs/web/tests -v
+          python3 gcs/web/build_html.py
       - name: Every copy of the version agrees with gcs/VERSION
         run: |
           python3 gcs/tools/check_versions.py

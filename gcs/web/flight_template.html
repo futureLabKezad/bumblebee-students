@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bumblebee Flight</title>
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --ink: #1d2330; --muted: #5f6b7a; --line: #d9dee5;
+  --accent: #2563eb; --accent-ink: #ffffff; --err: #c62828; --warn: #a16207; --ok: #15803d;
+  --red: rgba(220, 38, 38, 0.45); --yellow: rgba(234, 179, 8, 0.50); --green: rgba(22, 163, 74, 0.42);
+  --blind: rgba(17, 24, 39, 0.70); --hatch: rgba(220, 38, 38, 0.95); --seen: #0e9f6e;
+  --marker: #111827; --marker-ink: #ffffff; --grid: #e5e9ef; --path: #2563eb; --code-bg: #fbfbfd;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12151b; --panel: #1a1f27; --ink: #e6e9ef; --muted: #9aa5b4; --line: #2c3440;
+    --accent: #4f8cff; --accent-ink: #0b1020; --err: #ff6b6b; --warn: #f2c14e; --ok: #4ade80;
+    --red: rgba(239, 68, 68, 0.62); --yellow: rgba(250, 204, 21, 0.55); --green: rgba(34, 197, 94, 0.50);
+    --blind: rgba(0, 0, 0, 0.80); --hatch: rgba(248, 113, 113, 0.95); --seen: #4ade80;
+    --marker: #e5e7eb; --marker-ink: #111827; --grid: #222a35; --path: #7aa7ff; --code-bg: #151a21;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12151b; --panel: #1a1f27; --ink: #e6e9ef; --muted: #9aa5b4; --line: #2c3440;
+  --accent: #4f8cff; --accent-ink: #0b1020; --err: #ff6b6b; --warn: #f2c14e; --ok: #4ade80;
+  --red: rgba(239, 68, 68, 0.62); --yellow: rgba(250, 204, 21, 0.55); --green: rgba(34, 197, 94, 0.50);
+  --blind: rgba(0, 0, 0, 0.80); --hatch: rgba(248, 113, 113, 0.95); --seen: #4ade80;
+  --marker: #e5e7eb; --marker-ink: #111827; --grid: #222a35; --path: #7aa7ff; --code-bg: #151a21;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+header h1 { font-size: 17px; margin: 0; }
+header .sub { color: var(--muted); font-size: 13px; }
+#pystatus { margin-left: auto; font-size: 13px; color: var(--muted); }
+main { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px; padding: 12px 16px; }
+@media (max-width: 980px) { main { grid-template-columns: minmax(0, 1fr); } }
+section.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+section.card h2 { font-size: 15px; margin: 2px 0 8px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 6px 0; }
+label { color: var(--muted); font-size: 13px; }
+button, select, input[type=number], input[type=text] { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 4px 8px; }
+button { cursor: pointer; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
+#mapwrap { position: relative; width: 100%; }
+#map { width: 100%; height: 520px; display: block; border: 1px solid var(--line); border-radius: 8px; touch-action: none; background: var(--panel); }
+.legend { display: flex; gap: 10px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.sw { display: inline-block; width: 18px; height: 14px; border-radius: 3px; vertical-align: -3px; margin-right: 5px; border: 1px solid var(--muted); }
+.sw-blind { background: repeating-linear-gradient(45deg, var(--blind) 0 4px, var(--hatch) 4px 6px); }
+.legend { margin: 4px 0; }
+.legend b { color: var(--ink); font-weight: 600; }
+#hint { position: absolute; pointer-events: none; z-index: 2; max-width: 300px; padding: 6px 8px; border-radius: 7px;
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); font-size: 12px; line-height: 1.35; }
+.warnnote { color: var(--warn); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { border-bottom: 1px solid var(--line); padding: 2px 4px; text-align: right; }
+th { color: var(--muted); font-weight: 500; }
+td input { width: 72px; text-align: right; padding: 2px 4px; }
+tr.sel td { background: rgba(37, 99, 235, 0.14); }
+#tablewrap { max-height: 230px; overflow: auto; }
+.msgs { list-style: none; margin: 6px 0; padding: 0; font-size: 13px; }
+.msgs li { padding: 3px 6px; border-left: 3px solid var(--line); margin: 2px 0; cursor: default; }
+.msgs li.error { border-color: var(--err); color: var(--err); }
+.msgs li.warn { border-color: var(--warn); color: var(--warn); }
+.msgs li.info { border-color: var(--ok); color: var(--muted); }
+.msgs li.click { cursor: pointer; }
+.mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+#editor { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--code-bg); }
+#gutter { padding: 8px 6px; text-align: right; color: var(--muted); user-select: none; font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; min-width: 34px; }
+#code { flex: 1; border: 0; outline: 0; resize: vertical; min-height: 300px; padding: 8px; font-size: 13px; line-height: 18px; background: transparent; color: var(--ink); white-space: pre; overflow: auto; tab-size: 4; }
+#chart { width: 100%; height: 120px; display: block; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.kv { display: grid; grid-template-columns: auto auto auto auto; gap: 2px 14px; font-size: 13px; }
+.kv b { font-weight: 600; }
+details summary { cursor: pointer; color: var(--muted); }
+textarea.txt { width: 100%; min-height: 120px; font-size: 12px; }
+.note { color: var(--muted); font-size: 12px; }
+#sha { font-size: 12px; color: var(--muted); word-break: break-all; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Bumblebee — Flight</h1>
+  <span class="sub">marker map, Python program, simplified simulation. Something goes to the drone only from the Drone block below.</span>
+  <span id="pystatus">Loading Python…</span>
+</header>
+<main>
+  <section class="card">
+    <h2>Marker map</h2>
+    <div class="row">
+      <label>Name</label><input id="mapname" type="text" size="14">
+      <button id="addm">+ marker</button>
+      <button id="delm" disabled>Delete</button>
+      <button id="rotm" disabled>Rotate 90°</button>
+      <label><input id="snap" type="checkbox" checked> 1 cm step</label>
+    </div>
+    <div id="mapwrap"><canvas id="map"></canvas><div id="hint" hidden></div></div>
+    <div class="row">
+      <label><input id="heat" type="checkbox" checked> markers in view</label>
+      <label>camera</label><select id="cam"></select>
+    </div>
+    <div class="row">
+      <label title="as drone.takeoff(height=…) in the program: this many metres above where the drone stood">takeoff height, m</label>
+      <input id="zh" type="range" min="0.5" max="1.3" step="0.01" value="0.9"><span id="zhv" class="mono">0.90</span>
+      <button id="zfromprog" title="take the height from drone.takeoff(...) in the program">as in the program</button>
+      <label>heading</label>
+      <select id="turn"><option value="0">as at the start</option><option value="90">start +90°</option><option value="180">start +180°</option><option value="-90">start −90°</option></select>
+    </div>
+    <p class="note" id="heights"></p>
+    <div class="legend">
+      <span>Mean number of markers in view:</span>
+      <span><i class="sw sw-blind"></i><b>&lt;0.5</b> blind spot: almost no markers</span>
+      <span><i class="sw" style="background:var(--red)"></i><b>0.5–1.5</b> one marker: vision unreliable</span>
+      <span><i class="sw" style="background:var(--yellow)"></i><b>1.5–2.5</b></span>
+      <span><i class="sw" style="background:var(--green)"></i><b>≥2.5</b> reliable</span>
+      <span>Point at the map to see what is visible from there.</span>
+    </div>
+    <p class="note warnnote" id="fieldnote"></p>
+    <p class="note" id="camnote"></p>
+    <ul class="msgs" id="mapmsgs"></ul>
+    <div id="sha"></div>
+    <div id="tablewrap"><table><thead><tr><th>ID</th><th>side, m</th><th>x, m</th><th>y, m</th><th>rotation, °</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    <details>
+      <summary>Load / save the map</summary>
+      <div class="row">
+        <input id="file" type="file" accept=".txt,.json">
+        <button id="dltxt">Download map.txt</button>
+        <button id="dljson">Download JSON</button>
+      </div>
+      <textarea id="paste" class="txt mono" placeholder="Paste map.txt or JSON and press “Use text”"></textarea>
+      <div class="row"><button id="usepaste">Use text</button></div>
+      <p class="note">Entry from a photo from above: for now through the measurement of 16.11 (field_20261116\measure, table_final.json); it will come into the app later.</p>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Program (Python)</h2>
+    <div class="row">
+      <label>example</label><select id="examples"></select>
+      <button id="btncheck">Check</button>
+      <button id="btnsim" class="primary">Simulate</button>
+      <button id="btnstop" hidden>Stop</button>
+      <label>budget, s</label><input id="budget" type="number" min="30" max="1800" step="10" value="300" style="width:80px">
+    </div>
+    <div id="editor"><div id="gutter" class="mono">1</div><textarea id="code" class="mono" spellcheck="false"></textarea></div>
+    <p class="note">Allowed: <span class="mono">import drone, time, math, random</span>; the commands for students are listed below. Not allowed: PX4 parameters, arming and modes directly, files, network.</p>
+    <details><summary>drone commands</summary><p class="mono note" id="apilist"></p></details>
+    <ul class="msgs" id="codemsgs"></ul>
+    <div id="simbox" hidden>
+      <div class="kv" id="simkv"></div>
+      <div class="row">
+        <button id="play">▶</button>
+        <input id="tslider" type="range" min="0" max="100" step="0.1" value="0" style="flex:1">
+        <span id="tnow" class="mono">0.0 s</span>
+        <select id="speed"><option value="1">×1</option><option value="5" selected>×5</option><option value="20">×20</option></select>
+      </div>
+      <canvas id="chart"></canvas>
+      <p class="note">Blue: height z; orange: markers in view (mean). On the map the dashed frame is what the camera sees (further forward than back). No wind, no vision or EKF errors: this is not Gazebo. The timing is fitted to Gazebo; on the loop route, not used in the fitting, the simulation is ~10 % longer.</p>
+      <ul class="msgs" id="simevents"></ul>
+      <details><summary>Program log</summary><pre class="mono note" id="simlog"></pre></details>
+    </div>
+  </section>
+
+  <section class="card" id="dronecard">
+    <h2>Drone: map and mission</h2>
+    <p class="note">The mission server on the drone (step 6). For now it exists only on a PC with a fake drone: nothing has been installed on the real drone. The app itself never arms and sends no setpoints: it asks the server, which runs the program under the guards.</p>
+    <div class="row">
+      <label id="srvlabel">address</label><input id="srv" type="text" size="26" value="http://127.0.0.1:8766">
+      <button id="srvconnect">Connect</button>
+      <span id="srvstate" class="note">no connection</span>
+    </div>
+    <div class="row">
+      <button id="sendmap" disabled>Send the map to the drone</button>
+      <button id="dronecheck" disabled>Check the program on the drone</button>
+    </div>
+    <p class="note">Battery 6S LiHV 4500 mAh (full 4.35 V/cell = 26.1 V). The owner’s threshold is 20 V <b>by multimeter</b>: land at once. PX4 over-reads the voltage, the more so the lower the charge, so the drone lands at 23.0 V <b>by PX4</b>. The PX4 charge percentage is wrong: it assumes 4.2 V/cell. There is no current sensor, so the flight time is counted only by the timer (budget).</p>
+    <div class="row">
+      <label><input type="checkbox" id="c_battery"> battery checked with a multimeter</label>
+      <label><input type="checkbox" id="c_rc"> RC in hand, CH8 (stop) checked</label>
+      <label><input type="checkbox" id="c_people"> people are away from the field</label>
+    </div>
+    <div class="row">
+      <button id="takeoff" class="primary" disabled>TAKEOFF…</button>
+      <button id="takeoff2" hidden>Yes, take off</button>
+      <button id="dronestop" style="background:var(--err);color:#fff;border-color:var(--err)">STOP / land</button>
+      <span id="tokstate" class="note"></span>
+    </div>
+    <ul class="msgs" id="dronemsgs"></ul>
+    <ul class="msgs" id="liveevents"></ul>
+  </section>
+</main>
+
+<script id="pyfiles" type="application/json">/*__PY_FILES__*/</script>
+<script id="examplesdata" type="application/json">/*__EXAMPLES__*/</script>
+<script id="defaultmap" type="application/json">/*__DEFAULT_MAP__*/</script>
+<script id="bbconfig" type="application/json">/*__CONFIG__*/</script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const CONFIG = JSON.parse($('bbconfig').textContent);      // {embedded, pyodide}: set by build_html.py
+// The program and the map survive a restart (per browser / per app profile). May be unavailable: then nothing is kept.
+const store = {
+  get(k) { try { return localStorage.getItem('bbflight.' + k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem('bbflight.' + k, v); } catch (e) { /* private window, blocked storage */ } },
+};
+const state = { map: null, sel: null, check: null, grid: null, gridNote: '', sim: null, t: 0, playing: false, ready: false, view: null, drag: null, fileErrors: [] };
+const PYFILES = JSON.parse($('pyfiles').textContent);
+const EXAMPLES = JSON.parse($('examplesdata').textContent);
+state.map = JSON.parse($('defaultmap').textContent);
+try {
+  const saved = JSON.parse(store.get('map') || 'null');
+  if (saved && Array.isArray(saved.markers) && saved.markers.length && saved.markers.length <= 200) {
+    state.map = { name: String(saved.name || 'field'), z: Number.isFinite(+saved.z) ? +saved.z : -0.32,
+                  markers: saved.markers.map(k => ({ id: +k.id, length: +k.length, x: +k.x, y: +k.y, rot_z: +(k.rot_z || 0) })) };
+  }
+} catch (e) { /* a broken saved map: keep the default */ }
+
+// ---------- Python in a Web Worker ----------
+// The student’s program runs there: no DOM, no GCS bridge, and a stuck program is
+// killed with terminate() by a wall-clock timer or the Stop button (review 17.11, items 1, 3, 15).
+const PYODIDE = CONFIG.pyodide ? new URL(CONFIG.pyodide, location.href).href : 'https://cdn.jsdelivr.net/npm/pyodide@0.26.4/';
+const WORKER_SRC = `
+let api = null;
+self.onmessage = async (e) => {
+  const { id, fn, args, files } = e.data;
+  try {
+    if (fn === '__init') {
+      importScripts('${PYODIDE}pyodide.js');
+      const py = await loadPyodide({ indexURL: '${PYODIDE}' });
+      py.FS.mkdirTree('/bb/bbflight');
+      for (const [p, t] of Object.entries(files)) if (!p.startsWith('_')) py.FS.writeFile('/bb/' + p, t);
+      py.runPython("import sys; sys.path.insert(0, '/bb')");
+      api = py.pyimport('bbflight.webapi');
+      // defence in depth: a program that escapes the checks cannot simply "import js"
+      py.runPython("import sys; sys.modules['js'] = None; sys.modules['pyodide_js'] = None");
+      self.postMessage({ id, ok: true, result: api.cameras() });
+    } else {
+      self.postMessage({ id, ok: true, result: api[fn](...args) });
+    }
+  } catch (err) { self.postMessage({ id, ok: false, error: String(err) }); }
+};`;
+let worker = null, seq = 0;
+const pending = new Map();
+function setStatus(text, bad) { $('pystatus').textContent = text; $('pystatus').style.color = bad ? css('--err') : ''; }
+function makeWorker() {
+  worker = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' })));
+  worker.onmessage = (e) => {
+    const p = pending.get(e.data && e.data.id); if (!p) return;
+    pending.delete(e.data.id); clearTimeout(p.timer);
+    if (e.data.ok) p.resolve(e.data.result); else p.reject(new Error(e.data.error));
+  };
+  worker.onerror = (e) => setStatus('Python thread error: ' + (e.message || e), true);
+}
+function call(fn, args, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const id = ++seq;
+    const timer = timeoutMs ? setTimeout(() => { if (pending.has(id)) { pending.delete(id); restartPython('time is up'); reject(new Error('time is up (' + timeoutMs / 1000 + ' s): Python restarted')); } }, timeoutMs) : null;
+    pending.set(id, { resolve, reject, timer });
+    worker.postMessage(fn === '__init' ? { id, fn, files: PYFILES } : { id, fn, args });
+  });
+}
+async function api(fn, args, timeoutMs) { if (!state.ready) throw new Error('Python is not ready yet'); return JSON.parse(await call(fn, args, timeoutMs)); }
+async function startPython() {
+  setStatus('Loading Python…');
+  makeWorker();
+  try {
+    const cams = JSON.parse(await call('__init', null, 0));
+    state.ready = true; setStatus('Python ready');
+    if (!$('cam').options.length) for (const [k, v] of Object.entries(cams)) { const o = document.createElement('option'); o.value = k; o.textContent = v.label; $('cam').appendChild(o); }
+    $('apilist').textContent = PYFILES['_api'] || '';
+    updateCamNote(); recheckMap();
+  } catch (e) { setStatus('Python did not load: ' + e.message, true); }
+}
+function restartPython(why) {
+  state.ready = false; state.busy = false;
+  for (const [, p] of pending) { clearTimeout(p.timer); p.reject(new Error(why)); }
+  pending.clear();
+  if (worker) worker.terminate();
+  $('btnstop').hidden = true; $('btnsim').disabled = false;
+  setStatus('Python is restarting (' + why + ')…');
+  startPython();
+}
+
+// ---------- map state ----------
+function mapJSON() { return JSON.stringify({ format: 'bumblebee-map/1', name: state.map.name, z: state.map.z, markers: state.map.markers }); }
+let recheckTimer = null;
+function mapChanged() { renderTable(); draw(); updateFieldNote(); store.set('map', mapJSON()); clearTimeout(recheckTimer); recheckTimer = setTimeout(recheckMap, 350); }
+let checkSeq = 0;
+async function recheckMap() {
+  if (!state.ready) return;
+  const my = ++checkSeq;
+  let r;
+  try { r = await api('map_check', [mapJSON()], 15000); } catch (e) { showMapMsgs({ error: e.message }); return; }
+  if (my !== checkSeq) return;                       // a newer check is on its way
+  state.check = r; showMapMsgs(r);
+  if (!r.error && !r.errors.length && $('heat').checked) computeGrid(); else { state.grid = null; draw(); }
+}
+function showMapMsgs(r) {
+  const ul = $('mapmsgs'); ul.innerHTML = '';
+  for (const e of state.fileErrors) addMsg(ul, 'error', 'in the loaded file: ' + e);
+  if (state.fileErrors.length) {
+    // the file’s broken lines are NOT in the map on screen; saving is blocked until the person confirms
+    const li = document.createElement('li'); li.className = 'warn';
+    const b = document.createElement('button'); b.textContent = 'Understood: these lines are not in the map; go on';
+    b.onclick = () => { state.fileErrors = []; recheckMap(); };
+    li.appendChild(b); ul.appendChild(li);
+  }
+  if (r.error) { addMsg(ul, 'error', r.error); $('sha').textContent = ''; setExport(false); return; }
+  for (const e of r.errors) addMsg(ul, 'error', e);
+  for (const w of r.warnings) addMsg(ul, 'warn', w);
+  if (!r.errors.length) addMsg(ul, 'info', 'Map has no errors: ' + r.summary);
+  if (r.errors.length && $('heat').checked) addMsg(ul, 'warn', 'The coloured map is not computed while the map has errors.');
+  if (state.gridNote) addMsg(ul, 'warn', state.gridNote);
+  $('sha').textContent = 'sha256 ' + r.sha;
+  setExport(!r.errors.length && !state.fileErrors.length);
+}
+function setExport(ok) { $('dltxt').disabled = $('dljson').disabled = !ok; }
+let gridSeq = 0;
+async function computeGrid() {
+  if (!state.ready || !state.map.markers.length) { state.grid = null; draw(); return; }
+  const my = ++gridSeq;
+  setStatus('counting markers in view…');
+  try {
+    const g = await api('heat', [mapJSON(), takeoffH(), $('cam').value || 'gazebo', 0.1, parseFloat($('turn').value)], 30000);
+    if (my !== gridSeq) return;
+    state.grid = g.error ? null : g; state.gridNote = g.error || '';
+    if (g.error && state.check) showMapMsgs(state.check);
+  } catch (e) { state.grid = null; state.gridNote = e.message; }
+  if (state.ready) setStatus('Python ready');
+  state.hover = null; hoverSeq++; $('hint').hidden = true;     // a hint of the old map must not come back
+  showHeights();
+  draw();
+}
+
+// ---------- the coloured map: height, heading, field, hint (18.11) ----------
+const fmt = (v, d) => (Number.isFinite(v) ? v.toFixed(d) : '—').replace('.', '.');
+function takeoffH() { return parseFloat($('zh').value); }
+function showHeights() {
+  const g = state.grid;
+  if (!g || !g.heights) { $('heights').textContent = ''; return; }
+  const pt = state.progTakeoff, lo = parseFloat($('zh').min), hi = parseFloat($('zh').max);
+  const warn = pt && pt.h !== null && (pt.h < lo || pt.h > hi)
+    ? ' WARNING: the program has takeoff(' + fmt(pt.h, 2) + '), outside the tested ' + fmt(lo, 1) + '–' + fmt(hi, 1) + ' m; the guard will refuse the takeoff.' : '';
+  $('heights').textContent = 'Above the floor after takeoff(' + fmt(g.takeoff, 2) + '): drone centre ' + fmt(g.heights.base, 2)
+    + ' m, camera ' + fmt(g.heights.camera, 2) + ' m (20EC reference: standing 0.217 and 0.183 m + the takeoff height). Heading ' + fmt(g.heading_deg, 0)
+    + '° (0° = along the x axis, counter-clockwise; at the start ' + fmt(g.start_heading_deg, 0) + '°). If the program changes the height or the heading, see the simulation.' + warn;
+  $('heights').classList.toggle('warnnote', !!warn);
+}
+// drone.takeoff(...) of the program, comments ignored: {h} a number (no argument: 1.0, the
+// default of drone.takeoff), {h: null, why} when the height is not a plain number, null when there is no call
+function programTakeoff() {
+  for (const raw of code.value.split('\n')) {
+    const line = raw.replace(/#.*/, '');
+    const m = line.match(/\bdrone\.takeoff\(([^)]*)(\)?)/);
+    if (!m) continue;
+    if (!m[2]) return { h: null, why: 'takeoff over several lines' };
+    const args = m[1].split(',').map(a => a.trim()).filter(a => a.length);
+    const num = (s) => /^[0-9]*\.?[0-9]+$/.test(s) ? parseFloat(s) : null;
+    if (!args.length) return { h: 1.0 };
+    const kw = args.find(a => /^height\s*=/.test(a));
+    const text = kw ? kw.replace(/^height\s*=\s*/, '') : (args[0].includes('=') ? '1.0' : args[0]);
+    const h = num(text);
+    return h === null ? { h: null, why: 'height "' + text + '" is not a number' } : { h };
+  }
+  return null;
+}
+state.followProgram = true;                  // the slider follows the program until the person moves it
+state.progTakeoff = null;
+let syncTimer = null;
+function syncTakeoff() {
+  const pt = programTakeoff(), b = $('zfromprog'), lo = parseFloat($('zh').min), hi = parseFloat($('zh').max);
+  state.progTakeoff = pt;
+  const h = pt ? pt.h : null;
+  b.disabled = h === null || h < lo || h > hi;
+  b.textContent = !pt ? 'no takeoff in the program' : (h === null ? 'takeoff: ' + pt.why : 'as in the program (' + fmt(h, 2) + ')');
+  showHeights();
+  // only when the program’s number changed, not on every edit: a recount is not free
+  if (state.followProgram && h !== null && h >= lo && h <= hi && Math.abs(h - takeoffH()) > 0.005) {
+    $('zh').value = h; $('zhv').textContent = takeoffH().toFixed(2); computeGrid();
+  }
+}
+function updateFieldNote() {
+  const ms = state.map.markers;
+  let lo = Infinity, hi = 0;
+  if (ms.length > 1) for (const a of ms) {
+    let best = Infinity;
+    for (const b of ms) if (b !== a) best = Math.min(best, Math.hypot(a.x - b.x, a.y - b.y));
+    lo = Math.min(lo, best); hi = Math.max(hi, best);
+  }
+  $('fieldnote').textContent = 'The map must match the real field: on 16.11 the owner’s field had 63–100 cm between neighbouring markers, the map in the drone image 36–73 cm. '
+    + (ms.length > 1 ? 'In this map the nearest neighbouring marker is ' + Math.round(lo * 100) + '–' + Math.round(hi * 100) + ' cm away. ' : '')
+    + 'Before flying, check 2–3 distances with a tape measure.';
+}
+let blindPat = null, blindKey = '';
+function blindPattern() {
+  const key = css('--blind') + css('--hatch');
+  if (blindPat && blindKey === key) return blindPat;
+  const c = document.createElement('canvas'); c.width = c.height = 8; const x = c.getContext('2d');
+  x.fillStyle = css('--blind'); x.fillRect(0, 0, 8, 8);
+  x.strokeStyle = css('--hatch'); x.lineWidth = 1.6; x.beginPath(); x.moveTo(-2, 10); x.lineTo(10, -2); x.moveTo(-2, 2); x.lineTo(2, -2); x.moveTo(6, 10); x.lineTo(10, 6); x.stroke();
+  blindPat = ctx.createPattern(c, 'repeat'); blindKey = key; return blindPat;
+}
+function shadeOf(n, g) { return n < g.blind_below ? 'blind' : (n < g.red_below ? 'red' : (n < g.green_from ? 'yellow' : 'green')); }
+function drawHeading(g) {
+  const W = cv.clientWidth, cx = W - 34, cy = 34, r = 22;
+  ctx.save();
+  ctx.fillStyle = css('--panel'); ctx.strokeStyle = css('--line'); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy, r + 6, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+  const dx = Math.cos(g.yaw), dy = -Math.sin(g.yaw);                    // screen y grows down
+  ctx.strokeStyle = css('--path'); ctx.fillStyle = css('--path'); ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(cx - dx * r * 0.7, cy - dy * r * 0.7); ctx.lineTo(cx + dx * r * 0.7, cy + dy * r * 0.7); ctx.stroke();
+  const tx = cx + dx * r, ty = cy + dy * r, nx = -dy, ny = dx;
+  ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx - dx * 9 + nx * 6, ty - dy * 9 + ny * 6); ctx.lineTo(tx - dx * 9 - nx * 6, ty - dy * 9 - ny * 6); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = css('--ink'); ctx.font = '11px system-ui'; ctx.textAlign = 'center';
+  ctx.fillText('nose, ' + fmt(g.heading_deg, 0) + '°', cx, cy + r + 18);
+  ctx.restore();
+}
+function drawHover() {
+  const p = state.hover; if (!p || !state.view) return;
+  ctx.save();
+  if (p.footprint && p.footprint.length) {
+    const q = p.footprint.map(([x, y]) => toS(x, y));
+    ctx.beginPath(); q.forEach((v, i) => i ? ctx.lineTo(v[0], v[1]) : ctx.moveTo(v[0], v[1])); ctx.closePath();
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+    ctx.clip();
+  }
+  if (p.cone) {
+    const [cx, cy] = toS(p.cone[0], p.cone[1]);
+    ctx.beginPath(); ctx.arc(cx, cy, p.cone[2] * state.view.s, 0, 2 * Math.PI);
+    ctx.fillStyle = 'rgba(79, 140, 255, 0.12)'; ctx.fill(); ctx.strokeStyle = css('--path'); ctx.lineWidth = 1.5; ctx.stroke();
+  }
+  ctx.restore();
+  const seen = new Set(p.ids || []);
+  ctx.save(); ctx.strokeStyle = css('--seen'); ctx.lineWidth = 3;
+  for (const m of state.map.markers) if (seen.has(m.id)) {
+    const q = corners(m).map(c => toS(c[0], c[1]));
+    ctx.beginPath(); q.forEach((v, i) => i ? ctx.lineTo(v[0], v[1]) : ctx.moveTo(v[0], v[1])); ctx.closePath(); ctx.stroke();
+  }
+  const [px, py] = toS(p.x, p.y);
+  ctx.fillStyle = css('--path'); ctx.beginPath(); ctx.arc(px, py, 5, 0, 2 * Math.PI); ctx.fill();
+  ctx.restore();
+}
+const SHADE_TEXT = { blind: 'blind spot', red: 'one marker: vision unreliable', yellow: 'about two markers', green: 'reliable' };
+function showHint(p, px, py) {
+  const h = $('hint');
+  const ids = p.ids || [];
+  h.textContent = '';
+  const lines = [
+    'point x ' + fmt(p.x, 2) + ', y ' + fmt(p.y, 2) + ' m',
+    'mean ' + fmt(p.mean, 2) + ' markers in view (the point and 4 neighbours 12 cm away: the drone does not hold still): ' + (SHADE_TEXT[p.shade] || ''),
+    ids.length ? 'visible from exactly this point: ' + ids.join(', ') + ' (' + ids.length + ')' : 'no marker is visible from exactly this point',
+    'camera ' + fmt(p.camera, 2) + ' m above the floor; dashed: the frame, circle: where markers are still read',
+  ];
+  lines.forEach((t, i) => { if (i) h.appendChild(document.createElement('br')); h.appendChild(document.createTextNode(t)); });
+  h.style.left = '0px'; h.style.top = '0px';           // measure at full width, not squeezed at the edge
+  h.hidden = false;
+  const wrap = $('mapwrap').getBoundingClientRect();
+  const left = Math.min(px + 16, wrap.width - h.offsetWidth - 4), top = py + 16 + h.offsetHeight > wrap.height ? py - h.offsetHeight - 12 : py + 16;
+  h.style.left = Math.max(4, left) + 'px'; h.style.top = Math.max(4, top) + 'px';
+}
+let hoverBusy = false, hoverNext = null, hoverSeq = 0;
+function hoverAt(px, py) {
+  if (!state.grid || !$('heat').checked || !state.ready || !state.view) return;
+  hoverNext = [px, py];
+  if (hoverBusy) return;
+  const run = async () => {
+    const [qx, qy] = hoverNext; hoverNext = null; hoverBusy = true;
+    const my = ++hoverSeq; const [wx, wy] = toW(qx, qy);
+    try {
+      // no timeout: the Python thread may be busy with a simulation; the hint waits for it
+      const p = await api('heat_point', [mapJSON(), wx, wy, takeoffH(), $('cam').value || 'gazebo', parseFloat($('turn').value)], 0);
+      if (my === hoverSeq && !p.error && state.hoverOn) { state.hover = p; showHint(p, qx, qy); draw(); }
+    } catch (e) { /* Python restarted: no hint */ }
+    hoverBusy = false;
+    if (hoverNext) run();
+  };
+  run();
+}
+function addMsg(ul, level, text, line) {
+  const li = document.createElement('li'); li.className = level; li.textContent = (line ? 'line ' + line + ': ' : '') + text;
+  if (line) { li.classList.add('click'); li.onclick = () => gotoLine(line); }
+  ul.appendChild(li);
+}
+function nextId() { const used = new Set(state.map.markers.map(m => m.id)); for (let i = 0; i < 100; i++) if (!used.has(i)) return i; return null; }
+function addMarker(m) {
+  if (m.id === null) { const ul = $('mapmsgs'); addMsg(ul, 'error', 'All IDs 0–99 are taken: no new marker can be added.'); return; }
+  state.map.markers.push(m); setSel(m.id); mapChanged();
+}
+function selMarker() { return state.map.markers.find(m => m.id === state.sel) || null; }
+function setSel(id) { state.sel = id; $('delm').disabled = $('rotm').disabled = (id === null); renderTable(); draw(); }
+
+// ---------- table ----------
+function renderTable() {
+  const tb = $('tbody'); tb.innerHTML = '';
+  const rows = [...state.map.markers].sort((a, b) => a.id - b.id);
+  for (const m of rows) {
+    const tr = document.createElement('tr'); if (m.id === state.sel) tr.className = 'sel';
+    const cell = (val, step, key, conv) => {
+      const td = document.createElement('td'); const inp = document.createElement('input'); inp.type = 'number'; inp.step = step; inp.value = val;
+      inp.onfocus = () => { if (state.sel !== m.id) { state.sel = m.id; $('delm').disabled = $('rotm').disabled = false; draw(); } };
+      inp.onchange = () => { const v = parseFloat(inp.value); if (!isFinite(v)) return; if (key === 'id') { m.id = Math.round(v); state.sel = m.id; } else m[key] = conv ? conv(v) : v; mapChanged(); };
+      td.appendChild(inp); tr.appendChild(td);
+    };
+    cell(m.id, 1, 'id'); cell(m.length.toFixed(3), 0.005, 'length'); cell(m.x.toFixed(3), 0.01, 'x'); cell(m.y.toFixed(3), 0.01, 'y');
+    cell((m.rot_z * 180 / Math.PI).toFixed(1), 1, 'rot_z', v => v * Math.PI / 180);
+    tb.appendChild(tr);
+  }
+}
+
+// ---------- drawing ----------
+const cv = $('map'); const ctx = cv.getContext('2d');
+function fitView() {
+  const ms = state.map.markers; let x0 = -1, y0 = -1, x1 = 1, y1 = 1;
+  if (ms.length) { x0 = Math.min(...ms.map(m => m.x)); x1 = Math.max(...ms.map(m => m.x)); y0 = Math.min(...ms.map(m => m.y)); y1 = Math.max(...ms.map(m => m.y)); }
+  const pad = 0.9; x0 -= pad; x1 += pad; y0 -= pad; y1 += pad;
+  const W = cv.clientWidth, H = cv.clientHeight; const s = Math.min(W / (x1 - x0), H / (y1 - y0));
+  state.view = { s, ox: (W - s * (x1 - x0)) / 2 - s * x0, oy: (H + s * (y1 - y0)) / 2 + s * y0 };
+}
+const toS = (x, y) => [state.view.ox + state.view.s * x, state.view.oy - state.view.s * y];
+const toW = (px, py) => [(px - state.view.ox) / state.view.s, (state.view.oy - py) / state.view.s];
+function corners(m) { const h = m.length / 2, c = Math.cos(m.rot_z), s = Math.sin(m.rot_z); return [[-h, h], [h, h], [h, -h], [-h, -h]].map(([dx, dy]) => [m.x + c * dx - s * dy, m.y + s * dx + c * dy]); }
+function draw() {
+  const dpr = window.devicePixelRatio || 1; const W = cv.clientWidth, H = cv.clientHeight;
+  if (W < 10 || H < 10) { state.view = null; return; }          // hidden or not laid out yet
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  if (!state.view || !state.drag) fitView();
+  if (!(state.view.s > 0) || !isFinite(state.view.s)) return;
+  // grid 0.5 m (at most 200 lines each way)
+  ctx.strokeStyle = css('--grid'); ctx.lineWidth = 1; ctx.fillStyle = css('--muted'); ctx.font = '11px system-ui';
+  const [wx0, wy1] = toW(0, 0), [wx1, wy0] = toW(W, H);
+  if ((wx1 - wx0) > 100 || (wy1 - wy0) > 100) return;
+  for (let x = Math.ceil(wx0 * 2) / 2; x <= wx1; x += 0.5) { const [px] = toS(x, 0); ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke(); if (Math.abs(x % 1) < 1e-6) ctx.fillText(x.toFixed(0), px + 2, H - 4); }
+  for (let y = Math.ceil(wy0 * 2) / 2; y <= wy1; y += 0.5) { const [, py] = toS(0, y); ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(W, py); ctx.stroke(); if (Math.abs(y % 1) < 1e-6) ctx.fillText(y.toFixed(0), 3, py - 2); }
+  // heat
+  const g = state.grid;
+  if (g && $('heat').checked) {
+    const s = state.view.s * g.step; const cols = { blind: blindPattern(), red: css('--red'), yellow: css('--yellow'), green: css('--green') };
+    for (let j = 0; j < g.ny; j++) for (let i = 0; i < g.nx; i++) {
+      const [px, py] = toS(g.x0 + i * g.step, g.y0 + j * g.step); ctx.fillStyle = cols[shadeOf(g.counts[j][i], g)]; ctx.fillRect(px - s / 2, py - s / 2, s + 0.5, s + 0.5);
+    }
+  }
+  // markers
+  for (const m of state.map.markers) {
+    const pts = corners(m).map(p => toS(p[0], p[1]));
+    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    ctx.fillStyle = css('--marker'); ctx.fill();
+    if (m.id === state.sel) { ctx.lineWidth = 3; ctx.strokeStyle = css('--accent'); ctx.stroke(); }
+    const [cx, cy] = toS(m.x, m.y); const [tx, ty] = toS(m.x + Math.cos(m.rot_z) * m.length * 0.42, m.y + Math.sin(m.rot_z) * m.length * 0.42);
+    ctx.strokeStyle = css('--marker-ink'); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(tx, ty); ctx.stroke();
+    ctx.fillStyle = css('--marker-ink'); ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(m.id), cx, cy);
+    ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+  }
+  drawHover();
+  if (g && $('heat').checked) drawHeading(g);
+  drawSim();
+  drawLive();
+}
+function levelColor(n) { return n < 1.5 ? css('--err') : (n < 2.5 ? css('--warn') : css('--ok')); }
+function drawSim() {
+  const r = state.sim; if (!r || !r.trace || !r.trace.length) return;
+  const tr = r.trace;
+  ctx.lineWidth = 3;
+  for (let k = 1; k < tr.length; k++) {
+    if (!tr[k][5] && !tr[k - 1][5]) continue;
+    const [x0, y0] = toS(tr[k - 1][1], tr[k - 1][2]), [x1, y1] = toS(tr[k][1], tr[k][2]);
+    ctx.strokeStyle = levelColor(tr[k][4]); ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+  }
+  const p = sampleAt(state.t); if (!p) return;
+  const [px, py] = toS(p[1], p[2]);
+  const h = p[3] - r.mount_down - r.z_floor;
+  if (r.cam_K && p[5] && h > 0.05) {
+    // what the camera can use: the image frame (forward reaches further than back) cut by the cone max_tan
+    const K = r.cam_K, c = Math.cos(r.yaw), s = Math.sin(r.yaw);
+    const ox = p[1] + c * r.mount_fwd, oy = p[2] + s * r.mount_fwd;
+    const fwd = K.cy * h / K.fy, back = (K.H - K.cy) * h / K.fy, left = K.cx * h / K.fx, right = (K.W - K.cx) * h / K.fx;
+    const rect = [[fwd, left], [fwd, -right], [-back, -right], [-back, left]].map(([f, l]) => toS(ox + c * f - s * l, oy + s * f + c * l));
+    ctx.save();
+    ctx.beginPath(); rect.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); ctx.closePath();
+    ctx.setLineDash([2, 4]); ctx.strokeStyle = css('--muted'); ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
+    ctx.clip();
+    if (r.max_tan) {
+      const [cx, cy] = toS(ox, oy);
+      ctx.beginPath(); ctx.arc(cx, cy, r.max_tan * h * state.view.s, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(37, 99, 235, 0.10)'; ctx.fill();
+      ctx.setLineDash([5, 4]); ctx.strokeStyle = css('--path'); ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.restore();
+  }
+  ctx.fillStyle = css('--path'); ctx.beginPath(); ctx.arc(px, py, 8, 0, 2 * Math.PI); ctx.fill();
+  const [hx, hy] = toS(p[1] + Math.cos(r.yaw) * 0.18, p[2] + Math.sin(r.yaw) * 0.18);
+  ctx.strokeStyle = css('--path'); ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(hx, hy); ctx.stroke();
+}
+function drawLive() {
+  const tr = drone.trail; if (!tr.length || !state.view) return;
+  ctx.strokeStyle = '#ea8a1a'; ctx.lineWidth = 2; ctx.beginPath();
+  tr.forEach((p, i) => { const [x, y] = toS(p.x, p.y); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+  const p = tr[tr.length - 1]; const [x, y] = toS(p.x, p.y);
+  ctx.fillStyle = '#ea8a1a'; ctx.beginPath(); ctx.arc(x, y, 9, 0, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = css('--ink'); ctx.font = '11px system-ui'; ctx.fillText('drone z=' + p.z.toFixed(2) + (p.armed ? ' in the air' : ''), x + 12, y - 8);
+}
+function sampleAt(t) {
+  const tr = state.sim && state.sim.trace; if (!tr || !tr.length) return null;
+  let lo = 0, hi = tr.length - 1; if (t <= tr[0][0]) return tr[0]; if (t >= tr[hi][0]) return tr[hi];
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (tr[mid][0] <= t) lo = mid; else hi = mid; }
+  const a = tr[lo], b = tr[hi], k = (t - a[0]) / Math.max(1e-6, b[0] - a[0]);
+  return [t, a[1] + k * (b[1] - a[1]), a[2] + k * (b[2] - a[2]), a[3] + k * (b[3] - a[3]), a[4], a[5]];
+}
+
+// ---------- map interaction ----------
+function hit(px, py) {
+  const [wx, wy] = toW(px, py);
+  let best = null, bd = 1e9;
+  for (const m of state.map.markers) { const d = Math.hypot(m.x - wx, m.y - wy); if (d < m.length * 0.75 && d < bd) { best = m; bd = d; } }
+  return best;
+}
+cv.addEventListener('pointerdown', (e) => {
+  const rect = cv.getBoundingClientRect(); const px = e.clientX - rect.left, py = e.clientY - rect.top;
+  const m = hit(px, py);
+  if (m) { setSel(m.id); const [wx, wy] = toW(px, py); state.drag = { m, dx: m.x - wx, dy: m.y - wy }; cv.setPointerCapture(e.pointerId); }
+  else setSel(null);
+});
+cv.addEventListener('pointermove', (e) => {
+  if (!state.drag) { const r = cv.getBoundingClientRect(); state.hoverOn = true; hoverAt(e.clientX - r.left, e.clientY - r.top); return; }
+  state.hoverOn = false; $('hint').hidden = true; state.hover = null;
+  const rect = cv.getBoundingClientRect(); const [wx, wy] = toW(e.clientX - rect.left, e.clientY - rect.top);
+  const snap = $('snap').checked ? 0.01 : 0.001;
+  state.drag.m.x = Math.round((wx + state.drag.dx) / snap) * snap; state.drag.m.y = Math.round((wy + state.drag.dy) / snap) * snap;
+  draw();
+});
+const endDrag = () => { if (state.drag) { state.drag = null; mapChanged(); } };
+cv.addEventListener('pointerup', endDrag);
+cv.addEventListener('pointercancel', endDrag);
+cv.addEventListener('pointerleave', () => { state.hoverOn = false; hoverSeq++; $('hint').hidden = true; if (state.hover) { state.hover = null; draw(); } });
+cv.addEventListener('dblclick', (e) => {
+  const rect = cv.getBoundingClientRect(); const px = e.clientX - rect.left, py = e.clientY - rect.top;
+  if (hit(px, py)) return;                            // a double click on a marker does not put a new one on top
+  const [wx, wy] = toW(px, py);
+  addMarker({ id: nextId(), length: 0.29, x: Math.round(wx * 100) / 100, y: Math.round(wy * 100) / 100, rot_z: Math.PI / 2 });
+});
+$('addm').onclick = () => {
+  const ms = state.map.markers; const cx = ms.length ? ms.reduce((s, m) => s + m.x, 0) / ms.length : 0; const cy = ms.length ? Math.max(...ms.map(m => m.y)) + 0.7 : 0;
+  state.view = null;
+  addMarker({ id: nextId(), length: ms.length ? 0.29 : 0.19, x: Math.round(cx * 100) / 100, y: Math.round(cy * 100) / 100, rot_z: Math.PI / 2 });
+};
+$('delm').onclick = () => { state.map.markers = state.map.markers.filter(m => m.id !== state.sel); setSel(null); state.view = null; mapChanged(); };
+$('rotm').onclick = () => { const m = selMarker(); if (!m) return; m.rot_z = Math.atan2(Math.sin(m.rot_z + Math.PI / 2), Math.cos(m.rot_z + Math.PI / 2)); mapChanged(); };
+$('mapname').onchange = () => { state.map.name = $('mapname').value.trim(); mapChanged(); };
+$('heat').onchange = () => recheckMap();
+$('cam').onchange = () => { updateCamNote(); recheckMap(); };
+$('zh').oninput = () => { state.followProgram = false; $('zhv').textContent = takeoffH().toFixed(2); };
+$('zh').onchange = () => computeGrid();
+$('zfromprog').onclick = () => { state.followProgram = true; syncTakeoff(); };
+$('turn').onchange = () => computeGrid();
+function updateCamNote() {
+  const v = $('cam').value;
+  $('camnote').textContent = v === 'drone'
+    ? 'The drone’s camera (calibration from the drone). The detection limit is taken from Gazebo: not measured on the real drone, and Gazebo is more optimistic (the detector runs at 7 frames/s on the Pi against 23). This is an estimate.'
+    : 'Gazebo: the limit was fitted on half of the runs of the real map and checked on the other half: the marker count is right within ±1 in 92 % of frames.';
+}
+function download(name, text) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+$('dltxt').onclick = () => { if (state.check && state.check.txt && !$('dltxt').disabled) download('map.txt', state.check.txt); };
+$('dljson').onclick = () => { if (state.check && state.check.json && !$('dljson').disabled) download((state.map.name || 'map') + '.json', state.check.json); };
+async function loadText(text, fname) {
+  // messages on the page, not alert(): alert may be swallowed inside WKWebView (review item 15)
+  const ul = $('mapmsgs');
+  let m = null, fileErrors = [];
+  const t = text.trim();
+  if (t.startsWith('{')) {
+    try { m = JSON.parse(t); } catch (e) { ul.innerHTML = ''; addMsg(ul, 'error', 'Bad JSON: ' + e.message); return; }
+  } else {
+    let r;
+    try { r = await api('map_from_txt', [text, (fname || 'field').replace(/\.[^.]+$/, '')], 15000); }
+    catch (e) { ul.innerHTML = ''; addMsg(ul, 'error', e.message); return; }
+    if (r.error) { ul.innerHTML = ''; addMsg(ul, 'error', 'File not read: ' + r.error); return; }
+    m = r; fileErrors = (r._check && r._check.errors) || [];   // e.g. a short line the detector would skip (review item 12)
+  }
+  state.fileErrors = fileErrors;
+  state.map = { name: String(m.name || 'field'), z: Number.isFinite(+m.z) ? +m.z : -0.32,
+                markers: (Array.isArray(m.markers) ? m.markers : []).slice(0, 200).map(k => ({ id: +k.id, length: +k.length, x: +k.x, y: +k.y, rot_z: +(k.rot_z || 0) })) };
+  $('mapname').value = state.map.name; state.view = null; state.sim = null; setSel(null); mapChanged();
+}
+$('file').onchange = async (e) => { const f = e.target.files[0]; if (f) await loadText(await f.text(), f.name); e.target.value = ''; };
+$('usepaste').onclick = () => loadText($('paste').value, 'field');
+
+// ---------- code editor ----------
+const code = $('code');
+function updGutter() { const n = code.value.split('\n').length; let s = ''; for (let i = 1; i <= n; i++) s += i + '\n'; $('gutter').textContent = s; }
+let saveTimer = null;
+code.addEventListener('input', () => {
+  updGutter(); clearTimeout(saveTimer); saveTimer = setTimeout(() => store.set('program', code.value), 500);
+  clearTimeout(syncTimer); syncTimer = setTimeout(syncTakeoff, 600);
+});
+code.addEventListener('scroll', () => { $('gutter').scrollTop = code.scrollTop; });
+code.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') { e.preventDefault(); const s = code.selectionStart; code.setRangeText('    ', s, code.selectionEnd, 'end'); updGutter(); }
+});
+function gotoLine(n) {
+  const lines = code.value.split('\n'); let p = 0; for (let i = 0; i < n - 1 && i < lines.length; i++) p += lines[i].length + 1;
+  code.focus(); code.setSelectionRange(p, p + (lines[n - 1] || '').length); code.scrollTop = Math.max(0, (n - 5) * 18);
+}
+for (const name of Object.keys(EXAMPLES)) { const o = document.createElement('option'); o.value = name; o.textContent = name; $('examples').appendChild(o); }
+$('examples').onchange = () => { code.value = EXAMPLES[$('examples').value]; updGutter(); store.set('program', code.value); syncTakeoff(); };
+{ const saved = store.get('program'); code.value = (saved && saved.trim()) ? saved : EXAMPLES[Object.keys(EXAMPLES)[0]]; updGutter(); syncTakeoff(); }
+
+$('btncheck').onclick = async () => {
+  const ul = $('codemsgs'); ul.innerHTML = '';
+  let r; try { r = await api('check_code', [code.value], 15000); } catch (e) { addMsg(ul, 'error', e.message); return; }
+  for (const e of r.errors) addMsg(ul, 'error', e.text, e.line);
+  for (const w of r.warnings) addMsg(ul, 'warn', w.text, w.line);
+  if (r.ok) addMsg(ul, 'info', 'Code check passed. Commands: ' + r.used.join(', '));
+};
+const SIM_TIMEOUT_MS = 30000;      // a stuck program (endless loop, one huge line) is killed after 30 s
+$('btnsim').onclick = async () => {
+  const ul = $('codemsgs');
+  if (!state.ready) { ul.innerHTML = ''; addMsg(ul, 'error', 'Python is not ready yet'); return; }
+  setStatus('simulating…'); $('btnsim').disabled = true; $('btnstop').hidden = false;
+  try {
+    const r = await api('simulate', [code.value, mapJSON(), $('cam').value || 'gazebo', JSON.stringify({ time_budget_s: parseFloat($('budget').value) || 300 })], SIM_TIMEOUT_MS);
+    if (r.error) { ul.innerHTML = ''; addMsg(ul, 'error', r.error); } else showSim(r);
+  } catch (e) { ul.innerHTML = ''; addMsg(ul, 'error', 'Simulation stopped: ' + e.message + '. Looks like an endless loop or a very long computation.'); }
+  $('btnsim').disabled = false; $('btnstop').hidden = true;
+  if (state.ready) setStatus('Python ready');
+};
+$('btnstop').onclick = () => restartPython('stopped with the Stop button');
+function showSim(r) {
+  const ul = $('codemsgs'); ul.innerHTML = '';
+  for (const e of r.check.errors) addMsg(ul, 'error', e.text, e.line);
+  for (const w of r.check.warnings) addMsg(ul, 'warn', w.text, w.line);
+  if (!r.ran) { $('simbox').hidden = true; state.sim = null; draw(); return; }
+  state.sim = r; state.t = 0; $('simbox').hidden = false;
+  const errs = r.events.filter(e => e.level === 'error').length, warns = r.events.filter(e => e.level === 'warn').length;
+  $('simkv').innerHTML = '';
+  const kv = [['result', r.ok ? 'no errors' : 'errors'], ['time', r.duration_s + ' s'], ['in the air', r.flight_s + ' s'], ['in the red zone', r.red_zone_s + ' s'],
+              ['errors', errs], ['warnings', warns], ['end', r.end_reason], ['guard landed', r.landed_by_guard ? 'yes' : 'no']];
+  for (const [k, v] of kv) { const a = document.createElement('span'); a.textContent = k; a.style.color = css('--muted'); const b = document.createElement('b'); b.textContent = v; $('simkv').append(a, b); }
+  const ev = $('simevents'); ev.innerHTML = '';
+  for (const e of r.events) addMsg(ev, e.level, e.t.toFixed(1) + ' s: ' + e.text, e.line);
+  $('simlog').textContent = r.log.map(l => l.t.toFixed(1).padStart(6) + '  ' + l.text).join('\n');
+  $('tslider').max = r.duration_s; $('tslider').value = 0;
+  drawChart(); draw();
+}
+const ch = $('chart'); const cctx = ch.getContext('2d');
+function drawChart() {
+  const r = state.sim; if (!r) return; const dpr = window.devicePixelRatio || 1; const W = ch.clientWidth, H = ch.clientHeight;
+  if (W < 10 || H < 10) return;
+  ch.width = Math.round(W * dpr); ch.height = Math.round(H * dpr); cctx.setTransform(dpr, 0, 0, dpr, 0, 0); cctx.clearRect(0, 0, W, H);
+  const T = Math.max(1, r.duration_s), tr = r.trace; const zx = (t) => 30 + (W - 40) * t / T;
+  const zmin = -0.2, zmax = 1.4, cmax = 6;
+  const zy = (z) => H - 14 - (H - 24) * (z - zmin) / (zmax - zmin), cy = (c) => H - 14 - (H - 24) * Math.min(c, cmax) / cmax;
+  cctx.strokeStyle = css('--grid'); cctx.fillStyle = css('--muted'); cctx.font = '10px system-ui';
+  for (const z of [0, 0.5, 1.0]) { cctx.beginPath(); cctx.moveTo(30, zy(z)); cctx.lineTo(W - 10, zy(z)); cctx.stroke(); cctx.fillText(z.toFixed(1), 4, zy(z) + 3); }
+  cctx.lineWidth = 2; cctx.strokeStyle = css('--path'); cctx.beginPath(); tr.forEach((p, i) => i ? cctx.lineTo(zx(p[0]), zy(p[3])) : cctx.moveTo(zx(p[0]), zy(p[3]))); cctx.stroke();
+  cctx.lineWidth = 1.5; cctx.strokeStyle = '#ea8a1a'; cctx.beginPath(); tr.forEach((p, i) => i ? cctx.lineTo(zx(p[0]), cy(p[4])) : cctx.moveTo(zx(p[0]), cy(p[4]))); cctx.stroke();
+  cctx.strokeStyle = css('--ink'); cctx.lineWidth = 1; cctx.beginPath(); cctx.moveTo(zx(state.t), 4); cctx.lineTo(zx(state.t), H - 10); cctx.stroke();
+}
+let last = null;
+function frame(ts) {
+  if (!state.playing) { last = null; return; }
+  if (last !== null) { state.t += (ts - last) / 1000 * parseFloat($('speed').value); }
+  last = ts;
+  if (state.t >= state.sim.duration_s) { state.t = state.sim.duration_s; state.playing = false; $('play').textContent = '▶'; }
+  $('tslider').value = state.t; $('tnow').textContent = state.t.toFixed(1) + ' s'; draw(); drawChart();
+  requestAnimationFrame(frame);
+}
+$('play').onclick = () => { if (!state.sim) return; state.playing = !state.playing; $('play').textContent = state.playing ? '❚❚' : '▶'; if (state.playing) { if (state.t >= state.sim.duration_s) state.t = 0; requestAnimationFrame(frame); } };
+$('tslider').oninput = () => { state.t = parseFloat($('tslider').value); $('tnow').textContent = state.t.toFixed(1) + ' s'; draw(); drawChart(); };
+window.addEventListener('resize', () => { state.view = null; draw(); drawChart(); });
+document.addEventListener('visibilitychange', () => { state.view = null; draw(); drawChart(); });
+if (window.ResizeObserver) new ResizeObserver(() => { state.view = null; draw(); }).observe(cv);
+
+// ---------- drone: the mission server (6 commands, owner 17.11 «Да, 6 команд») ----------
+// Standalone (a browser): fetch to the mission server typed in the address field.
+// Embedded (the GCS app, WebView2): the page has no network to the drone at all -- every
+// command goes to the app as a chrome.webview message {bb, id, cmd, body, since}; the app
+// talks to the drone and shows its own «Взлёт?» dialog. The six paths are spelled out here
+// so that gcs/tools/check_watch_only.py sees them.
+const ROUTES = {
+  map_status: ['GET', '/api/map/status'],
+  map_put: ['POST', '/api/map'],
+  mission_check: ['POST', '/api/mission/check'],
+  mission_start: ['POST', '/api/mission/start'],
+  mission_stop: ['POST', '/api/mission/stop'],
+  mission_status: ['GET', '/api/mission/status'],
+};
+const hostBridge = (() => {
+  if (!CONFIG.embedded) return null;
+  const wv = window.chrome && window.chrome.webview;                 // the Windows app: WebView2
+  const wk = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.bbflight;   // the Mac app: WKWebView
+  let n = 0;
+  const reply = (m) => ({ code: m.code | 0, data: (m.data && typeof m.data === 'object') ? m.data : {} });
+  const silent = () => new Error('the app did not answer');
+  if (wv) {
+    const waiting = new Map();
+    wv.addEventListener('message', (e) => {
+      const m = e.data; if (!m || m.bb !== 1) return;
+      const w = waiting.get(m.id); if (!w) return;
+      waiting.delete(m.id); clearTimeout(w.timer);
+      w.resolve(reply(m));
+    });
+    return (cmd, body, since, timeoutMs) => new Promise((resolve, reject) => {
+      const id = ++n;
+      const timer = setTimeout(() => { waiting.delete(id); reject(silent()); }, timeoutMs);
+      waiting.set(id, { resolve, timer });
+      wv.postMessage({ bb: 1, id, cmd, body: body === undefined ? null : body, since: since || 0 });
+    });
+  }
+  if (wk) {
+    // The message goes as JSON text and the answer comes back as JSON text (null: no answer).
+    return (cmd, body, since, timeoutMs) => new Promise((resolve, reject) => {
+      const id = ++n;
+      const timer = setTimeout(() => reject(silent()), timeoutMs);
+      wk.postMessage(JSON.stringify({ bb: 1, id, cmd, body: body === undefined ? null : body, since: since || 0 })).then((text) => {
+        clearTimeout(timer);
+        let m = null;
+        try { m = typeof text === 'string' ? JSON.parse(text) : null; } catch (e) { m = null; }
+        if (m && m.bb === 1 && m.id === id) resolve(reply(m)); else reject(silent());
+      }, () => { clearTimeout(timer); reject(silent()); });
+    });
+  }
+  return null;
+})();
+const drone = { url: '', ok: false, hostName: '', token: null, tokenUntil: 0, tokenProgram: '', since: 0, run: undefined, trail: [], statusTimer: null };
+async function shaHex(text) {              // the same number the app shows in «Взлёт?»
+  if (!(window.crypto && crypto.subtle)) return '';
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function dmsg(level, text) { const ul = $('dronemsgs'); ul.innerHTML = ''; addMsg(ul, level, text); }
+async function dcall(cmd, body, since) {
+  // The app’s «Взлёт?» dialog waits for the person (it closes itself after a minute). Every other
+  // command: the app gives the drone 12 s (Stop: three tries, 9 s), so the page waits a little longer.
+  const timeoutMs = cmd === 'mission_start' ? 120000 : 15000;
+  if (hostBridge) return hostBridge(cmd, body, since, timeoutMs);
+  const [method, path] = ROUTES[cmd];
+  const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    const opt = { method, signal: ctl.signal };
+    if (method === 'POST' && body !== undefined && body !== null) { opt.headers = { 'Content-Type': 'application/json' }; opt.body = JSON.stringify(body); }
+    const r = await fetch(drone.url + path + (cmd === 'mission_status' ? '?since=' + (since || 0) : ''), opt);
+    let data = {}; try { data = await r.json(); } catch (e) { /* empty body */ }
+    return { code: r.status, data };
+  } finally { clearTimeout(timer); }
+}
+function droneButtons() {
+  $('sendmap').disabled = $('dronecheck').disabled = !drone.ok;
+  const tokOk = drone.token && Date.now() < drone.tokenUntil && drone.tokenProgram === code.value;
+  const boxes = $('c_battery').checked && $('c_rc').checked && $('c_people').checked;
+  $('takeoff').disabled = !(drone.ok && tokOk && boxes);
+  $('tokstate').textContent = tokOk ? 'permission valid for ' + Math.round((drone.tokenUntil - Date.now()) / 1000) + ' s more' : (drone.token ? 'permission expired or the program changed: check again' : '');
+}
+setInterval(droneButtons, 1000);
+['c_battery', 'c_rc', 'c_people'].forEach(id => $(id).onchange = droneButtons);
+async function droneConnect() {
+  try {
+    if (hostBridge) {
+      const h = await hostBridge('hello', null, 0, 5000);
+      if (h.code !== 200 || !h.data.connected) { drone.ok = false; $('srvstate').textContent = 'the app is not connected to a drone'; droneButtons(); return; }
+      const nm = String(h.data.name || ''), ho = String(h.data.host || '');
+      drone.hostName = nm && nm !== ho ? nm + ' (' + ho + ')' : ho;
+    } else {
+      drone.url = $('srv').value.trim().replace(/\/+$/, '');
+    }
+    const r = await dcall('map_status');
+    drone.ok = r.code === 200;
+    const a = r.data.active;
+    const who = hostBridge ? 'drone ' + drone.hostName + ': ' : 'connected; ';
+    $('srvstate').textContent = drone.ok
+      ? who + 'on the drone ' + (a ? 'map "' + a.name + '", ' + a.n + ' markers, sha ' + String(a.sha).slice(0, 12) + (r.data.confirmed ? ', confirmed by the detector' : ', NOT confirmed by the detector') : 'no map')
+      : (hostBridge ? 'drone ' + drone.hostName + ': ' : '') + (r.data.error || 'error ' + r.code);
+  } catch (e) { drone.ok = false; $('srvstate').textContent = 'no connection: ' + e.message; }
+  droneButtons();
+  if (drone.ok) pollStatus();
+}
+$('srvconnect').onclick = droneConnect;
+$('sendmap').onclick = async () => {
+  if (!state.check || state.check.error || state.check.errors.length || state.fileErrors.length) { dmsg('error', 'Fix the map errors first.'); return; }
+  try {
+    const r = await dcall('map_put', { map: JSON.parse(mapJSON()) });
+    if (r.code === 200 && r.data.accepted) dmsg('info', 'The drone accepted the map: ' + r.data.summary + '. The detector confirmed the same sha.');
+    else dmsg('error', (r.data.error || 'error ' + r.code) + (r.data.check ? ': ' + r.data.check.errors.join('; ') : ''));
+    droneConnect();
+  } catch (e) { dmsg('error', 'no connection: ' + e.message); }
+};
+$('dronecheck').onclick = async () => {
+  try {
+    const prog = code.value;
+    const r = await dcall('mission_check', { program: prog });
+    if (r.code !== 200) { dmsg('error', r.data.error || 'error ' + r.code); return; }
+    const ul = $('dronemsgs'); ul.innerHTML = '';
+    for (const e of r.data.check.errors) addMsg(ul, 'error', e.text, e.line);
+    for (const w of r.data.check.warnings) addMsg(ul, 'warn', w.text, w.line);
+    if (r.data.error) addMsg(ul, 'error', r.data.error);
+    if (r.data.token) {
+      drone.token = r.data.token; drone.tokenProgram = prog; drone.tokenUntil = Date.now() + (r.data.token_ttl_s - 5) * 1000;
+      const sha = await shaHex(prog);
+      addMsg(ul, 'info', 'The drone checked the program' + (sha ? ' (sha ' + sha.slice(0, 12) + ')' : '') + '. Tick the three items and press “TAKEOFF…”.');
+    }
+    droneButtons();
+  } catch (e) { dmsg('error', 'no connection: ' + e.message); }
+};
+let takeoffArmTimer = null;
+$('takeoff').onclick = () => {
+  if (hostBridge) { startMission(); return; }       // the app asks «Взлёт?» in its own window
+  // standalone: the first click only shows the second, explicit button for 10 s
+  $('takeoff2').hidden = false; $('takeoff').disabled = true;
+  dmsg('warn', 'Really take off? Press “Yes, take off” within 10 s. RC in hand: CH8 stops.');
+  clearTimeout(takeoffArmTimer); takeoffArmTimer = setTimeout(() => { $('takeoff2').hidden = true; droneButtons(); }, 10000);
+};
+$('takeoff2').onclick = () => { clearTimeout(takeoffArmTimer); $('takeoff2').hidden = true; startMission(); };
+async function startMission() {
+  const confirm = { battery_multimeter: $('c_battery').checked, rc_in_hand_ch8: $('c_rc').checked, people_clear: $('c_people').checked, takeoff_clicked: true };
+  const tok = drone.token; drone.token = null;          // one token = one attempt
+  if (hostBridge) dmsg('warn', 'Confirm the takeoff in the app’s window. RC in hand: CH8 stops.');
+  try {
+    const r = await dcall('mission_start', { program: code.value, token: tok, confirm });
+    if (r.code === 200) {
+      dmsg('info', 'Mission started (' + r.data.run + '). STOP is always available.');
+      drone.trail = []; drone.since = 0; drone.run = r.data.run || null; $('liveevents').innerHTML = '';
+      ['c_battery', 'c_rc', 'c_people'].forEach(id => { $(id).checked = false; });   // every takeoff: confirm again
+    } else dmsg('error', r.data.error || 'error ' + r.code);
+  } catch (e) { dmsg('error', 'no connection: ' + e.message); }
+  droneButtons();
+}
+$('dronestop').onclick = async () => {    // always: no token, no checks
+  if (!hostBridge) drone.url = ($('srv').value.trim() || drone.url).replace(/\/+$/, '');
+  try {
+    const r = await dcall('mission_stop');
+    if (r.code === 200) dmsg('warn', 'STOP sent.');
+    else dmsg('error', 'STOP: ' + (r.data.error || 'error ' + r.code) + '. Stop with the RC (CH8).');
+  } catch (e) { dmsg('error', 'STOP did not get through: ' + e.message + '. Stop with the RC (CH8).'); }
+};
+let pollGen = 0;
+function pollStatus() {
+  clearTimeout(drone.statusTimer);
+  const gen = ++pollGen;                 // a second «Подключиться» must not start a second loop
+  const tick = async () => {
+    if (!drone.ok || gen !== pollGen) return;
+    try {
+      const r = await dcall('mission_status', undefined, drone.since);
+      if (r.code === 200) {
+        const ev = $('liveevents');
+        // Another run than the one shown (started from another PC, or the server restarted):
+        // its events are numbered from zero again, so start over.
+        const run = r.data.run || null, known = drone.run !== undefined;
+        const lastSeq = typeof r.data.last_seq === 'number' ? r.data.last_seq : Infinity;
+        if (run !== drone.run || lastSeq < drone.since) {
+          drone.run = run;
+          if (known || drone.since > 0) { drone.since = 0; drone.trail = []; ev.innerHTML = ''; draw(); r.data.events = []; }
+        }
+        for (const e of (r.data.events || [])) {
+          drone.since = Math.max(drone.since, e.seq || 0);
+          if (e.type === 'pos') { drone.trail.push(e); if (drone.trail.length > 3000) drone.trail.shift(); }
+          else if (e.type === 'event') addMsg(ev, e.level, (e.t !== undefined ? e.t.toFixed(1) + ' s: ' : '') + e.text, e.line);
+          else if (e.type === 'end') addMsg(ev, e.ok ? 'info' : 'error', 'End: ' + e.reason);
+          else if (e.type === 'preflight') addMsg(ev, 'info', 'Pre-flight check passed (map ' + String(e.map_sha).slice(0, 12) + ')');
+          else if (e.type === 'log') addMsg(ev, 'info', (e.t !== undefined ? e.t.toFixed(1) + ' s: ' : '') + e.text);
+        }
+        if ((r.data.events || []).length) draw();
+      }
+    } catch (e) { /* keep polling */ }
+    if (gen === pollGen) drone.statusTimer = setTimeout(tick, 500);
+  };
+  tick();
+}
+if (CONFIG.embedded) {                   // inside the app: the app knows the drone, no address to type
+  $('srv').hidden = true; $('srvlabel').hidden = true; $('srvconnect').textContent = 'Refresh';
+  $('takeoff').textContent = 'TAKEOFF (the app will ask)';
+  setTimeout(droneConnect, 500);
+}
+
+// ---------- start ----------
+$('mapname').value = state.map.name;
+renderTable(); draw(); updateFieldNote();
+startPython();
+</script>
+</body>
+</html>

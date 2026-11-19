@@ -22,6 +22,7 @@ public static class IconGlyphs
 {
     public const string Dashboard     = "\uEC4A"; // gauge -> SpeedHigh
     public const string Entertainment = "\uEC4F"; // music.note -> MusicNote
+    public const string Flight        = "\uE709"; // airplane (the \u00AB\u041F\u043E\u043B\u0451\u0442\u00BB section: map, program, simulation)
     public const string Wifi          = "\uE701"; // wifi
     public const string Reconnect     = "\uE895"; // arrow.triangle.2.circlepath -> Sync
     public const string Rescan        = "\uE704"; // dot.radiowaves.left.and.right -> InternetSharing
