@@ -72,7 +72,7 @@ rclcpp_components_register_node(optical_flow
 add_executable(simple_offboard src/cpp/simple_offboard.cpp)
 ament_target_dependencies(simple_offboard
   rclcpp tf2 tf2_ros tf2_geometry_msgs
-  std_srvs geometry_msgs sensor_msgs mavros_msgs)
+  std_srvs std_msgs geometry_msgs sensor_msgs mavros_msgs)
 target_link_libraries(simple_offboard ${GeographicLib_LIBRARIES})
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(simple_offboard ${cpp_typesupport_target})
@@ -144,6 +144,7 @@ install(PROGRAMS
   src/python/camera_fix.py
   src/python/aruco_detect.py
   src/python/qos_relay.py
+  src/python/setpoint_freshness.py
   src/ros_mjpeg_server.py
   scripts/servo_rc.py
   scripts/wheel_rc.py
@@ -153,6 +154,82 @@ install(PROGRAMS
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY camera_info DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY www DESTINATION share/${PROJECT_NAME})
+
+#############
+## Testing ##
+#############
+
+# colcon build --packages-select bumblebee && colcon test --packages-select bumblebee
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_pytest REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
+  find_package(launch_testing_ament_cmake REQUIRED)
+
+  ament_add_pytest_test(test_test_safety test/test_test_safety.py TIMEOUT 30)
+  ament_add_pytest_test(test_setpoint_freshness_unit test/test_setpoint_freshness_unit.py TIMEOUT 30)
+  ament_add_pytest_test(test_mavros_scoped_config test/test_mavros_scoped_config.py TIMEOUT 30)
+  ament_add_pytest_test(test_setpoint_freshness_ros test/test_setpoint_freshness_ros.py TIMEOUT 150)
+
+  ament_add_pytest_test(test_auto_arm_interrupt test/test_auto_arm_interrupt.py TIMEOUT 30)
+  # P2: a Ctrl+C seen before navigate(auto_arm) returns is always a cancel
+  ament_add_pytest_test(test_auto_arm_late_cancel test/test_auto_arm_late_cancel.py TIMEOUT 30)
+  ament_add_pytest_test(test_rpc_latency test/test_rpc_latency.py TIMEOUT 120)
+  ament_add_pytest_test(test_fake_px4_model test/test_fake_px4_model.py TIMEOUT 30)
+  ament_add_pytest_test(test_drone_py_cancel_launch test/test_drone_py_cancel_launch.py TIMEOUT 150)
+
+  # drone.py flight guards (D1-D3); ROS is faked, no rclpy needed
+  ament_add_pytest_test(test_drone_flight_guards test/test_drone_flight_guards.py TIMEOUT 120)
+
+  # Navigate segment math (S1): compiles simple_offboard.cpp itself without main()
+  ament_add_gtest(test_simple_offboard test/test_simple_offboard.cpp)
+  target_include_directories(test_simple_offboard PRIVATE src/cpp)
+  ament_target_dependencies(test_simple_offboard
+    rclcpp tf2 tf2_ros tf2_geometry_msgs
+    std_srvs geometry_msgs sensor_msgs mavros_msgs)
+  target_link_libraries(test_simple_offboard ${GeographicLib_LIBRARIES} ${cpp_typesupport_target})
+
+  # The real simple_offboard binary against a fake MAVROS (S1-S5). Runs in its
+  # own ROS_DOMAIN_ID so parallel test runs on one machine cannot cross-talk.
+  add_launch_test(test/test_land_pilot_launch.py TARGET test_land_pilot_launch TIMEOUT 120)
+  add_launch_test(test/test_simple_offboard_px4model_launch.py
+    TARGET test_simple_offboard_px4model_launch
+    TIMEOUT 300
+    RUNNER "${ament_cmake_ros_DIR}/run_test_isolated.py")
+  add_launch_test(test/test_simple_offboard_launch.py
+    TARGET test_simple_offboard_launch
+    TIMEOUT 240
+    RUNNER "${ament_cmake_ros_DIR}/run_test_isolated.py")
+  # The same binary under use_sim_time with a fake /clock at 25% real time (the
+  # Gazebo sim); its own ROS_DOMAIN_ID keeps that /clock away from other tests
+  add_launch_test(test/test_simple_offboard_simtime_launch.py
+    TARGET test_simple_offboard_simtime_launch
+    TIMEOUT 180
+    RUNNER "${ament_cmake_ros_DIR}/run_test_isolated.py")
+
+  # vpe_fix H2 round 2 (port-rc3): code pins, unknown write outcome, no extra in-air write. Offline (ROS stubbed, no
+  # DDS); byte copies of the round-2 hand-over, see test/vpe_fix_h2_r2/README.md
+  set(_H2R2 ${CMAKE_CURRENT_SOURCE_DIR}/test/vpe_fix_h2_r2)
+  set(_VPE ${CMAKE_CURRENT_SOURCE_DIR}/src/python/vpe_fix.py)
+  # r2h (T44): code pins round 3. The round-2 pins pin r2g's vpe_fix (byte copy ref/vpe_fix_r2g_3b8a93d4.py), so
+  # the chain c33 -> P1 -> H2 -> r2g stays pinned; test_pins_r3 pins src/python/vpe_fix.py (r2h) against that
+  # copy: only the declared B1/B2 parts differ.
+  ament_add_pytest_test(test_vpe_fix_h2_r2_pins test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py TIMEOUT 60
+    ENV PIN_TARGET=${_H2R2}/ref/vpe_fix_r2g_3b8a93d4.py PIN_C33=${_H2R2}/ref/vpe_fix_c33_product.py
+        PIN_P1=${_H2R2}/ref/vpe_fix_7f107882.py PIN_HARNESS=${_H2R2}/tests_existing/harness)
+  # r2i (T46): round 3 pins the r2h copy (ref/vpe_fix_r2h_66d806ba.py) against the r2g copy; round 4 pins
+  # src/python/vpe_fix.py (r2i: vision in AUTO.LAND) against the r2h copy.
+  ament_add_pytest_test(test_vpe_fix_pins_r3 test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py TIMEOUT 60
+    ENV PIN_TARGET=${_H2R2}/ref/vpe_fix_r2h_66d806ba.py PIN_R2G=${_H2R2}/ref/vpe_fix_r2g_3b8a93d4.py
+        PIN_HARNESS=${_H2R2}/tests_existing/harness)
+  ament_add_pytest_test(test_vpe_fix_pins_r4 test/vpe_fix_h2_r2/tests_r4/test_pins_r4.py TIMEOUT 60
+    ENV PIN_TARGET=${_VPE} PIN_R2H=${_H2R2}/ref/vpe_fix_r2h_66d806ba.py PIN_HARNESS=${_H2R2}/tests_existing/harness)
+  ament_add_pytest_test(test_vpe_fix_h2_r2 test/vpe_fix_h2_r2/tests_r2/test_h2_r2.py TIMEOUT 120
+    ENV H2_TARGET=${_VPE} H2_CONTROL=${_H2R2}/ref/vpe_fix_7f107882.py H2_EVAL=${_H2R2}/eval
+        H2_OUT=${CMAKE_CURRENT_BINARY_DIR}/vpe_fix_h2_r2_out/h2 H2_REAL_S1=${_H2R2}/real_s1)
+  ament_add_pytest_test(test_vpe_fix_h2_r2_in_air test/vpe_fix_h2_r2/tests_r2/test_in_air_writes.py TIMEOUT 120
+    ENV H2_TARGET=${_VPE} H2_CONTROL=${_H2R2}/ref/vpe_fix_7f107882.py H2_OUT=${CMAKE_CURRENT_BINARY_DIR}/vpe_fix_h2_r2_out/air)
+endif()
 
 ament_export_dependencies(rosidl_default_runtime)
 ament_package()

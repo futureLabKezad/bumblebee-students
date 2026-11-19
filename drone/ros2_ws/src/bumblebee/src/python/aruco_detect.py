@@ -29,6 +29,7 @@ Publishes:
 """
 
 import collections
+import time
 import math
 import numpy as np
 import cv2
@@ -238,6 +239,7 @@ class ArucoDetectNode(Node):
         self.full_rate_when_armed = bool(self.get_parameter('full_rate_when_armed').value)
         self._fcu_mode = ''
         self._fcu_armed = False
+        self._wake_until = 0.0  # F1: monotonic time until which a preflight wake keeps detection on
         self._image_sub = None      # created/destroyed by _apply_detection_gate
         self._img_qos = None        # stored so the sub can be recreated
         self.map_frame_id = self.get_parameter('map_frame_id').value
@@ -523,6 +525,9 @@ class ArucoDetectNode(Node):
                 durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
             )
             self.create_subscription(State, '/mavros/state', self._state_cb, state_qos)
+            # F1 (09.11.2026): drone.check_aruco() publishes True here while it
+            # waits for markers before arming; each message keeps detection on 5 s.
+            self.create_subscription(Bool, '/aruco_detect/wake', self._wake_cb, 10)
             self.create_timer(0.2, self._apply_detection_gate)
 
         self.get_logger().info(
@@ -534,9 +539,17 @@ class ArucoDetectNode(Node):
         self._fcu_mode = str(msg.mode)
         self._fcu_armed = bool(msg.armed)
 
+    WAKE_HOLD_S = 5.0
+
+    def _wake_cb(self, msg):
+        if bool(msg.data):
+            self._wake_until = time.monotonic() + self.WAKE_HOLD_S
+
     def _detect_full_rate(self):
         """True when detection is warranted (autonomous mission armed/OFFBOARD)."""
         if not self.gate_by_flight_state:
+            return True
+        if time.monotonic() < self._wake_until:
             return True
         if self._fcu_mode == 'OFFBOARD':
             return True

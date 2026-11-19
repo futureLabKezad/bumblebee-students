@@ -17,9 +17,11 @@ Main Bumblebee launch file (ROS 2 Jazzy)
 Replaces bumblebee.launch (ROS 1 Noetic)
 """
 import os
+import importlib.util
+from pathlib import Path
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, TimerAction
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, TimerAction, OpaqueFunction
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource, AnyLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression, EnvironmentVariable
@@ -27,11 +29,21 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
-def _fcu_url_override():
-    """fcu_url found by scripts/fcu_detect.py (start_bumblebee.sh exports it as
-    BB_FCU_URL); without it MAVROS uses the one in mavros_params.yaml."""
-    url = os.environ.get('BB_FCU_URL', '').strip()
-    return [{'fcu_url': url}] if url else []
+def _mavros_candidate(context):
+    # Read the owner's current YAML without modifying it. A malformed or
+    # conflicting layout aborts launch before any connection is established.
+    helper_path = Path(__file__).with_name('mavros_scoped_config.py')
+    spec = importlib.util.spec_from_file_location('mavros_scoped_candidate', helper_path)
+    helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helper)
+    config = helper.write_scoped_config(
+        LaunchConfiguration('mavros_params_path').perform(context),
+        fcu_url=os.environ.get('BB_FCU_URL', '').strip() or None,
+        tgt_system=int(LaunchConfiguration('fcu_sys_id').perform(context)))
+    return [Node(package='mavros', executable='mavros_node', output='screen',
+                 respawn=True, respawn_delay=5.0, parameters=[config],
+                 arguments=helper.MAVROS_ARGUMENTS,
+                 remappings=helper.MAVROS_REMAPPINGS)]
 
 
 def generate_launch_description():
@@ -41,6 +53,7 @@ def generate_launch_description():
                               description='FCU connection type: uart, usb, tcp, udp, sitl, hitl'),
         DeclareLaunchArgument('fcu_ip', default_value='127.0.0.1'),
         DeclareLaunchArgument('fcu_sys_id', default_value='1'),
+        DeclareLaunchArgument('mavros_params_path', default_value='/home/lb/mavros_params.yaml'),
         DeclareLaunchArgument('gcs_bridge', default_value='tcp'),
         DeclareLaunchArgument('web_video_server', default_value='true'),
         DeclareLaunchArgument('rosbridge', default_value='true'),
@@ -68,18 +81,8 @@ def generate_launch_description():
     fcu_sys_id = LaunchConfiguration('fcu_sys_id')
 
     # ── MAVROS ──────────────────────────────────────────────────────────────
-    mavros_node = Node(
-        package='mavros',
-        executable='mavros_node',
-        name='mavros',
-        output='screen',
-        respawn=True,
-        respawn_delay=5.0,
-        parameters=[
-            '/home/lb/mavros_params.yaml',
-            {'target_system_id': fcu_sys_id},
-        ] + _fcu_url_override(),
-    )
+    # No global __node rename: each flight plugin keeps its own namespace.
+    mavros_node = OpaqueFunction(function=_mavros_candidate)
 
     # ── SIMPLE OFFBOARD ─────────────────────────────────────────────────────
     simple_offboard = Node(
@@ -94,15 +97,32 @@ def generate_launch_description():
             'setpoint_smooth_alpha': 0.5,  # 2026-06-05: REVERTED to original
         }],
         remappings=[
-            # MAVROS 2.x publishes local_position plugin topics under /mavros/mavros/
+            # Explicit legacy aliases retained for unchanged SDK/relay consumers.
             ('/mavros/local_position/pose', '/mavros/mavros/pose'),
             ('/mavros/local_position/velocity_body', '/mavros/mavros/velocity_body'),
-            # MAVROS 2.x: arming service moved to plugin container
+            # The MAVROS cmd plugin receives an explicit service alias.
             ('/mavros/cmd/arming', '/mavros/mavros/arming'),
-            # MAVROS 2.x: setpoint plugins subscribe under /mavros/mavros/
-            ('/mavros/setpoint_position/local', '/mavros/mavros/local'),
-            ('/mavros/setpoint_attitude/cmd_vel', '/mavros/mavros/cmd_vel'),
-            ('/mavros/setpoint_attitude/thrust', '/mavros/mavros/thrust'),
+            # All flight commands cross the independent stamp filter before MAVROS.
+            ('/mavros/setpoint_position/local', '/setpoint_freshness/input/position'),
+            ('/mavros/setpoint_raw/local', '/setpoint_freshness/input/position_raw'),
+            ('/mavros/setpoint_attitude/attitude', '/setpoint_freshness/input/attitude'),
+            ('/mavros/setpoint_raw/attitude', '/setpoint_freshness/input/attitude_raw'),
+            ('/mavros/setpoint_attitude/cmd_vel', '/setpoint_freshness/input/rates'),
+            ('/mavros/setpoint_attitude/thrust', '/setpoint_freshness/input/thrust'),
+        ],
+    )
+
+    # Independent consumer; failure ends the stream, with no automatic respawn.
+    setpoint_freshness = Node(
+        package='bumblebee', executable='setpoint_freshness.py', name='setpoint_freshness',
+        output='screen', respawn=False,
+        remappings=[
+            ('~/output/position', '/mavros/setpoint_position/local'),
+            ('~/output/position_raw', '/mavros/setpoint_raw/local'),
+            ('~/output/attitude', '/mavros/setpoint_attitude/attitude'),
+            ('~/output/attitude_raw', '/mavros/setpoint_raw/attitude'),
+            ('~/output/rates', '/mavros/setpoint_attitude/cmd_vel'),
+            ('~/output/thrust', '/mavros/setpoint_attitude/thrust'),
         ],
     )
 
@@ -250,7 +270,8 @@ def generate_launch_description():
         executable='static_transform_publisher',
         name='main_camera_frame',
         # down + backward orientation
-        arguments=['0.05', '0', '-0.07', '-1.5707963', '0', '3.1415926',
+        # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
+        arguments=['0.081', '0', '-0.034', '-1.5707963', '0', '3.1415926',
                    'base_link', 'main_camera_optical'],
     )
 
@@ -258,7 +279,8 @@ def generate_launch_description():
         package='tf2_ros',
         executable='static_transform_publisher',
         name='second_camera_frame',
-        arguments=['0.05', '0', '0.05', '-1.5707963', '0', '0',
+        # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
+        arguments=['0.113', '0', '-0.002', '-1.5707963', '0', '0',
                    'base_link', 'second_camera_optical'],
     )
 
@@ -369,6 +391,7 @@ def generate_launch_description():
     return LaunchDescription(args + [
         mavros_node,
         simple_offboard,
+        setpoint_freshness,
         qos_relay,
         main_camera,
         main_camera_fix,

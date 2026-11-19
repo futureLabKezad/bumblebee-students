@@ -34,6 +34,15 @@
   <depend>rcl_interfaces</depend>
   <depend>python3-lxml</depend>
   <depend>python3-pymavlink</depend>
+  <exec_depend>python3-yaml</exec_depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>ament_cmake_ros</test_depend>
+  <test_depend>launch_testing_ament_cmake</test_depend>
+  <test_depend>launch_testing</test_depend>
+  <test_depend>launch_ros</test_depend>
+  <depend>rosgraph_msgs</depend>
 
   <member_of_group>rosidl_interface_packages</member_of_group>
 

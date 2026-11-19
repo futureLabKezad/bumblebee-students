@@ -1,0 +1,66 @@
+T1: записей 5, строка (c) пришла в 5
+=== 2026-10-30 11:13:07 T5а (дрон разоружён)
+/mavros/state: connected=true armed=false mode=STABILIZED
+--- v1 T5а шаг 2 по решению владельца 29.10 (вместо строки PR): в кэше MAVROS все 1107 имён PX4 (раз в 1 с, до 120 с; вывод и в /home/lb/bench_20261029_s1/t5a_pcache.txt)
+PCACHE start 11:13:12.7 (1793344392.711): node /mavros/mavros, reference 1107 names (params_before.json (part 0a) sha256 4e62112e26492303...), _HASH_CHECK not counted; ListParameters once per 1 s, at most 120 s; no ParamPull
+PCACHE +0.0 s 11:13:12.7 count=?/1107 service /mavros/mavros/list_parameters not available
+PCACHE +1.0 s 11:13:13.7 count=1107/1107 answer in 0.01 s: 1108 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE polls 2, answers 1
+PCACHE_PREV_AT=none
+PCACHE_FULL_AT=1793344393.721
+PCACHE_RESULT=FULL count=1107/1107 at 11:13:13.7, 1.0 s after the start; already full at the first answer (the time it became full is not known)
+--- v1 T5а шаг 1: «да» по Р4 дано 26.10 (MPC_TKO_SPEED = 0.3, только если живой MPC_Z_VEL_ALL < 0; старое значение записать заранее)
+    оба значения — из чтения шага 1 этой сессии (свежие события PX4; параметры PX4 с тех пор никто не писал).
+    Нового force pull здесь нет: он заново начал бы список параметров MAVROS, и условие шага 2 снова не выполнено.
+шаг 1 (/home/lb/bench_20261029_s1/params_before_events.yaml): MPC_TKO_SPEED = 0.800000011920929 (старое, в протокол), MPC_Z_VEL_ALL = -3.0
+--- текущее значение в кэше MAVROS (команда v1 T5а шаг 6, без force pull): ros2 param get /mavros/mavros MPC_TKO_SPEED
+Double value is: 0.800000011920929
+bag_T5a: запись идёт (/home/lb/bench_20261029_s1/bag_T5a)
+--- v1 T5а шаг 3: дрон разоружён? (сразу перед записью)
+/mavros/state: connected=true armed=false mode=STABILIZED
+--- v1 T5а шаг 3: временное значение (команда плана)
+waiting for service to become available...
+requester: making request: bumblebee.srv.SetParam_Request(param_id='MPC_TKO_SPEED', value=0.3, ptype=1, ttl_sec=0.0, persistent=False)
+
+response:
+bumblebee.srv.SetParam_Response(success=False, message='future timeout after 6.0s', original_value=nan)
+
+MAVROS не готов: по решению Claude 29.10 (вместо строки PR, как в шаге 2) жду, пока в кэше MAVROS будут все 1107 имён PX4 (раз в 1 с, до 120 с), и повторяю один раз (v1 T5а)
+PCACHE start 11:13:44.1 (1793344424.127): node /mavros/mavros, reference 1107 names (params_before.json (part 0a) sha256 4e62112e26492303...), _HASH_CHECK not counted; ListParameters once per 1 s, at most 120 s; no ParamPull
+PCACHE +0.0 s 11:13:44.1 count=?/1107 service /mavros/mavros/list_parameters not available
+PCACHE +10.0 s 11:13:54.1 count=?/1107 service /mavros/mavros/list_parameters not available
+PCACHE +20.0 s 11:14:04.1 count=?/1107 service /mavros/mavros/list_parameters not available
+PCACHE +30.1 s 11:14:14.1 count=?/1107 service /mavros/mavros/list_parameters not available
+PCACHE +39.1 s 11:14:23.2 count=0/1107 answer in 0.02 s: 0 names in the cache (_HASH_CHECK no, 0 not in the reference)
+PCACHE +49.1 s 11:14:33.2 count=0/1107 answer in 0.01 s: 0 names in the cache (_HASH_CHECK no, 0 not in the reference)
+PCACHE +52.1 s 11:14:36.2 count=71/1107 answer in 0.02 s: 72 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE +53.1 s 11:14:37.2 count=236/1107 answer in 0.03 s: 237 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE +54.1 s 11:14:38.2 count=399/1107 answer in 0.01 s: 400 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE +55.1 s 11:14:39.2 count=556/1107 answer in 0.01 s: 557 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE +56.1 s 11:14:40.2 count=713/1107 answer in 0.02 s: 714 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE +57.1 s 11:14:41.2 count=888/1107 answer in 0.01 s: 889 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE +58.1 s 11:14:42.2 count=1033/1107 answer in 0.02 s: 1034 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE +59.1 s 11:14:43.2 count=1064/1107 answer in 0.01 s: 1065 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE +60.1 s 11:14:44.2 count=1107/1107 answer in 0.00 s: 1108 names in the cache (_HASH_CHECK yes, 0 not in the reference)
+PCACHE polls 61, answers 22
+PCACHE_PREV_AT=1793344483.199
+PCACHE_FULL_AT=1793344484.203
+PCACHE_RESULT=FULL count=1107/1107 at 11:14:44.2, 60.1 s after the start; became full between 11:14:43.1 and 11:14:44.2
+--- v1 T5а шаг 3: дрон разоружён? (сразу перед записью)
+/mavros/state: connected=true armed=false mode=STABILIZED
+--- v1 T5а шаг 3: временное значение (команда плана)
+waiting for service to become available...
+requester: making request: bumblebee.srv.SetParam_Request(param_id='MPC_TKO_SPEED', value=0.3, ptype=1, ttl_sec=0.0, persistent=False)
+
+response:
+bumblebee.srv.SetParam_Response(success=True, message='noop: already 0.3', original_value=0.30000001192092896)
+
+bag_T5a: запись остановлена
+Duration:          90.732548999s
+Messages:          217
+Topic information: Topic: /mavros/mavros/pose_cov | Type: geometry_msgs/msg/PoseWithCovarianceStamped | Count: 0 | Serialization Format: cdr
+                   Topic: /mavros/state | Type: mavros_msgs/msg/State | Count: 44 | Serialization Format: cdr
+                   Topic: /rosout | Type: rcl_interfaces/msg/Log | Count: 173 | Serialization Format: cdr
+=== СТОП: noop: значение уже такое. Другое значение — только с Claude (Р4)
+=== Дальше ничего не делать. Скажите Claude.
+STOP: the step did not end with OK. NO reboot. Do not go on. Read the lines above. Tell Claude. 

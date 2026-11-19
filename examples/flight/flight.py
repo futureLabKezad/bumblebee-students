@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-flight.py -- single- or multi-marker ArUco preflight, takeoff to 0.8m, hover, land.
+flight.py -- single- or multi-marker ArUco preflight, takeoff to 0.9m, hover, land.
 
 Preflight gates:
   1. >=1 ArUco marker visible.
@@ -38,36 +38,28 @@ import drone
 import flight_profile as _fp
 
 PROFILE_NAME = "INDOOR_ARUCO_SLOW"
-PROFILE_MIN_RATIO = 0.9   # refuse takeoff if gate applied fewer than this
 
 # Register Ctrl+C handler for graceful landing on interrupt
 drone.enable_safe_interrupt()
 
-# Apply slow-speed profile through vpe_fix gate. Every MPC override reverts
-# automatically on ARMED->DISARMED, so the drone "borrows" these settings only
-# for the duration of this script. Strict check: if the gate is degraded
-# (cache cold, MAVROS slow, FCU silent) it silently returns 0 and the drone
-# would otherwise fly on default PX4 MPC (aggressive). Refuse takeoff in that
-# case instead of silently flying with the wrong tuning.
-expected = len(_fp.PROFILES[PROFILE_NAME])
+# Check (read only) that PX4 already holds the slow-speed profile. Since
+# 09.11.2026 nothing is written to PX4 (a write is saved to PX4 flash and
+# could stay after a crash): the owner sets these values once in QGC. Refuse
+# takeoff if any value differs or cannot be read.
 try:
-    applied = drone.apply_flight_profile(PROFILE_NAME)
+    matched, expected, problems = drone.check_flight_profile(PROFILE_NAME)
 except Exception as e:
-    print("PREFLIGHT FAIL: apply_flight_profile raised: %s" % e)
+    print("PREFLIGHT FAIL: check_flight_profile raised: %s" % e)
     drone._shutdown()
     sys.exit(3)
 
-if applied is None:
-    applied = 0
-threshold = int(math.ceil(expected * PROFILE_MIN_RATIO))
-if applied < threshold:
-    print("PREFLIGHT FAIL: only %d/%d profile params applied (<%d%%)."
-          " Refusing takeoff -- PX4 would fly on defaults, not %s."
-          " Check /tmp/bumblebee.log for vpe_fix gate state."
-          % (applied, expected, int(PROFILE_MIN_RATIO * 100), PROFILE_NAME))
+if matched < expected:
+    print("PREFLIGHT FAIL: only %d/%d PX4 params match profile %s (%s)."
+          " Refusing takeoff. Set these values in QGC (owner card)."
+          % (matched, expected, PROFILE_NAME, '; '.join(problems)))
     drone._shutdown()
     sys.exit(3)
-print("Profile gate OK: %d/%d %s params applied" % (applied, expected, PROFILE_NAME))
+print("Profile check OK: %d/%d %s params match" % (matched, expected, PROFILE_NAME))
 
 # Preflight gate 1 -- at least one marker visible.
 try:
@@ -112,15 +104,15 @@ start_x, start_y = start.x, start.y
 
 try:
     # Lower than 1.0 m -- at this altitude marker 0 (0.19m) stays in frame.
-    drone.takeoff(height=1.5, speed=0.4)
+    drone.takeoff(height=0.9, speed=0.4)
 
     # Hover with vision watchdog: bail to safe_land only if vision goes
     # completely silent (no markers at all) for >3s.
     deadline = time.time() + 5.0
     vision_silent_since = None
     while time.time() < deadline and not drone.should_land:
-        m_age = drone._markers_used_age()
-        if drone._aruco_markers_used == 0 or m_age > 1.0:
+        # r2f (T35): silent = no NEW vpe_fix pose for >1 s (raw detector frames no longer count)
+        if drone.vision_pose_age() > 1.0:
             if vision_silent_since is None:
                 vision_silent_since = time.time()
             elif time.time() - vision_silent_since > 3.0:

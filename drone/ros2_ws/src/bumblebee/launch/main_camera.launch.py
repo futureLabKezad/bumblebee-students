@@ -42,12 +42,14 @@ def generate_launch_description():
         DeclareLaunchArgument('simulator', default_value='false'),
 
         # TF: down + backward (default)
+        # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
         Node(package='tf2_ros', executable='static_transform_publisher', name='main_camera_frame',
-             arguments=['0.05', '0', '-0.07', '-1.5707963', '0', '3.1415926', 'base_link', 'main_camera_optical'],
+             arguments=['0.081', '0', '-0.034', '-1.5707963', '0', '3.1415926', 'base_link', 'main_camera_optical'],
              condition=IfCondition(PythonExpression(["'", dir_z, "' == 'down' and '", dir_y, "' == 'backward'"]))),
         # TF: down + forward
+        # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
         Node(package='tf2_ros', executable='static_transform_publisher', name='main_camera_frame',
-             arguments=['0.05', '0', '-0.07', '1.5707963', '0', '3.1415926', 'base_link', 'main_camera_optical'],
+             arguments=['0.081', '0', '-0.034', '1.5707963', '0', '3.1415926', 'base_link', 'main_camera_optical'],
              condition=IfCondition(PythonExpression(["'", dir_z, "' == 'down' and '", dir_y, "' == 'forward'"]))),
         # TF: up + backward
         Node(package='tf2_ros', executable='static_transform_publisher', name='main_camera_frame',

@@ -47,7 +47,9 @@ parameters of node /mavros/mavros).
                                      ONCE (first-write wins), then ParamSetV2.
   - Revert paths are point-precise (no MAV_CMD_PREFLIGHT_STORAGE reload):
       - on ARMED->DISARMED edge: ParamSetV2(original) for each non-persistent
-        override; persistent overrides are left in place;
+        override; persistent overrides are left in place. The edge is taken
+        only between States of a connected FCU (FCU STATE below); a
+        disconnected State is never a disarm;
       - on TTL fire: ParamSetV2(original) for that one param;
       - on shutdown / explicit /vpe_fix/revert_all: every override.
 
@@ -63,20 +65,60 @@ SAFETY
 The gate refuses EKF2_EV_CTRL=0 while armed. Toggling EV_CTRL=0
 mid-flight caused IMU-only dead-reckoning runaway on 2026-05-13.
 
-VPE PUBLISH LOGIC (unchanged)
-=============================
+UNKNOWN WRITE OUTCOME (H2, 2026-10-30, round 2)
+===============================================
+A failed ParamSetV2 call does not say whether PX4 took the value: future
+timeout, MAVROS gone or respawned mid-call, an exception, or success=False
+after MAVROS's own resends (bench session 1: MAVROS died on a param write,
+PX4 had applied it, the gate dropped the original and nothing restored it).
+Only "service not available" before every call means no request was sent,
+so PX4 surely did not change: then the first-write journal entry is dropped
+as before. After any other failure of a first write the entry is KEPT and
+marked unconfirmed:
+  - nothing but a write of its original removes it: the disarm edge,
+    revert_all, TTL or shutdown, as for any override (writing the original
+    to a PX4 that already holds it changes nothing). No cache value and no
+    /parameter_events update drops it, whatever PX4 seems to show;
+  - it is never written while armed: no TTL is armed for it in the air, and
+    a TTL, revert_all or shutdown that comes while armed leaves it for the
+    disarm edge. So the change adds no in-air ParamSet to 7f107882;
+  - a later noop request that finds it logs it again (information only);
+  - a later successful write of the same param makes it an ordinary
+    override (first-write original kept).
+
+VPE PUBLISH LOGIC
+=================
 Vision flow is gated by whether vpe_fix publishes /mavros/mavros/pose_cov.
 EKF2_EV_CTRL is not toggled in flight -- when the publish flag is False,
 the 30 Hz publish_timer emits nothing and PX4 EKF coasts on baro+IMU until
 fresh vision returns.
 
-  Publish = True when:
+  Publish = True when the FCU state is known (below) and:
     - Drone is DISARMED (pre-arm warm-up; quality ignored on the ground).
     - ARMED + OFFBOARD + (multi_marker_fresh OR single_marker_fresh).
+    - ARMED + AUTO.LAND + the same vision condition (r2i, owner 11.11: vision while landing).
 
   Publish = False when:
-    - ARMED in non-OFFBOARD mode.
-    - ARMED + OFFBOARD + vision bad. Baro is secondary altitude source.
+    - FCU state unknown, whatever the last known armed/mode.
+    - ARMED in any other mode (pilot: STABILIZED, ALTCTL, POSCTL, ...; other AUTO modes).
+    - ARMED + OFFBOARD/AUTO.LAND + vision bad. Baro is secondary altitude source.
+
+FCU STATE (P1/P1b fix, 2026-10-21)
+==================================
+armed/mode come only from a /mavros/state with connected=True whose header
+stamp is current (not zero, at most _STATE_STAMP_MAX_AGE old: an older one
+is a latched replay and is ignored). The FCU state is known while the last
+such State was received at most _STATE_STALE_TIMEOUT ago; otherwise the
+gate is closed:
+  - connected=False is MAVROS's placeholder (armed=False, mode='') at its
+    own start and on its conn_timeout, not PX4 data: it closes the gate at
+    once, keeps the last reported armed/mode, and is never a disarm (no
+    parameter revert in the air);
+  - no State for _STATE_STALE_TIMEOUT (MAVROS died or the FCU link went
+    silent): the gate is closed within one publish tick, so a respawned
+    MAVROS never passes the stream on for the old state.
+The gate is re-evaluated at once on every change of armed or mode and on
+the first State after an unknown period, not only on armed edges.
 
 OPERATOR NOTE
 =============
@@ -87,6 +129,7 @@ the gate reads PX4, writes only if it differs, and leaves it set.
 """
 
 import threading
+import time
 from collections import deque
 
 import rclpy
@@ -119,6 +162,35 @@ _QUALITY_MULTI_TIMEOUT  = 1.0
 _QUALITY_SINGLE_TIMEOUT = 1.5
 
 _GATE_HYSTERESIS = 0.5
+
+# r2h (B2): re-entry after a publish pause. PX4 EKF2 stops EV fusion after 0.4 s without a sample and on the
+# return resets its xy onto ONE sample (ev_pos_control.cpp startEvPosFusion); the first samples after a pause are
+# the medoid of the last _REENTRY_N accepted poses (none older than _POSE_TIMEOUT), for _REENTRY_HOLD seconds.
+_REENTRY_GAP  = 0.3
+_REENTRY_N    = 3
+_REENTRY_HOLD = 0.5
+# review M1: a slow detector (e.g. ~6 Hz, or empty frames) may not give _REENTRY_N poses within _POSE_TIMEOUT; then
+# the wait ends once the oldest fresh pose is _REENTRY_MAX_WAIT old and the medoid is taken of the poses at hand.
+_REENTRY_MAX_WAIT = 0.3
+
+# FCU-state knowledge for the VPE gate (P1/P1b fix, 2026-10-21); the numbers
+# are simple_offboard's. MAVROS publishes /mavros/state once per FCU heartbeat
+# (1 Hz; largest gap over 77 recorded SITL flights 1.24 s).
+#  - _STATE_STALE_TIMEOUT = state_watchdog_timeout: no connected State for
+#    longer -> armed/mode unknown, VPE stops. It rides out three lost
+#    heartbeats plus jitter (VPE is never cut while simple_offboard still
+#    streams setpoints) and fires before a respawned MAVROS (launch
+#    respawn_delay 5.0 s plus startup; its vision_pose plugin came up
+#    5.49-6.22 s after the last State in SITL S4) can pass the stream on.
+#    It must stay below the MAVROS respawn_delay.
+#  - _STATE_STAMP_MAX_AGE = state_timeout: a connected State stamped longer
+#    ago (or stamped zero) is an old latched replay and is ignored.
+#  - _STATE_WATCHDOG_PERIOD: an open gate is closed this soon after the State
+#    goes stale even if publish_timer does not reach its own check (the 1 Hz
+#    _gate_tick alone could be up to 1 s late).
+_STATE_STALE_TIMEOUT   = 4.5
+_STATE_STAMP_MAX_AGE   = 3.0
+_STATE_WATCHDOG_PERIOD = 0.1
 
 # Floor guard widened 2026-06-03 after camera recalibration shifted the
 # PnP-derived z of the static "drone on the floor" setup from +0.075 m to
@@ -159,6 +231,10 @@ _CACHE_HOT_MIN_TIMEOUT = 200  # if timeout fires with at least this many params,
 # an internal undeclare/redeclare cycle on the first SetParamV2.
 _PARAM_SET_TIMEOUT = 6.0
 
+# _param_set_once result when no ParamSetV2 request was sent (the only
+# failure after which PX4 surely did not change; UNKNOWN WRITE OUTCOME).
+_SET_NOT_SENT = 'service /mavros/mavros/set not available'
+
 # rcl_interfaces ParameterType constants used in ParameterValue.type
 _RCL_PT_BOOL    = 1
 _RCL_PT_INTEGER = 2
@@ -168,13 +244,18 @@ _MAVROS_NODE = '/mavros/mavros'
 
 
 class _Override:
-    __slots__ = ('original', 'ptype', 'persistent', 'ttl_timer')
+    __slots__ = ('original', 'ptype', 'persistent', 'ttl_timer',
+                 'unconfirmed', 'requested')
 
     def __init__(self, original, ptype, persistent, ttl_timer):
         self.original = original
         self.ptype = ptype
         self.persistent = persistent
         self.ttl_timer = ttl_timer
+        # H2: the first write's outcome is unknown (UNKNOWN WRITE OUTCOME);
+        # requested = the value of that write.
+        self.unconfirmed = False
+        self.requested = None
 
 
 class VpeFix(Node):
@@ -229,6 +310,20 @@ class VpeFix(Node):
         self.soft_mode = False
         self.armed = False
         self.in_offboard = False
+        # r2i (T46): the last reported mode was AUTO.LAND (vision publishes there too, owner 11.11)
+        self.in_auto_land = False
+        # FCU-state knowledge (FCU STATE in the module docstring): armed and
+        # in_offboard are the last values PX4 reported in a connected, current
+        # State; fcu_connected is the connected flag of the last State taken;
+        # _state_rx_ns its receipt time on _state_clock_ns() (None: no
+        # connected State yet); _state_ignored counts old latched replays.
+        # The clock object is taken once here, so later get_clock()
+        # substitutions (SITL wrappers) cannot change these ages.
+        self.fcu_connected = False
+        self._state_rx_ns = None
+        self._state_ignored = 0
+        self._last_state_ignored_log = None
+        self._state_clock = self.get_clock()
         self._last_soft_suppress_log = 0.0
 
         # Self-healing reject counter (z-jump self-lock incident 2026-05-26).
@@ -240,7 +335,14 @@ class VpeFix(Node):
         self.markers_used = 0
         self.markers_used_time = None
         self.markers_used_multi_time = None
+        # r2h (B1): last time markers_used was >= 1 (an empty frame publishes 0 and must not end "fresh")
+        self.markers_pos_time = None
         self.yaw_locked = False
+        # r2h (B2): accepted poses (receipt time, pose) and the re-entry state after a publish pause
+        self._recent_poses = deque(maxlen=_REENTRY_N)
+        self._last_publish_time = None
+        self._reentry_wait = False
+        self._reentry_until = None
 
         self._last_vision_ok_time = None
 
@@ -264,6 +366,8 @@ class VpeFix(Node):
             self.yaw_locked_callback, 10)
         self.create_timer(1.0 / 30.0, self.publish_timer)
         self.create_timer(1.0, self._gate_tick)
+        # P1b: closes an open gate once the FCU state is unknown (below).
+        self.create_timer(_STATE_WATCHDOG_PERIOD, self._state_watchdog_tick)
 
         # Cache warm-up: trigger ParamPull(force=true) once after MAVROS comes
         # up. Single-shot timer cancels itself the first time it fires.
@@ -287,9 +391,10 @@ class VpeFix(Node):
             callback_group=self._cb_grp_handlers)
 
         self.get_logger().info(
-            'vpe_fix ready: VPE gate=DISARMED|(OFFBOARD&vision_ok); '
+            'vpe_fix ready: VPE gate=FCU_state_known&'
+            '(DISARMED|(OFFBOARD&vision_ok)), state timeout %.1fs; '
             'PX4-param gate exposes /vpe_fix/set_param (per-param restore, '
-            'no EEPROM reload)')
+            'no EEPROM reload)' % _STATE_STALE_TIMEOUT)
 
     # ==================================================================
     # PX4 param cache (fed by /parameter_events)
@@ -422,6 +527,18 @@ class VpeFix(Node):
             response.success = True
             response.message = 'noop: already %g' % cur_value
             response.original_value = float(cur_value)
+            # H2: an override with an unknown write outcome stays in the
+            # journal whatever the cache shows (UNKNOWN WRITE OUTCOME): log.
+            with self._overrides_lock:
+                kept = self._overrides.get(name)
+                if kept is not None and not kept.unconfirmed:
+                    kept = None
+            if kept is not None:
+                self.get_logger().info(
+                    'vpe_fix gate: noop %s=%g, override with unknown write '
+                    'outcome kept UNCONFIRMED (orig=%g, requested %g): '
+                    'restored on disarm, revert_all or TTL'
+                    % (name, value, kept.original, kept.requested))
             return response
 
         # First-write wins: only record original on the FIRST override of a
@@ -445,15 +562,39 @@ class VpeFix(Node):
 
         ok, msg = self._param_set_with_retry(name, value, ptype)
         if not ok:
-            if is_first_write:
+            if is_first_write and msg == _SET_NOT_SENT:
+                # No request was sent: PX4 surely unchanged, drop the entry.
                 with self._overrides_lock:
                     self._overrides.pop(name, None)
+                self.get_logger().warn(
+                    'vpe_fix gate: set %s=%g failed, not sent (%s); PX4 '
+                    'unchanged, no override kept' % (name, value, msg))
+            elif is_first_write:
+                # H2: outcome unknown, PX4 may hold the value. Keep the
+                # original, unconfirmed, until a write of it (UNKNOWN WRITE
+                # OUTCOME); put it back if a revert took it during the call.
+                with self._overrides_lock:
+                    entry.unconfirmed = True
+                    entry.requested = value
+                    self._overrides.setdefault(name, entry)
+                self.get_logger().warn(
+                    'vpe_fix gate: set %s=%g failed, outcome unknown (%s); '
+                    'override kept UNCONFIRMED (orig=%g): restored on disarm, '
+                    'revert_all or TTL, never while armed'
+                    % (name, value, msg, original))
+                # No TTL armed in the air (no in-air write beyond 7f107882).
+                if ttl > 0 and not persistent and not self.armed:
+                    self._arm_ttl(name, ttl)
             response.success = False
             response.message = msg
             response.original_value = float('nan')
             return response
 
         self._update_cache_from_write(name, value, ptype)
+        with self._overrides_lock:
+            if name in self._overrides:
+                # H2: a successful write is a known outcome.
+                self._overrides[name].unconfirmed = False
 
         if ttl > 0 and not persistent:
             self._arm_ttl(name, ttl)
@@ -500,10 +641,13 @@ class VpeFix(Node):
             % (name, value, msg))
         # Short pause lets MAVROS's queue settle.
         threading.Event().wait(0.3)
-        ok, msg = self._param_set_once(name, value, ptype, timeout=_PARAM_SET_TIMEOUT)
+        ok, msg2 = self._param_set_once(name, value, ptype, timeout=_PARAM_SET_TIMEOUT)
         if ok:
             return True, 'ok on retry'
-        return False, msg
+        if msg2 == _SET_NOT_SENT and msg != _SET_NOT_SENT:
+            # H2: attempt 1 may have landed; keep that in the result.
+            msg2 = '%s (attempt 1: %s)' % (msg2, msg)
+        return False, msg2
 
     def _param_set_once(self, name, value, ptype, timeout=_PARAM_SET_TIMEOUT):
         if not self.param_set_client.wait_for_service(timeout_sec=timeout):
@@ -560,8 +704,26 @@ class VpeFix(Node):
     def _restore_one(self, name, reason='manual'):
         """Restore a single param to its captured original via ParamSetV2."""
         with self._overrides_lock:
-            entry = self._overrides.pop(name, None)
+            entry = self._overrides.get(name)
+            # H2: an unconfirmed original is never written while armed (no
+            # in-air write beyond 7f107882): kept for the disarm edge.
+            held = entry is not None and entry.unconfirmed and self.armed
+            if held:
+                timer, entry.ttl_timer = entry.ttl_timer, None
+            else:
+                self._overrides.pop(name, None)
         if entry is None:
+            return
+        if held:
+            if timer is not None:
+                try:
+                    timer.cancel()
+                except Exception:
+                    pass
+            self.get_logger().warn(
+                'vpe_fix gate: restore of %s=%g (%s) held: write outcome '
+                'unknown and FCU armed, restored on disarm'
+                % (name, entry.original, reason))
             return
         if entry.ttl_timer is not None:
             try:
@@ -572,8 +734,9 @@ class VpeFix(Node):
         if ok:
             self._update_cache_from_write(name, entry.original, entry.ptype)
             self.get_logger().info(
-                'vpe_fix gate: restored %s=%g (%s)'
-                % (name, entry.original, reason))
+                'vpe_fix gate: restored %s=%g (%s)%s'
+                % (name, entry.original, reason,
+                   '; was unconfirmed' if entry.unconfirmed else ''))
         else:
             self.get_logger().error(
                 'vpe_fix gate: FAILED to restore %s=%g (%s): %s'
@@ -603,7 +766,7 @@ class VpeFix(Node):
             self._restore_one(n, reason=reason)
 
     # ==================================================================
-    # VPE publish path (unchanged)
+    # VPE publish path
     # ==================================================================
 
     def _multi_marker_fresh(self):
@@ -613,27 +776,61 @@ class VpeFix(Node):
         return age <= _QUALITY_MULTI_TIMEOUT
 
     def _single_marker_fresh(self):
-        if self.markers_used_time is None or not self.yaw_locked or self.markers_used < 1:
+        # r2h (B1): >= 1 marker within the last _QUALITY_SINGLE_TIMEOUT, not "the last message was >= 1"
+        if self.markers_pos_time is None or not self.yaw_locked:
             return False
-        age = (self.get_clock().now() - self.markers_used_time).nanoseconds / 1e9
+        age = (self.get_clock().now() - self.markers_pos_time).nanoseconds / 1e9
         return age <= _QUALITY_SINGLE_TIMEOUT
 
     def _vision_quality_ok(self):
         return self._multi_marker_fresh() or self._single_marker_fresh()
 
+    def _state_clock_ns(self):
+        """Clock of the /mavros/state receipt times, as simple_offboard
+        monotonicNs(): the simulation clock under use_sim_time, else the
+        steady clock (immune to NTP steps on the drone). None while the
+        simulation clock has not started (no /clock yet)."""
+        clock = self._state_clock
+        if getattr(clock, 'ros_time_is_active', False):
+            ns = clock.now().nanoseconds
+            return ns if ns > 0 else None
+        return time.monotonic_ns()
+
+    def _fcu_state_unknown(self):
+        """None while the last connected /mavros/state taken was received at
+        most _STATE_STALE_TIMEOUT ago, else why armed/mode are unknown."""
+        if not self.fcu_connected:
+            if self._state_rx_ns is None:
+                return 'no connected /mavros/state yet'
+            return 'MAVROS reports the FCU disconnected'
+        now = self._state_clock_ns()
+        if now is None:
+            return 'clock not running'
+        age = (now - self._state_rx_ns) / 1e9
+        if not 0.0 <= age <= _STATE_STALE_TIMEOUT:
+            # a clock that went backwards is no evidence either
+            return 'no /mavros/state for %.2fs' % age
+        return None
+
     def _evaluate_gate(self):
+        unknown = self._fcu_state_unknown()
+        if unknown is not None:
+            return False, 'FCU state unknown: %s (no publish)' % unknown
         if not self.armed:
             return True, 'disarmed (warm-up)'
-        if not self.in_offboard:
+        if not (self.in_offboard or self.in_auto_land):
             return False, 'armed in manual (no publish)'
+        # r2i (T46, owner 11.11 «Зрение при посадке»): AUTO.LAND -- the script's own /land or a PX4 failsafe
+        # land -- publishes on the same vision condition as OFFBOARD; every other armed mode stays silent.
+        mode = 'OFFBOARD' if self.in_offboard else 'AUTO.LAND'
         if self._multi_marker_fresh() or self._single_marker_fresh():
             self._last_vision_ok_time = self.get_clock().now()
-            return True, 'OFFBOARD + vision_ok'
+            return True, '%s + vision_ok' % mode
         if self._last_vision_ok_time is not None:
             age = (self.get_clock().now() - self._last_vision_ok_time).nanoseconds / 1e9
             if age < _GATE_HYSTERESIS:
-                return True, 'OFFBOARD + recent vision ok (coasting %.1fs)' % age
-        return False, 'OFFBOARD + vision_bad (publish suspended)'
+                return True, '%s + recent vision ok (coasting %.1fs)' % (mode, age)
+        return False, '%s + vision_bad (publish suspended)' % mode
 
     def _apply_gate(self, force=False):
         publish, reason = self._evaluate_gate()
@@ -643,15 +840,64 @@ class VpeFix(Node):
                 'vpe_fix: %s -> publish=%s' % (reason, publish))
 
     def state_callback(self, msg):
+        was_fresh = self._fcu_state_unknown() is None
+        was_connected = self.fcu_connected
+        if not msg.connected:
+            # P1: MAVROS sys_status publishes connected=False, armed=False,
+            # mode='' when it (re)starts and on its conn_timeout. These are
+            # placeholders, not PX4 data: keep the last reported armed/mode
+            # (never a disarm, so no parameter revert in the air) and close
+            # the gate at once.
+            self.fcu_connected = False
+            if was_connected:
+                self.get_logger().warn(
+                    'vpe_fix: /mavros/state connected=False (MAVROS start or '
+                    'FCU link timeout): FCU state unknown, keeping last '
+                    'reported armed=%s offboard=%s, no parameter revert'
+                    % (self.armed, self.in_offboard))
+                self._apply_gate()
+            return
+        now = self._state_clock_ns()
+        stamp_ns = msg.header.stamp.sec * 1000000000 + msg.header.stamp.nanosec
+        stamp_age = (self._state_clock.now().nanoseconds - stamp_ns) / 1e9
+        if now is None or stamp_ns <= 0 or stamp_age > _STATE_STAMP_MAX_AGE:
+            # An old latched replay (or a State before /clock in SITL) is no
+            # report from the FCU (simple_offboard handleState): ignore it;
+            # the last State taken keeps deciding until it is stale.
+            self._log_state_ignored(stamp_ns)
+            return
         was_armed = self.armed
+        was_offboard = self.in_offboard
+        was_auto_land = self.in_auto_land
+        self.fcu_connected = True
+        self._state_rx_ns = now
         self.armed = bool(msg.armed)
         self.in_offboard = (msg.mode == 'OFFBOARD')
-        if self.armed != was_armed:
+        self.in_auto_land = (msg.mode == 'AUTO.LAND')
+        if not was_fresh:
+            self.get_logger().info(
+                'vpe_fix: FCU state known: armed=%s mode=%s'
+                % (self.armed, msg.mode))
+        # P1b: decide at once on any change of armed, mode or FCU-state
+        # knowledge (c33: armed edges only; mode changes waited for the tick).
+        if (self.armed != was_armed or self.in_offboard != was_offboard
+                or self.in_auto_land != was_auto_land or not was_fresh):
             self._apply_gate()
             if was_armed and not self.armed:
-                # ARMED -> DISARMED edge: point-precise restore of every
-                # non-persistent override.
+                # ARMED -> DISARMED edge between States of a connected FCU:
+                # point-precise restore of every non-persistent override.
                 self._revert_all_non_persistent(reason='disarmed')
+
+    def _log_state_ignored(self, stamp_ns):
+        self._state_ignored += 1
+        now = time.monotonic_ns()
+        last = self._last_state_ignored_log
+        if last is None or now - last >= 2000000000:
+            self._last_state_ignored_log = now
+            self.get_logger().warn(
+                'vpe_fix: ignored connected /mavros/state stamped %.3f s (zero, '
+                'older than %.1fs or no clock yet; %d ignored)'
+                % (stamp_ns / 1e9, _STATE_STAMP_MAX_AGE, self._state_ignored))
 
     def _maybe_reseed(self, msg_pose, now, reason):
         """Soft-reject helper: count consecutive rejects and reseed last_pose
@@ -695,6 +941,8 @@ class VpeFix(Node):
         self.last_cov = None
         self._consec_rejects = 0
         self._reseed_candidates.clear()
+        self._recent_poses.clear()               # r2h (B2, review S2)
+        self._recent_poses.append((now, seed))
         self.get_logger().warn(
             'vpe_fix: gate RESEEDED (%s%s) age=%.2fs new_xyz=(%.3f,%.3f,%.3f)'
             % (reason, ' FORCED' if forced and not consistent else '', age,
@@ -761,6 +1009,7 @@ class VpeFix(Node):
                         return
         self.last_pose = msg.pose.pose
         self.last_pose_time = now
+        self._recent_poses.append((now, msg.pose.pose))   # r2h (B2)
         self._consec_rejects = 0
         self._reseed_candidates.clear()
         if any(msg.pose.covariance):
@@ -776,12 +1025,27 @@ class VpeFix(Node):
         self.markers_used_time = self.get_clock().now()
         if self.markers_used >= 2:
             self.markers_used_multi_time = self.markers_used_time
+        if self.markers_used >= 1:
+            self.markers_pos_time = self.markers_used_time   # r2h (B1)
+        # r2h (B1): decide on every detector frame, not only at the 1 Hz tick
+        self._apply_gate()
 
     def yaw_locked_callback(self, msg):
-        self.yaw_locked = bool(msg.data)
+        locked = bool(msg.data)
+        changed = locked != self.yaw_locked
+        self.yaw_locked = locked
+        if changed:
+            self._apply_gate()   # r2h (B1)
 
     def _gate_tick(self):
         self._apply_gate()
+
+    def _state_watchdog_tick(self):
+        # P1b: close an open gate as soon as the FCU state is unknown, also
+        # when publish_timer does not run; opening stays with state_callback
+        # and _gate_tick.
+        if self.vpe_active and self._fcu_state_unknown() is not None:
+            self._apply_gate()
 
     def _log_soft_suppressed_ratelimited(self, age, armed):
         now = self.get_clock().now().nanoseconds * 1e-9
@@ -791,7 +1055,42 @@ class VpeFix(Node):
             self.get_logger().info(
                 'vpe_fix: soft-fallback SUPPRESSED (age=%.2fs, armed=%s)' % (age, armed))
 
+    def _reentry_pose(self, now):
+        """r2h (B2): the pose to publish now, or None to stay silent.
+
+        After more than _REENTRY_GAP s without a publish (or before the first one): wait until _REENTRY_N accepted
+        poses not older than _POSE_TIMEOUT are at hand, or until the oldest of them is _REENTRY_MAX_WAIT old (a slow
+        detector, review M1); then for _REENTRY_HOLD s publish the medoid of the fresh poses at hand (1.._REENTRY_N;
+        one missing frame does not silence it, review S1); else the latest pose, as before. The medoid gets the
+        poses newest first, so a tie (always so with 2 poses) goes to the newest (T44, SHOULD of the review)."""
+        last = self._last_publish_time
+        gap = None if last is None else (now - last).nanoseconds / 1e9
+        if self._reentry_until is not None and now.nanoseconds >= self._reentry_until:
+            self._reentry_until = None
+        if self._reentry_until is None and not self._reentry_wait and (gap is None or gap > _REENTRY_GAP):
+            self._reentry_wait = True
+            self.get_logger().info(
+                'vpe_fix: resume after %s without a publish: waiting for %d fresh poses (medoid)'
+                % ('start' if gap is None else '%.2fs' % gap, _REENTRY_N))
+        if not self._reentry_wait and self._reentry_until is None:
+            return self.last_pose
+        fresh = [(t, p) for (t, p) in self._recent_poses
+                 if (now - t).nanoseconds / 1e9 <= _POSE_TIMEOUT]
+        if not fresh:
+            return None
+        if self._reentry_wait:
+            waited = (now - fresh[0][0]).nanoseconds / 1e9
+            if len(fresh) < _REENTRY_N and waited < _REENTRY_MAX_WAIT:
+                return None
+            self._reentry_wait = False
+            self._reentry_until = now.nanoseconds + int(_REENTRY_HOLD * 1e9)
+        # T44 (SHOULD of the candidate review): newest first, so a tie -- always so with 2 poses -- goes to the newest
+        return self._medoid([p for (_t, p) in reversed(fresh)])
+
     def publish_timer(self):
+        if self.vpe_active and self._fcu_state_unknown() is not None:
+            # P1b: no sample on an unknown FCU state, whatever the timer order.
+            self._apply_gate()
         if self.last_pose is None or not self.vpe_active:
             if self.soft_mode:
                 self.soft_mode = False
@@ -824,10 +1123,15 @@ class VpeFix(Node):
             else:
                 self.get_logger().info('vpe_fix: soft-fallback EXIT (fresh pose)')
 
+        # r2h (B2): after a pause, the medoid of the last fresh poses first
+        now = self.get_clock().now()
+        pose = self._reentry_pose(now)
+        if pose is None:
+            return
         out = PoseWithCovarianceStamped()
-        out.header.stamp = self.get_clock().now().to_msg()
+        out.header.stamp = now.to_msg()
         out.header.frame_id = 'map'
-        out.pose.pose = self.last_pose
+        out.pose.pose = pose
 
         if self.last_cov is not None and not soft:
             out.pose.covariance = self.last_cov
@@ -844,6 +1148,7 @@ class VpeFix(Node):
             out.pose.covariance = cov
 
         self.vpe_pub.publish(out)
+        self._last_publish_time = now   # r2h (B2)
         self.published += 1
         if self.published % 90 == 1:
             self.get_logger().info(

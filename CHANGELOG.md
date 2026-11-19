@@ -5,6 +5,73 @@ Versioning follows [SemVer](https://semver.org/); each release has a tag `vX.Y.Z
 a release page in the [wiki](https://github.com/futureLabKezad/bumblebee-students/wiki)
 and downloadable builds.
 
+## Unreleased — flight code of the drone 20EC (image r2j)
+
+The flight code that runs on the drone 20EC: image **r2j** (built 2026-11-11,
+on the drone since 2026-11-13), i.e. the 1.0.2 `bumblebee` package with the
+fixes below. Only `drone/ros2_ws/src/bumblebee` changes (and its student copies
+in `examples/`); `aruco_pose`, `bumblebee_bridge`, `bumblebee_description` and
+`drone/system` are as in 1.0.2. On the drone r2j was built with `colcon build`
+in its own workspace overlay. The 1.0.2 update bundle (`drone/tools/MANIFEST`)
+neither carries the new files nor builds, so do not make an update bundle from
+this code.
+
+### Drone flight code
+- Flight scripts no longer write PX4 parameters (a write is saved to the flight
+  controller's flash and could stay after a crash). `drone.check_flight_profile()`
+  only reads the `INDOOR_ARUCO_SLOW` profile (`flight_profile.py`); the examples
+  refuse to take off (exit code 3) if a value differs or cannot be read. Set the
+  values once in QGC.
+- `drone.py`: keeps the ArUco detector awake during the preflight checks
+  (`/aruco_detect/wake`); `set_aruco_map()` checks the script's map against the
+  drone's map file instead of writing it, and a bad map line raises
+  `RuntimeError` with its number; `navigate()` casts its fields to float (an
+  integer `0` crashed the script under Jazzy); `fly_to()` / `navigate_wait()`
+  take an optional `settle_speed`; the vision watchdog counts only new poses
+  that `vpe_fix` really published, from arming on, every 0.1 s; a lease
+  (`/simple_offboard/script_lease`) lets `simple_offboard` land the drone when
+  the script dies; Ctrl+C before `navigate(auto_arm)` returns is a cancel.
+- `simple_offboard`: AUTO.LAND 2 s after the script lease stops while armed in
+  OFFBOARD (only on a flight-controller state received after that); the setpoint
+  stream stops 4.5 s after the real loss of the flight-controller link, never
+  earlier (`state_link.h`); "navigate from setpoint" survives the switch to
+  OFFBOARD.
+- New node `setpoint_freshness.py`: stale (> 0.5 s) or future-stamped flight
+  commands do not reach MAVROS (`launch/mavros_scoped_config.py` adapts the
+  MAVROS config for it).
+- `vpe_fix.py`: vision poses go to PX4 only in OFFBOARD and AUTO.LAND (also a
+  PX4 failsafe landing) and only while the flight-controller state is fresh
+  (closed after 4.5 s without it); one marker counts as seen for 1.5 s; after a
+  pause > 0.3 s it waits for 3 fresh poses and sends their medoid for 0.5 s; no
+  extra PX4 parameter write while armed.
+- `aruco_detect.py`: a message on `/aruco_detect/wake` keeps detection on for
+  5 s before arming.
+- Camera positions measured on a 1:1 model of the 20EC (`base_link` = centre
+  between the motors, 0.217 m above the bottom of the legs): down camera
+  (0.081, 0, -0.034) m, was (0.05, 0, -0.07); front camera (0.113, 0, -0.002) m,
+  was (0.05, 0, 0.05).
+- Examples: `flight.py` takes off to 0.9 m (was 1.5 m), `flight_marker.py` to
+  0.9 m (was 0.7 m; PX4 learns the hover thrust only above 1 m to the floor);
+  `flight_marker.py` and `flight_marker_loop.py` reach a point within 0.12 m at
+  under 0.05 m/s.
+- Package tests in `test/`, registered in CMake (`colcon test`): flight guards,
+  setpoint freshness, `simple_offboard` against a fake MAVROS / PX4 model,
+  `vpe_fix` code pins.
+
+### Status and known issues
+- Checked in Gazebo only. With the old field map the hover and marker flights
+  (C6, C7) passed 10/10 each on 2026-11-14; the sensor and link-loss tests (C8)
+  passed on 2026-11-13 (the optical-flow case in a variant approved by the
+  owner) except one link-loss case without a verdict. No autonomous flight of
+  the real drone with this code yet.
+- Over a single small marker the vision pose can pause for more than 0.4 s;
+  PX4 then resets its position (the Gazebo C6 failures). The `exp/` branches
+  try fixes; none is verified.
+- If only the flight controller's HEARTBEAT is lost, `simple_offboard` keeps the
+  setpoints up to 5.5 s while `vpe_fix` stops vision after 4.5 s: 0.5–1 s
+  without vision in OFFBOARD.
+- `DRONE_REST_Z_OFFSET` (0.32) in `drone.py` is not used anywhere.
+
 ## v1.0.2 — 2026-10-26
 
 Drone update **1.0.2** (update bundle `bumblebee-update-1.0.2.tgz`, release `v1.0.2`) and ground

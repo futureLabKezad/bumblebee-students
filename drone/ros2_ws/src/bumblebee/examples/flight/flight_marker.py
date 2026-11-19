@@ -53,14 +53,14 @@ def hover_vw(seconds, silent_limit=6.0):
     """Hover with a vision watchdog.
 
     Returns True if the full duration elapses with vision healthy.
-    Returns False if /aruco_detect/markers_used stayed at 0 (or stale >1s)
+    Returns False if vpe_fix published no NEW pose (drone.vision_pose_age() > 1 s, r2f)
     for longer than silent_limit -- caller should abort the mission and
     fall through to safe_land.
     """
     end = time.time() + seconds
     silent_since = None
     while time.time() < end and not drone.should_land:
-        if drone._aruco_markers_used == 0 or drone._markers_used_age() > 1.0:
+        if drone.vision_pose_age() > 1.0:   # r2f (T35): new vpe_fix poses only
             if silent_since is None:
                 silent_since = time.time()
             elif time.time() - silent_since > silent_limit:
@@ -96,11 +96,23 @@ def wait_quorum(min_markers=2, timeout=15.0, max_age=1.0):
 # Register Ctrl+C handler for graceful landing on interrupt
 drone.enable_safe_interrupt()
 
-# Apply the slow indoor-ArUco PX4 tuning profile via the vpe_fix gate.
-# Softer MPC + lower jerk/accel keeps the drone level enough during
-# direction reversals to retain ArUco lock. All param changes auto-revert
-# on the ARMED -> DISARMED edge so PX4 EEPROM stays untouched.
-drone.apply_flight_profile('INDOOR_ARUCO_SLOW')
+# Check (read only) the slow indoor-ArUco PX4 tuning profile. Softer MPC +
+# lower jerk/accel keeps the drone level enough during direction reversals
+# to retain ArUco lock. Since 09.11.2026 nothing is written to PX4 (a write
+# is saved to PX4 flash and could stay after a crash): the owner sets these
+# values once in QGC; refuse to fly if they differ.
+try:
+    _matched, _total, _problems = drone.check_flight_profile('INDOOR_ARUCO_SLOW')
+except Exception as e:
+    print('PREFLIGHT FAIL: check_flight_profile raised: %s' % e)
+    drone._shutdown()
+    sys.exit(3)
+if _matched < _total:
+    print('PREFLIGHT FAIL: only %d/%d PX4 params match INDOOR_ARUCO_SLOW (%s).'
+          ' Refusing to fly. Set these values in QGC (owner card).'
+          % (_matched, _total, '; '.join(_problems)))
+    drone._shutdown()
+    sys.exit(3)
 
 # ---------------------------------------------------------------------------
 # Define the ArUco map for this mission
@@ -144,7 +156,7 @@ drone.print_pos('START')
 # Flight
 # ---------------------------------------------------------------------------
 try:
-    drone.takeoff(height=0.7, speed=0.4)
+    drone.takeoff(height=0.9, speed=0.4)
     if not hover_vw(1.5):
         raise SystemExit('vision lost during takeoff hover')
 
@@ -155,7 +167,9 @@ try:
     # give the EKF a clean baseline before the first long sideways trip.
     if not wait_quorum(min_markers=2, timeout=15.0):
         raise SystemExit('no multi-marker quorum before forward leg')
-    drone.fly_to(x=0, y=1.4, z=cruise_z, speed=0.10, tolerance=0.25)
+    # F7 (r2d): 0.12 m and nearly stopped -- a margin under the 0.25 m of C7
+    if not drone.fly_to(x=0, y=1.4, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
+        raise SystemExit('waypoint above marker 2 not reached')   # r2e: finally -> safe_land
     if not hover_vw(2.0):
         raise SystemExit('vision lost above marker 2')
 
@@ -163,13 +177,15 @@ try:
     # before the final approach segment.
     if not wait_quorum(min_markers=2, timeout=15.0):
         raise SystemExit('no multi-marker quorum before return mid waypoint')
-    drone.fly_to(x=0, y=0.7, z=cruise_z, speed=0.10, tolerance=0.25)
+    if not drone.fly_to(x=0, y=0.7, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
+        raise SystemExit('waypoint above marker 1 not reached')
     if not hover_vw(1.0):
         raise SystemExit('vision lost above marker 1')
 
     if not wait_quorum(min_markers=2, timeout=15.0):
         raise SystemExit('no multi-marker quorum before final approach')
-    drone.fly_to(x=0, y=0, z=cruise_z, speed=0.10, tolerance=0.25)
+    if not drone.fly_to(x=0, y=0, z=cruise_z, speed=0.10, tolerance=0.12, settle_speed=0.05):
+        raise SystemExit('waypoint above marker 0 not reached')
 
 finally:
     drone.safe_land(x=0, y=0, precision_speed=0.1)

@@ -38,9 +38,22 @@ def get_cruise_z(retries=20, interval=0.2):
 
 drone.enable_safe_interrupt()
 
-# Apply indoor-ArUco PX4 tuning through the vpe_fix gate.
-# Auto-reverts to original PX4 values on disarm; nothing is persisted.
-drone.apply_flight_profile('INDOOR_ARUCO')
+# Check (read only) the indoor-ArUco PX4 tuning. Until 09.11.2026 this script
+# wrote INDOOR_ARUCO in flight; a write is saved to PX4 flash and could stay
+# after a crash. PX4 can hold one set of values, so all examples now check
+# INDOOR_ARUCO_SLOW, set once by the owner in QGC; refuse to fly if they differ.
+try:
+    _matched, _total, _problems = drone.check_flight_profile('INDOOR_ARUCO_SLOW')
+except Exception as e:
+    print('PREFLIGHT FAIL: check_flight_profile raised: %s' % e)
+    drone._shutdown()
+    sys.exit(3)
+if _matched < _total:
+    print('PREFLIGHT FAIL: only %d/%d PX4 params match INDOOR_ARUCO_SLOW (%s).'
+          ' Refusing to fly. Set these values in QGC (owner card).'
+          % (_matched, _total, '; '.join(_problems)))
+    drone._shutdown()
+    sys.exit(3)
 
 drone.set_aruco_map([
     {'id':  0, 'length': 0.19, 'x':  0.00, 'y':  0.00},
@@ -79,11 +92,11 @@ WAYPOINTS = [
     ( 0.00, 0.70),  # 1
     ( 0.00, 1.40),  # 2
     ( 0.00, 2.10),  # 3
-    (-0.50, 2.10),  # bridge 3 -> 13
-    (-1.00, 2.10),  # 13
-    (-1.00, 1.40),  # 12
-    (-1.00, 0.70),  # 11
-    (-0.50, 0.70),  # bridge 11 -> 1
+    (-0.36, 2.10),  # bridge 3 -> 13 (over marker 7)
+    (-0.72, 2.10),  # 13 (its map: x=-0.72)
+    (-0.72, 1.40),  # 12
+    (-0.72, 0.70),  # 11
+    (-0.36, 0.70),  # bridge 11 -> 1 (over marker 5)
     ( 0.00, 0.70),  # 1 (back)
 ]
 
@@ -95,7 +108,8 @@ try:
 
     aborted = False
     for (wx, wy) in WAYPOINTS:
-        if not drone.fly_to(x=wx, y=wy, z=cruise_z, speed=0.1, tolerance=0.25):
+        # F7 (r2d): 0.12 m and nearly stopped -- a margin under the 0.25 m of C7
+        if not drone.fly_to(x=wx, y=wy, z=cruise_z, speed=0.1, tolerance=0.12, settle_speed=0.05):
             print('Waypoint (%.2f, %.2f) failed -- aborting mission' % (wx, wy))
             aborted = True
             break
@@ -104,7 +118,7 @@ try:
         hover_end = time.time() + 1.0
         vision_silent_since = None
         while time.time() < hover_end and not drone.should_land:
-            if drone._aruco_markers_used == 0 or drone._markers_used_age() > 1.0:
+            if drone.vision_pose_age() > 1.0:   # r2f (T35): new vpe_fix poses only
                 if vision_silent_since is None:
                     vision_silent_since = time.time()
                 elif time.time() - vision_silent_since > 3.0:
@@ -118,6 +132,6 @@ try:
             break
 
     if not aborted:
-        drone.fly_to(x=0.0, y=0.0, z=cruise_z, speed=0.1, tolerance=0.25)
+        drone.fly_to(x=0.0, y=0.0, z=cruise_z, speed=0.1, tolerance=0.12, settle_speed=0.05)
 finally:
     drone.safe_land(x=0, y=0, precision_speed=0.1)

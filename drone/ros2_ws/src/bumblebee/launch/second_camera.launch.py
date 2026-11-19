@@ -30,7 +30,8 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='second_camera_frame',
-            arguments=['0.05', '0', '0.05', '-1.5707963', '0', '0',
+            # r2j (T53): translation per ЭТАЛОН_РАЗМЕРОВ_20EC (owner model 1:1, 11.11.2026); angles unchanged
+            arguments=['0.113', '0', '-0.002', '-1.5707963', '0', '0',
                        'base_link', 'second_camera_optical'],
         ),
 
