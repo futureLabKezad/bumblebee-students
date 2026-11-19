@@ -1,11 +1,12 @@
 # EXPERIMENT: front camera at 5 frames/s (r2m_cam)
 
-**Status: EXPERIMENT — approved by the owner for the drone 2026-11-18,
-independently reviewed (OK with notes), NOT yet installed on the drone; live
-check pending.**
+**Status: EXPERIMENT, not verified — NOT installed on the drone; the frame
+rates below are a model, not measured. Approved by the owner for the drone
+20EC on 2026-11-18 and independently reviewed (OK with notes); live check
+pending.**
 
-- Do not use for students' flights until the live check on the drone is done.
-  This branch is not to be merged into `main` before that.
+- Do not use for students' flights.
+- Never merge this branch into `main` without a new decision of the owner.
 - The change does not touch flight: only the GCS front view reads this camera.
 
 ## What it changes
