@@ -230,6 +230,10 @@ def generate_launch_description():
             'input_topic': 'image_raw_yuv',
             'output_topic': 'image_raw',
             'row_period': 5,
+            # r2m_cam (owner 17.11, «5 кадров»): only the GCS front view (ros_mjpeg_server)
+            # reads this camera. camera_fix converts and publishes at most ~5 frames/s; the
+            # sensor keeps ~28 frames/s (v4l2_camera 0.7.1 has no time_per_frame). Float, not int.
+            'max_rate_hz': 5.0,
         }],
     )
 

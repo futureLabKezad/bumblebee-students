@@ -29,6 +29,9 @@ from ~8.6 Hz to ≥22 Hz on the Pi5 ISP.
 
 Subscribe to: <camera>/image_raw_yuv  (yuv422_yuy2)
 Publish to:   <camera>/image_raw      (mono8)
+
+r2m_cam (2026-11-17): optional parameter max_rate_hz (default 0 = every frame, as r2j)
+drops surplus frames before any work; the launch file sets 5.0 for the front camera only.
 """
 
 import os
@@ -42,6 +45,12 @@ import cv2
 
 WATCHDOG_SEC = 10.0  # exit (for launch respawn) if no frames for 2x this long
 BOOT_GRACE_SEC = 20.0  # extra slack at startup while v4l2_camera comes up
+# r2m_cam (owner 17.11, front camera «5 кадров»): with max_rate_hz > 0 a frame is kept
+# only if at least RATE_TOLERANCE / max_rate_hz s passed since the last kept one. 0.9, not
+# 1.0: the camera period (~33-36 ms) does not divide 1/max_rate_hz evenly and arrival
+# times jitter by ~5 ms, so a strict 1/max_rate_hz would often wait one frame more
+# (a 28 Hz camera would give ~4.3 frames/s instead of 5).
+RATE_TOLERANCE = 0.9
 
 
 class CameraFix(Node):
@@ -50,10 +59,16 @@ class CameraFix(Node):
         self.declare_parameter('input_topic', 'image_raw_yuv')
         self.declare_parameter('output_topic', 'image_raw')
         self.declare_parameter('row_period', 5)  # every Nth row is valid
+        # r2m_cam: 0 = every frame (r2j behaviour); > 0 = at most ~this many frames/s are
+        # converted and published (camera_info follows the kept frames). Must be a float.
+        self.declare_parameter('max_rate_hz', 0.0)
 
         self.in_topic = self.get_parameter('input_topic').value
         self.out_topic = self.get_parameter('output_topic').value
         self.period = self.get_parameter('row_period').value
+        max_rate = float(self.get_parameter('max_rate_hz').value)
+        self.min_interval = RATE_TOLERANCE / max_rate if max_rate > 0.0 else 0.0
+        self.last_kept = None
 
         self.sub_qos = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -85,6 +100,10 @@ class CameraFix(Node):
 
         self.get_logger().info(
             f'camera_fix: {self.in_topic} -> {self.out_topic} (period={self.period})')
+        if self.min_interval > 0.0:
+            self.get_logger().info(
+                f'camera_fix: max_rate_hz={max_rate:g} (a frame is kept if >= '
+                f'{self.min_interval * 1000.0:.0f} ms after the last kept one)')
 
     def _info_cb(self, msg):
         self.last_info = msg
@@ -106,6 +125,15 @@ class CameraFix(Node):
 
     def cb(self, msg):
         self.last_frame = time.monotonic()
+
+        # r2m_cam: drop surplus frames before any copy, conversion or publish. The
+        # watchdog still sees every received frame (last_frame above); camera_info is
+        # republished below only for kept frames, so image and camera_info stay paired.
+        if self.min_interval > 0.0:
+            if (self.last_kept is not None
+                    and self.last_frame - self.last_kept < self.min_interval):
+                return
+            self.last_kept = self.last_frame
 
         if msg.encoding != 'yuv422_yuy2':
             self.get_logger().warn(
