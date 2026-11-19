@@ -129,6 +129,7 @@ _SINGLE_MARKER_REPROJ_CAP   = 60.0     # absolute ceiling regardless of size
 _VEL_LIMIT_MPS              = 2.5      # reject pose if implied speed exceeds this (multi)
 _VEL_LIMIT_SINGLE_MPS       = 1.0      # 2026-06-05: relaxed back from 0.7
 _OUTLIER_PAUSE_S            = 0.5      # quiet window after 3 consecutive outliers
+_SUSPECT_SIGMA_XY           = 1.0      # r2jv1 18.11 (B1): single-marker pose over the speed limit -> published with xy sigma 1.0 m, not dropped
 # Low-pass smoothing applied to PUBLISHED pose only when n_used == 1. With
 # alpha=0.3 at ~6 Hz publish rate, the time-constant is ~0.5 s — enough to
 # smooth IPPE corner-jitter while still letting the drone track real motion.
@@ -149,6 +150,12 @@ _YAW_LOCK_SINGLE_MAX_DEV    = math.radians(30.0)  # observation rejected if too 
 # are only consulted when errors are within this ratio (near-frontal views).
 _IPPE_AMBIG_RATIO           = 1.5
 _YAW_DISAMBIG_TOL_RAD       = math.pi / 6.0   # 30 deg — IPPE candidate must land within
+_JOINT_RMS_ENTER_PX         = 3.5      # r2jd2 17.11: joint PnP used from RMS <= 3.5 px ...
+_JOINT_RMS_EXIT_PX          = 5.0      # ... and kept while RMS <= 5 px (hysteresis)
+_JOINT_SIGMA_K               = 6.0      # xy sigma >= K * rms * depth / fx
+_JOINT_FALLBACK_SIGMA        = 0.30     # mean pose when the joint pose is rejected (>= 2 markers)
+_MAP_MISMATCH_PX             = 2.5      # median joint RMS over 2 s above this -> /aruco_detect/map_mismatch True
+_MAP_MISMATCH_CLEAR_PX       = 2.0
 _YAW_RESET_GAP_S            = 5.0      # vision silent for this long → drop the lock
 
 
@@ -477,6 +484,7 @@ class ArucoDetectNode(Node):
         self._last_pub_t = None                # t_sec
         self._outlier_count = 0
         self._pause_until = 0.0                # while t_now < pause_until, suppress pose
+        self._gate_suspect = False             # r2jv1 (B1): last gate call let a single-marker pose through as 'suspect'
         self._pose_smooth_pos = None           # LP-smoothed XYZ for single-marker publishes
         self._pose_smooth_q = None             # LP-smoothed quaternion for single-marker publishes
         # Single-marker pre-yaw-lock streak buffer (z-jump self-lock incident
@@ -998,6 +1006,7 @@ class ArucoDetectNode(Node):
         jumps over 1 m, so we tighten the limit to 1.5 m/s. Three consecutive
         outliers force a quiet window.
         """
+        self._gate_suspect = False   # r2jv1 (B1)
         if t_now < self._pause_until:
             return False
         limit = _VEL_LIMIT_SINGLE_MPS if n_markers <= 1 else _VEL_LIMIT_MPS
@@ -1005,6 +1014,12 @@ class ArucoDetectNode(Node):
             dt = t_now - self._last_pub_t
             if 0.0 < dt <= 1.0:
                 v = float(np.linalg.norm(np.asarray(pos) - self._last_pub_pos)) / dt
+                if v > limit and n_markers <= 1:
+                    # r2jv1 (B1): do not drop a single-marker pose (a pause > 0.4 s makes PX4 reset xy to the next vision pose);
+                    # publish it with a large xy sigma and let it be the gate reference. Not counted as an outlier (no 0.5 s pause).
+                    self._gate_suspect = True
+                    self._outlier_count = 0
+                    return True
                 if v > limit:
                     self._outlier_count += 1
                     if self._outlier_count >= 3:
@@ -1016,7 +1031,94 @@ class ArucoDetectNode(Node):
         self._outlier_count = 0
         return True
 
-    def _publish_fused_map_pose(self, candidates, header, markers_used, single_marker_ok):
+    def _solve_joint_map_pose(self, ids, corners, camera_frame, positions, quaternions):
+        """r2jd2 (17.11, Claude «Симулятор», SIM TEST): ONE PnP over the corners of ALL used map markers (map-frame object
+        points), started from the mean of the per-marker poses. Returns dict(pos, quat, rms, zc, fx, used) or None; 'used'
+        follows the RMS hysteresis (enter <= _JOINT_RMS_ENTER_PX, keep <= _JOINT_RMS_EXIT_PX)."""
+        T_cam_base = self._lookup_cam_to_base(camera_frame)
+        if T_cam_base is None or self.camera_matrix is None:
+            return None
+        obj, img = [], []
+        for mid, c in zip(ids, corners):
+            mk = self.map_markers.get(int(mid))
+            if mk is None:
+                return None
+            m = float(mk['length']) * 0.5
+            for (px, py), uv in zip(((-m, m), (m, m), (m, -m), (-m, -m)), c):
+                obj.append((mk['T'] @ np.array([px, py, 0.0, 1.0]))[:3])
+                img.append(uv)
+        obj = np.array(obj, dtype=np.float64)
+        img = np.array(img, dtype=np.float64)
+        if self._undistort_map1 is not None and self._K_undist is not None:
+            K_pnp, D_pnp = self._K_undist, self._D_zero
+        else:
+            K_pnp = self.camera_matrix
+            D_pnp = self.dist_coeffs if self.dist_coeffs is not None else np.zeros(5)
+        p0 = np.mean(positions, axis=0)
+        q0 = quaternions[0]
+        qs = np.zeros(4, dtype=np.float64)
+        for q in quaternions:
+            qs += q if np.dot(q, q0) >= 0 else -q
+        qs = qs / np.linalg.norm(qs)
+        T_map_base0 = np.eye(4)
+        T_map_base0[:3, :3] = quaternion_to_rotation_matrix(qs[0], qs[1], qs[2], qs[3])
+        T_map_base0[:3, 3] = p0
+        T_cam_map0 = np.linalg.inv(T_map_base0 @ np.linalg.inv(T_cam_base))
+        rvec0, _ = cv2.Rodrigues(T_cam_map0[:3, :3])
+        tvec0 = T_cam_map0[:3, 3].reshape(3, 1).copy()
+        try:
+            ok, rvec, tvec = cv2.solvePnP(obj, img, K_pnp, D_pnp, rvec0, tvec0,
+                                          useExtrinsicGuess=True, flags=cv2.SOLVEPNP_ITERATIVE)
+        except cv2.error:
+            return None
+        if not ok:
+            return None
+        proj, _ = cv2.projectPoints(obj, rvec, tvec, K_pnp, D_pnp)
+        rms = float(np.sqrt(np.mean(np.sum((proj.reshape(-1, 2) - img) ** 2, axis=1))))
+        R_cm, _ = cv2.Rodrigues(rvec)
+        zc = float(np.mean((R_cm @ obj.T + tvec.reshape(3, 1))[2]))
+        if not np.isfinite(rms) or zc <= 0.0:
+            self._joint_active = False
+            return None
+        hist = getattr(self, '_joint_rms_hist', None)
+        if hist is None:
+            hist = self._joint_rms_hist = collections.deque(maxlen=400)
+        hist.append((time.monotonic(), rms))
+        lim = _JOINT_RMS_EXIT_PX if getattr(self, '_joint_active', False) else _JOINT_RMS_ENTER_PX
+        used = rms <= lim
+        self._joint_active = used
+        T_cam_map = np.eye(4)
+        T_cam_map[:3, :3] = R_cm
+        T_cam_map[:3, 3] = tvec.flatten()
+        T_map_base = np.linalg.inv(T_cam_map) @ T_cam_base
+        qx, qy, qz, qw = rotation_matrix_to_quaternion(T_map_base[:3, :3])
+        return {'pos': T_map_base[:3, 3].copy(), 'quat': np.array([qx, qy, qz, qw], dtype=np.float64),
+                'rms': rms, 'zc': zc, 'fx': float(K_pnp[0, 0]), 'used': used}
+
+    def _check_map_mismatch(self):
+        """r2jd2: «map != field» signal from the joint-PnP RMS of the last 2 s."""
+        hist = getattr(self, '_joint_rms_hist', None)
+        if not hist:
+            return
+        now = time.monotonic()
+        recent = [r for (t, r) in hist if now - t <= 2.0]
+        if len(recent) < 10:
+            return
+        med = float(np.median(recent))
+        flagged = getattr(self, '_map_mismatch', False)
+        if not hasattr(self, '_map_mismatch_pub'):
+            self._map_mismatch_pub = self.create_publisher(Bool, '/aruco_detect/map_mismatch', 10)
+        if not flagged and med > _MAP_MISMATCH_PX:
+            self._map_mismatch = True
+            self._map_mismatch_pub.publish(Bool(data=True))
+            self.get_logger().warn('aruco_detect: MAP != FIELD? joint PnP rms median %.2f px over 2 s (> %.1f)' % (med, _MAP_MISMATCH_PX))
+        elif flagged and med < _MAP_MISMATCH_CLEAR_PX:
+            self._map_mismatch = False
+            self._map_mismatch_pub.publish(Bool(data=False))
+            self.get_logger().info('aruco_detect: map mismatch cleared (rms median %.2f px)' % med)
+        self.get_logger().info('aruco_detect: joint rms median %.2f px (2 s, n=%d)' % (med, len(recent)), throttle_duration_sec=5.0)
+
+    def _publish_fused_map_pose(self, candidates, header, markers_used, single_marker_ok, joint_in=None):
         """Publish a single fused map pose with adaptive covariance.
 
         candidates: list of (pos:ndarray(3), quat:ndarray(4)) — one per visible map marker.
@@ -1033,6 +1135,7 @@ class ArucoDetectNode(Node):
         positions = np.array([c[0] for c in candidates])
         quaternions = np.array([c[1] for c in candidates])
 
+        jinfo = None   # r2jd2
         if len(candidates) >= 2:
             median = np.median(positions, axis=0)
             mask = np.linalg.norm(positions - median, axis=1) <= 0.5
@@ -1040,6 +1143,12 @@ class ArucoDetectNode(Node):
                 return None
             positions = positions[mask]
             quaternions = quaternions[mask]
+            if joint_in is not None:   # r2jd2: joint PnP over the markers kept by the median test
+                sel = np.where(mask)[0]
+                if len(sel) >= 2:
+                    jinfo = self._solve_joint_map_pose([joint_in[0][k] for k in sel], [joint_in[1][k] for k in sel],
+                                                       joint_in[2], positions, quaternions)
+                    self._check_map_mismatch()
 
         pos_avg = np.mean(positions, axis=0)
         q0 = quaternions[0]
@@ -1047,6 +1156,9 @@ class ArucoDetectNode(Node):
         for q in quaternions:
             q_sum += q if np.dot(q, q0) >= 0 else -q
         q_norm = q_sum / np.linalg.norm(q_sum)
+        mean_xy = np.asarray(pos_avg[:2], dtype=np.float64).copy()   # r2jd2
+        if jinfo is not None and jinfo['used']:   # r2jd2: the joint pose replaces the mean
+            pos_avg, q_norm = jinfo['pos'], jinfo['quat']
 
         # Number of markers actually used (after outlier reject).
         n_used = int(positions.shape[0])
@@ -1083,6 +1195,18 @@ class ArucoDetectNode(Node):
             cov[35] = 0.05 ** 2
         cov[21] = 1e6
         cov[28] = 1e6
+        if n_used >= 2:   # r2jd2: xy covariance from the joint fit, not from the marker count alone
+            s_cnt = math.sqrt(cov[0])
+            if jinfo is not None and jinfo['used']:
+                s = max(s_cnt, _JOINT_SIGMA_K * jinfo['rms'] * jinfo['zc'] / max(jinfo['fx'], 1.0),
+                        0.5 * float(np.linalg.norm(np.asarray(jinfo['pos'][:2]) - mean_xy)))
+            else:
+                s = max(s_cnt, _JOINT_FALLBACK_SIGMA)
+            cov[0] = s * s
+            cov[7] = s * s
+        if n_used <= 1 and self._gate_suspect:   # r2jv1 (B1): large xy sigma instead of dropping the pose
+            cov[0] = max(cov[0], _SUSPECT_SIGMA_XY ** 2)
+            cov[7] = max(cov[7], _SUSPECT_SIGMA_XY ** 2)
 
         # Hybrid output: smooth single-marker frames (kills high-frequency PnP
         # corner jitter that the controller would otherwise chase as real motion),
@@ -1458,6 +1582,7 @@ class ArucoDetectNode(Node):
         map_marker_corners = []
         map_marker_lengths = []
         map_marker_errs = []
+        map_marker_ids = []   # r2jd2
         # (rvec, tvec, length) for every successfully posed marker — used for
         # axis rendering on the debug image without a second solvePnP call.
         axes_data = []
@@ -1523,6 +1648,7 @@ class ArucoDetectNode(Node):
                                 map_marker_corners.append(c.copy())
                                 map_marker_lengths.append(float(marker.length))
                                 map_marker_errs.append(float(err_px))
+                                map_marker_ids.append(int(marker_id))   # r2jd2
 
                 markers_msg.markers.append(marker)
 
@@ -1579,7 +1705,8 @@ class ArucoDetectNode(Node):
             cam_pos = self._publish_fused_map_pose(
                 map_pose_candidates, msg.header,
                 markers_used=markers_used,
-                single_marker_ok=single_marker_ok)
+                single_marker_ok=single_marker_ok,
+                joint_in=(map_marker_ids, map_marker_corners, msg.header.frame_id))   # r2jd2
             # If we rejected the frame, count it for vpe_fix as no markers used.
             if cam_pos is None:
                 markers_used = 0
