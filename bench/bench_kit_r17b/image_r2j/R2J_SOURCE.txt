@@ -1,0 +1,25 @@
+# Источник образа r2j для набора r4 (создан генератором gen_lists_from_manifest.py, 2026-11-11 13:46:34).
+образ: /work/fixed_image_r2j_20261111
+sha256 файла SHA256SUMS образа: 14fbcf74d847605c927181245f23e5c598c551a24249991070770ea49bf26094
+sha256 image_manifest_r2.tsv: 0c02e391c6763ec24aba026512a4caf89e348f3a3507a637423c0d665a345c33
+sha256 INSTALL_SHA256.txt: 9059848023f201972f87fc512d12fd5737d1989bb49689412d09142d0463a315
+строк в CPP_SOURCES_r2j.tsv: 16 (из них R: 5), в RUNTIME_PY_r2j.tsv: 8 (LAUNCH: 7, FCU: 1)
+cpp f4b45d19dd6a62d58490724fcafcfe56ee45bc1963838b671d17d333bf70d59a ros2_ws/src/bumblebee/CMakeLists.txt R
+cpp c71fbd601a3407781f72621f194e672929e2847b1797ef13fee49a04a11014f1 ros2_ws/src/bumblebee/package.xml R
+cpp 07cd942165f6da4e92d9774a71815604134067d978e5bcf14ff3d8db2d101f86 ros2_ws/src/bumblebee/src/cpp/camera_markers.cpp -
+cpp 8e3e061882597c5699f14289a0c7d3e865bceb0bb593b5f469b3c48449f0f9bd ros2_ws/src/bumblebee/src/cpp/led.cpp -
+cpp c9b0685af9741260d439a1f23abb23c8790b260d48779ffc21fecd2aa4541115 ros2_ws/src/bumblebee/src/cpp/optical_flow.cpp -
+cpp 7f050d59ec5b16d52f0c3f9ae0acfd915bf67b0bb428f96235cfdbb2dfe01e8b ros2_ws/src/bumblebee/src/cpp/rc.cpp -
+cpp 38337d2a12edd59c162c250d3967b6b6c7b0d8973ccb1b9b9a18642f07c333ae ros2_ws/src/bumblebee/src/cpp/script_lease.h R
+cpp da38424f0c46e9b708dddf58678595a9dafa23d9c64dd8147976ae9dc237c143 ros2_ws/src/bumblebee/src/cpp/shell.cpp -
+cpp 0d22da25fabb2fc482edef3189117f8a910d1917c8f34929a64b31049d9e1f96 ros2_ws/src/bumblebee/src/cpp/simple_offboard.cpp R
+cpp fe1ae55da7370547b5deede42db605fbfde54a20a6fbd658f1f9bec99b2c318c ros2_ws/src/bumblebee/src/cpp/state_link.h R
+cpp ce30558836938f8176c738eaa95c49a4194cbc8454bf4f543e63305982616f81 ros2_ws/src/bumblebee/src/cpp/vpe_publisher.cpp -
+cpp fa6abf8b545b356ecdd5291417625ee77b58ef862fe7f3b00486dc8ef72d0c9c ros2_ws/src/bumblebee/examples/drone.py -
+cpp b69cc5e72509bbe2f141e48844b999e3a046ac6a78d28484239536b426c807b3 ros2_ws/src/bumblebee/examples/flight/flight.py -
+cpp 1e0063fb3557a516767122a3031d38678be10e58efb2cc07a3e83df538e529fb ros2_ws/src/bumblebee/examples/flight/flight_marker.py -
+cpp 7f36db429eb26f7e878aa16ee7998b883eeaa00e184b5a5c5dc07544318e1d1d ros2_ws/src/bumblebee/examples/flight/flight_marker_loop.py -
+cpp 5b8e2a12a91445a1aba867fc22d84a8fd884a50ebd835da008a31c737633695b ros2_ws/src/bumblebee/examples/flight_profile.py -
+camera_fix.py (по умолчанию) 4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310
+flight.py b69cc5e72509bbe2f141e48844b999e3a046ac6a78d28484239536b426c807b3
+прежние версии списков перенесены в: /tmp/gen_aside_r2j

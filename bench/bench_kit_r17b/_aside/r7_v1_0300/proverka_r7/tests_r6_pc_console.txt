@@ -1,0 +1,306 @@
+PASS S1 19_nagruzka_pi.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 19_nagruzka_pi.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 19_nagruzka_pi.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ:»
+PASS S4 19_nagruzka_pi.cmd: в первой строке нет < > | & ^ %
+PASS S5 19_nagruzka_pi.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 20_nichego_ne_otvalilos.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 20_nichego_ne_otvalilos.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 20_nichego_ne_otvalilos.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ:»
+PASS S4 20_nichego_ne_otvalilos.cmd: в первой строке нет < > | & ^ %
+PASS S5 20_nichego_ne_otvalilos.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 21_kamera_K1_raskladka.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 21_kamera_K1_raskladka.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 21_kamera_K1_raskladka.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 21_kamera_K1_raskladka.cmd: в первой строке нет < > | & ^ %
+PASS S5 21_kamera_K1_raskladka.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 21_kamera_K1_raskladka.cmd: до вопросов проверяет файл-разрешение gates\CAM_K1_APPROVED.txt
+PASS S1 22_kamera_cena_A_C_A2.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 22_kamera_cena_A_C_A2.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 22_kamera_cena_A_C_A2.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 22_kamera_cena_A_C_A2.cmd: в первой строке нет < > | & ^ %
+PASS S5 22_kamera_cena_A_C_A2.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 22_kamera_cena_A_C_A2.cmd: до вопросов проверяет файл-разрешение gates\CAM_COST_APPROVED.txt
+PASS S1 23a_sys_fwupd_mask.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 23a_sys_fwupd_mask.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 23a_sys_fwupd_mask.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 23a_sys_fwupd_mask.cmd: в первой строке нет < > | & ^ %
+PASS S5 23a_sys_fwupd_mask.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 23a_sys_fwupd_mask.cmd: до вопросов проверяет файл-разрешение gates\SYS_FWUPD_MASK_APPROVED.txt
+PASS S1 23a_otkat_fwupd_mask.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 23a_otkat_fwupd_mask.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 23a_otkat_fwupd_mask.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 23a_otkat_fwupd_mask.cmd: в первой строке нет < > | & ^ %
+PASS S5 23a_otkat_fwupd_mask.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 23a_otkat_fwupd_mask.cmd: до вопросов проверяет файл-разрешение gates\OTKAT_SYS_FWUPD_APPROVED.txt
+PASS S1 23b_sys_snap_hold.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 23b_sys_snap_hold.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 23b_sys_snap_hold.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 23b_sys_snap_hold.cmd: в первой строке нет < > | & ^ %
+PASS S5 23b_sys_snap_hold.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 23b_sys_snap_hold.cmd: до вопросов проверяет файл-разрешение gates\SYS_SNAP_HOLD_APPROVED.txt
+PASS S1 23b_otkat_snap_hold.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 23b_otkat_snap_hold.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 23b_otkat_snap_hold.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 23b_otkat_snap_hold.cmd: в первой строке нет < > | & ^ %
+PASS S5 23b_otkat_snap_hold.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 23b_otkat_snap_hold.cmd: до вопросов проверяет файл-разрешение gates\OTKAT_SYS_SNAP_HOLD_APPROVED.txt
+PASS S1 23c_sys_taimery_mask.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 23c_sys_taimery_mask.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 23c_sys_taimery_mask.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 23c_sys_taimery_mask.cmd: в первой строке нет < > | & ^ %
+PASS S5 23c_sys_taimery_mask.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 23c_sys_taimery_mask.cmd: до вопросов проверяет файл-разрешение gates\SYS_TIMERS_MASK_APPROVED.txt
+PASS S1 23c_otkat_taimery_mask.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 23c_otkat_taimery_mask.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 23c_otkat_taimery_mask.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 23c_otkat_taimery_mask.cmd: в первой строке нет < > | & ^ %
+PASS S5 23c_otkat_taimery_mask.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 23c_otkat_taimery_mask.cmd: до вопросов проверяет файл-разрешение gates\OTKAT_SYS_TIMERS_APPROVED.txt
+PASS S1 24a_proverka_kamery_polnye_stroki.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 24a_proverka_kamery_polnye_stroki.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 24a_proverka_kamery_polnye_stroki.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ:»
+PASS S4 24a_proverka_kamery_polnye_stroki.cmd: в первой строке нет < > | & ^ %
+PASS S5 24a_proverka_kamery_polnye_stroki.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 24b_proverka_kamery_r2j.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 24b_proverka_kamery_r2j.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 24b_proverka_kamery_r2j.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ:»
+PASS S4 24b_proverka_kamery_r2j.cmd: в первой строке нет < > | & ^ %
+PASS S5 24b_proverka_kamery_r2j.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 09c_sverka_install_r2j_cam.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 09c_sverka_install_r2j_cam.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 09c_sverka_install_r2j_cam.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ:»
+PASS S4 09c_sverka_install_r2j_cam.cmd: в первой строке нет < > | & ^ %
+PASS S5 09c_sverka_install_r2j_cam.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 15c_otpechatki_r2j_cam.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 15c_otpechatki_r2j_cam.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 15c_otpechatki_r2j_cam.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ:»
+PASS S4 15c_otpechatki_r2j_cam.cmd: в первой строке нет < > | & ^ %
+PASS S5 15c_otpechatki_r2j_cam.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 image_r2j_cam\05c_install_r2j_cam.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 image_r2j_cam\05c_install_r2j_cam.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 image_r2j_cam\05c_install_r2j_cam.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 image_r2j_cam\05c_install_r2j_cam.cmd: в первой строке нет < > | & ^ %
+PASS S5 image_r2j_cam\05c_install_r2j_cam.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 image_r2j_cam\05c_install_r2j_cam.cmd: до вопросов проверяет файл-разрешение gates\R2J_CAM_APPROVED.txt
+PASS S1 image_r2j_cam\06c_otkat_r2j_cam.cmd: UTF-8 без BOM, все строки CRLF
+PASS S2 image_r2j_cam\06c_otkat_r2j_cam.cmd: строки 1-2 @echo off и chcp 65001
+PASS S3 image_r2j_cam\06c_otkat_r2j_cam.cmd: первая строка «МЕНЯЕТ ДРОН:» с «Зачем» и «Как вернуть»
+PASS S4 image_r2j_cam\06c_otkat_r2j_cam.cmd: в первой строке нет < > | & ^ %
+PASS S5 image_r2j_cam\06c_otkat_r2j_cam.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S6 image_r2j_cam\06c_otkat_r2j_cam.cmd: до вопросов проверяет файл-разрешение gates\OTKAT_R2J_CAM_APPROVED.txt
+PASS S7 в коде новых файлов r6 (118) нет pgrep, pkill, killall вне комментариев
+PASS S7b во всём наборе pgrep/pkill с -f есть только в принятом pi_kit rc3 (m5_check74_rc3.sh), и ни один шаг набора его не запускает
+PASS S8 в новых файлах r6 (118) нет адреса дрона, паролей, ключей, адресов почты, sudo -S
+PASS S9 pi\r6_pi_load.sh: первая строка-комментарий ТОЛЬКО ЧТЕНИЕ, проверка hostname, нет sudo, rm, mv, cp, mkdir, tee, systemctl start/stop/mask, записи > в файл
+PASS S9 pi\r6_sys_check.sh: первая строка-комментарий ТОЛЬКО ЧТЕНИЕ, проверка hostname, нет sudo, rm, mv, cp, mkdir, tee, systemctl start/stop/mask, записи > в файл
+PASS S9 pi\r6_cam_incoming.sh: первая строка-комментарий ТОЛЬКО ЧТЕНИЕ, проверка hostname, нет sudo, rm, mv, cp, mkdir, tee, systemctl start/stop/mask, записи > в файл
+PASS S9 pi\r6_cost_end.sh: первая строка-комментарий ТОЛЬКО ЧТЕНИЕ, проверка hostname, нет sudo, rm, mv, cp, mkdir, tee, systemctl start/stop/mask, записи > в файл
+PASS S9 pi\r6_cam_precheck.sh: первая строка-комментарий ТОЛЬКО ЧТЕНИЕ, проверка hostname, нет sudo, rm, mv, cp, mkdir, tee, systemctl start/stop/mask, записи > в файл
+PASS S9 pi\r6_cam_verify.sh: первая строка-комментарий ТОЛЬКО ЧТЕНИЕ, проверка hostname, нет sudo, rm, mv, cp, mkdir, tee, systemctl start/stop/mask, записи > в файл
+PASS S10 pi\r6_k1.sh: первая строка-комментарий МЕНЯЕТ ДРОН, проверка hostname
+PASS S10 pi\r6_cost_phase.sh: первая строка-комментарий МЕНЯЕТ ДРОН, проверка hostname
+PASS S10 pi\r6_sys_change.sh: первая строка-комментарий МЕНЯЕТ ДРОН, проверка hostname
+PASS S10 pi\r6_cam_mkdir.sh: первая строка-комментарий МЕНЯЕТ ДРОН, проверка hostname
+PASS S11 r6_k1.sh и r6_cost_phase.sh: отказ, если папка результата уже есть («ничего не перезаписываю»)
+PASS S12 r6_cost_phase.sh: детектор через ~/opencv47_venv/bin/python3, все выходы детектора в /bench, gate_by_flight_state:=false, timeout не больше 240 с
+PASS S13 r6_pi_load.sh и r6_sys_check.sh (код без комментариев): ros2 только с --no-daemon, нет ros2 topic hz, нет --selftest, /tmp/bumblebee.log не читают
+PASS S14 r6_pi_load.sh: pidstat -u -r -h -l 5 24, snap refresh --time, list-timers --all, apt-config dump periodic, journalctl -b -k set_power_mgmt, MainPID служб, регулятор частоты
+PASS S15 r6_sys_change.sh: mask --now, unmask, snap --hold/--unhold, каждый sudo только с -p и подсказкой, кончающейся переводом строки
+PASS S15b r6_sys_change.sh: сразу после # BB_R6SYS_MARK эхо терминала выключается (stty -echo, если ввод - терминал), trap возвращает его при любом выходе; это раньше первого sudo
+PASS S15c run_r6_sys.ps1: буфер ввода окна очищается прямо перед ssh -tt; в окне и в карточке С1–С3: «до строки SYS_SUDO_PROMPT ничего не набирать»
+PASS S16 все файлы r5 в r6 байт в байт как в r5, кроме README.md, PROGRESS.md и тестов tests\run_tests_image.ps1 и run_tests_bench.ps1 (правка под перенос 05v и новые .cmd)
+PASS S17 05v r5 перенесён в _aside целиком и байт в байт (6 файлов), в image_r2j его больше нет
+PASS L1 19: код 0, файл out\pi_load_*.txt с BB_R6LOAD_DONE, сначала проверка имени дрона, потом скрипт с меткой load
+PASS L2 19: посланный скрипт = pi\r6_pi_load.sh (тот же текст), в нём нет sudo
+PASS L3 19: чужой дрон: код 4, скрипт не послан
+PASS L4 19: чужой ПК: код 4, к дрону не обращались
+PASS L5 19: ответ без конца: код 4, файл переименован в .FAILED.txt
+PASS L6 19: файл с той же меткой уже есть: код 4, не перезаписан, к дрону не обращались
+PASS C1 20: первый запуск (нет «до»): код 0, VERDICT OK, BASELINE нет
+PASS C2 20: второй запуск как «до»: код 0, BASELINE = первый файл
+PASS C3 20: Ч1 failed не пуст: код 5, WHY Ч1, VERDICT NOT_OK
+PASS C4 20: «до» - только файл с VERDICT OK (свежий NOT_OK пропущен)
+PASS C5 20: Ч2 NRestarts 2: код 5
+PASS C6 20: Ч2 служба activating: код 5
+PASS C7 20: Ч2 та же загрузка, время входа в active изменилось (перезапуск после «до»): код 5
+PASS C8 20: другая загрузка (перезагрузка): новое время входа не ошибка, код 0
+PASS C9 20: Ч2 в журнале wifi-manager 3 ошибки: код 5
+PASS C10 20: Ч2 журнал недоступен: код 5 (проверить нечем)
+PASS C11 20: Ч3 энергосбережение Wi-Fi включено: код 5
+PASS C12 20: Ч3 строк set_power_mgmt нет: код 5 (проверить нечем)
+PASS C13 20: Ч3 iw Power save on: код 5
+PASS C14 20: Ч4 пропал узел /aruco_detect: код 5, назван
+PASS C15 20: Ч4 лишний узел: код 5
+PASS C16 20: Ч4 ros2 node list не ответил: код 5
+PASS C17 20: по журналу 23a fwupd замаскирован, а на Pi enabled/active: код 5 «правка не держится»
+PASS C18 20: fwupd masked/inactive и после перезагрузки: код 0
+PASS C19 20: после отката 23a ожидания маски нет: enabled/active - код 0
+PASS C20 20: по журналу 23b hold, а на Pi hold нет: код 5
+PASS C21 20: hold forever держится: код 0
+PASS C25 20: после «до» менялся стек (событие 07 overlay_connect_*): другой список узлов и перезапуск bumblebee не СТОП, код 0, файл помечен как новое «до»
+PASS C26 20: следующий запуск сравнивает уже с новым «до»: узел /novyy_uzel_r2j пропал -> код 5
+PASS C27 20: файл с той же меткой уже есть: код 4, не перезаписан, к дрону не обращались
+PASS C22 20 (cmd): чужой дрон: код 4, скрипт не послан
+PASS C23 20 (cmd): чужой ПК: код 4, к дрону не обращались
+PASS C24 20 (cmd): обычный запуск: код 0, посланный скрипт = pi\r6_sys_check.sh
+PASS K1 21: нет разрешения: код 4, к дрону не обращались
+PASS K2 21: в разрешении нет СЛОВА_ВЛАДЕЛЬЦА: код 4, к дрону не обращались
+PASS K3 21: разрешение от другого шага (ПРАВКА=22...): код 4
+PASS K4 21: ответ не K1: код 4, к дрону не обращались
+PASS K5 21: чужой ПК: код 4, к дрону не обращались
+PASS K6 21: чужой дрон: код 4, ничего не скопировано и не послано
+PASS K7 21: папки нет: порядок host, ci(absent), mk, scp upload, ci(ok), k1, scp download; код 0
+PASS K8 21: на Pi копируются ровно 4 файла (camera_fix dabd5076, bench_recorder, raw_layout_check, SHA256SUMS) в incoming/camera_fullrow_r6
+PASS K9 21: файл К-1 с PERMISSION_SHA256 и «# VERDICT OK», копия папки K1 на ПК
+PASS K10 21: в скрипт проверки папки подставлены суммы 4 файлов
+PASS K11 21: то же разрешение второй раз (после созданных на Pi файлов): код 4, к дрону не обращались
+PASS K12 21: папка уже есть и верна: не копирует (нет mkdir и upload); К-1 НЕ ГОТОВО: код 5, VERDICT NOT_OK
+PASS K13 21: на Pi папка с чужими файлами: код 4, не перезаписывает, К-1 не запускается
+PASS K14 21: файл замера в наборе изменён: код 4, к дрону не обращались
+PASS K15 21: папка out\k1_<метка> уже есть: код 4, к дрону не обращались
+PASS K16 21: runner без подтверждения из окна: код 4
+PASS CO1 22: нет разрешения: код 4, к дрону не обращались
+PASS CO2 22: нет результата К-1: код 4, к дрону не обращались
+PASS CO3 22: последний К-1 НЕ ГОТОВО: код 4, к дрону не обращались
+PASS CO4 22: К-1 старше 180 минут: код 4
+PASS CO5 22: рулетка не числом (с & в тексте): код 4, к дрону не обращались, команда не выполнилась
+PASS CO6 22: высота меньше 10 см: код 4
+PASS CO7 22: не START: код 4
+PASS CO8 22: порядок host, ci, A, C, A2, end, копия папки; код 0
+PASS CO9 22: числа записаны без порогов (VERDICT MEASURED), протокол с рулеткой 12 / -3,5 / 45 и приложением N
+PASS CO10 22: посланный скрипт фазы = pi\r6_cost_phase.sh (3 раза), конец = pi\r6_cost_end.sh
+PASS CO11 22: то же разрешение второй раз: код 4, к дрону не обращались
+PASS CO12 22: фаза C не готова: A2 не запускается, конец замера делается, код 5, VERDICT NOT_DONE
+PASS CO13 22: «стек как был» не подтвердился: код 5
+PASS CO14 22: на Pi нет файлов замера: код 4, фазы не запускаются, ничего не копирует
+PASS CO15 22: чужой дрон: код 4, скриптов не послано
+PASS CO16 22: файл фазы с той же меткой уже есть: код 4, не перезаписан, к дрону не обращались
+PASS SY1 23a_sys_fwupd_mask.cmd: нет разрешения: код 4, к дрону не обращались
+PASS SY2 23a_sys_fwupd_mask.cmd: разрешение с чужим ПРАВКА=: код 4, к дрону не обращались
+PASS SY3 23a_sys_fwupd_mask.cmd: не YES: код 4, к дрону не обращались
+PASS SY4 23a_sys_fwupd_mask.cmd: обычный запуск: код 0; ssh -tt; аргументы «fwupd apply»; журнал с PERMISSION_SHA256 и BB_SYS_DONE
+PASS SY5 23a_sys_fwupd_mask.cmd: посланный скрипт = pi\r6_sys_change.sh
+PASS SY6 23a_sys_fwupd_mask.cmd: то же разрешение второй раз: код 4, к дрону не обращались
+PASS SY7 23a_sys_fwupd_mask.cmd: чужой дрон: код 4, скрипт не послан
+PASS SY8 23a_sys_fwupd_mask.cmd: чужой ПК: код 4
+PASS SY1 23a_otkat_fwupd_mask.cmd: нет разрешения: код 4, к дрону не обращались
+PASS SY2 23a_otkat_fwupd_mask.cmd: разрешение с чужим ПРАВКА=: код 4, к дрону не обращались
+PASS SY3 23a_otkat_fwupd_mask.cmd: не YES: код 4, к дрону не обращались
+PASS SY4 23a_otkat_fwupd_mask.cmd: обычный запуск: код 0; ssh -tt; аргументы «fwupd rollback»; журнал с PERMISSION_SHA256 и BB_SYS_DONE
+PASS SY5 23a_otkat_fwupd_mask.cmd: посланный скрипт = pi\r6_sys_change.sh
+PASS SY6 23a_otkat_fwupd_mask.cmd: то же разрешение второй раз: код 4, к дрону не обращались
+PASS SY7 23a_otkat_fwupd_mask.cmd: чужой дрон: код 4, скрипт не послан
+PASS SY8 23a_otkat_fwupd_mask.cmd: чужой ПК: код 4
+PASS SY1 23b_sys_snap_hold.cmd: нет разрешения: код 4, к дрону не обращались
+PASS SY2 23b_sys_snap_hold.cmd: разрешение с чужим ПРАВКА=: код 4, к дрону не обращались
+PASS SY3 23b_sys_snap_hold.cmd: не YES: код 4, к дрону не обращались
+PASS SY4 23b_sys_snap_hold.cmd: обычный запуск: код 0; ssh -tt; аргументы «snaphold apply»; журнал с PERMISSION_SHA256 и BB_SYS_DONE
+PASS SY5 23b_sys_snap_hold.cmd: посланный скрипт = pi\r6_sys_change.sh
+PASS SY6 23b_sys_snap_hold.cmd: то же разрешение второй раз: код 4, к дрону не обращались
+PASS SY7 23b_sys_snap_hold.cmd: чужой дрон: код 4, скрипт не послан
+PASS SY8 23b_sys_snap_hold.cmd: чужой ПК: код 4
+PASS SY1 23b_otkat_snap_hold.cmd: нет разрешения: код 4, к дрону не обращались
+PASS SY2 23b_otkat_snap_hold.cmd: разрешение с чужим ПРАВКА=: код 4, к дрону не обращались
+PASS SY3 23b_otkat_snap_hold.cmd: не YES: код 4, к дрону не обращались
+PASS SY4 23b_otkat_snap_hold.cmd: обычный запуск: код 0; ssh -tt; аргументы «snaphold rollback»; журнал с PERMISSION_SHA256 и BB_SYS_DONE
+PASS SY5 23b_otkat_snap_hold.cmd: посланный скрипт = pi\r6_sys_change.sh
+PASS SY6 23b_otkat_snap_hold.cmd: то же разрешение второй раз: код 4, к дрону не обращались
+PASS SY7 23b_otkat_snap_hold.cmd: чужой дрон: код 4, скрипт не послан
+PASS SY8 23b_otkat_snap_hold.cmd: чужой ПК: код 4
+PASS SY1 23c_sys_taimery_mask.cmd: нет разрешения: код 4, к дрону не обращались
+PASS SY2 23c_sys_taimery_mask.cmd: разрешение с чужим ПРАВКА=: код 4, к дрону не обращались
+PASS SY3 23c_sys_taimery_mask.cmd: не YES: код 4, к дрону не обращались
+PASS SY4 23c_sys_taimery_mask.cmd: обычный запуск: код 0; ssh -tt; аргументы «timers apply»; журнал с PERMISSION_SHA256 и BB_SYS_DONE
+PASS SY5 23c_sys_taimery_mask.cmd: посланный скрипт = pi\r6_sys_change.sh
+PASS SY6 23c_sys_taimery_mask.cmd: то же разрешение второй раз: код 4, к дрону не обращались
+PASS SY7 23c_sys_taimery_mask.cmd: чужой дрон: код 4, скрипт не послан
+PASS SY8 23c_sys_taimery_mask.cmd: чужой ПК: код 4
+PASS SY1 23c_otkat_taimery_mask.cmd: нет разрешения: код 4, к дрону не обращались
+PASS SY2 23c_otkat_taimery_mask.cmd: разрешение с чужим ПРАВКА=: код 4, к дрону не обращались
+PASS SY3 23c_otkat_taimery_mask.cmd: не YES: код 4, к дрону не обращались
+PASS SY4 23c_otkat_taimery_mask.cmd: обычный запуск: код 0; ssh -tt; аргументы «timers rollback»; журнал с PERMISSION_SHA256 и BB_SYS_DONE
+PASS SY5 23c_otkat_taimery_mask.cmd: посланный скрипт = pi\r6_sys_change.sh
+PASS SY6 23c_otkat_taimery_mask.cmd: то же разрешение второй раз: код 4, к дрону не обращались
+PASS SY7 23c_otkat_taimery_mask.cmd: чужой дрон: код 4, скрипт не послан
+PASS SY8 23c_otkat_taimery_mask.cmd: чужой ПК: код 4
+PASS SY9 23a apply: нет снимка «до» шага 20: код 5, к дрону не обращались
+PASS SY10 23a apply: последний снимок 20 NOT_OK: код 5
+PASS SY11 23a apply: снимок старше 60 минут: код 5
+PASS SY12 23a apply: снимок сделан ДО последней правки 23c (правки по одной): код 5
+PASS SY13 23a откат: снимок «до» не нужен (откат нужен, когда что-то не так): код 0
+PASS SY14 23a: на Pi условия не выполнены (BB_SYS_STOP): код 5
+PASS SY15 23a: sudo не принял пароль (BB_SYS_NOCHANGE): код 5
+PASS SY16 23a: правка не подтвердилась (BB_SYS_FAIL): код 6
+PASS SY17 run_r6_sys.ps1: подтверждение от другого режима: код 4, к дрону не обращались
+PASS SY18 run_r6_sys.ps1: журнал с той же меткой уже есть: код 4, не перезаписан, к дрону не обращались
+PASS V1 24a: всё как надо: код 0, VERDICT OK
+PASS V2 24a: главная исполняет старый camera_fix (4a15d699): код 5, VERDICT NOT_OK
+PASS V3 24a: файл менялся ПОСЛЕ запуска процесса (стек не перезапущен): код 5, VERDICT NOT_OK
+PASS V4 24a: процесс не из исполняемого префикса: код 5, VERDICT NOT_OK
+PASS V5 24a: второго camera_fix нет: код 5, VERDICT NOT_OK
+PASS V6 24a: launch в префиксе старый (62be01db): код 5, VERDICT NOT_OK
+PASS V7 24a: у второй камеры full_rows=True: код 5, VERDICT NOT_OK
+PASS V8 24a: нет «full-row read: 384»: код 5, VERDICT NOT_OK
+PASS V9 24a: в stats главной legacy frames 3: код 5, VERDICT NOT_OK
+PASS V10 24a: stats ещё нет (рано): код 5, VERDICT NOT_OK
+PASS V11 24a: полных кадров меньше 600: код 5, VERDICT NOT_OK
+PASS V12 24a: в журнале запуска process has died: код 5, VERDICT NOT_OK
+PASS V13 24a: camera_fix запускались 3 раза (перезапуск): код 5, VERDICT NOT_OK
+PASS V14 24a: журнал не от текущего запуска (pid не совпал): код 5, VERDICT NOT_OK
+PASS V15 24a: журнал недоступен: код 5, VERDICT NOT_OK
+PASS V16 24a: служба не active: код 5, VERDICT NOT_OK
+PASS V17 24a: служба перезапускалась сама: код 5, VERDICT NOT_OK
+PASS V18 24a: у главной full-row read not possible: код 5, VERDICT NOT_OK
+PASS V19 24a: ошибки camera_fix в журнале: код 5, VERDICT NOT_OK
+PASS V20 24b: прежняя камера r2j: код 0
+PASS V21 24b: после отката в журнале full_rows=True: код 5
+PASS V22 24b: работает dabd5076 (откат не применился): код 5
+PASS V23 24a (cmd): чужой дрон: код 4
+PASS V24 24a (cmd): обычный: код 0, посланный скрипт = pi\r6_cam_verify.sh с аргументом cam
+PASS V25 24a: файл с той же меткой уже есть: код 4, не перезаписан, к дрону не обращались
+PASS I1 09c: всё совпало: код 0, файл out\sverka_r2jcam_*.txt с VERDICT OK, файлов install_check_* нет (07 их не берёт)
+PASS I2 09c: в посланный скрипт подставлены списки варианта: camera_fix.py dabd5076, bumblebee.launch.py 5f0954d8, нет 4a15d699 и 62be01db
+PASS I3 09c: расхождение python-узла: код 5, VERDICT NOT_OK
+PASS I4 прежние ворота не тронуты: run_install_check.ps1 и run_07_takeoff.ps1 = r5; 07 берёт только install_check_*.txt
+PASS I5 журналы варианта install_r2j_cam_*.log и rollback_r2j_cam_*.log 07 считает событиями (обесценивают прежние 09 и 10); sverka_r2jcam_ и otpechatki_r2jcam_ - не install_check_ и не fingerprint_bumblebee_
+PASS F1 15c: без замечаний: код 0, out\otpechatki_r2jcam_*.txt с VERDICT OK, fingerprint_* не создаётся (16 его не берёт), цель bumblebee
+PASS F2 15c: в посланный скрипт подставлены списки варианта
+PASS F3 15c: python-узел отличается: код 5
+PASS G1 гейт варианта как есть в наборе: код 1 (BACKUP_ROOT TBD, нет S2/S3 варианта, нет сверки настроек, нет разрешения)
+PASS G2 гейт варианта: все условия выполнены: код 0
+PASS G3 гейт варианта: S2/S3 выдан для другого манифеста: код 1
+PASS G4 гейт варианта: COM_OBL_RC_ACT не 4: код 1
+PASS G5 гейт варианта: сверка настроек старше 30 минут: код 1
+PASS G6 гейт варианта: в разрешении нет MANIFEST_SHA256: код 1
+PASS G7 гейт варианта: в разрешении чужая сумма камеры: код 1
+PASS G8 гейт варианта: DEST_ROOT не /home/lb: код 1
+PASS G9 гейт варианта: BACKUP_ROOT TBD: код 1
+PASS G10 гейт варианта: файл payload изменён: код 1
+PASS G11 гейт варианта: лишний файл в payload: код 1
+PASS G12 гейт варианта: в манифесте 5 строк и fcu_detect.py: код 1
+PASS G13 гейт варианта после возврата всех правок теста снова 0 (тест сам ничего не испортил)
+PASS G14 05c: обычный запуск: код 0; порядок host, cp_install, host(+mkdir /tmp), scp, image_install.sh, cp_installed
+PASS G15 05c: на Pi уходят payload (4 файла), манифест варианта, image_target.conf и прежний image_install.sh
+PASS G16 05c: журнал install_r2j_cam_*.log (07 видит его как событие) с PERMISSION_SHA256 и BB_IMAGE_INSTALL_DONE
+PASS G17 05c: в проверку на Pi подставлены 4 места варианта, BACKUP_ROOT и sha256 манифеста (не в аргументах ssh)
+PASS G15b 05c: на Pi уходит СВОЯ копия image_target.conf (out\cam_target_install_*): DEST_ROOT=/home/lb, BACKUP_ROOT=/home/lb/bb_backup/r2j_cam; общий image_target.conf r5 не уходит; в журнале BACKUP_ROOT_VARIANT и VARIANT_BACKUP с меткой
+PASS G17b 05c: BROOT для проверки на Pi - папка резерва варианта /home/lb/bb_backup/r2j_cam (не общий BACKUP_ROOT)
+PASS G18 05c: то же разрешение второй раз: код 1, к дрону не обращались
+PASS G19 05c: проверка на Pi STOP (служба active): код 1, установки нет, ничего не скопировано
+PASS G20 05c: установка не дошла до конца: код 1, проверки «файлы легли» нет
+PASS G21 05c: после установки файлы не те: код 1
+PASS G22 05c: не YES: код 1, к дрону не обращались
+PASS G23 05c: служба не подтверждена (не SERVICE): код 1, к дрону не обращались
+PASS G24 05c: чужой ПК: код 1, к дрону не обращались
+PASS G25 05c: чужой дрон: код не 0 (4), ничего не послано и не скопировано
+PASS G26 05c: нет разрешения: код 1, к дрону не обращались
+PASS G27 гейт отката варианта без разрешения: код 1
+PASS G28 гейт отката: разрешение есть, S2/S3 и сверка настроек не нужны: код 0
+PASS G29 06c: выбирает самый новый полный неоткаченный резерв ИМЕННО этой установки (20261113_100000), откат прежним image_rollback.sh с этой меткой, код 0
+PASS G30 06c: журнал rollback_r2j_cam_*.log с PERMISSION_SHA256 и BB_IMAGE_ROLLBACK_DONE; на Pi уходят только image_target.conf и image_rollback.sh
+PASS G30b 06c: резерв ищется и откатывается в папке варианта: своя копия image_target.conf (BACKUP_ROOT=/home/lb/bb_backup/r2j_cam) уходит на Pi вместо общей, BROOT проверки на Pi - та же папка
+PASS G31 06c: резерва этой установки нет: код 1, откат не запускается
+PASS G32 06c: нет разрешения: код 1, к дрону не обращались
+PASS A1 05v r5 из _aside не запускается: код 1 «нет файла ..\image_install.sh рядом», к дрону не обращались
+
+ИТОГ r6: PASS 304, FAIL 0

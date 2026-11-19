@@ -1,0 +1,102 @@
+PASS P1 r6_pi_load.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1 r6_sys_check.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1 r6_sys_change.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1 r6_cam_incoming.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1 r6_cam_mkdir.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1 r6_k1.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1 r6_cost_phase.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1 r6_cost_end.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1 r6_cam_precheck.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1 r6_cam_verify.sh: чужое имя хоста -> код 1, STOP в stderr, в stdout ничего
+PASS P1b после отказов по имени хоста ни одна поддельная команда не вызывалась (systemctl, sudo, ros2, python3)
+PASS P2 load: код 0 и BB_R6LOAD_DONE
+PASS P2 load: службы с MainPID (bumblebee mainpid=4242), регулятор cpu0 ondemand, Wi-Fi last=disabled, conf zz-bumblebee
+PASS P2 load: подписчики *_reliable из ros2 topic info (publishers=1 subscribers=0) для трёх тем
+PASS P2 load: все вызовы ros2 с --no-daemon, нет topic hz
+PASS P2 load: pidstat -u -r -h -l 5 24, snap refresh --time, apt periodic, list-timers
+PASS P2 load: слово пароля в командной строке процесса замаскировано (password=***)
+PASS P2 load: sudo не вызывался, systemctl только чтение (show/is-enabled), в HOME ничего не появилось
+PASS P3 load: журнал ядра недоступен -> access=denied, всё равно DONE
+PASS P4 sc: код 0, DONE, failed 0, 7 служб SC_SVC, SC_WIFI journal=disabled, нет iw
+PASS P4 sc: SC_SVC с nrestarts и enter_mono, SC_JERR access=ok errors=0
+PASS P4 sc: узлы через ros2 node list --no-daemon, transform_listener_impl_<адрес> нормализован
+PASS P4 sc: состояние ступени 1 справкой (5 таймеров и snap hold=none), pidstat 30 с, ничего не записано
+PASS P5 sc: failed 2, ошибки журнала wifi-manager (2 строки), NRestarts 3, Wi-Fi enabled, iw on
+PASS P5 sc: журнал недоступен -> SC_JERR access=denied, SC_WIFI journal=denied
+PASS P6 fwupd apply: код 0, снимок до (enabled/active), подсказка sudo строкой, после masked/inactive, BB_SYS_DONE
+PASS P6 fwupd apply: sudo вызван ровно раз, с -p и systemctl mask --now fwupd-refresh.timer; маска в etc -> /dev/null
+PASS P7 fwupd apply повторно (уже masked): BB_SYS_STOP, код 3, sudo не вызывался
+PASS P9 fwupd rollback: код 0, unmask и start, после enabled/active, маски нет
+PASS P9 fwupd rollback, когда маски нет: BB_SYS_STOP, код 3
+PASS P8 fwupd apply, в /etc свой файл юнита: BB_SYS_STOP, sudo не вызывался
+PASS P10 timers apply: код 0, 4 таймера masked/inactive одной командой sudo
+PASS P10 timers rollback: код 0, все 4 enabled/active
+PASS P10 timers apply, один таймер не загружен: BB_SYS_STOP, sudo не вызывался
+PASS P11 snaphold apply: код 0, sudo snap refresh --hold, после «hold: forever»
+PASS P11 snaphold apply повторно: BB_SYS_STOP «уже hold»
+PASS P11 snaphold rollback: код 0, hold нет
+PASS P11 snaphold: просроченная пауза («24 days ago») не считается hold: правка идёт, код 0
+PASS P12 sudo не принял пароль: BB_SYS_NOCHANGE, код 5, таймер как был
+PASS P13 mask «прошёл», но не применился: BB_SYS_FAIL, код 4 (правка, которая тихо не применилась)
+PASS P14 неизвестная правка: BB_SYS_STOP, код 3
+PASS P14 неизвестный режим: BB_SYS_STOP, код 3
+PASS P15 incoming: папки нет -> CI_STATE absent
+PASS P16 mkdir: новая папка, MKDIR_OK
+PASS P16 mkdir повторно: папка уже есть -> без MKDIR_OK, код не 0, файлы целы
+PASS P15 incoming: 4 файла верны -> CI_STATE ok
+PASS P15 incoming: лишний файл называется (CI_EXTRA), суммы верны -> ok
+PASS P15 incoming: файл изменён -> DIFF и CI_STATE bad
+PASS P17 k1: метка не ГГГГММДД_ЧЧММСС -> НЕ ГОТОВО, код 2, ничего не создано
+PASS P17 k1: уже работает процесс замера (нашёлся в /proc без pgrep) -> НЕ ГОТОВО, папка не создана
+PASS P17 k1: свой скрипт (метка BB_R6) не считается процессом замера; К1 ГОТОВО, K1_DIR, meta, кадр 0
+PASS P17 k1: записано «до»: троттлинг, температура, число process has died (1), процессы стека (1)
+PASS P17 k1: raw_layout_check запущен системным python3 -B с --candidate из incoming и --n 5
+PASS P17 k1: на Pi новые файлы только в ~/bench_ws/camera_fullrow_r6 и incoming (больше ничего в HOME)
+PASS P17 k1: та же метка второй раз -> «уже есть, ничего не перезаписываю»
+PASS P17 k1: раскладка не та -> К1 НЕ ГОТОВО, но K1_DIR есть (файлы создавались)
+PASS P17 k1: нет папки файлов замера -> НЕ ГОТОВО
+PASS P17 k1: суммы файлов замера не сходятся -> НЕ ГОТОВО, папка не создана
+PASS P18 cost A: ФАЗА A ГОТОВО, summary, recorder на /main_camera/image_raw, без camera_fix полных строк
+PASS P18 cost A: детектор через ~/opencv47_venv/bin/python3 -B, aruco_detect стека, gate_by_flight_state:=false, все выходы в /bench
+PASS P18 cost A: стек до фазы: по одному main_camera_fix, aruco_detect, mavros_node
+PASS P18 cost C: camera_fix полных строк в новые темы (__node:=main_camera_fix_full, output_topic:=image_raw_full, camera_info_full), детектор и запись на image_raw_full, ГОТОВО
+PASS P18 cost C той же метки второй раз: «уже есть, ничего не перезаписываю», ничего не запускалось
+PASS P18 cost C без строк stats у кандидата: НЕ ГОТОВО
+PASS P18 cost: в стеке два main_camera_fix -> НЕ ГОТОВО до запуска чего-либо
+PASS P18 cost: фаза не A/C/A2 -> НЕ ГОТОВО
+PASS P18 cost: нет ~/opencv47_venv/bin/python3 -> НЕ ГОТОВО (системный OpenCV 4.6 без ArucoDetector)
+PASS P18 cost: новые файлы только в ~/bench_ws/camera_fullrow_r6/*/cost
+PASS P19 end: процессов замера нет, стек по одному -> ГОТОВО
+PASS P19 end: остался процесс замера -> НЕ ГОТОВО, назван pid
+PASS P20 precheck install: служба inactive, строка оверлея, префикс = оверлей r2j, 4 файла r2j -> CP_RESULT OK
+PASS P20 precheck install: служба active -> STOP
+PASS P20 precheck install: исполняется ros2_ws, а не оверлей -> STOP (правка легла бы не туда)
+PASS P20 precheck install: в start_bumblebee.sh нет строки оверлея -> STOP
+PASS P20 precheck install: файлы уже вариант -> STOP (не r2j)
+PASS P20 precheck installed: 4 файла = вариант -> OK
+PASS P20 precheck rollback: список резервов с совпадением манифеста и пометкой отката
+PASS P20 precheck rolledback: 4 файла = r2j -> OK
+PASS P20 precheck: символьная ссылка на месте файла -> STOP
+PASS P20 precheck: только чтение (sudo не вызывался, systemctl только is-active)
+PASS P21 verify: служба (MainPID 4242), префикс, sha launch
+PASS P21 verify: два работающих camera_fix найдены через /proc (свой скрипт с меткой BB_R6 отброшен), sha файла, in_prefix=yes, запущены позже изменения файла
+PASS P21 verify: журнал - только последний запуск (pid 4242 = MainPID), full_rows True/False, read384, stats, 2 запуска, 0 смертей
+PASS P21 verify: MainPID не совпал с pid в журнале -> match=no
+PASS P21 verify: процесс запущен ДО изменения файла -> start_epoch меньше file_ctime
+PASS P21 verify: журнал не читается -> CV_LOG access=denied
+PASS P21 verify: неизвестный режим -> CV_STOP
+PASS P21 verify: только чтение (sudo нет, systemctl только show)
+PASS P22 нет pgrep/pkill/killall вне комментариев ни в одном pi/r6_*.sh
+PASS P22 bash -n проходит у всех pi/r6_*.sh
+PASS P23 эхо: пароль набран ДО подсказки sudo (псевдотерминал, как ssh -tt) - в выводе его нет; правка прошла (RC=0, BB_SYS_DONE); после выхода эхо снова включено
+PASS P23 контроль: тот же скрипт без строки stty (как до правки) - набранный заранее пароль виден в выводе, то есть попал бы в журнал (тест утечку ловит)
+PASS P23 эхо: выход по условию (BB_SYS_STOP) в псевдотерминале - код 3 сохранён, эхо возвращено (trap EXIT)
+PASS P24 05, потом 05c со своей копией conf: резерв образа r2j - BACKUP_ROOT/20261113_024447, резерв варианта (он новее) - только в BACKUP_ROOT/r2j_cam/20261113_024448
+PASS P24 проверка 06c на Pi (BROOT = BACKUP_ROOT/r2j_cam): в списке только резерв варианта (match=1), резерва образа r2j нет; CP_RESULT OK
+PASS P24 верный порядок, шаг 1: 06c (своя копия conf, метка варианта) вернул 4 файла r2j, образ r2j не тронут
+PASS P24 верный порядок, шаг 2: 06 r5 БЕЗ метки откатил образ r2j (20261113_024447): src снова как до 05, оверлей не тронут
+PASS P24 06 r5 без метки сразу после 05c: откатывает образ r2j (20261113_024448), резерв варианта (20261113_024449) не тронут
+PASS P24 поэтому порядок обязателен: после такого 06 проверка 06c даёт СТОП (в src уже не вариант), откат варианта не пойдёт
+PASS P24 контроль (как до правки: резерв варианта в общем BACKUP_ROOT): 06 без метки берёт резерв ВАРИАНТА (20261113_024450) и пишет DONE, а образ r2j остаётся - «тихо не тот» откат; тест это различает
+
+ИТОГ r6 Pi: PASS 100, FAIL 0 (песочница /tmp/r6pi_c6oNSX)

@@ -1,0 +1,13 @@
+# MAVROS fixed (bp02): base b964c117362dc6606b22d3d9839d076425bc597a (MAVROS 2.14.0 source), tag backport-02 = d63a23674dd80ff4525829ca4bd716bbcc773111
+# commits:
+#   8a8b4d3e9a04d40af3fe5a463b451e52c8cb9010 Backport mavlink/mavros#2138: router mutex on remote_addrs
+#   6dbd9c3be70871f65eb690412b692dcf5b43e78e Backport mavlink/mavros#2149: sys_status vehicles map mutex
+#   4e755de2aa45d91d14925c84d86618ae74dc41aa Backport mavlink/mavros#2093: param set double promise guard
+#   9ec18c034b9bdf0bc2dfda70344ccece17ff9fd0 do not call parameters_missing_idx.front() if list is empty
+#   d63a23674dd80ff4525829ca4bd716bbcc773111 fix: std::future_error in command.cpp when the set_value() promise called twice
+# path	sha256_base_2.14.0	sha256_bp02
+mavros/include/mavros/mavros_router.hpp	df6afc7c16c43f296ff2d236720b2365bd9290b79fa4bb45fb025c4a68828d30	01d625a77946fe4d2a950886e92855a28bd5eb7b49537b40e6a811d4e949f855
+mavros/src/lib/mavros_router.cpp	443657fd816f22f2cc4612b8f92e74c6d6cb05c075bacd14f14cad24fdf38276	f2ab39303d7ad0ec82cc6947128c27c582ee692a9ec7e6bf62c04bf08663235b
+mavros/src/plugins/command.cpp	15c4d98047760c49a02b4f035cf49bf0f827f522db519684c24223bb96849a75	72112a9e496d80ac528c00f8ab96e1da6ea687847ebfd7c62ac34615ba8dfee8
+mavros/src/plugins/param.cpp	3879bfc3fed58f97832641678675de3dfd993038e0319ee45c3e6926c7e79824	811d5d4b95539bc67064c7d6a833bdb6c83fa2935d7c05756479e3cca538c55d
+mavros/src/plugins/sys_status.cpp	5ca0986706a7856fab7acce11cb39c390c330d724fb784d9755a4824e814b9d9	87518ab1a9c1fe860a74dcd53ee1b9b9041c113fe70a550a861894c79d335ce2

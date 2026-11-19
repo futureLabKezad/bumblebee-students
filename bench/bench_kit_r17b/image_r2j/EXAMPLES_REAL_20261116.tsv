@@ -1,0 +1,7 @@
+# EXAMPLES_REAL_20261116.tsv (Claude, 16.11.2026, набор r11). Вторые допустимые sha256 для примеров полёта из CPP_SOURCES_r2j.tsv: копии карты real 16.11
+# (/work/field_real_20261116/scripts_final_r2, точки округлены до 0,01 м; копии и суммы - real_map_20261116\ этого набора). Колонки: sha256 TAB путь (как в CPP_SOURCES_r2j.tsv; только examples/, флаг там «-»).
+# Читают ТОЛЬКО сверки «что стоит на дроне» - 09 (run_install_check.ps1, pi\install_check.sh) и 15 (run_fingerprint.ps1, pi\overlay_fingerprint.sh): для этих путей совпадение
+# с r2j ИЛИ с этой строкой - OK (вторая помечается REAL_MAP). Сборка 13 (bb_build*.sh) этот файл не читает: она по-прежнему требует r2j и при сборке вернёт в оверлей примеры r2j.
+# aruco_z_test.py здесь нет: его нет и в CPP_SOURCES_r2j.tsv (на дроне свой, NOT_IN_PAYLOAD_r2j.txt), 09 его не сверяет.
+28992fe4df6bb404a2d403e001b0f2e8e6a3985c4d5a0681dd6d441b97c0ed7a	ros2_ws/src/bumblebee/examples/flight/flight_marker.py
+915a443e76e796cbf01b7b4771f86028df469acc04e7be8d3124f34d1f24cd37	ros2_ws/src/bumblebee/examples/flight/flight_marker_loop.py

@@ -1,0 +1,8 @@
+# real_map_20261116 (Claude, 16.11.2026, набор r11): КОПИИ (только для сверки sha и для тестов), взяты cp из WSL, источник только читался:
+#   flight_marker.py, flight_marker_loop.py - /work/field_real_20261116/scripts_final_r2 (поправка чата 1 16.11 ~18:20: точки округлены до 0,01 м; прежние 9bc8016f…/9add0586… из scripts_final НЕ используются);
+#   aruco_z_test.py - /work/field_real_20261116/scripts_final (в scripts_final_r2 его нет); map_final.txt - /work/field_real_20261116/map_final.txt (прежняя).
+# В шапках источника: «TEST COPY 16.11 (r2)» и «TEST ONLY, not for the drone». На дрон этот набор их НЕ ставит; ставить ли - решение владельца.
+fd6cba69e62eebbe7628f5516916e8072bc79c14c9b1980b25ead795c5d700f1  aruco_z_test.py
+28992fe4df6bb404a2d403e001b0f2e8e6a3985c4d5a0681dd6d441b97c0ed7a  flight_marker.py
+915a443e76e796cbf01b7b4771f86028df469acc04e7be8d3124f34d1f24cd37  flight_marker_loop.py
+545e8e4617f4405cf7b9234f302c249ce60592c0b5487f02520f109d292a0826  map_final.txt

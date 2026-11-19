@@ -1,0 +1,490 @@
+PASS S1 в наборе .cmd: 17 (01, 02a, 02b, 03, 04, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18 в корне)
+PASS S1 01_snimok_do.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 01_snimok_do.cmd: концы строк CRLF, без BOM
+PASS S1 01_snimok_do.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 01_snimok_do.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 02a_zamer_bez_video.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 02a_zamer_bez_video.cmd: концы строк CRLF, без BOM
+PASS S1 02a_zamer_bez_video.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 02a_zamer_bez_video.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 02b_zamer_s_video.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 02b_zamer_s_video.cmd: концы строк CRLF, без BOM
+PASS S1 02b_zamer_s_video.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 02b_zamer_s_video.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 03_v_rukakh.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 03_v_rukakh.cmd: концы строк CRLF, без BOM
+PASS S1 03_v_rukakh.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 03_v_rukakh.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 04_vibratsiya.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 04_vibratsiya.cmd: концы строк CRLF, без BOM
+PASS S1 04_vibratsiya.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 04_vibratsiya.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 07_vzlet_zagotovka.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 07_vzlet_zagotovka.cmd: концы строк CRLF, без BOM
+PASS S1 07_vzlet_zagotovka.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 07_vzlet_zagotovka.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 08_batareya.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 08_batareya.cmd: концы строк CRLF, без BOM
+PASS S1 08_batareya.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 08_batareya.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 09_sverka_install.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 09_sverka_install.cmd: концы строк CRLF, без BOM
+PASS S1 09_sverka_install.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 09_sverka_install.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 10_mavros_versiya.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 10_mavros_versiya.cmd: концы строк CRLF, без BOM
+PASS S1 10_mavros_versiya.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 10_mavros_versiya.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 11_sborka_mavros_bp02.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 11_sborka_mavros_bp02.cmd: концы строк CRLF, без BOM
+PASS S1 11_sborka_mavros_bp02.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 11_sborka_mavros_bp02.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 12_otkat_mavros_bp02.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 12_otkat_mavros_bp02.cmd: концы строк CRLF, без BOM
+PASS S1 12_otkat_mavros_bp02.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 12_otkat_mavros_bp02.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 13_sborka_bumblebee_r2j.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 13_sborka_bumblebee_r2j.cmd: концы строк CRLF, без BOM
+PASS S1 13_sborka_bumblebee_r2j.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 13_sborka_bumblebee_r2j.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 14_otkat_sborki_bumblebee.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 14_otkat_sborki_bumblebee.cmd: концы строк CRLF, без BOM
+PASS S1 14_otkat_sborki_bumblebee.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 14_otkat_sborki_bumblebee.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 15_otpechatki_sborki.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 15_otpechatki_sborki.cmd: концы строк CRLF, без BOM
+PASS S1 15_otpechatki_sborki.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 15_otpechatki_sborki.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 16_podkljuchit_overlay.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 16_podkljuchit_overlay.cmd: концы строк CRLF, без BOM
+PASS S1 16_podkljuchit_overlay.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 16_podkljuchit_overlay.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 17_otkljuchit_overlay.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 17_otkljuchit_overlay.cmd: концы строк CRLF, без BOM
+PASS S1 17_otkljuchit_overlay.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 17_otkljuchit_overlay.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 18_sostoyanie_sluzhb.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 18_sostoyanie_sluzhb.cmd: концы строк CRLF, без BOM
+PASS S1 18_sostoyanie_sluzhb.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 18_sostoyanie_sluzhb.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 05_install_r2j.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 05_install_r2j.cmd: концы строк CRLF, без BOM
+PASS S1 05_install_r2j.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 05_install_r2j.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 06_rollback_r2j.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 06_rollback_r2j.cmd: концы строк CRLF, без BOM
+PASS S1 06_rollback_r2j.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 06_rollback_r2j.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S1 05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd: первая строка «ТОЛЬКО ЧТЕНИЕ» или «МЕНЯЕТ ДРОН»
+PASS S1 05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd: концы строк CRLF, без BOM
+PASS S1 05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd: проверка имени ПК DESKTOP-H5CPN8E
+PASS S1 05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd: нет «if ...(...)» с круглыми скобками в тексте echo внутри блока
+PASS S2 01_snimok_do.cmd: ТОЛЬКО ЧТЕНИЕ, не МЕНЯЕТ ДРОН
+PASS S2 01_snimok_do.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S2 04_vibratsiya.cmd: ТОЛЬКО ЧТЕНИЕ, не МЕНЯЕТ ДРОН
+PASS S2 04_vibratsiya.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S2 08_batareya.cmd: ТОЛЬКО ЧТЕНИЕ, не МЕНЯЕТ ДРОН
+PASS S2 08_batareya.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S2 09_sverka_install.cmd: ТОЛЬКО ЧТЕНИЕ, не МЕНЯЕТ ДРОН
+PASS S2 09_sverka_install.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S2 10_mavros_versiya.cmd: ТОЛЬКО ЧТЕНИЕ, не МЕНЯЕТ ДРОН
+PASS S2 10_mavros_versiya.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S2 15_otpechatki_sborki.cmd: ТОЛЬКО ЧТЕНИЕ, не МЕНЯЕТ ДРОН
+PASS S2 15_otpechatki_sborki.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S2 18_sostoyanie_sluzhb.cmd: ТОЛЬКО ЧТЕНИЕ, не МЕНЯЕТ ДРОН
+PASS S2 18_sostoyanie_sluzhb.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S2 02a_zamer_bez_video.cmd: первая строка честно «МЕНЯЕТ ДРОН (косвенно)»: моторы, vpe_fix передаёт позу в MAVROS, Как остановить; нет «ТОЛЬКО ЧТЕНИЕ»
+PASS S2 02a_zamer_bez_video.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S2 02b_zamer_s_video.cmd: первая строка честно «МЕНЯЕТ ДРОН (косвенно)»: моторы, vpe_fix передаёт позу в MAVROS, Как остановить; нет «ТОЛЬКО ЧТЕНИЕ»
+PASS S2 02b_zamer_s_video.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S2 03_v_rukakh.cmd: первая строка честно «МЕНЯЕТ ДРОН (косвенно)»: моторы, vpe_fix передаёт позу в MAVROS, Как остановить; нет «ТОЛЬКО ЧТЕНИЕ»
+PASS S2 03_v_rukakh.cmd: в тексте нет sudo, scp, reboot, param set, arming
+PASS S3 07: первая строка «МЕНЯЕТ ДРОН: ВЗЛЁТ - моторы запустятся ... Как остановить: переключатель режима, CH8, Ctrl+C»
+PASS S3 05: «МЕНЯЕТ ДРОН: … r2j насовсем … Как вернуть: 06_rollback_r2j.cmd», условия правила 14 в первой строке
+PASS S4 run_01_snapshot.ps1: UTF-8 с BOM
+PASS S4 run_07_takeoff.ps1: UTF-8 с BOM
+PASS S4 run_armcheck.ps1: UTF-8 с BOM
+PASS S4 run_battery.ps1: UTF-8 с BOM
+PASS S4 run_bb_build.ps1: UTF-8 с BOM
+PASS S4 run_fingerprint.ps1: UTF-8 с BOM
+PASS S4 run_install_check.ps1: UTF-8 с BOM
+PASS S4 run_journal.ps1: UTF-8 с BOM
+PASS S4 run_mavros_build.ps1: UTF-8 с BOM
+PASS S4 run_mavros_check.ps1: UTF-8 с BOM
+PASS S4 run_measure.ps1: UTF-8 с BOM
+PASS S4 run_overlay.ps1: UTF-8 с BOM
+PASS S4 run_r6_camverify.ps1: UTF-8 с BOM
+PASS S4 run_r6_cost.ps1: UTF-8 с BOM
+PASS S4 run_r6_fingerprint_cam.ps1: UTF-8 с BOM
+PASS S4 run_r6_install_check_cam.ps1: UTF-8 с BOM
+PASS S4 run_r6_k1.ps1: UTF-8 с BOM
+PASS S4 run_r6_load.ps1: UTF-8 с BOM
+PASS S4 run_r6_sys.ps1: UTF-8 с BOM
+PASS S4 run_r6_syscheck.ps1: UTF-8 с BOM
+PASS S4 run_services.ps1: UTF-8 с BOM
+PASS S4 check_gates.ps1: UTF-8 с BOM
+PASS S4 check_gates_r2j_cam.ps1: UTF-8 с BOM
+PASS S4 run_r6_cam_install.ps1: UTF-8 с BOM
+PASS S4 bb_common.ps1: UTF-8 с BOM
+PASS S4 bb_lists.ps1: UTF-8 с BOM
+PASS S4 bb_lists_r2jcam.ps1: UTF-8 с BOM
+PASS S4 bb_r6.ps1: UTF-8 с BOM
+PASS S4 run_all_tests_r6.ps1: UTF-8 с BOM
+PASS S4 run_tests_bench.ps1: UTF-8 с BOM
+PASS S4 run_tests_image.ps1: UTF-8 с BOM
+PASS S4 run_tests_pi.ps1: UTF-8 с BOM
+PASS S4 run_tests_r6.ps1: UTF-8 с BOM
+PASS S4 check_gates_camera.ps1: UTF-8 с BOM
+PASS S4 image_install.sh: концы строк LF
+PASS S4 image_rollback.sh: концы строк LF
+PASS S4 START_BUMBLEBEE_BASELINE_s0b.sh: концы строк LF
+PASS S4 m1_unpack.sh: концы строк LF
+PASS S4 m2_build.sh: концы строк LF
+PASS S4 m2_stop.sh: концы строк LF
+PASS S4 m3_verify.sh: концы строк LF
+PASS S4 m4_um_line.sh: концы строк LF
+PASS S4 m5_check74_rc3.sh: концы строк LF
+PASS S4 m6_cpu_apt.sh: концы строк LF
+PASS S4 arm_state.sh: концы строк LF
+PASS S4 battery_check.sh: концы строк LF
+PASS S4 bb_build.sh: концы строк LF
+PASS S4 bb_build_aside.sh: концы строк LF
+PASS S4 bb_build_precheck.sh: концы строк LF
+PASS S4 flight_gate.sh: концы строк LF
+PASS S4 install_check.sh: концы строк LF
+PASS S4 journal_window.sh: концы строк LF
+PASS S4 mavros_build_aside.sh: концы строк LF
+PASS S4 mavros_build_precheck.sh: концы строк LF
+PASS S4 mavros_check.sh: концы строк LF
+PASS S4 overlay_connect.sh: концы строк LF
+PASS S4 overlay_disconnect.sh: концы строк LF
+PASS S4 overlay_fingerprint.sh: концы строк LF
+PASS S4 pi_state.sh: концы строк LF
+PASS S4 r6_cam_incoming.sh: концы строк LF
+PASS S4 r6_cam_mkdir.sh: концы строк LF
+PASS S4 r6_cam_precheck.sh: концы строк LF
+PASS S4 r6_cam_verify.sh: концы строк LF
+PASS S4 r6_cost_end.sh: концы строк LF
+PASS S4 r6_cost_phase.sh: концы строк LF
+PASS S4 r6_k1.sh: концы строк LF
+PASS S4 r6_pi_load.sh: концы строк LF
+PASS S4 r6_sys_change.sh: концы строк LF
+PASS S4 r6_sys_check.sh: концы строк LF
+PASS S4 services_check.sh: концы строк LF
+PASS S4 start_script_check.sh: концы строк LF
+PASS S4 vision_measure.sh: концы строк LF
+PASS S4 run_tests_r6_pi.sh: концы строк LF
+PASS S5 battery_check.sh: нет перенаправления вывода в файл (> или >>), кроме /dev/null, 2>&1 и >&2
+PASS S5 journal_window.sh: нет перенаправления вывода в файл (> или >>), кроме /dev/null, 2>&1 и >&2
+PASS S5 install_check.sh: нет перенаправления вывода в файл (> или >>), кроме /dev/null, 2>&1 и >&2
+PASS S5 mavros_check.sh: нет перенаправления вывода в файл (> или >>), кроме /dev/null, 2>&1 и >&2
+PASS S5 mavros_build_precheck.sh: нет перенаправления вывода в файл (> или >>), кроме /dev/null, 2>&1 и >&2
+PASS S5 bb_build_precheck.sh: нет перенаправления вывода в файл (> или >>), кроме /dev/null, 2>&1 и >&2
+PASS S5 overlay_fingerprint.sh: нет перенаправления вывода в файл (> или >>), кроме /dev/null, 2>&1 и >&2
+PASS S5 pi_state.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 pi_state.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 vision_measure.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 vision_measure.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 arm_state.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 arm_state.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 battery_check.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 battery_check.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 journal_window.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 journal_window.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 install_check.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 install_check.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 mavros_check.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 mavros_check.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 mavros_build_precheck.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 mavros_build_precheck.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 bb_build_precheck.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 bb_build_precheck.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 overlay_fingerprint.sh: нет записи (sudo, rm, mv, cp, tee, mkdir, touch, chmod, systemctl restart/start/stop, reboot)
+PASS S5 overlay_fingerprint.sh: нет команд PX4/MAVROS на запись (param set, service call, cmd/arming, set_mode, setpoint, offboard, CommandBool, ParamSet)
+PASS S5 vision_measure.sh: единственная публикация — Bool в /aruco_detect/wake (create_publisher один раз)
+PASS S5 vision_measure.sh: замер отказывается при armed в режиме measure и при отсутствии связи с FCU до того, как создан издатель wake
+PASS S5 vision_measure.sh: без pgrep -f и pkill (правило 13)
+PASS S5 arm_state.sh: ТОЛЬКО ЧТЕНИЕ в заголовке, проверка имени дрона, нет publisher/pub/create_publisher
+PASS S5 run_armcheck.ps1: ТОЛЬКО ЧТЕНИЕ в первой строке, коды 0/5/4, не пишет на дрон (только ssh с pi\arm_state.sh)
+PASS A1 01: код 0, файл состояния Pi создан
+PASS A1 01: два вызова ssh (имя дрона, pi_state.sh); скрипт = pi\pi_state.sh (SHA256, LF)
+PASS A1 01: ssh с -n -T BatchMode, без sudo и записи
+PASS A1 01: после этого вызван params_check.cmd r4 с -Stamp bench_<время>, BB_NO_PAUSE=1, отчёты в out набора
+PASS A1 01: на экране сказано, что настройки совпали (код r4 = 0)
+PASS A2 01: код r4 = 2 (отличия): сообщение «есть отличия … снимок до стенда», код 0
+PASS A2 01: код r4 = 4: сообщение «Настройки не прочитаны»
+PASS A3 01: чужой дрон: код 4, чтение не делалось, r4 не вызывался
+PASS A3 01: чужой ПК: код 4, ssh не вызывался
+PASS A3 01: pi_state.sh оборвался (нет BB_PI_STATE_DONE): код 4, файл .FAILED, r4 не вызывался
+PASS A3 01: нет связи: код 4
+PASS B1 02a_zamer_bez_video.cmd: код 0, сводка и сырой файл созданы
+PASS B1 02a_zamer_bez_video.cmd: 2 вызова ssh, аргументы Pi: 300 bez_video measure 1; скрипт = pi\vision_measure.sh (SHA256, LF)
+PASS B1 02a_zamer_bez_video.cmd: сводка содержит SUMMARY, события и строки журнала; нет оценок «хорошо/плохо»
+PASS B1 02a_zamer_bez_video.cmd: на экране видна сводка
+PASS B1 02b_zamer_s_video.cmd: код 0, сводка и сырой файл созданы
+PASS B1 02b_zamer_s_video.cmd: 2 вызова ssh, аргументы Pi: 300 s_video measure 1; скрипт = pi\vision_measure.sh (SHA256, LF)
+PASS B1 02b_zamer_s_video.cmd: сводка содержит SUMMARY, события и строки журнала; нет оценок «хорошо/плохо»
+PASS B1 02b_zamer_s_video.cmd: на экране видна сводка
+PASS B2 02a: дрон взведён (REFUSED armed): код 3, «ЗАМЕР НЕ НАЧАТ», сводка с причиной, сообщение владельцу
+PASS B2 02b: нет связи MAVROS с FCU (REFUSED): код 3
+PASS B3 02a: замер оборвался (нет BB_BENCH_DONE rc=0): код 4, .FAILED, сводки «хорошо» нет
+PASS B3 02a: чужой дрон: код 4, замер не запускался
+PASS B3 02a: чужой ПК: код 4, ssh не вызывался
+PASS B4 BB-NewOutFile не перезаписывает существующий файл: код 4, файл не изменён
+PASS C1 03: место 1, высота 150: код 0, метка hand_center, аргументы Pi 120 hand_center measure 1
+PASS C1 03: в сводке введённое вручную: место и высота камеры 150 см
+PASS C1 03: место 2 даёт метку hand_camera_over, высота 98.5
+PASS C1 03: место 3 даёт метку hand_back8, высота 98.5
+PASS C2 03: место 9: код 4, к дрону не обращались
+PASS C2 03: высота «abc»: код 4, к дрону не обращались
+PASS C2 03: высота с лишними знаками «150; calc»: код 4, к дрону не обращались
+PASS D1 04: SAFE: код 0, аргументы Pi 180 vibration vibration 0 (детектор НЕ будится)
+PASS D1 04: без SAFE: код 4, к дрону не обращались
+PASS D1 04: чужой ПК: код 4
+PASS D2 04: в тексте названы меры безопасности (винты сняты, выключатель, второй человек, причина 04.11 неизвестна, правило 3)
+PASS E1 07 в исходном виде заблокирован: код 4, к дрону не обращались; причины: нет TAKEOFF_APPROVED.txt, нет сверки (takeoff.conf заполнен, TBD уже нет)
+PASS E1 07: третье подтверждение неверное: код 4 сразу в .cmd, PowerShell не запускался
+PASS E1 07: на «YES» ответили no: код 4
+PASS E1 07: чужой ПК: код 4
+PASS E1 07: ps1 без полного набора подтверждений не пускает (код 4)
+PASS E2 07 при выполненных условиях: код 0; порядок вызовов ssh: имя дрона, sha256sum, проверка drone.py (только чтение), запуск скрипта (-tt) с окружением ROS, затем имя дрона и проверка «разоружён», затем имя дрона и чтение журнала Pi (только чтение)
+PASS E2 07: отсчёт не меньше 10 секунд (прошло не меньше 9,5 с до запуска)
+PASS E2 07: журнал takeoff_*.log создан, в нём разрешение, sha256 скрипта, сверка настроек до и вывод скрипта
+PASS E2 07: после полёта сразу вызван params_check r4 с -Stamp after_flight_ и BB_NO_PAUSE=1
+PASS E2 07: на экране красное предупреждение «ВЗЛЁТ … МОТОРЫ» и способы остановки
+PASS E3 07: скрипт на Pi завершился с кодом 1: код 1, настройки после всё равно читаются
+PASS E3 07: sha256 скрипта на Pi не тот: код 4, скрипт полёта не запускался, отсчёта не было
+PASS E3 07: скрипта на Pi нет: код 4, не запускался
+PASS E4 07: сверка старше 30 минут: код 4, к дрону не обращались
+PASS E4 07: сверка с отличиями (СТОП): код 4, к дрону не обращались
+PASS E4 07: черновой отчёт -AllowStreamFallback не годится: код 4
+PASS E4 07: sha в TAKEOFF_APPROVED.txt не совпадает с takeoff.conf: код 4
+PASS E4 07: разрешение не от чата 1 / не на шаг 14 / без даты и слов владельца: код 4
+PASS E5 07: путь скрипта с «..»: код 4
+PASS E5 07: SCRIPT_ARGS с «; reboot»: код 4
+PASS E5 07: ps1 с -CountdownSec 5 (меньше 10) отклоняется: код 4, к дрону не обращались, отсчёт не начинался
+PASS E5 07: ps1 с -MaxParamsAgeMin 99999 отклоняется (возраст сверки только 0-30 минут): код 4, к дрону не обращались
+PASS E5 07: ps1 с -MaxParamsAgeMin NaN отклоняется (NaN не должен отключать проверку свежести): код 4, к дрону не обращались
+PASS E5 07: ps1 с чужим -ConfPath отклоняется: код 4, к дрону не обращались
+PASS E6 07: параметры в командной строке .cmd не пробрасываются: старая сверка (45 мин) всё равно отклоняет, код 4
+PASS E6 07: в тексте .cmd нет %* и %1 (ничего из командной строки не передаётся)
+PASS E6 07: лишний -CountdownSec 5 в командной строке не сокращает отсчёт (прошло не меньше 9,5 с)
+PASS E7 07: SCRIPT_ARGS в takeoff.conf изменены после разрешения (1.5 вместо 0.8): код 4, к дрону не обращались, причина названа
+PASS E7 07: в разрешении нет строки АРГУМЕНТЫ=: код 4, к дрону не обращались
+PASS E7 07: в разрешении АРГУМЕНТЫ=--height 0.8, а в takeoff.conf аргументов нет: код 4
+PASS E8 07: после полёта дрон ВЗВЕДЁН (armed=true): код 5, params_check НЕ вызывался, на экране «ВЗВЕДЁН» и что делать
+PASS E8 07: при armed=true журнал Pi не читается (нет вызова journal_window.sh, нет файла takeoff_*_journal.txt)
+PASS E8 07: состояние «взведён» не прочитано (armed=?): код 5, params_check НЕ вызывался
+PASS E8 07: нет связи с контроллером (connected=false armed=false): код 5, params_check НЕ вызывался
+PASS E8 07: проверка не дошла до конца (нет BB_ARM_STATE_DONE, код ssh 3): код 5, params_check НЕ вызывался
+PASS E8 07: проверка вернула пустой вывод: код 5, params_check НЕ вызывался
+PASS E8 07: после полёта дрон разоружён: код 0, params_check вызван
+PASS E9 07: при разоружённом дроне журнал Pi прочитан только чтением: файл takeoff_*_journal.txt с BB_JOURNAL_DONE, настройки тоже прочитаны
+PASS E9 07: журнал Pi не прочитан (код ssh 3): код 0, файл .FAILED, сообщение, настройки после полёта всё равно прочитаны
+PASS R1 08: код 0, сводка и сырой файл созданы
+PASS R1 08: 2 вызова ssh (имя дрона, battery_check.sh), аргумент 30; скрипт = pi\battery_check.sh (SHA256, LF)
+PASS R1 08: сводка содержит напряжение, BAT1_N_CELLS, BAT1_V_EMPTY, BAT1_V_CHARGED; нет оценок хорошо/плохо
+PASS R1 08: на экране видна сводка и «Готово: батарея прочитана»
+PASS R2 08: скрипт оборвался (нет BB_BATTERY_DONE): код 4, файл .FAILED, сводки нет
+PASS R2 08: чужой дрон: код 4, чтение не делалось (один вызов, имя дрона)
+PASS R2 08: чужой ПК: код 4, ssh не вызывался
+PASS R3 01: сводка состояния Pi показывает версию OpenCV (строка PI_OPENCV в скрипте pi_state.sh есть, python3 -B, только чтение)
+PASS R4 09: python, C++ исходники и бинарники совпали: код 0, файл ответа создан, 2 вызова ssh (имя дрона, сверка)
+PASS R4 09: на Pi уходит pi\install_check.sh с тремя списками: 10 python-узлов (sha256 и имя), 16 строк (11 C++ и файлов сборки, 5 скриптов полёта) (sha256, путь, флаг), 6 бинарных узлов (только имена); строк-заглушек нет
+PASS R4 09: бинарные узлы НЕ сверяются по sha256 с r2j: их суммы в скрипт не передаются (ни одна сумма x86-бинарника r2j в скрипте не стоит)
+PASS R4 09: в списке C++ ровно 5 файлов с флагом R (CMakeLists.txt, package.xml, script_lease.h, simple_offboard.cpp, state_link.h): r2j меняет C++ против образа на дроне
+PASS R4 09 (S2, чат 1 21:50): в скрипт для Pi вставлены 8 строк «sha256  вид  путь»: 7 launch-файлов пакета и fcu_detect.py (исправленный 5932a00a…, путь ros2_ws/src/bumblebee/scripts/fcu_detect.py), заглушки #@@RT@@ нет
+PASS R4 09 (S1, чат 1 21:50): при успехе в конец файла сверки дописано «# VERDICT OK» (его проверяет 07)
+PASS R5 09: ответ «launch-файл отличается»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: ответ «fcu_detect.py нет или прежний»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: ответ «python отличается»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: ответ «python нет»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: ответ «нет префикса»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: ответ «python меньше списка»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: ответ «C++ исходник отличается»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: ответ «C++ исходника нет»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: ответ «бинарника нет»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: ответ «бинарник старше исходников»: код 5 и красное СТОП, ничего не запускать; в файле последней строкой «# VERDICT NOT_OK»
+PASS R5 09: сверка оборвалась (нет BB_INSTALL_CHECK_DONE): код 4, файл .FAILED
+PASS R5 09: чужой дрон: код 4, сверка не делалась (один вызов)
+PASS R5 09: чужой ПК: код 4, ssh не вызывался
+PASS R6 10: коммит d63a236, 5 исходников, активен MAVROS из bench_ws: код 0
+PASS R6 10: на Pi уходит pi\mavros_check.sh с 5 строками «sha256  путь» из mavros_bp02_sources.tsv (колонка bp02), заглушки нет
+PASS R6 10 (S1, чат 1 21:50): при успехе в конец файла дописано «# VERDICT OK» (его проверяет 07)
+PASS R7 10: «другой коммит»: код 5, СТОП, причина названа; в файле последней строкой «# VERDICT NOT_OK»
+PASS R7 10: «4 из 5 исходников»: код 5, СТОП, причина названа; в файле последней строкой «# VERDICT NOT_OK»
+PASS R7 10: «активен apt»: код 5, СТОП, причина названа; в файле последней строкой «# VERDICT NOT_OK»
+PASS R7 10: чтение оборвалось: код 4, файл .FAILED
+PASS R7 check_gates и список: MAVROS_ARM64_SHA256SUMS.txt в наборе нет (это был тестовый образец m5, MAVROS_ORIGIN.md)
+PASS R11 11: три подтверждения, проверка Pi пройдена: код 0; порядок: имя дрона, проверка (чтение), mkdir, scp, M1, M2
+PASS R11 11: состояние apt «до» записано в out\mavros_apt_state_*.txt; журнал сборки с RC3M_M2_OK; папка передачи stage_mavros_*\rc3_mavros содержит 16 файлов набора rc3
+PASS R11 11: на экране оценка времени 7-10 минут, «не закрывайте окно», и что apt, start_bumblebee.sh, PX4 не менялись
+PASS R11 код run_mavros_build.ps1: нет sudo, apt, systemctl, start_bumblebee, set_mode, arming, param set (службу и пароль не трогает; подключение MAVROS не делает)
+PASS R11 11: неверное подтверждение (BATTERY/SERVICE/XXX): код 4, к дрону не обращались
+PASS R11 11: неверное подтверждение (BATTERY/NO/BUILD): код 4, к дрону не обращались
+PASS R11 11: неверное подтверждение (NO/SERVICE/BUILD): код 4, к дрону не обращались
+PASS R11 11: чужой ПК: код 4, к дрону не обращались
+PASS R12 11: служба bumblebee активна (проверка Pi сказала STOP): код 4, ничего не записано на дрон (только имя дрона и проверка), apt-состояние всё равно сохранено
+PASS R12 11: ~/bench_ws/mavros уже есть: STOP, ничего не перезаписывается (код 4, без mkdir и scp)
+PASS R12 11: чужой дрон: код 4, проверка и копирование не делались (один вызов)
+PASS R12 11: M1 не дошёл до RC3M_M1_OK: код 6, сборка (M2) не запускалась, подсказка про 12_otkat_mavros_bp02.cmd
+PASS R12 11: M2 не дошёл до RC3M_M2_OK: код 6, «Скажите Claude»
+PASS R12 11: ~/bench_ws/incoming не подготовлена: код 4, scp не было
+PASS R12 11: файл набора rc3 изменён (m2_build.sh): код 4 ДО обращения к дрону, названа несходящаяся сумма
+PASS R13 настоящий набор rc3 в image_r2j\mavros_build\pi_kit: 15 файлов, все суммы сходятся с TRANSFER_SHA256SUMS (сумма самого списка 8bb42477…), EXPECTED_SRC: backport-02, d63a236
+PASS R13 12: ASIDE: код 0; порядок: имя дрона, перенос (mv, без rm), сообщение «ничего не удалено»
+PASS R13 12: без ASIDE: код 4, к дрону не обращались
+PASS R13 12: Pi отказал (оверлей подключён, код 1, нет BB_ASIDE_DONE): код 4, «Ничего не удалялось»
+PASS R13 12: чужой ПК: код 4, к дрону не обращались
+PASS R14 13: три подтверждения, проверка Pi пройдена, сборка до BB_BBBUILD_OK: код 0; 3 вызова ssh (имя дрона, проверка чтением, сборка -tt); копирования на дрон (scp) нет
+PASS R14 13: на Pi уходят pi\bb_build_precheck.sh и pi\bb_build.sh с 16 строками «sha256  путь  флаг» из CPP_SOURCES_r2j.tsv, строк-заглушек нет; состояние «до» и журнал сборки записаны в out
+PASS R14 13 (r3, замечание проверки): в скрипты precheck и сборки подставлен sha256 hover r6 (a11b195c…, из required_shas.txt) отдельной строкой, заглушки #@@HOVER@@ нет
+PASS R14 13: на экране оценка времени (около 2,5 минут, 29.10: 2 мин 26 с), «не закрывайте окно», прежняя сборка ~/ros2_ws нетронута как резерв
+PASS R14 код run_bb_build.ps1: нет sudo, systemctl, apt, set_mode, arming, param set, start_bumblebee (службу и пароль не трогает, подключение оверлея не делает)
+PASS R14 13: неверное подтверждение (BATTERY/SERVICE/XXX): код 4, к дрону не обращались
+PASS R14 13: неверное подтверждение (BATTERY/NO/BUILD): код 4, к дрону не обращались
+PASS R14 13: неверное подтверждение (NO/SERVICE/BUILD): код 4, к дрону не обращались
+PASS R14 13: чужой ПК: код 4, к дрону не обращались
+PASS R15 13: проверка Pi сказала STOP (служба активна): код 4, сборка не запускалась (2 вызова: имя дрона, проверка), состояние «до» записано
+PASS R15 13: сборка прошла, но есть stderr (BB_BBBUILD_STDERR): код 7, «Дальше не идти: решает чат 1», ничего не принимается заранее
+PASS R15 13 (S4, чат 1 21:50): код 7 без «led_msgs not found»: «Причина НЕ известная», что делать: ничего не запускать, не повторять, прислать журнал чату 1
+PASS R15 13 (S4, чат 1 21:50): код 7 с «led_msgs not found»: «известное предупреждение», но НЕ «можно продолжать» (решает чат 1), что прислать и что делать владельцу
+PASS R15 13: сборка остановилась сама (BB_BBBUILD_STOP, нет OK): код 6, «не дошла до конца», подсказка про 14
+PASS R15 13: чужой дрон: код 4, проверка и сборка не делались (один вызов)
+PASS R15 13: проверка Pi оборвалась (нет BB_BBPRE_DONE): код 4, сборка не запускалась
+PASS R16 14: ASIDE: код 0; 2 вызова ssh (имя дрона, перенос mv); «ничего не удалено», ~/ros2_ws не менялся
+PASS R16 14: без ASIDE: код 4, к дрону не обращались
+PASS R16 14: Pi отказал (оверлей подключён): код 4, «Ничего не удалялось»
+PASS R17 15: bumblebee собран и без замечаний, MAVROS не собран: код 0; файл отпечатков bumblebee с «VERDICT OK» и строками «sha256  путь» записан на ПК; для mavros файла нет (оверлей не собран)
+PASS R17 15: 3 вызова ssh (имя дрона, bumblebee, mavros), ничего не пишется на Pi (в вызовах нет mkdir, tee, sudo)
+PASS R17 15: на экране «бинарники не старше исходников» не заявлено без проверки: строка итога содержит число бинарников
+PASS R17 15: собраны оба оверлея без замечаний: код 0, два файла отпечатков
+PASS R18 15: бинарник старше исходников (stale=1): код 5, красное СТОП «подключать нельзя», в файле отпечатков «VERDICT NOT_OK»
+PASS R18 15: один python-узел отличается (py_bad=1): код 5
+PASS R18 15: один C++ исходник копии отличается (src_bad=1): код 5
+PASS R18 15 (правка по проверке 10.11, S3): собрано 5 бинарников из 6 (неполная сборка bumblebee): код 5, «VERDICT NOT_OK», на экране «ждали 6»
+PASS R18 15 (S2, чат 1 21:50): один launch-файл оверлея отличается от r2j: код 5, «VERDICT NOT_OK», в файле отпечатков строка BB_FP_RT
+PASS R18 15 (S2): fcu_detect.py на Pi нет (missing=1): код 5
+PASS R18 15: ни один оверлей не собран: код 5, «Нет ни одного собранного оверлея»
+PASS R18 15: чтение оборвалось (нет BB_FP_DONE): код 4, файл .FAILED, отпечатков нет
+PASS R18 15: чужой дрон: код 4, чтение не делалось (один вызов)
+PASS R19 16: нет gates\OVERLAY_MAVROS_APPROVED.txt («да» владельца не записано чатом 1): код 4, к дрону не обращались, причина названа
+PASS R19 16: разрешение выдано для других отпечатков (sha не тот): код 4, к дрону не обращались
+PASS R19 16: в отпечатках VERDICT NOT_OK: код 4, к дрону не обращались
+PASS R19 16: нет отпечатков вообще (шаг 15 не делался): код 4, к дрону не обращались
+PASS R19 16: разрешение и отпечатки в порядке, три подтверждения: код 0; 3 вызова ssh (имя дрона, чтение start_bumblebee.sh, подключение); в скрипт вставлены FPHASH и FPCOUNT, заглушки нет
+PASS R19 16: в скрипт подставлены FPHASH (сумма отсортированного списка «sha256  путь») и FPCOUNT=2, самих строк списка в скрипте нет
+PASS R19 16: отпечатки из 602 файлов (как у настоящего install bumblebee, 505 файлов): код 0, ни один вызов ssh не длиннее 30000 знаков (предел Windows 32 767), FPCOUNT=602, FPHASH совпадает с независимым расчётом
+PASS R19 16: неверное подтверждение или цель (MAVROS/SERVICE/XXX): код 4, к дрону не обращались
+PASS R19 16: неверное подтверждение или цель (MAVROS/NO/CONNECT): код 4, к дрону не обращались
+PASS R19 16: неверное подтверждение или цель (EVIL/SERVICE/CONNECT): код 4, к дрону не обращались
+PASS R19 16: неверное подтверждение или цель (SERVICE/CONNECT): код 4, к дрону не обращались
+PASS R19 16: чужой ПК: код 4, к дрону не обращались
+PASS R20 16: Pi отказал (служба активна): код 4, «start_bumblebee.sh не менялся»
+PASS R20 17: SERVICE и DISCONNECT: код 0 БЕЗ гейта «да» (откат всегда разрешён); 2 вызова ssh (имя дрона, откат)
+PASS R20 17: неверное подтверждение (SERVICE/XXX): код 4, к дрону не обращались
+PASS R20 17: неверное подтверждение (NO/DISCONNECT): код 4, к дрону не обращались
+PASS R20 17: Pi отказал (файл менялся после подключения): код 4, «не менялся»
+PASS R20 настоящий набор: gates\OVERLAY_*_APPROVED.txt НЕТ (подключение оверлея без «да» владельца заблокировано); в gates\README.md описан формат
+PASS E10 07: drone.py, который импортирует скрипт, НЕ равен r2j (проверка Pi сказала STOP): код 4, запуска скрипта нет, отсчёта нет, на экране «НЕ равен r2j» и строка FG_DIR
+PASS E10 07: ответ проверки drone.py оборвался (нет BB_FG_DONE): код 4, взлёт не начат
+PASS E10 07: в скрипт проверки drone.py вставлены путь скрипта (из оверлея) и sha256 drone.py r2j (fa6abf8b…), заглушки нет
+PASS E11 07: в takeoff.conf нет DRONE_PY_SHA256: код 4, к дрону не обращались
+PASS E11 07: скрипт полёта лежит НЕ в оверлее (/home/lb/ros2_ws/...): код 4, к дрону не обращались, причина названа
+PASS E11 07: DRONE_PY_SHA256 не 64 символа: код 4, к дрону не обращались
+PASS S1 07: нет сверки 09 (install_check): код 4, к дрону не обращались, причина названа
+PASS S1 07: нет сверки 10 (mavros_check): код 4, к дрону не обращались
+PASS S1 07: последняя сверка 09 неуспешна (# VERDICT NOT_OK): код 4, к дрону не обращались
+PASS S1 07: в сверке 10 нет строки «# VERDICT OK» (старый формат, без вердикта): код 4
+PASS S1 07: после успешных 09 и 10 было подключение оверлея (16): код 4, «сделана ДО последнего подключения», к дрону не обращались
+PASS S1 07: событие overlay_disconnect_last новее сверок: код 4
+PASS S1 07: событие bb_build новее сверок: код 4
+PASS S1 07: событие mavros_build новее сверок: код 4
+PASS S1 07: событие bb_aside новее сверок: код 4
+PASS S1 07: событие mavros_aside новее сверок: код 4
+PASS S1 07: событие install_r2j новее сверок: код 4
+PASS S1 07: событие rollback_r2j новее сверок: код 4
+PASS S1 07: событие install_camera_dabd5076 новее сверок: код 4
+PASS S1 07: успешные 09 и 10 старше 180 минут: код 4
+PASS S1 07: generated, .err.txt, start_script_check, отпечатки и предпроверки НЕ считаются подключением/сборкой: код 0 (скрипт отработал), сверки 09 и 10 приняты
+PASS R21 эталон START_BUMBLEBEE_BASELINE_s0b.sh в наборе: sha256 58c14783… (как в s0b), ровно одна строка source ros2_ws, без CR
+PASS R21 16: start_bumblebee.sh на дроне как в s0b: проверка чтением (3 вызова: имя дрона, чтение start_bumblebee.sh, подключение), код 0; на экране «можно подключать» и «после строки source ~/ros2_ws»
+PASS R21 16: start_bumblebee.sh на дроне ОТЛИЧАЕТСЯ от s0b: код 4, СТОП «решает владелец», подключение не вызывалось (2 вызова: имя дрона, чтение)
+PASS R21 16: start_bumblebee.sh на дроне нет: код 4, «файла нет на дроне», подключение не вызывалось
+PASS R21 16: цель MAVROS, а в файле уже строка MAVROS (эталон + строка MAVROS): код 4 «ОТЛИЧАЕТСЯ» (для MAVROS допустим только чистый эталон)
+PASS R21 16: цель BUMBLEBEE при уже подключённом MAVROS (эталон + строка MAVROS): проверка пройдена, подключение вызвано: код 0, 3 вызова
+PASS R21 start_script_check.sh: только чтение (нет rm, mv, cp, tee, mkdir, touch, chmod, sudo, перенаправления в файл)
+PASS R21 flight_gate.sh: только чтение (нет rm, mv, cp, tee, mkdir, touch, chmod, sudo, перенаправления в файл)
+PASS K1 карточек 22, нумерация «N из 22» подряд
+PASS K2 карточка 15 (с моторами): четыре меры безопасности
+PASS K2 карточка 15 (с моторами): «Причина рывка … 04.11 неизвестна» и правило 3 / СТОП, батарею отключить
+PASS K2 карточка 16 (с моторами): четыре меры безопасности
+PASS K2 карточка 16 (с моторами): «Причина рывка … 04.11 неизвестна» и правило 3 / СТОП, батарею отключить
+PASS K2 карточка 18 (с моторами): четыре меры безопасности
+PASS K2 карточка 18 (с моторами): «Причина рывка … 04.11 неизвестна» и правило 3 / СТОП, батарею отключить
+PASS K2 карточка 21 (с моторами): четыре меры безопасности
+PASS K2 карточка 21 (с моторами): «Причина рывка … 04.11 неизвестна» и правило 3 / СТОП, батарею отключить
+PASS K3 карточка 1 : есть «Что меняется»
+PASS K3 карточка 2 : есть «Что меняется»
+PASS K3 карточка 3 : есть «Что меняется»
+PASS K3 карточка 4 : есть «Что меняется»
+PASS K3 карточка 5 : есть «Что меняется»
+PASS K3 карточка 6 : есть «Что меняется»
+PASS K3 карточка 7 : есть «Что меняется»
+PASS K3 карточка 8 : есть «Что меняется»
+PASS K3 карточка 9 : есть «Что меняется»
+PASS K3 карточка 10 : есть «Что меняется»
+PASS K3 карточка 11 : есть «Что меняется»
+PASS K3 карточка 12 : есть «Что меняется»
+PASS K3 карточка 13 : есть «Что меняется»
+PASS K3 карточка 14 : есть «Что меняется»
+PASS K3 карточка 15 : есть «Что меняется»
+PASS K3 карточка 16 : есть «Что меняется»
+PASS K3 карточка 17 : есть «Что меняется»
+PASS K3 карточка 18 : есть «Что меняется»
+PASS K3 карточка 19 : есть «Что меняется»
+PASS K3 карточка 20 : есть «Что меняется»
+PASS K3 карточка 21 : есть «Что меняется»
+PASS K3 карточка 22 : есть «Что меняется»
+PASS K4 все .cmd, названные в карточках, существуют в наборе
+PASS K4 в карточках нет ssh, scp, sudo
+PASS K4 карточки 5, 19, 20, 21, 22: ЗАГОТОВКА (заблокированы)
+PASS K4 карточка 21: отсчёт не меньше 10 с, NET TWO KILL YES, способы остановки
+PASS K5 порядок: 1 снимок (01), 2 группы QGC 1-3-2, 3 сверка r4, 4 батарея (08), 5 установка r2j (05), 6 группа 4 и новые строки, 7 сверка (01), потом стенд
+PASS K5 порядок: замеры 02a, 02b, 03, 04 стоят ПОСЛЕ установки r2j и группы 4 (карточки 9, 11, 12-14, 15)
+PASS K5 в тексте установка r2j (05) стоит раньше любого замера зрения (02a, 02b, 03, 04) и раньше взлёта (07)
+PASS K5 ручное висение в сетке (карточка 18) стоит после журнала вибрации и журналов SD и перед взлётом; в карточке 5 условие правила 14 и COM_OBL_RC_ACT = 4
+PASS K5 нет замера на старом образе и нет сравнения старого и нового camera_fix (в карточках и README)
+PASS K6 карточка 2: шаг 0 до группы 1 — копия всех журналов с SD через QGC Log Download, не нажимать Erase All, старые журналы терять нельзя
+PASS K6 карточка 21: после полёта проверка «разоружён» (run_armcheck), при взведённом настройки не читаются; аргументов у окна нет
+PASS K6 README и gates: в gates\README.md строка АРГУМЕНТЫ=, в image_r2j\gates\README.md строка ОБРАЗ_MANIFEST_SHA256=
+PASS K7 карточка 4: батарея: 08_batareya.cmd, BAT1_N_CELLS, BAT1_V_EMPTY, BAT1_V_CHARGED, напряжение видно, предупреждений нет, ТОЛЬКО ЧТЕНИЕ
+PASS K7 карточка 5: образ r2j, MAVROS bp02, hover r6 (a11b195c), прежняя камера 4a15d699, вариант dabd5076 отдельно (карточка 22)
+PASS K7 карточка 9 (02a): паузы длиннее 0,4 с, 12 Гц, markers_used, сбросы EKF смотреть по журналу SD (карточка 17)
+PASS K7 карточка 17: журналы SD в out\ulg, не нажимать Erase All, ulog_stand_report.py, xy_reset_counter, hover_thrust_estimate, только чтение
+PASS K7 карточки 18 и 21: T41 (hover_thrust_estimate, 4 с вместо 2,3 с), пауза зрения после взлёта, запас сторожа около 1 с со слов чата 1, journal_vision_pauses.py
+PASS K7 карточка 22: ТОЛЬКО ЕСЛИ ВЛАДЕЛЕЦ ВЫБЕРЕТ, dabd5076, PENDING, откат 06_rollback_r2j, вопрос владельцу
+PASS K7 в карточках нет r2g и qgc_card_set_20261109_r7; ссылка на карточки QGC r9
+PASS K7 карточка 7: после снимка шаги только чтением 09_sverka_install.cmd (install на Pi со списком r2j, расхождение: СТОП) и 10_mavros_versiya.cmd (пока MAVROS bp02 не собран, СТОП)
+PASS K7 карточка 5: DEST_ROOT = /home/lb по принятому набору s0b, узлы исполняются из install, BACKUP_ROOT пока TBD, сборок MAVROS для Pi нет
+PASS V1 18: все три службы active, ошибок нет: код 0, итог «ВСЕ 3 АКТИВНЫ, ОШИБОК НЕТ», 2 вызова ssh (имя дрона, чтение), файл ответа, последняя строка «# VERDICT OK»
+PASS V1 18: на Pi уходит pi\services_check.sh (метка BB_SVC_MARK), без заглушек, без списков; в вызовах нет sudo, systemctl stop/start/restart, scp
+PASS V1 18: на экране видны строки SVC и хвост журнала JT
+PASS V2 18: «wifi-manager не active (inactive)»: код 5, итог «СТОП: ...» с причиной, не «ВСЕ 3 АКТИВНЫ», в файле «# VERDICT NOT_OK»
+PASS V2 18: «notify-manager failed»: код 5, итог «СТОП: ...» с причиной, не «ВСЕ 3 АКТИВНЫ», в файле «# VERDICT NOT_OK»
+PASS V2 18: «led-default activating»: код 5, итог «СТОП: ...» с причиной, не «ВСЕ 3 АКТИВНЫ», в файле «# VERDICT NOT_OK»
+PASS V2 18: «Traceback или ImportError в журнале notify-manager»: код 5, итог «СТОП: ...» с причиной, не «ВСЕ 3 АКТИВНЫ», в файле «# VERDICT NOT_OK»
+PASS V2 18: «led-default перезапускалась сама»: код 5, итог «СТОП: ...» с причиной, не «ВСЕ 3 АКТИВНЫ», в файле «# VERDICT NOT_OK»
+PASS V2 18: «журнал wifi-manager недоступен»: код 5, итог «СТОП: ...» с причиной, не «ВСЕ 3 АКТИВНЫ», в файле «# VERDICT NOT_OK»
+PASS V2 18: в ответе только одна служба из трёх: код 5, «СТОП», не «ВСЕ 3 АКТИВНЫ»
+PASS V3 18: чтение оборвалось (нет BB_SVC_DONE): код 4, файл .FAILED, не «ВСЕ 3 АКТИВНЫ»
+PASS V3 18: чужой дрон: код 4, службы не читались (один вызов)
+PASS V3 18: чужой ПК: код 4, ssh не вызывался
+PASS V3 18: файл ответа не перезаписывается (в коде BB-NewOutFile для services_check_<время>.txt)
+PASS V4 18: ни в .cmd, ни в .ps1, ни в .sh нет записи на дрон и остановки служб (sudo, scp, reboot, param set, arming, set_mode, systemctl stop/start/restart/kill, rm, mv)
+PASS V5 карточка замера рулеткой: ТОЛЬКО ЧТЕНИЕ, батарея ОТКЛЮЧЕНА, пропеллеры СНЯТЫ, «Для цели: шаг 10», EKF2_RNG_POS_Z = 0,10 (владелец считает «скорее всего неверно»), линза дальномера, пол, центр контроллера, камера
+PASS V5 карточка замера рулеткой: в шаблоне карточки (Зачем, Сделайте, Где, После шага, Что будет, Ждать, Если не так, Что меняется на дроне), ничего не меняется на дроне, в QGC ничего не нажимать/менять
+PASS V5 ПОРЯДОК_СО_СБОРКАМИ.md: после установки образа и включения шаг 18_sostoyanie_sluzhb.cmd (только чтение) и карточка замера рулеткой упомянуты
+PASS Z1 настоящие takeoff.conf и gates\ набора: скрипт Ж3 flight.py ИЗ ОВЕРЛЕЯ (путь /home/lb/bench_ws/r2j/..., sha256 b69cc5e7… (0,9 м), DRONE_PY_SHA256 fa6abf8b…, аргументов нет, пометка «ВЛАДЕЛЕЦ ПОДТВЕРЖДАЕТ»), TAKEOFF_APPROVED.txt нет
+
+ИТОГ: PASS 488, FAIL 0

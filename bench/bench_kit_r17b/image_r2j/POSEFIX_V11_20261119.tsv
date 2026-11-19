@@ -1,0 +1,7 @@
+# POSEFIX_V11_20261119.tsv (Claude, 19.11.2026, набор r17; заменяет POSEFIX_V1_20261118.tsv набора r16, тот перенесён в _aside\r16_POSEFIX_V1_20261118.tsv). Решение владельца 19.11: на дрон - В1.1.
+# Допустимые sha256 варианта В1.1 для ДВУХ python-узлов: aruco_detect.py (третье значение после r2j и jd2) и vpe_fix.py (второе после r2j; vpe_fix В1.1 = vpe_fix В1).
+# Источник: /work/jv11_20261119/image_r2jv11 (= образ В1 + make_v11.py, меняется только aruco_detect.py; src = install); пакет drone_pkg_posefix_v1x_20261119 (шаги 48/49).
+# Колонки: sha256 TAB имя. Читают ТОЛЬКО сверки 09 и 15 (BL-ApplyV11Alt после BL-ApplyJd2Alt): aruco «r2j,jd2,v11», vpe «r2j,v1»; метка по совпавшему sha: r2j - без метки, jd2 - POSEFIX_JD2,
+# В1.1 - POSEFIX_V11. Оба узла должны быть одного варианта: POSEFIX_V11 только у одного из двух - СТОП. aruco В1 (890dafbf...) - DIFF, подсказка «нужен откат 49». jd, jd3 и любой другой - DIFF.
+81daec90eb32a61cccaefc623f9f685d8acbc402edcc7876140541be29c18472	aruco_detect.py
+39027fbd32cb0c19cae951cb19e2c37001faafc68d2d15f0a69aad36428b1f70	vpe_fix.py

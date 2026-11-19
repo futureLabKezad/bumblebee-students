@@ -1,0 +1,7 @@
+# POSEFIX_V1_20261118.tsv (Claude, 18.11.2026, набор r16). Допустимые sha256 варианта В1 для ДВУХ python-узлов: aruco_detect.py (третье значение после r2j и jd2) и vpe_fix.py (второе после r2j).
+# Источник: /work/jv1_20261118/image_r2jv1 (= образ jd2 + make_v1.py: одиночная метка, скачок xy и превышение скорости не отбрасываются, а передаются с sigma xy 1,0 м; src = install);
+# пакет drone_pkg_posefix_v1_20261118 (шаги 48/49). Колонки: sha256 TAB имя. Читают ТОЛЬКО сверки 09 и 15 (BL-ApplyV1Alt после BL-ApplyJd2Alt): aruco «r2j,jd2,v1», vpe «r2j,v1»;
+# метка по совпавшему sha: r2j - без метки, jd2 - POSEFIX_JD2, v1 - POSEFIX_V1. Оба узла должны быть одного варианта: POSEFIX_V1 только у одного из двух - СТОП.
+# Ровно 2 строки (aruco_detect.py и vpe_fix.py, по одной); sha v1 не равны r2j и jd2. jd (c1891f2a...), jd3 (afa99dde...) и любой другой - DIFF.
+890dafbfde99541a0742e26acc81e5f5a222390e7b8244e31fbbfc8f4ccc4338	aruco_detect.py
+39027fbd32cb0c19cae951cb19e2c37001faafc68d2d15f0a69aad36428b1f70	vpe_fix.py

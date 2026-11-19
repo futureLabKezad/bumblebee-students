@@ -1,0 +1,320 @@
+# DIFF_r5_r6.txt — разница bench_kit_20261112_r5 → bench_kit_20261112_r6 (Claude, 12.11.2026 21:03 по часам ПК)
+# Сравнены все файлы, кроме out\ (в обоих пустая) и папок прогонов тестов tests\run_*.
+# SHA256SUMS.txt в сравнение не входит: в r6 он пересчитан ПОСЛЕ этого файла; сам DIFF_r5_r6.txt тоже не входит.
+# Итог: одинаковых 125, изменено 4, перенесено (те же байты, другой путь) 6, добавлено 75, удалено 0.
+# Изменённые: PROGRESS.md, README.md, tests/run_tests_bench.ps1, tests/run_tests_image.ps1
+# Перенесённые: image_r2j/camera_variant_dabd5076/05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd -> _aside/image_r2j_camera_variant_dabd5076_r5/05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd; image_r2j/camera_variant_dabd5076/README.md -> _aside/image_r2j_camera_variant_dabd5076_r5/README.md; image_r2j/camera_variant_dabd5076/check_gates_camera.ps1 -> _aside/image_r2j_camera_variant_dabd5076_r5/check_gates_camera.ps1; image_r2j/camera_variant_dabd5076/gates/README.md -> _aside/image_r2j_camera_variant_dabd5076_r5/gates/README.md; image_r2j/camera_variant_dabd5076/image_manifest.final.tsv -> _aside/image_r2j_camera_variant_dabd5076_r5/image_manifest.final.tsv; image_r2j/camera_variant_dabd5076/payload/ros2_ws/src/bumblebee/src/python/camera_fix.py -> _aside/image_r2j_camera_variant_dabd5076_r5/payload/ros2_ws/src/bumblebee/src/python/camera_fix.py
+# Удалённые: нет
+# Добавленные (75): 09c_sverka_install_r2j_cam.cmd, 15c_otpechatki_r2j_cam.cmd, 19_nagruzka_pi.cmd, 20_nichego_ne_otvalilos.cmd, 21_kamera_K1_raskladka.cmd, 22_kamera_cena_A_C_A2.cmd, 23a_otkat_fwupd_mask.cmd, 23a_sys_fwupd_mask.cmd, 23b_otkat_snap_hold.cmd, 23b_sys_snap_hold.cmd, 23c_otkat_taimery_mask.cmd, 23c_sys_taimery_mask.cmd, 24a_proverka_kamery_polnye_stroki.cmd, 24b_proverka_kamery_r2j.cmd, _aside/README.md, _aside/SHA256SUMS_r5_copy.txt, camera_fullrow/SHA256SUMS_camera_fullrow.txt, camera_fullrow/bench_recorder.py, camera_fullrow/camera_fix.py, camera_fullrow/raw_layout_check.py, cards/КАРТОЧКИ_r6.md, gates/README_r6.md, image_r2j_cam/05c_install_r2j_cam.cmd, image_r2j_cam/06c_otkat_r2j_cam.cmd, image_r2j_cam/INSTALL_SHA256_r2jcam.txt, image_r2j_cam/R2JCAM_SOURCE.txt, image_r2j_cam/README.md, image_r2j_cam/RUNTIME_PY_r2jcam.tsv, image_r2j_cam/VARIANT_FILES.tsv, image_r2j_cam/check_gates_r2j_cam.ps1, image_r2j_cam/gates/README.md, image_r2j_cam/gen_lists_r2jcam.py, image_r2j_cam/image_manifest.final.tsv, image_r2j_cam/payload/bench_ws/r2j/install/bumblebee/lib/bumblebee/camera_fix.py, image_r2j_cam/payload/bench_ws/r2j/install/bumblebee/share/bumblebee/launch/bumblebee.launch.py, image_r2j_cam/payload/ros2_ws/src/bumblebee/launch/bumblebee.launch.py, image_r2j_cam/payload/ros2_ws/src/bumblebee/src/python/camera_fix.py, image_r2j_cam/run_r6_cam_install.ps1, lib/bb_lists_r2jcam.ps1, lib/bb_r6.ps1, pi/r6_cam_incoming.sh, pi/r6_cam_mkdir.sh, pi/r6_cam_precheck.sh, pi/r6_cam_verify.sh, pi/r6_cost_end.sh, pi/r6_cost_phase.sh, pi/r6_k1.sh, pi/r6_pi_load.sh, pi/r6_sys_change.sh, pi/r6_sys_check.sh, proverka_r6/README.md, proverka_r6/make_diff_sums_r6.py, proverka_r6/mutation_check_r6.sh, proverka_r6/mutation_check_r6.txt, proverka_r6/run_all_tests_r6.ps1, proverka_r6/scan_echo_r6.txt, proverka_r6/tests_r5_bench_console.txt, proverka_r6/tests_r5_image_console.txt, proverka_r6/tests_r5_pi_console.txt, proverka_r6/tests_r6_pc_console.txt, proverka_r6/tests_r6_pi_console.txt, proverka_r6/tests_r6_svodka.txt, proverka_r6/wsl_nice_wrapper.cs, run_r6_camverify.ps1, run_r6_cost.ps1, run_r6_fingerprint_cam.ps1, run_r6_install_check_cam.ps1, run_r6_k1.ps1, run_r6_load.ps1, run_r6_sys.ps1, run_r6_syscheck.ps1, tests/fake_scp_r6.cs, tests/fake_ssh_r6.cs, tests/run_tests_r6.ps1, tests/run_tests_r6_pi.sh
+# Для изменённых файлов ниже unified diff (1 строка контекста, концы строк сняты, их число сверено отдельно);
+# для добавленных — размер и sha256 (содержимое в самих файлах).
+
+====================================================================================================
+ИЗМЕНЁН PROGRESS.md
+  r5: sha256 5f3d35c08e7ca1c81c874c19f3bfb8beca6b5906c743d529679258ab5807e1c0; 13021 байт, CRLF 0, LF без CR 50, BOM нет
+  r6: sha256 28ce186ec95dac67d051572c5b9a850a1bfeab0acabdb9d03313b137c2f5539e; 17263 байт, CRLF 0, LF без CR 60, BOM нет
+--- r5/PROGRESS.md
++++ r6/PROGRESS.md
+@@ -51 +51,10 @@
+ - Ошибок по ходу нет. Открыто для чата 1: двойное подчёркивание `_aside_mavros__метка_` (так по правилу задания «<метка>» → «_метка_»); тот же текст `<метка>` остаётся в r4, поэтому 11–17 запускать из r5.
++
++# Набор r6 (12.11.2026): нагрузка Pi, камера полных строк, правки ступени 1 — Claude (помощник-сборщик, задача B)
++- 19:50 (часы ПК) r6 = копия r5 без `out\` (была пустая); копия сверена с SHA256SUMS r5: 135 из 135. Черновики — `/work/kit_r6_20261112/B/`.
++- Прочитано: P1 (evidence E1–E5), V1 (подписчики `*_reliable`), P2/V2 (dabd5076, OpenCV 4.6 против venv), PI_PERF ред. 3, `raw_layout_check.py`, `bench_recorder.py`, кандидат camera_fix, r2jf и его DIFF, проверка v14 R, юниты дрона из копии 12.11 (led-default есть, но не включён; bumblebee пишет в `/tmp/bumblebee.log`; ros-watchdog перезапускает стек только при работающей службе), журнал дрона 26.10 (формат строк camera_fix и `[launch]: All log files … -<pid>`), `start_bumblebee.sh` (`exec ros2 launch`).
++- Добавлено: 19, 20, 21, 22, 23a/b/c (+ откаты), 24a/24b, 09c, 15c, `image_r2j_cam\` (05c/06c, гейт, генератор списков, payload из r2jf), `camera_fullrow\` (3 файла PI_PERF + суммы), `lib\bb_r6.ps1`, `lib\bb_lists_r2jcam.ps1`, `pi\r6_*.sh` (10), `gates\README_r6.md`, `cards\КАРТОЧКИ_r6.md`, тесты `tests\run_tests_r6.ps1` (+ `fake_ssh_r6.cs`, `fake_scp_r6.cs`) и `tests\run_tests_r6_pi.sh`, `proverka_r6\`.
++- 05v r5 перенесён в `_aside\image_r2j_camera_variant_dabd5076_r5\` (байт в байт). В тестах r5 (`run_tests_image.ps1`, `run_tests_bench.ps1`) поправлены только пути к нему и счёт .cmd корня (r5: 17) — остальное без изменений.
++- Ошибки по ходу (свои, исправлены): (1) нормализатор концов строк задел файл r5 `run_armcheck.ps1` (CRLF) — восстановлен из r5 байт в байт, нормализатор теперь пропускает все файлы из SHA256SUMS r5; (2) в Pi-скрипте `$okr_из_` читалось как имя переменной — заменено на `${okr}`; (3) BACKUP_ROOT и sha манифеста не проходят в аргументы ssh набора (только короткие простые слова) — теперь подставляются в текст скрипта; (4) в тестах: `Sc` — встроенный псевдоним Set-Content, одиночный ответ PowerShell разворачивался в строку, журнал вызовов подделки не очищался между запусками — исправлено; (5) проверка «файл уже есть» шла после обращения к дрону — перенесена до него; (6) первый общий прогон тестов r5 упал на строке, ищущей папку варианта в `image_r2j` (перенесена) — прогон остановлен по PID (без pkill), тест поправлен, прогон заново; (7) heredoc в Bash-инструменте съедал `\\` в Python — патчи писал файлами.
++- 20:46–20:58 все тесты по одному (`proverka_r6\run_all_tests_r6.ps1`, WSL через обёртку с `nice -n 19 ionice -c3`): r5 стенд 488, r5 Pi 228, r5 образ 144, r6 ПК 299, r6 Pi 90 — FAIL 0 (всего 1249). Мутации 8 из 8 пойманы. Все вызовы ssh в тестах — в подделку. Папки прогонов перенесены в `/work/kit_r6_20261112/B/test_runs_final/`. Обёртка `wsl.exe` собиралась во временной папке Windows (`%TEMP%\bb_r6_wslnice_*`).
++- Осталось (не моё): разрешения в `gates\` и `image_r2j_cam\gates\` — только чат 1 после слов владельца; BACKUP_ROOT; пороги К-1…К-8; серво и колесо 20EC; разрешать ли полёт с вариантом камеры; независимая проверка r6.
+
+====================================================================================================
+ИЗМЕНЁН README.md
+  r5: sha256 455b3ec82ddb696ba562b2d00bfd42fcfe3414ba6715dc2502af51605e686e2c; 71041 байт, CRLF 0, LF без CR 197, BOM нет
+  r6: sha256 02303bfb7d8af32280ff1a954ff89294da98d1e7271ec3548e8e3e9b3830b24f; 93989 байт, CRLF 0, LF без CR 267, BOM нет
+--- r5/README.md
++++ r6/README.md
+@@ -1 +1,71 @@
++# r6 (12.11): нагрузка Pi, камера полных строк, правки ступени 1
++Claude (помощник-сборщик, задача B по заданию чата 1), 12.11.2026, около 21:00 по часам ПК. `bench_kit_20261112_r6` = копия `bench_kit_20261112_r5` без `out\` (там было пусто; здесь `out\` тоже пустая) плюс добавления ниже. r5 и r4 НЕ тронуты (правило 12): в r5 только читал; копия r6 до правок сверена с SHA256SUMS r5 — 135 из 135. **К дрону этот набор не подключался, ни один .cmd на дроне не запускался; Claude их не запускает** — двойной щелчок владельца. Владельцу ничего не ставится без его «да»: все шаги «МЕНЯЕТ ДРОН» r6 открываются только файлом-разрешением в `gates\` (создаёт только чат 1 после слов владельца; сборщик их не создавал). Метки: **доказано** (файл, код или тест), **скорее всего**, **возможно**.
++Основа: разборы `/work/pi_load_20261112/{P1,V1,P2,V2}`, процедура `camera_fullrow_01/PI_PERF_PROCEDURE_proposal.md` (ред. 3), образ `/work/fixed_image_r2jf_20261112` и его проверка `/work/review_v14_20261112/R` (П4).
++
++## Новые шаги (номера после 18, порядок r5 не тронут; карточки — `cards\КАРТОЧКИ_r6.md`)
++| Файл | Что | Метка |
++|---|---|---|
++| `19_nagruzka_pi.cmd` (`run_r6_load.ps1`, `pi\r6_pi_load.sh`) | шаг 0 P1: службы и их MainPID (`systemctl show -p MainPID --value`) с `ps`, процессы стека, регулятор частоты ядер, температура и троттлинг, энергосбережение Wi-Fi без sudo (`journalctl -b -k`, строки `set_power_mgmt`; файлы conf.d NetworkManager только читаются), `snap refresh --time`, `systemctl list-timers --all`, `apt-config dump \| grep -i periodic`, подписчики `*_reliable` (`ros2 topic info -v --no-daemon`), узлы (`ros2 node list --no-daemon`), потом `pidstat -u -r -h -l 5 24`. Без `ros2 topic hz`, без `notify_manager --selftest`, `/tmp/bumblebee.log` не трогает (V1). ~3 мин. Ответ `out\pi_load_*.txt` | ТОЛЬКО ЧТЕНИЕ |
++| `20_nichego_ne_otvalilos.cmd` (`run_r6_syscheck.ps1`, `pi\r6_sys_check.sh`) | Ч1–Ч6 P1: `systemctl --failed` пуст; bumblebee, wifi-manager, wifi-watchdog, notify-manager, avahi-daemon, NetworkManager, sys_metrics active, NRestarts 0, нет ошибок в журнале за 10 мин, в ту же загрузку время входа в active не изменилось (служба не перезапускалась после «до»); Wi-Fi power save выключен; узлы ROS (`--no-daemon`) как в «до»; pidstat 30 с — только для сравнения; Ч6 печатает, что смотреть в приложении. «До» = последний успешный `out\sys_check_*.txt`; если после него менялся стек (события 07: установка/откат образа и варианта, сборки, оверлеи), узлы и перезапуски не сравниваются и файл становится новым «до». Плюс: правки 23, которые по журналам применены, должны держаться (после перезагрузки тоже) | ТОЛЬКО ЧТЕНИЕ |
++| `21_kamera_K1_raskladka.cmd` (`run_r6_k1.ps1`, `pi\r6_k1.sh`, `pi\r6_cam_incoming.sh`, `pi\r6_cam_mkdir.sh`) | К-1 PI_PERF: `raw_layout_check.py` (камера только подписка), 5 кадров `/main_camera/image_raw_yuv`: step 1280, 614 400 байт, нули при шаге 1600. Файлы замера (`camera_fullrow\`: camera_fix dabd5076, bench_recorder 08c2ccac, raw_layout_check 8a811032 — суммы = PI_PERF §3 и SHA256SUMS camera_fullrow_01, доказано) кладутся в НОВУЮ `~/bench_ws/incoming/camera_fullrow_r6` (есть и верна — не копирует; есть и не та — СТОП), результат — в НОВУЮ `~/bench_ws/camera_fullrow_r6/<время>/K1` и копия на ПК `out\k1_<время>\` | МЕНЯЕТ ДРОН: только новые файлы; `gates\CAM_K1_APPROVED.txt` |
++| `22_kamera_cena_A_C_A2.cmd` (`run_r6_cost.ps1`, `pi\r6_cost_phase.sh`, `pi\r6_cost_end.sh`) | фазы A → C → A2 PI_PERF без ssh-блоков и без `pgrep -f` (процессы — по `/proc/*/cmdline`, остановка — `kill -INT` своего PID); стендовый детектор через `~/opencv47_venv/bin/python3` (системный OpenCV 4.6 без ArucoDetector, V2), параметры как в aruco.launch.py r2j, все выходы в `/bench/...` (markers, debug, map_pose, map_image, markers_used, yaw_locked, `/tf`); каждый временный процесс под `timeout` ≤ 240 с; потом «стек как был». Требует успешный К-1 (≤ 180 мин) и числа рулетки (К-8). Пороги К-2…К-8 НЕ применяет — только пишет числа (`out\camera_cost_<время>_*`) | МЕНЯЕТ ДРОН: временно; `gates\CAM_COST_APPROVED.txt` |
++| `23a_sys_fwupd_mask.cmd` / `23a_otkat_fwupd_mask.cmd` | `sudo systemctl mask --now fwupd-refresh.timer` / `unmask` и `start` | МЕНЯЕТ ДРОН; свои разрешения |
++| `23b_sys_snap_hold.cmd` / `23b_otkat_snap_hold.cmd` | `sudo snap refresh --hold` / `--unhold`; проверка — строка `hold: forever` в `snap refresh --time` | МЕНЯЕТ ДРОН; свои разрешения |
++| `23c_sys_taimery_mask.cmd` / `23c_otkat_taimery_mask.cmd` | `mask --now` man-db, motd-news, update-notifier-download, update-notifier-motd (.timer), одной группой / откат | МЕНЯЕТ ДРОН; свои разрешения |
++| `image_r2j_cam\05c_install_r2j_cam.cmd` / `06c_otkat_r2j_cam.cmd` (`run_r6_cam_install.ps1`, `check_gates_r2j_cam.ps1`, `..\pi\r6_cam_precheck.sh`) | вариант образа «r2j + камера полных строк» (README папки) | МЕНЯЕТ ДРОН; `image_r2j_cam\gates\R2J_CAM_APPROVED.txt` + `S2_S3_PASSED.txt` варианта / `OTKAT_R2J_CAM_APPROVED.txt` |
++| `24a_proverka_kamery_polnye_stroki.cmd` / `24b_proverka_kamery_r2j.cmd` (`run_r6_camverify.ps1`, `pi\r6_cam_verify.sh`) | «правка применилась» после перезапуска стека (ниже) | ТОЛЬКО ЧТЕНИЕ |
++| `09c_sverka_install_r2j_cam.cmd`, `15c_otpechatki_r2j_cam.cmd` | сверки 09 и 15 со списками варианта (`image_r2j_cam\INSTALL_SHA256_r2jcam.txt`, `RUNTIME_PY_r2jcam.tsv`) тем же скриптом Pi | ТОЛЬКО ЧТЕНИЕ |
++
++Во всех новых .cmd: первая строка «ТОЛЬКО ЧТЕНИЕ:» или «МЕНЯЕТ ДРОН: что… Зачем… Как вернуть…» без `< > | & ^ %` (урок r5; проверено сканером `proverka_r5\scan_echo.py`: новых опасных echo 0); проверка имени ПК и дрона (`bumblebee-20ec` и в .ps1 через `BB-TestDrone`, и первой строкой каждого скрипта Pi); выходные файлы не перезаписываются (проверка ДО обращения к дрону); на Pi — только новые папки, отказ, если папка уже есть.
++
++## Правки ступени 1 (23a, 23b, 23c): как устроено
++- Каждая — свой .cmd со своим разрешением и своим откатом (тоже со своим разрешением: по правилу задания все шаги «МЕНЯЕТ ДРОН» r6 открываются файлом в `gates\`; в r5 откаты 06/12/14/17 шли без него — их не менял). Разрешения одноразовые: успешный запуск с тем же файлом второй раз не пройдёт.
++- **Строго по одной:** apply требует свежий (≤ 60 мин) успешный 20, сделанный ПОСЛЕ последней правки/отката ступени 1. Откат снимка не требует (нужен как раз, когда что-то не так).
++- На Pi (`pi\r6_sys_change.sh`, через `ssh -tt`): снимок «до» → условия (иначе `BB_SYS_STOP`, ничего не изменено) → `sudo` с подсказкой `SYS_SUDO_PROMPT`, кончающейся переводом строки (иначе окно её не покажет), пароль набирает только владелец → проверка «применилась»: masked + inactive (apply), enabled + active (откат); для snap — `hold: forever`. Пароль не принят → `BB_SYS_NOCHANGE` (состояние как до). Команда «прошла», а состояние не то → `BB_SYS_FAIL` (это и есть урок Wi-Fi: правка, которая тихо не применилась).
++- Почему `mask --now`, а не `disable`: по P1 `disable` может не сработать (юнит тянет другой юнит или пакет); `mask` держится, `--now` останавливает таймер сразу. После перезагрузки **20** проверяет, что маска и hold на месте (по журналам `out\sys_*_apply_*.log`).
++- Просроченная пауза snap («hold: 24 days ago…», так выглядит в WSL) за hold не считается — проверено тестом. Формат `hold: forever` у snapd 2.77 на дроне — **скорее всего** (по документации snapd), на дроне не видел: если формат другой, 23b скажет «правка не подтвердилась» (безопасный отказ, откат — 23b_otkat).
++
++## Вариант образа «r2j + камера полных строк» (`image_r2j_cam\`, замена сломанного 05v)
++- **05v r5 отложен** в `_aside\image_r2j_camera_variant_dabd5076_r5\` (байт в байт, 6 файлов; оттуда не запускается — нет `..\image_install.sh`, проверено тестом A1). Почему (доказано P2/V2): 05v клал файл только в src, а стек запускает install — молча ничего не изменилось бы; в launch r2j нет `full_rows` → полные строки включились бы и у второй камеры; своих списков для 09 и 15 не было.
++- **Полезная нагрузка** (генератор `gen_lists_r2jcam.py`, из r2jf SHA256SUMS `fecff133…`; доказано: отличие от r2j ровно в двух файлах, остальные 9 python-узлов и 6 launch-файлов install r2jf = спискам r2j): `camera_fix.py` dabd5076 и `bumblebee.launch.py` 5f0954d8 (главная `full_rows: True`, вторая `False`) — в 4 места: `ros2_ws/src/...` (для будущих сборок) и `bench_ws/r2j/install/...lib/bumblebee/camera_fix.py` (755), `.../share/bumblebee/launch/bumblebee.launch.py` — то, что реально исполняется после 13 и 16. Установщик — прежний `image_r2j\image_install.sh` (резерв в BACKUP_ROOT), откат — прежний `image_rollback.sh` с меткой резерва ИМЕННО этой установки (ищется по sha256 её манифеста).
++- **До установки на Pi, только чтение** (`pi\r6_cam_precheck.sh`): служба остановлена (владелец сам), строка оверлея r2j в `start_bumblebee.sh`, `ros2 pkg prefix bumblebee` = оверлей r2j, 4 файла сейчас ровно r2j. Иначе СТОП — правка легла бы не туда, где исполняется.
++- **«Правка применилась» (24a), после запуска службы владельцем:** оба РАБОТАЮЩИХ camera_fix исполняют файл с sha dabd5076 по пути из `/proc/<pid>/cmdline`, из исполняемого префикса, и запущены ПОСЛЕ последнего изменения файла (иначе крутится старый код); launch в префиксе 5f0954d8; в `/tmp/bumblebee.log` (только чтение) — блок ПОСЛЕДНЕГО запуска (pid в имени папки журнала launch = MainPID службы): `full_rows=True` у главной и `False` у второй, `full-row read: 384 sensor rows at pitch 1600 -> 640x480`, во всех строках stats главной `legacy frames 0` и полных кадров ≥ 600, нет «full-row read not possible», нет «process has died», camera_fix запускались ровно 2 раза, NRestarts 0. Формат строк журнала взят из копии журнала дрона 26.10 (`bumblebee-1035.log`: `[camera_fix.py-5] [INFO …] [main_camera.main_camera_fix]: …`, строка `[launch]: All log files … -<pid>`) — доказано для прежнего camera_fix; строки dabd5076 — по его коду (строки 169–171, 177–179, 218–220).
++- **Прежние ворота не ослаблены (доказано тестами I4, I5, S16):** `run_install_check.ps1`, `run_fingerprint.ps1`, `run_07_takeoff.ps1`, `run_overlay.ps1`, `check_gates.ps1` и списки r2j — байт в байт r5. 09c пишет `out\sverka_r2jcam_*.txt`, 15c — `out\otpechatki_r2jcam_*.txt`: 07 и 16 их НЕ берут. **Полёт с вариантом этим набором не разрешается** — отдельное решение чата 1 (правку ворот 07 не делал). Журналы установки/отката — `install_r2j_cam_*.log` и `rollback_r2j_cam_*.log`: 07 видит их как события, любая установка/откат варианта обесценивает прежние 09 и 10.
++- Гейт варианта = все условия гейта камеры r5 (S2/S3 ЭТОГО манифеста, свежая сверка настроек с COM_OBL_RC_ACT=4, DEST_ROOT/BACKUP_ROOT) + DEST_ROOT ровно `/home/lb` + разрешение с суммами камеры, launch и манифеста + манифест ровно из 4 мест `VARIANT_FILES.tsv` + нет лишних файлов в payload. Сейчас BACKUP_ROOT = TBD → 05c откажет (заполняет чат 1).
++
++## Шаг 18 не менялся — почему есть 20
++18 r5 ждёт службу `led-default`; на исправном дроне 12.11 она не работает (unit есть, не включён — `sysinfo.txt` копии 12.11 и V1; `out\services_check_20261112_113418.txt` r4: led-default inactive → NOT_OK). Поэтому 18 там всегда даёт NOT_OK. Новая версия рядом — **20** (те же проверки журнала для wifi-manager и notify-manager плюс остальные службы; led-default — только справкой).
++
++## Тесты (без дрона; ssh, scp — подделки; в WSL — `nice -n 19 ionice -c3`, один поток)
++Прогон `proverka_r6\run_all_tests_r6.ps1`, 20:46–20:58 по часам ПК, итоги `proverka_r6\tests_r6_svodka.txt`, вывод каждого — `proverka_r6\tests_*_console.txt`:
++| Тесты | Итог |
++|---|---|
++| r5 стенд `tests\run_tests_bench.ps1` на r6 | PASS 488, FAIL 0: те же 463 проверки r5, все прошли (сверено построчно с `proverka_r5\tests_bench_r5_results.txt`), плюс 25 проверок кодировки новых .ps1 и .sh |
++| r5 Pi `tests\run_tests_pi.ps1` | PASS 228, FAIL 0 (как в r4; в r5 не запускались) |
++| r5 образ `tests\run_tests_image.ps1` | PASS 144, FAIL 0 (как в r4; V-тесты 05v — на копии из `_aside`) |
++| r6 ПК `tests\run_tests_r6.ps1` | PASS 299, FAIL 0 |
++| r6 Pi `tests\run_tests_r6_pi.sh` (WSL) | PASS 90, FAIL 0 |
++| мутации `proverka_r6\mutation_check_r6.sh` | 8 порч Pi-скриптов из 8 пойманы (`mutation_check_r6.txt`) |
++
++Всего 1249 PASS, 0 FAIL. Во всех 125 запусках шагов в тестах ПК (стенд r5 и r6) ssh находился только как подделка (строки «ssh: …\fake\ssh.exe»), настоящий — ни разу. Папки прогонов перенесены из набора в черновики `/work/kit_r6_20261112/B/test_runs_final/` (не удалены); там же — `__pycache__`, который тесты Pi r5 оставили в `tests\pystub` (в набор не входит).
++Правки тестов r5 в r6 (только пути и счёт, сами проверки те же): `run_tests_image.ps1` — папка 05v берётся из `_aside` и кладётся в песочнице на прежнее место; `run_tests_bench.ps1` — S1 считает 17 .cmd r5 в корне (новые .cmd проверяет `run_tests_r6.ps1`), 05v — из `_aside`.
++Что проверяют тесты r6: первая строка и концы строк всех новых .cmd; проверка имени ПК; отказ без разрешения и с чужим `ПРАВКА=`; разрешение одноразовое; отказ при чужом имени дрона (на ПК и первой строкой каждого скрипта Pi); отказ перезаписи (на ПК — до обращения к дрону, на Pi — папки); нет pgrep/pkill, паролей, ключей, адреса дрона и почты в новых файлах; что именно уходит на Pi (подделка сохраняет посланные скрипты) и в каком порядке; разбор ответов и коды выхода; скрипты Pi на поддельных systemctl, journalctl, ros2, pidstat, snap, sudo, /proc, /sys, /etc и журнале стека: правка применилась / тихо не применилась / sudo не принял пароль / откат, свой процесс не считается, журнал прошлого запуска не считается.
++
++## Не проверено (честно)
++- Всё на настоящем Pi: `ssh -tt` с выводом через PowerShell работал 12.11 при сборке MAVROS (набор r4, `out\mavros_build_20261112_113837.log`, кириллица в этой части журнала читается) — доказано; но пароль sudo через такое окно ещё не вводили, видна ли подсказка `SYS_SUDO_PROMPT` и принимается ли ввод — скорее всего да, не проверено; есть ли на дроне `pidstat` (пакет sysstat — **скорее всего** есть: его таймеры включены, E1) и `iw` (не знаю; без него Ч3 опирается на журнал ядра); читает ли пользователь lb журнал ядра (`journalctl -u` читает — доказано r4 `services_check`; `-k` — скорее всего так же); вывод `snap refresh --time` с `hold: forever`; что `/tmp/bumblebee.log` читается пользователем lb (V1: его читает portguard от root; права файла не видел); имя папки журнала launch с pid = MainPID (у start_bumblebee.sh `exec ros2 launch` — доказано по копии; MainPID = pid launch — скорее всего).
++- Фазы A/C/A2 на настоящем Pi: стендовый детектор с параметрами aruco.launch.py r2j при стеке rc3 (параметры rc3 могли отличаться — файл пишет sha aruco_detect.py и aruco.launch.py стека); vcgencmd в bench_recorder; сколько это стоит Pi. Числа К-2…К-8 судит владелец.
++- Пароли: в наборе их нет; строки процессов в 19/20 проходят маску слов pass/psk/secret/token/key (проверено тестом), но содержимое командных строк чужих процессов на дроне не видел.
++
++## Открытые вопросы владельцу (через чат 1)
++1. Пороги К-1…К-8 (PI_PERF, ред. 3) — утвердить или изменить: от них зависит «ставить» вариант камеры.
++2. Есть ли у 20EC серво и колесо? Если нет — servo_rc.py и wheel_rc.py можно убрать на ступени 3 (новый образ); сейчас не трогаются.
++3. BACKUP_ROOT для образа (`image_r2j\image_target.conf`): без него 05 и 05c отказывают.
++4. Полёт с вариантом камеры (07 по 09c) — разрешать ли и когда (решение чата 1 и владельца; сейчас запрещён).
++5. Откатам r6 нужны разрешения (как правило задания); если чат 1 решит, что откату ступени 1 и 06c разрешение не нужно, — правка гейта, решает он.
++
++## Замечено и оставлено (не моё, принятое)
++- `image_r2j\mavros_build\pi_kit\m5_check74_rc3.sh` (принятый набор MAVROS rc3, суммы закреплены) содержит `pgrep -af` / `pgrep -fc`; ни один шаг r5/r6 его не запускает (доказано поиском и тестом S7b). Не менял (правило 12).
++- `pi\pi_state.sh` (шаг 01 r5) вызывает `ros2 node list` без `--no-daemon` — остаётся демон ros2 (V1). Не менял (принятый шаг); в r6 все новые вызовы ros2 — с `--no-daemon`. Предложение на r7.
++
++---
+ # r5 (12.11): исправлены первые строки
+
+====================================================================================================
+ИЗМЕНЁН tests/run_tests_bench.ps1
+  r5: sha256 a0183012d7d996649dc1e18cc1130fffe7941ab1253d9f3ded2b8ccf3482212d; 139286 байт, CRLF 0, LF без CR 954, BOM да
+  r6: sha256 d8d72121e5fbd9bba868379721d966ad05ba712e7f6931bd04995135ad3216f5; 139647 байт, CRLF 0, LF без CR 956, BOM да
+--- r5/tests/run_tests_bench.ps1
++++ r6/tests/run_tests_bench.ps1
+@@ -178,4 +178,6 @@
+ $cmds = Get-ChildItem -LiteralPath $Kit -Filter '*.cmd' | Sort-Object Name
++# r6 (12.11): в корне добавлены .cmd r6 (09c, 15c, 19-24); их проверяет tests\run_tests_r6.ps1. Здесь, как в r5, - 17 .cmd r5 в корне; вариант камеры r5 (05v) отложен в _aside
++$cmds = @($cmds | Where-Object { $_.Name -match '^(0[1-9]|1[0-8])[ab]?_' -and $_.Name -notmatch '^(09c|15c)_' })
+ Check 'S1' ('в наборе .cmd: ' + $cmds.Count + ' (01, 02a, 02b, 03, 04, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18 в корне)') ($cmds.Count -eq 17) (($cmds | ForEach-Object { $_.Name }) -join ',')
+-$allCmd = @($cmds) + @(Get-ChildItem -LiteralPath (Join-Path $Kit 'image_r2j') -Filter '*.cmd') + @(Get-ChildItem -LiteralPath (Join-Path $Kit 'image_r2j\camera_variant_dabd5076') -Filter '*.cmd')
++$allCmd = @($cmds) + @(Get-ChildItem -LiteralPath (Join-Path $Kit 'image_r2j') -Filter '*.cmd') + @(Get-ChildItem -LiteralPath (Join-Path $Kit '_aside\image_r2j_camera_variant_dabd5076_r5') -Filter '*.cmd')
+ foreach ($c in $allCmd) {
+
+====================================================================================================
+ИЗМЕНЁН tests/run_tests_image.ps1
+  r5: sha256 f91db453225976b9d1b5b3bed946c335d6f882a75c631c5ee76a14ca5b64dc9c; 69876 байт, CRLF 0, LF без CR 638, BOM да
+  r6: sha256 f3a0a296a268a2c9c9b76c14d15cc86db33d7d5e03cedb13c8699b9ecdaa26f8; 70238 байт, CRLF 0, LF без CR 641, BOM да
+--- r5/tests/run_tests_image.ps1
++++ r6/tests/run_tests_image.ps1
+@@ -7,2 +7,4 @@
+ $IK = Join-Path $Kit 'image_r2j'
++# r6 (12.11): вариант камеры r5 (05v) отложен в _aside набора (README r6); V-тесты ниже идут на его копии в песочнице, как раньше
++$CVA = Join-Path $Kit '_aside\image_r2j_camera_variant_dabd5076_r5'
+ $Run = Join-Path $T ('run_i_' + (Get-Date).ToString('yyyyMMdd_HHmmss'))
+@@ -345,2 +347,3 @@
+     $cv = Join-Path $k 'camera_variant_dabd5076'
++    Copy-Item -LiteralPath $CVA -Destination $cv -Recurse   # r6: копия из _aside на прежнее место в песочнице
+     $p = Join-Path $cv '05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd'
+@@ -364,4 +367,4 @@
+ }
+-$g = CamGates (Join-Path $IK 'camera_variant_dabd5076')
+-Check 'V1' 'настоящая папка варианта заблокирована (нет разрешения, TBD в image_target.conf): код 1' ($g.Code -eq 1 -and $g.Text -match 'CAMERA_DABD5076_APPROVED' -and $g.Text -match 'TBD') $g.Text
++$g = CamGates $CVA
++Check 'V1' 'r6: настоящая папка варианта (теперь в _aside) заблокирована: нет разрешения и нет ..\image_target.conf рядом: код 1' ($g.Code -eq 1 -and $g.Text -match 'CAMERA_DABD5076_APPROVED' -and $g.Text -match 'image_target\.conf') $g.Text
+ $cv = New-CamKit; Approve-Cam $cv; $g = CamGates $cv
+@@ -408,4 +411,4 @@
+ Check 'V4' 'строка манифеста варианта не про camera_fix.py: код 1' ($g.Code -eq 1 -and $g.Text -match 'Строка манифеста варианта') $g.Text
+-$realSha = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $IK 'camera_variant_dabd5076\payload\ros2_ws\src\bumblebee\src\python\camera_fix.py')).Hash.ToLower()
+-$realMan = [IO.File]::ReadAllText((Join-Path $IK 'camera_variant_dabd5076\image_manifest.final.tsv'))
++$realSha = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $CVA 'payload\ros2_ws\src\bumblebee\src\python\camera_fix.py')).Hash.ToLower()
++$realMan = [IO.File]::ReadAllText((Join-Path $CVA 'image_manifest.final.tsv'))
+ Check 'V5' 'настоящий payload варианта: sha256 camera_fix.py = dabd5076… и он же в манифесте варианта' ($realSha -eq $CAMV -and $realMan -match $CAMV -and $realMan -match 'camera_fix\.py') $realSha
+@@ -429,3 +432,3 @@
+ Check 'V11' '05v: установка не дошла до конца: код 1' ($r.Code -eq 1) ('code=' + $r.Code)
+-$vl = Get-Content -LiteralPath (Join-Path $IK 'camera_variant_dabd5076\05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd') -Encoding UTF8
++$vl = Get-Content -LiteralPath (Join-Path $CVA '05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd') -Encoding UTF8
+ $vfirst = ($vl | Where-Object { $_ -notmatch '^@echo off|^chcp|^rem' } | Select-Object -First 1)
+
+====================================================================================================
+ПЕРЕНЕСЁН image_r2j/camera_variant_dabd5076/05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd -> _aside/image_r2j_camera_variant_dabd5076_r5/05v_camera_dabd5076_tolko_esli_vladelec_vyberet.cmd: sha256 a7d89321f11b2689d9196dc4e28f8bc2b4878981bf72eb240814e4f3681b211a (байт в байт)
+====================================================================================================
+ПЕРЕНЕСЁН image_r2j/camera_variant_dabd5076/README.md -> _aside/image_r2j_camera_variant_dabd5076_r5/README.md: sha256 970c789ba9c20bbeced990b8e5b864d90ad993f12111f78b9fca61a408625d77 (байт в байт)
+====================================================================================================
+ПЕРЕНЕСЁН image_r2j/camera_variant_dabd5076/check_gates_camera.ps1 -> _aside/image_r2j_camera_variant_dabd5076_r5/check_gates_camera.ps1: sha256 51dd7403b7a40952abbca95bff30c6a1cd64e571d298ac3c2c1cf7eb6708ca7c (байт в байт)
+====================================================================================================
+ПЕРЕНЕСЁН image_r2j/camera_variant_dabd5076/gates/README.md -> _aside/image_r2j_camera_variant_dabd5076_r5/gates/README.md: sha256 2f68f19beb644e831309204b5f47ae7c0a40d7ff61175009990f9395974020b4 (байт в байт)
+====================================================================================================
+ПЕРЕНЕСЁН image_r2j/camera_variant_dabd5076/image_manifest.final.tsv -> _aside/image_r2j_camera_variant_dabd5076_r5/image_manifest.final.tsv: sha256 5cead7f8edee9ede715b425e100e2a825d304eea6281c610f5832d3fff17586b (байт в байт)
+====================================================================================================
+ПЕРЕНЕСЁН image_r2j/camera_variant_dabd5076/payload/ros2_ws/src/bumblebee/src/python/camera_fix.py -> _aside/image_r2j_camera_variant_dabd5076_r5/payload/ros2_ws/src/bumblebee/src/python/camera_fix.py: sha256 dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83 (байт в байт)
+====================================================================================================
+ДОБАВЛЕН 09c_sverka_install_r2j_cam.cmd: sha256 cf69bc4237b7fd58b1bd9f9bf0f785f7e7ba815413915e99752fbbf1e65a80c7; 2269 байт, CRLF 20, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 15c_otpechatki_r2j_cam.cmd: sha256 c41c4582e5363d331f9be052d4f8865f27b06cd38a752ebdccae8929d33e90a8; 2025 байт, CRLF 20, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 19_nagruzka_pi.cmd: sha256 e060076961e594ec0149a0fb256b02d5542c92c904b35c81ab309abca348710d; 1825 байт, CRLF 20, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 20_nichego_ne_otvalilos.cmd: sha256 65be3b7be121301198e4d1a3e953136321ba3a16ac44d9c1142f71525aa89caa; 2320 байт, CRLF 20, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 21_kamera_K1_raskladka.cmd: sha256 54f15595d0ab7c4da863b914040267f8e080310aaf8344b2c3a5ed7a36a74d9e; 3369 байт, CRLF 26, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 22_kamera_cena_A_C_A2.cmd: sha256 bc0425b1426e4c9e4b740b4d49d88d82c19bf8ad1a6ff4a226d0a689159671f3; 4449 байт, CRLF 37, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 23a_otkat_fwupd_mask.cmd: sha256 4d6d326ad048631d4b627d62c515d7ea593bd8574fe688bc71d6329c2f5d45e1; 2957 байт, CRLF 29, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 23a_sys_fwupd_mask.cmd: sha256 0114863ba2e3152d462b2429ba824121c9b53a29753d4b247963ad82c91cecbc; 3374 байт, CRLF 29, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 23b_otkat_snap_hold.cmd: sha256 8737f555307b663efff86995420c73177cd78dcc7f793ac78ceee1f97ad13827; 2929 байт, CRLF 29, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 23b_sys_snap_hold.cmd: sha256 423d38cf9e2e4180b0aba49336800088819f55cea31c66988b4e6e422342e552; 3401 байт, CRLF 29, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 23c_otkat_taimery_mask.cmd: sha256 cfc7fbfde95976d107d6b672ef42e08e562bce1e12808f29c956d06aebd64676; 3216 байт, CRLF 29, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 23c_sys_taimery_mask.cmd: sha256 cf6b2df9cd78b884233a7b7e79ddbe39a83855b71c92fd4666509129f5b37939; 3514 байт, CRLF 29, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 24a_proverka_kamery_polnye_stroki.cmd: sha256 e9211f87bb4227fa4a8ddfdf5de1c525d4e741760481884ba675b7c78e24d2f1; 2269 байт, CRLF 20, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН 24b_proverka_kamery_r2j.cmd: sha256 5af54bbf8a047f8a96821aec2d958eb0963a4536489b24e949f040ec34940a25; 2010 байт, CRLF 20, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН _aside/README.md: sha256 6730b132e7f9e78471016cfd31de4d5f1dfa53efb093c4876cd3cc246ee5abd4; 2435 байт, CRLF 0, LF без CR 10, BOM нет
+====================================================================================================
+ДОБАВЛЕН _aside/SHA256SUMS_r5_copy.txt: sha256 edadce352c5f966a2296ba5f527b8f47dfc3c1b6183f1ce34395a55e2fcc5b22; 13080 байт, CRLF 0, LF без CR 135, BOM нет
+====================================================================================================
+ДОБАВЛЕН camera_fullrow/SHA256SUMS_camera_fullrow.txt: sha256 1c429ac2eac09ae68a22b21ef6878f7074bf2475523cdba037fe854e53496674; 250 байт, CRLF 0, LF без CR 3, BOM нет
+====================================================================================================
+ДОБАВЛЕН camera_fullrow/bench_recorder.py: sha256 08c2ccaca602804ad37e8d92929c4f0c4a6ea8687faef15b39be46d0a0e08fd2; 9660 байт, CRLF 0, LF без CR 235, BOM нет
+====================================================================================================
+ДОБАВЛЕН camera_fullrow/camera_fix.py: sha256 dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83; 12233 байт, CRLF 0, LF без CR 275, BOM нет
+====================================================================================================
+ДОБАВЛЕН camera_fullrow/raw_layout_check.py: sha256 8a811032c3d9ab9d596771e9437eb2793ef043e3bd9ef44ad127b2492b2b39e1; 4528 байт, CRLF 0, LF без CR 96, BOM нет
+====================================================================================================
+ДОБАВЛЕН cards/КАРТОЧКИ_r6.md: sha256 ea95b382601bc33539b7b8feb0578d97e355b4de274f306582d714791bda0ecd; 12683 байт, CRLF 0, LF без CR 60, BOM нет
+====================================================================================================
+ДОБАВЛЕН gates/README_r6.md: sha256 80a8deef4ff494327e77b5b86375e8db92d1fc33e3b717d772faa12ab47cc73e; 2595 байт, CRLF 0, LF без CR 25, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/05c_install_r2j_cam.cmd: sha256 253e783a4e16d429af7fec72aecabca6b7e8e8ecc19a650c3587a4d29a8108f4; 4025 байт, CRLF 30, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/06c_otkat_r2j_cam.cmd: sha256 75306cad98c3bba7acf4767c356bad61c8450eca1c17f1a535b2a1870b2716eb; 3450 байт, CRLF 30, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/INSTALL_SHA256_r2jcam.txt: sha256 e4c0f59556fd9b86766dd9987553d60ceac7d48c586ee62eed844b97efa432ab; 1899 байт, CRLF 0, LF без CR 19, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/R2JCAM_SOURCE.txt: sha256 b1c749e340c02e16f4b7c106413623a073ead9cc6111955a59c6fcc8071d7c94; 1399 байт, CRLF 0, LF без CR 10, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/README.md: sha256 ce293dbbb33a0f157c34ef2a80ee03d37b230f6e62e669672d3e5d9258129f47; 5518 байт, CRLF 0, LF без CR 28, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/RUNTIME_PY_r2jcam.tsv: sha256 488290497ffda6bc949af15eceff1f94d38a22d6ee8beb71b7b703d2f20d74d8; 1433 байт, CRLF 0, LF без CR 11, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/VARIANT_FILES.tsv: sha256 e4b868bf1e6b1d7ce32dc9206e1a5989c1597cf75937002b2af24b0b64574b27; 963 байт, CRLF 0, LF без CR 5, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/check_gates_r2j_cam.ps1: sha256 b6e51b4f7f1dccb3dc52bec3a8cbb2338c9bf7471c549e19179d41c963df752f; 13917 байт, CRLF 0, LF без CR 136, BOM да
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/gates/README.md: sha256 c5a69d2cd49e63971586f8c9dd3e40f7d868d1171efae3c2a1e512f51fb08546; 1745 байт, CRLF 0, LF без CR 35, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/gen_lists_r2jcam.py: sha256 8ebd3ad3728b8a5c324f70d9fb98716f6dd7349fecc79295f6414373c835b1a7; 12219 байт, CRLF 0, LF без CR 176, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/image_manifest.final.tsv: sha256 d8197874bb4d361d795728e5d3bcfd624c0cbee9d7ad191945c4c1fe15f3d00f; 735 байт, CRLF 0, LF без CR 5, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/payload/bench_ws/r2j/install/bumblebee/lib/bumblebee/camera_fix.py: sha256 dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83; 12233 байт, CRLF 0, LF без CR 275, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/payload/bench_ws/r2j/install/bumblebee/share/bumblebee/launch/bumblebee.launch.py: sha256 5f0954d82ba7b8034e169fa60c99edd8cd501921e923faa5f10f795ccf388294; 18269 байт, CRLF 0, LF без CR 412, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/payload/ros2_ws/src/bumblebee/launch/bumblebee.launch.py: sha256 5f0954d82ba7b8034e169fa60c99edd8cd501921e923faa5f10f795ccf388294; 18269 байт, CRLF 0, LF без CR 412, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/payload/ros2_ws/src/bumblebee/src/python/camera_fix.py: sha256 dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83; 12233 байт, CRLF 0, LF без CR 275, BOM нет
+====================================================================================================
+ДОБАВЛЕН image_r2j_cam/run_r6_cam_install.ps1: sha256 9ab8754fdfb8d4a01b66533b273ff82349eb9db1333a17d736fdd892c3d84632; 11821 байт, CRLF 0, LF без CR 104, BOM да
+====================================================================================================
+ДОБАВЛЕН lib/bb_lists_r2jcam.ps1: sha256 1537c5f05faa050b3fa091923d9ba3abd7991c458520dc4736ca56ea5189ae01; 3618 байт, CRLF 0, LF без CR 44, BOM да
+====================================================================================================
+ДОБАВЛЕН lib/bb_r6.ps1: sha256 38ab4038d854549ebd56e9e3b02678837bf19089cc454a5c42ab1bbfbfaf8736; 6990 байт, CRLF 0, LF без CR 82, BOM да
+====================================================================================================
+ДОБАВЛЕН pi/r6_cam_incoming.sh: sha256 40ec7978218a72548e354a6b0da8e4f3a127df33299ddec80affd0797fec19c6; 1818 байт, CRLF 0, LF без CR 29, BOM нет
+====================================================================================================
+ДОБАВЛЕН pi/r6_cam_mkdir.sh: sha256 52d4780c2979268a98fe59d9abee8dcee4e7a93afdb9252edccf46faa3300e37; 969 байт, CRLF 0, LF без CR 7, BOM нет
+====================================================================================================
+ДОБАВЛЕН pi/r6_cam_precheck.sh: sha256 dd9ee981975de577b202d4345f137be5c62d69c2a8c6ac6037da07167c6e8cad; 6515 байт, CRLF 0, LF без CR 84, BOM нет
+====================================================================================================
+ДОБАВЛЕН pi/r6_cam_verify.sh: sha256 e5d491ebd0e01ef6bdfe366a59fa0065d4f5abc4b82736739111ddb0351ac06b; 7529 байт, CRLF 0, LF без CR 86, BOM нет
+====================================================================================================
+ДОБАВЛЕН pi/r6_cost_end.sh: sha256 832add044a3029e3102be6b82af61729d6446466177fa082b7b0cc5969a64290; 2425 байт, CRLF 0, LF без CR 35, BOM нет
+====================================================================================================
+ДОБАВЛЕН pi/r6_cost_phase.sh: sha256 48f94e4ac2b3241a60e766242617b4c97e90ec43704e9d487f2a4cbf2cb454da; 10879 байт, CRLF 0, LF без CR 138, BOM нет
+====================================================================================================
+ДОБАВЛЕН pi/r6_k1.sh: sha256 5e6300dbcf9430f3c88919cfb6e95d5339e26bb27a25808d185c21dcf895dde2; 5168 байт, CRLF 0, LF без CR 67, BOM нет
+====================================================================================================
+ДОБАВЛЕН pi/r6_pi_load.sh: sha256 6edb8234578821c18f5380f2e11c18b51f6617f3a254d40a22f7d67db7528a7d; 9459 байт, CRLF 0, LF без CR 115, BOM нет
+====================================================================================================
+ДОБАВЛЕН pi/r6_sys_change.sh: sha256 f6f7fad39a24f290aedb8c90ce6ff283a66cc3494ef5e28f18de151f74a8f638; 7459 байт, CRLF 0, LF без CR 100, BOM нет
+====================================================================================================
+ДОБАВЛЕН pi/r6_sys_check.sh: sha256 97d06903a4a4146a70a7bb5474d99901efd3c9050dd9eca6e798548673d7f958; 7186 байт, CRLF 0, LF без CR 96, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/README.md: sha256 85e5a9fa723a8955b15f35d1a75835d3b579fa3829f7e170c21f58f7304e2c80; 2148 байт, CRLF 0, LF без CR 9, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/make_diff_sums_r6.py: sha256 f5f4eb6819bab644d11004a7bb0847d21c3090d46541a58a7644e7727393614f; 8930 байт, CRLF 0, LF без CR 180, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/mutation_check_r6.sh: sha256 0895e291b8f1272797f1a8a39960a77b821a1429869a1b6fe7e620fc8274d6df; 2679 байт, CRLF 0, LF без CR 29, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/mutation_check_r6.txt: sha256 21964d22f5fffa1f2d14b733e02e9f0aefdf28864b12fd477d79419970c3d809; 2236 байт, CRLF 0, LF без CR 9, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/run_all_tests_r6.ps1: sha256 bacf242747af8ea80e12bb4da1de65d10a7f987cd9b3e31ed78379beca529140; 4312 байт, CRLF 0, LF без CR 51, BOM да
+====================================================================================================
+ДОБАВЛЕН proverka_r6/scan_echo_r6.txt: sha256 86ee7185d3d62028dcf947465a272a00a6a5fa0ac02a4fcf59f98f191e760156; 6438 байт, CRLF 0, LF без CR 59, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/tests_r5_bench_console.txt: sha256 c4438bddba0ad9808bab30d3c5675e6226026b04154a93d28a7220a187e36ff9; 59750 байт, CRLF 0, LF без CR 490, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/tests_r5_image_console.txt: sha256 e2699e261a887cb567d8155016ee79cfad9f73fc096def51734bdb84b968c858; 15757 байт, CRLF 0, LF без CR 147, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/tests_r5_pi_console.txt: sha256 18cde5d51e3d593c737cee4dfbfb28c6c22c1dfb9569a5a49cc934cf0405d810; 26629 байт, CRLF 0, LF без CR 230, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/tests_r6_pc_console.txt: sha256 5b45488c58db7ce10eb5a9b35b3d42f5d271b9592f367fb3f0c68f238096621c; 32667 байт, CRLF 0, LF без CR 301, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/tests_r6_pi_console.txt: sha256 5368052afdb2d21e44a7fedbb22e9f7811b89543c74a84aedefc91bcd901bb96; 9764 байт, CRLF 92, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/tests_r6_svodka.txt: sha256 5095705b0345c76e88191d448e25ef42ddaea3f2c479949e174f12a2d2d000b8; 534 байт, CRLF 7, LF без CR 0, BOM нет
+====================================================================================================
+ДОБАВЛЕН proverka_r6/wsl_nice_wrapper.cs: sha256 ecf108590901912aa3bbf0dac31f1d7900c493b45eb9b494bd8a2aa7fd8d0a52; 2332 байт, CRLF 0, LF без CR 42, BOM нет
+====================================================================================================
+ДОБАВЛЕН run_r6_camverify.ps1: sha256 1b99d0e327d5b31b3a42c67ee5362c7538e341bc2af1f81ace481f10fffda4d9; 11244 байт, CRLF 0, LF без CR 99, BOM да
+====================================================================================================
+ДОБАВЛЕН run_r6_cost.ps1: sha256 5a3784426092a9a8db540d491c17dc9ba5d1cb324015591e23630f74774f45a0; 12449 байт, CRLF 0, LF без CR 103, BOM да
+====================================================================================================
+ДОБАВЛЕН run_r6_fingerprint_cam.ps1: sha256 9e122a97b74b01bf10d56164a28bd6a7852a22a975f45bb0c4079a57b0a1d4e2; 5558 байт, CRLF 0, LF без CR 45, BOM да
+====================================================================================================
+ДОБАВЛЕН run_r6_install_check_cam.ps1: sha256 992affddde60e45c0dc53516cbf594fb062580b9ae7665917da4af7a7e0f7904; 6974 байт, CRLF 0, LF без CR 65, BOM да
+====================================================================================================
+ДОБАВЛЕН run_r6_k1.ps1: sha256 540ab976efdc6e43ead2219c35c0c6d8f81e9f349b8b2af9939f054e8835cc8d; 8352 байт, CRLF 0, LF без CR 71, BOM да
+====================================================================================================
+ДОБАВЛЕН run_r6_load.ps1: sha256 8326332d766f16c92d33165b4023b20eac0368f24c0ca57f4e75be808fc264d1; 2873 байт, CRLF 0, LF без CR 30, BOM да
+====================================================================================================
+ДОБАВЛЕН run_r6_sys.ps1: sha256 46ffbe9da29959e8b121e41c8be4ffad131afae935e4b999b099c2d6396b8a46; 8845 байт, CRLF 0, LF без CR 77, BOM да
+====================================================================================================
+ДОБАВЛЕН run_r6_syscheck.ps1: sha256 f2f5f16ea83b098b67e5d886e4df7374f7471ab9d583ec27cd8f251776b640d2; 14420 байт, CRLF 0, LF без CR 145, BOM да
+====================================================================================================
+ДОБАВЛЕН tests/fake_scp_r6.cs: sha256 e27beac91ca32b6d509113debceca4d59aab03113636aea8f9896469d30ee56f; 3089 байт, CRLF 0, LF без CR 51, BOM нет
+====================================================================================================
+ДОБАВЛЕН tests/fake_ssh_r6.cs: sha256 a42adb3d2bd75ecb2a158990d822e5156c843f90a458ef26f64ba61efa38bfdd; 6050 байт, CRLF 0, LF без CR 94, BOM нет
+====================================================================================================
+ДОБАВЛЕН tests/run_tests_r6.ps1: sha256 c150612a0d0641d79faaec5d1d9875b2da47895f41d78a6a3df64ab32a26e242; 84175 байт, CRLF 0, LF без CR 680, BOM да
+====================================================================================================
+ДОБАВЛЕН tests/run_tests_r6_pi.sh: sha256 446b13897cce0253f13f882a1b95160dd3c897580495404af0ab1e32a5992e8e; 41367 байт, CRLF 0, LF без CR 421, BOM нет

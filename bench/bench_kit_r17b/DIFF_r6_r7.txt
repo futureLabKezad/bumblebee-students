@@ -1,0 +1,260 @@
+# DIFF_r6_r7.txt (Claude, 2026-11-13 06:12:32 по часам ПК; proverka_r7\make_sums_diff_r7.ps1). Основа: r6, SHA256SUMS 7498ee24... (копия в _aside\SHA256SUMS_r6_copy.txt).
+# Файлов r6: 235; в r7 без изменений: 233; изменено: 2; добавлено: 131; убрано: 0 (SHA256SUMS.txt r6 перенесён в _aside, новый написан заново).
+ПЕРЕНЕСЁН SHA256SUMS.txt (r6, 7498ee24...) -> _aside/SHA256SUMS_r6_copy.txt
+ИЗМЕНЁН PROGRESS.md  626adb92fd1c6c91bed041465e80884cdf9636664af9255e23bde41537d0a595 -> 6188a50ef1a52d67ac01e26590e7760ff3e5df0e4da75cb37aeb2cd55e0ddc08
+ИЗМЕНЁН README.md  197be02fa521d7e046fb66cff4f25c066069fa7281aa6a2321d19334d864c90a -> 32769457a0218007943b00a82d7cd0ae686f6e8d0bb4651b098ee3cd0c9af0d3
+ДОБАВЛЕН _aside/r7_v1_0300/25_metki_nomera.cmd  73cbffb168a3623a59335459df4d26d64e7df773c8fe233ea0089f2ec01fb0ea
+ДОБАВЛЕН _aside/r7_v1_0300/cards/КАРТОЧКА_25_МЕТКИ_НОМЕРА.md  94a629c57384c5562be2e71d880513158e11b0c80675a11d4f5de4481e59ebd1
+ДОБАВЛЕН _aside/r7_v1_0300/image_r2j/backup_root_r7.ps1  c4b5053cc3be94103a7f46655863b9f7f4f5a5fe18bddebfb0441eae83fd7c19
+ДОБАВЛЕН _aside/r7_v1_0300/image_r2j/BUILD_LOG_payload_r2j.txt  9666f66ff5347713d51b73beedb558f4f956bdac46c00814301302dbfe7f0084
+ДОБАВЛЕН _aside/r7_v1_0300/image_r2j/image_manifest.final.tsv  3431f12500f1a1de623668130ddd53d580f16de85d276422f91bf37543c8dbed
+ДОБАВЛЕН _aside/r7_v1_0300/image_r2j/NOT_IN_PAYLOAD_r2j.txt  32001ea977454bdfde01a8606a8109eb0678dca2d674e8aa8ae337e39debf045
+ДОБАВЛЕН _aside/r7_v1_0300/image_r2j/PAYLOAD_SOURCES_r2j.tsv  f8c658a2e22cde5478318453ad870048245e575997f9b64823d0858cbc47f1fa
+ДОБАВЛЕН _aside/r7_v1_0300/pi/r7_marker_ids.sh  ca100f4a08e30b717e9f96b418bc4c4ae0e0c64527d19ec56c696551610a5bce
+ДОБАВЛЕН _aside/r7_v1_0300/PROGRESS.md  e33299a8dfa1ca51606556480557151653d45663cbfb434ce016a6717d999b49
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/make_payload_r2j.py  53c24bd99122be8a4df3dedcf1db5167c45cc891fe2458956d359319f595340d
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/make_sums_diff_r7.ps1  7b00169c703987006e05a7ca1204dddf101052bfab0a264552aced90c829a0f1
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/mutation_check_r7_pc.ps1  ecaf00bafc5474362e3bf2d33a12c53909c9a5dd089a737d299bb4c9af43a0cf
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/mutation_check_r7_pc.txt  3b0eda3a96390adfe9cc31bb5d12ee13041f1cc3c3f2c5e541ed0184c9353ea1
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/mutation_check_r7_pi.sh  2a68a886e87d6824f144d1b0f6e234773d4341dab93ceca9691dc44daa98c423
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/mutation_check_r7_pi.txt  0382aff43346cfdd0ba1d5f4ad2e631daec12d1ac80ffa35d28df34bcf093e29
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/run_all_tests_r7.ps1  31df89c4a3870948ef4b2ad5cab8a0f0d5db99f68caca308dad1345ae26fe34b
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/tests_r5_bench_console.txt  78d67c484bb414ef6ca38ab3c7c8a90e025af6c6ee8f0af0dd8f6d88f524790f
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/tests_r5_image_console.txt  d058834c1334bcb2baeb8eae716ee3b2de9eacc7f99308fa058d6346bed64424
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/tests_r5_pi_console.txt  18cde5d51e3d593c737cee4dfbfb28c6c22c1dfb9569a5a49cc934cf0405d810
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/tests_r6_pc_console.txt  b6f82d8001e7fe0d6c0b260e94643e79bb3420d43da2b0818b46396f65083f01
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/tests_r6_pi_console.txt  887f481296fe4582f52c6e52bb54758b21b3a012f709f52cac0392b4edb9f7fd
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/tests_r7_pc_console.txt  571f6f3d44fa07381648ff0a5296ca67de09f95aa54b7ef7ff34c01cfccbdcae
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/tests_r7_pi_console.txt  0e27f797d6542dc307dc33e52e5fd23b84c49a11ba024e001ae7e888bdc10115
+ДОБАВЛЕН _aside/r7_v1_0300/proverka_r7/tests_r7_svodka.txt  c719ff9c66d3e2f42a02d85319a6f01e64ab2e5b303602c09a987ccef64c9bfe
+ДОБАВЛЕН _aside/r7_v1_0300/README.md  82049ce0da8e22713fce2063021032accb4ac90e007eadd8d7e43a1cdf2e6b96
+ДОБАВЛЕН _aside/r7_v1_0300/run_r7_metki.ps1  f22c6b4a708280583c4ddb62a966b62bc28075c981134418059cb5ba5b40b84a
+ДОБАВЛЕН _aside/r7_v1_0300/tests/run_tests_r7.ps1  de1b2377a18b1a128c753197e589c2ae351b0bf0b9adc9688ebf1dffed807de8
+ДОБАВЛЕН _aside/r7_v1_0300/tests/run_tests_r7_pi.sh  7cd8750a8e4489f33d589e90bf02d8f1e20c4c7088441d5b89f914fd08a2630f
+ДОБАВЛЕН _aside/SHA256SUMS_r6_copy.txt  7498ee2437fbf2aae97dfb6e02861d401fccd9b20589e87d85408c0af819afc4
+ДОБАВЛЕН 25_metki_nomera.cmd  92fbf5907704b03db11590a3de8130f7cdefaad9f75d73d50e2597518833c279
+ДОБАВЛЕН cards/КАРТОЧКА_25_МЕТКИ_НОМЕРА.md  b57aa87125efdb6ba5c40ee5690a33dc50cf4900652fc5a21e508884bbe00af9
+ДОБАВЛЕН image_r2j/backup_root_r7.ps1  c4b5053cc3be94103a7f46655863b9f7f4f5a5fe18bddebfb0441eae83fd7c19
+ДОБАВЛЕН image_r2j/BUILD_LOG_payload_r2j.txt  c1a9b58d8c76288ea1e77ec1ab02ff3078388abec4a067e390a996a74f38f0e9
+ДОБАВЛЕН image_r2j/image_manifest.final.tsv  61e6c5a01bb01f339fc12d3f0361a60b135b3aec3534be46b913d506c2988347
+ДОБАВЛЕН image_r2j/NOT_IN_PAYLOAD_r2j.txt  c797abd79df3f62f63c10afa2e2910d272f2c75142104732277d1482136b65fd
+ДОБАВЛЕН image_r2j/payload/image_r2j_ref/mavros_bp02_d63a236/mavros/include/mavros/mavros_router.hpp  01d625a77946fe4d2a950886e92855a28bd5eb7b49537b40e6a811d4e949f855
+ДОБАВЛЕН image_r2j/payload/image_r2j_ref/mavros_bp02_d63a236/mavros/src/lib/mavros_router.cpp  f2ab39303d7ad0ec82cc6947128c27c582ee692a9ec7e6bf62c04bf08663235b
+ДОБАВЛЕН image_r2j/payload/image_r2j_ref/mavros_bp02_d63a236/mavros/src/plugins/command.cpp  72112a9e496d80ac528c00f8ab96e1da6ea687847ebfd7c62ac34615ba8dfee8
+ДОБАВЛЕН image_r2j/payload/image_r2j_ref/mavros_bp02_d63a236/mavros/src/plugins/param.cpp  811d5d4b95539bc67064c7d6a833bdb6c83fa2935d7c05756479e3cca538c55d
+ДОБАВЛЕН image_r2j/payload/image_r2j_ref/mavros_bp02_d63a236/mavros/src/plugins/sys_status.cpp  87518ab1a9c1fe860a74dcd53ee1b9b9041c113fe70a550a861894c79d335ce2
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/CMakeLists.txt  f4b45d19dd6a62d58490724fcafcfe56ee45bc1963838b671d17d333bf70d59a
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/examples/drone.py  fa6abf8b545b356ecdd5291417625ee77b58ef862fe7f3b00486dc8ef72d0c9c
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/examples/flight/flight.py  b69cc5e72509bbe2f141e48844b999e3a046ac6a78d28484239536b426c807b3
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/examples/flight/flight_marker.py  1e0063fb3557a516767122a3031d38678be10e58efb2cc07a3e83df538e529fb
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/examples/flight/flight_marker_loop.py  7f36db429eb26f7e878aa16ee7998b883eeaa00e184b5a5c5dc07544318e1d1d
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/examples/flight_profile.py  5b8e2a12a91445a1aba867fc22d84a8fd884a50ebd835da008a31c737633695b
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/examples/hover_marker0.py  a11b195ce1507607967ff6a7402726d9eef7b4f12850a9e864f5ae27d1f513f7
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/launch/aruco.launch.py  9b146360c193cbcd8791c17d6a9ab97333267d93e11efae4484d47fdac21af9e
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/launch/bumblebee.launch.py  62be01dbb13305bca321d538690252863dedadb8a376e65e54d9f6c15116bf15
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/launch/led.launch.py  af918808e7f3de0c081b13d456d77981c86c10f460db08dc908e16b24e9af9a8
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/launch/main_camera.launch.py  c11080f1daaf3eb7e0d849032e036cb971ed0f4cbb2dfc52f3f45c38027842dc
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/launch/mavros_scoped_config.py  c4f578a0c9630b8ab375a97b04ccb1df352c2402a81e21fab48678f67ee3b5da
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/launch/second_camera.launch.py  ba60175962087d71949dafeec1829442c2bffda2ab27e514930c7b31204ecf27
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/launch/simulator.launch.py  8d064649a966b9e8591b4dd0de6915d386728ef592e1d9b82848208df8aafc66
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/package.xml  c71fbd601a3407781f72621f194e672929e2847b1797ef13fee49a04a11014f1
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/src/cpp/script_lease.h  38337d2a12edd59c162c250d3967b6b6c7b0d8973ccb1b9b9a18642f07c333ae
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/src/cpp/simple_offboard.cpp  0d22da25fabb2fc482edef3189117f8a910d1917c8f34929a64b31049d9e1f96
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/src/cpp/state_link.h  fe1ae55da7370547b5deede42db605fbfde54a20a6fbd658f1f9bec99b2c318c
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/src/python/aruco_detect.py  66f061ecc14445de5901cee8d4dfcd59be98fcaa697b97cbf939a89bd0be9bd3
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/src/python/camera_fix.py  4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/src/python/qos_relay.py  b435f0106604b02e8a9f9466a4f4f92d036080a0ff3c94a1713404bbd6cfaa65
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/src/python/set_params.py  3071313900cbeef4ea86bf12512cfdeda96700ca9b588b5dcf1374dfe7a2b7fe
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/src/python/setpoint_freshness.py  2cc14a41eb77e4d9548f1fd5e0bade3e3f73d3032d17be48cea7f6e75eacc2dd
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/src/python/vpe_fix.py  f0dc7c18f2fa24ffd7c9baffd92e8f3dd723c0521c27eedb4eeef408faa8642d
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/executor_support.py  4a6abf979a814f4bd2fe0d1a69ca88b7c15e86eeb199c2afe0ea0cafaeb27d9f
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/fake_mavros.py  59ffaaa09b2c1426ff6c061c4c32304dbdd106efda91d7f7c3038b90e1d85659
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/fake_px4_model.py  8a056feceb5aa11add6579c4b0936a873c80e8e94697371ddf231be1cb99490d
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/README_RUNTIME.md  49bac09fbddfca0b58e308439956fc22acf9f1eb984f1b3c52920a323041d00d
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_auto_arm_interrupt.py  d1d567a7e9403500a6c22dbf17afdc5583fd8dd9ae4fa89df1aa6a14dc417267
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_auto_arm_late_cancel.py  ffcb9114045f7d8f6aa10f4621d1d4c323b73e49e1b33186737cec26c5a1f053
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_drone_flight_guards.py  582e110389852a61ea23b5c6793354ca1e7b92300112bae9420fee0f24c869b2
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_drone_py_cancel_launch.py  eb331e9311d8a27716fddbaad10b4394366b2e88f6b4bac417348091435f305c
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_executor_support.py  da850c9fe2fec1a1c1be5ba7c0af31298fb35d3165a1142ad1c18fdb17b27adc
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_fake_px4_model.py  b3a77debe6f0f32b66cf40eefd842f056d539d1dedfe3c1ade88b1df83cb83f0
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_land_pilot_launch.py  11109e17c9700400ec59d63c0d8bbc8663403fc9f46add420330244a2ef2c2b7
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_mavros_scoped_config.py  8f45d89ccdfe32ff30711956515a4b190469fc8afdf38a91a7a211163248212e
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_rpc_latency.py  7db59154f9c6b31ca8d9b603f8eaf08f23ffe5c1f687d1a09ca0a3ce390e7b5e
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_safety.py  3df17d5ce968a0b28b931675616845ebe0aefc519c748d99856b5aa244b22b62
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_setpoint_freshness_ros.py  a0ffbc1c2ba7ed7410a131a2598c879203c007e216417c5a4bb2dc8bf6900fd6
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_setpoint_freshness_unit.py  256bc2deea09fa901f3524a412156a12bb740428f3b29b489162145da47b396e
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_setpoint_lifespan.py  ff0499e66dd7bbdc28e6810457c11dac35fc32d5798353dabc3ac466ac7b2726
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_simple_offboard.cpp  98c5612f621f52ef21ace1c89f040a18e13563cd7c02019faf6628bf4361e5af
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_simple_offboard_launch.py  d30956d42dd1238e1ab7664ca6f741f8f549bdd60f4dca652f0f947d4bee6322
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_simple_offboard_px4model_launch.py  0514ad84f6470df89ab85c6c8e8a637d16b717b2baac8b09391c43f5122bdb87
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_simple_offboard_simtime_launch.py  20652e82302caf4097e11c13d3a003462485e2e96f1251cf51ff2c603fe54ec5
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/test_test_safety.py  61ebe29796701304630b6ef358761c208351a4b332d10d420c5ed55009208471
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/eval/original/s1_eval.py  01badf57c3b2efca7e2facdfe4c3b0b304d2e42ea28190a6acfc3534f0a76f29
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/eval/s1_eval.py  ef7a76fcec6b591e043950f29eb6d65b071ebb4453b02045ab80ffca9eab7429
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/README.md  2dab1d4f783d31a6c71e38d5652c97f9c5d02980b88d3c51a84e223c7fa58793
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/real_s1/step08_t5a_apply_1117417889.log  bfb0d2ae15663a7ac6dc53701be750ebbbfbc07c430e5c4bf415c454c4698a70
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/real_s1/w1_watch_2718616360.log  2f86de1480d4d34d94f73f73c66cfc1485e502a4ad6358c53636a0358fc98bd4
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_7f107882.py  7f107882a52a6819add53352a6feee4d18d117822a5cbdb39e8ca82e37f1fd09
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_c33_product.py  c33a52bf1b10bc064ca102bdc720ed03afaa08c691d9c5c34b1d7fadf859b8b9
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_r2g_3b8a93d4.py  3b8a93d4d08983694186766b0259fa6fa6b4167079c4078cf402a908d02e9725
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/ref/vpe_fix_r2h_66d806ba.py  66d806baf5ef6884bdc7e1636289e90dd55964f8f69ed0ffa13be2e23f5e6958
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_existing/harness/vpe_freshness_optin_c09.py  2f0915907b70e539669dc7de5f9f9f0494f05bcf3ec21778573078b35fd78335
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_existing/offline_suite/rosstub.py  2a6c1e798a031305e1edd9387ddfa809507fa23cbeafa48500fe5184f700488f
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/bench.py  303ba0355be3f109a6f79e6024225832cf3bc1abf9eb036325b951f059bb5252
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_h2_r2.py  2e557c6d2cbdaa5c5d8aba3c4c97f254250f7f96b80067fe54f8802eba48d478
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_in_air_writes.py  191d2adeff822e25572a137ff33737d0ca7fefdeaa157c9e8142a6a537cbcbf7
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r2/test_pins_r2.py  676264185f0429074def4a1a57c3f92cc4360664efbbe9a864605f0f704bb1d4
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r3/test_pins_r3.py  aceed84c08004f70346f95e31f07305d93dc6e9a8d838dbcb09f1cd60c192adf
+ДОБАВЛЕН image_r2j/payload/ros2_ws/src/bumblebee/test/vpe_fix_h2_r2/tests_r4/test_pins_r4.py  3f97a91aed18459eb184581c5fd735fe0bedfc96fa59a628ebcdfe74d6d6a54e
+ДОБАВЛЕН image_r2j/PAYLOAD_SOURCES_r2j.tsv  7f232650ca61f70582a2f91d6fcb3f3f7f98d6716a7ba3c64bd7b0377a6c3934
+ДОБАВЛЕН pi/r7_marker_ids.sh  ffedd2b48e2c162cb23b02c0fd7ae171f53766016bea1a012be7806e8e22d377
+ДОБАВЛЕН proverka_r7/make_payload_r2j.py  78feb4f800ae7296b041b8e414fbc04e686d3b531ac32f766ee20b9945a714c9
+ДОБАВЛЕН proverka_r7/make_sums_diff_r7.ps1  97ea5b7454baf83149944cfe4d6e530fce4a5be2351bb0fa4f4c3b94ab65fbcf
+ДОБАВЛЕН proverka_r7/mutation_check_r7_pc.ps1  9614b09649f17df679a18a437633d573625bd6e02545b6adcf2f4a274350be93
+ДОБАВЛЕН proverka_r7/mutation_check_r7_pc.txt  6dd04645eb20f25bf5a6e5f7b85c1fa1c2c19f23d580ad63ecfe1381fcc2ec1d
+ДОБАВЛЕН proverka_r7/mutation_check_r7_pi.sh  eaf80fb4ad252f6140ebe683bc7e04f12e26fd4af472cc42bb8f709163a7f0b8
+ДОБАВЛЕН proverka_r7/mutation_check_r7_pi.txt  8b35e2997b00705cd4a36b4737a3fd5be71abb674bfd87e56eb92a618dd79d0a
+ДОБАВЛЕН proverka_r7/run_all_tests_r7.ps1  31df89c4a3870948ef4b2ad5cab8a0f0d5db99f68caca308dad1345ae26fe34b
+ДОБАВЛЕН proverka_r7/tests_r5_bench_console.txt  fd9735eafa534844e8c10b3522d2c2ec00927f1ea5553cfbb056c74628261394
+ДОБАВЛЕН proverka_r7/tests_r5_image_console.txt  86aa2c559fbc808e24158b6d4e8064bbe087ab1806438f9e49b5b53dbc3a2dfd
+ДОБАВЛЕН proverka_r7/tests_r5_pi_console.txt  18cde5d51e3d593c737cee4dfbfb28c6c22c1dfb9569a5a49cc934cf0405d810
+ДОБАВЛЕН proverka_r7/tests_r6_pc_console.txt  67f85453b530080890bf98b499864bf945dc9d5ae33778da733374493c45c9ec
+ДОБАВЛЕН proverka_r7/tests_r6_pi_console.txt  4f79eb75e7c593fb20e4176355349fecd5c3236730ed3df91721d3163b0e673e
+ДОБАВЛЕН proverka_r7/tests_r7_pc_console.txt  96a8e7d83386a25dddf2b60fae07cfd36891f203703734fec2c482c8c1d965c9
+ДОБАВЛЕН proverka_r7/tests_r7_pi_console.txt  c01ae9171e482e331e605c6a4ba3cdffa759dcf59e89a2b018ea5985a3e540b4
+ДОБАВЛЕН proverka_r7/tests_r7_svodka.txt  3e872b7c7c1a8194266ecca8034bbddd2cc801fa187c5e612843f8f287adaa3b
+ДОБАВЛЕН run_r7_metki.ps1  2347596176d1d0912fe811b53f5318c014fe7a62ba897da6ebc546ea5bf90af4
+ДОБАВЛЕН tests/fake_ssh_r7.cs  2e7f5381e9dc802bda970749c888af80520de93eeb8101b178817ca9a420f31f
+ДОБАВЛЕН tests/pystub_r7/aruco_pose/__init__.py  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+ДОБАВЛЕН tests/pystub_r7/aruco_pose/msg.py  44aac840b32b2837f94b0125ba474647bc3263e1b8a9e882e727417fe1b5cb74
+ДОБАВЛЕН tests/pystub_r7/mavros_msgs/__init__.py  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+ДОБАВЛЕН tests/pystub_r7/mavros_msgs/msg.py  fc5866151254cf55559f23b0faedbdc755bcdbb9ba46d29bff163a0a611f9654
+ДОБАВЛЕН tests/pystub_r7/rclpy/__init__.py  7e2e1277d148ff1c212a14fa353e9f2d797d6255dfe0767a30af816e4aeeb49e
+ДОБАВЛЕН tests/pystub_r7/rclpy/node.py  dcc7036c7882614ac55e554aea91783b6472a8b0cda5c2eeaf711c8a8bfc0a57
+ДОБАВЛЕН tests/pystub_r7/rclpy/qos.py  b6c0346667ec3829e2a29dd16b2f3392b2b88dd5c4958b30c21204f6e24ac86e
+ДОБАВЛЕН tests/run_tests_r7.ps1  77612686bddd9eeab1aa031c1bc9af45fd0277c62a244fcd3b735b6151ab67eb
+ДОБАВЛЕН tests/run_tests_r7_pi.sh  8a00094c27567b8b10a53b0d169c0068b5c2fb84cd13c920bd270488761af6c7
+
+===== diff -u r6/PROGRESS.md r7/PROGRESS.md
+--- "C:\\Users\\User\\Documents\\Claude local\\bench_kit_20261112_r6\\PROGRESS.md"	2026-11-12 22:24:46.726473500 +0400
++++ "C:\\Users\\User\\Documents\\Claude local\\bench_kit_20261113_r7\\PROGRESS.md"	2026-11-13 06:12:32.106499100 +0400
+@@ -71,3 +71,29 @@
+ - Ошибок по ходу в наборе нет. Своё замечание: просьба подождать через `sleep` в Bash заблокирована инструментом — ждал завершения прогона циклом проверки файла.
+ - Не делал (рекомендации RV необязательные, решает чат 1): R2JCAM_SOURCE.txt про r2jf 20:58; `timeout -k 15` в `r6_cost_phase.sh` и текст про Ctrl+C в 22; уточнения «Не проверено» (pidstat есть, iw нет, Ч1 не проверен, ros2 CLI пишет `~/.ros/log`); карточку В по одному действию.
+ - Последними: `DIFF_r5_r6.txt` заново (`make_diff_sums_r6.py diff`) с дописанным разделом FIX (`/work/kit_r6_20261112/FIX/make_fix_section.py`), потом `SHA256SUMS.txt` (`make_diff_sums_r6.py sums`) и проверка `check`.
++
++# Набор r7 (13.11.2026, ночь): образ r2j для Pi, BACKUP_ROOT, шаг 25 — Claude (помощник чата 1, ЧАСТЬ 2 workflow)
++- 01:13 задание: r7 = копия r6 + payload и манифест r2j + BACKUP_ROOT одной строкой + шаг 25 «ложные номера» (ТОЛЬКО ЧТЕНИЕ) + поправки из `ОТКРЫТО.md` + тесты. Прочитал план сессии, карточки, `ОТКРЫТО.md`, README r6, образец r2h (`/work/saved_r2h_20261111`, `make_saved_r2h.py`).
++- 01:28 копия r6 → r7, сверка с SHA256SUMS r6 (`7498ee24…`): 235 из 235. SHA256SUMS r6 → `_aside\SHA256SUMS_r6_copy.txt`.
++- Образ r2j: SHA256SUMS `14fbcf74…` (4 строки), MANIFEST_SHA256.txt (572 строки) — сходятся; hover r6 и MAVROS bp02 — сходятся.
++- Сборщик `proverka_r7\make_payload_r2j.py` (WSL, nice/ionice): 63 файла (changed 13, new 43, camera 1, hover 1, MAVROS 5), манифест `3431f125…`. Гейт 05 на копии с флагом теста и BACKUP_ROOT — код 0.
++- Находка: без взвода детектор спит (`gate_by_flight_state`, и образ на дроне, и r2j) — шаг 25 «только чтение» скорее всего покажет «НЕ ПРОВЕРЕНО». Шаг сделан честным: проверка 4 с и отказ без ложного «только 0».
++- Ошибка по ходу: первая версия шага 25 читала ответы окна в PowerShell (`[Console]::In`) — с вводом из файла это не работает (проверено). Переделал: вопросы задаёт .cmd (`set /p`, как в r6), PowerShell по фазам со вводом из `nul`.
++- Ошибка по ходу: проверочная команда с `Read-Host` повисла (ждала окно); остановил её, ничего не запускалось.
++- Ошибка по ходу: в тесте B9 строка дописывалась к последней строке `image_target.conf` без перевода строки (у файла его нет в конце) — тест исправлен.
++- Тесты и мутации — README, раздел r7.5; папки прогонов перенесены из набора в черновики (scratchpad сессии).
++
++## Продолжение r7 после перезапуска workflow (13.11, с 05:17 по часам ПК) — Claude (тот же помощник, ЧАСТЬ 2)
++- 05:17 папка r7 уже была (первая версия 01:13–03:00): нет `SHA256SUMS.txt` и `DIFF_r6_r7.txt` (скорее всего, кончился лимит). Опись: 333 файла, 233 = r6, изменены только README и PROGRESS, 98 новых, лишнего (прогоны, `__pycache__`) нет. r6 заново сверен со своим SHA256SUMS (`7498ee24…`): 235 из 235.
++- Своя проверка payload v1 в WSL (отдельный скрипт, не сборщик): 63 файла байт в байт = src образа / hover / MAVROS, состав = 56 + камера + hover + 5 MAVROS — сходится.
++- **05:25 находка (доказано):** на дроне по `bench_pi_state_20261112_105523.txt` стоят `aruco_detect.py 7eb7bdf3`, `camera_fix.py 74539b21`, `vpe_fix.py cd9e3792` — не колонка a45a264 манифеста образа. По копии файлов дрона 12.11 (`drone_backup_kit_20261111\out\drone_backup_20261112_102053`, только чтение) `~/ros2_ws/src` отличается от этой колонки в 57 местах, 12 файлов нет. Модель «дрон после 05» (копия + payload) с v1: сборка 13 упала бы (нет `qos_relay.py`, CMakeLists r2j стр. 146), 09/15 не сошлись бы (3 launch, `set_params.py`). Контроль CMake в WSL (малый проект): `install(PROGRAMS)` без файла — код 1, с файлом — 0.
++- Детектор на дроне `7eb7bdf3` по копии тоже с `gate_by_flight_state` = true (стр. 186): вывод шага 25 «без взвода детектор спит» верен, но доказательство в первой версии ссылалось не на тот файл (25ec291e) — поправлено.
++- Прежние версии в `_aside\r7_v1_0300\` (14 копий, 14 перенесённых выводов). Сборщик v2: модель по копии дрона, добавки по проверкам набора (ровно 5: aruco/led/simulator.launch.py, set_params.py, qos_relay.py), разбор 54 файлов, которые на дроне не равны r2j и не ставятся (31 только шапка лицензии, 11 тестов нет, 10 bumblebee_bridge, README, mavros_params.yaml пакета). Payload 68, манифест `61e6c5a0…`; 63 прежних файла остались на месте байт в байт.
++- Шаг 25: окружение ROS как у стека (как ros_env r6); итог строже — точка, где метка 0 ни разу не прочитана, теперь НЕ ПРОВЕРЕНО (было «код 0 с пометкой»); карточка поправлена.
++- Тесты: P1, P3, P12, P14, P22, P23 под 68 файлов, новый P24 (модель по копии дрона, с контролем v1), N14 строже, I3/I6 под 18/50, новый M19 (окружение); мутации: M8, M9 + P24, новые M10 (нет qos_relay.py), M11 (точка без 0 = «только 0»), Pi P10 (любая строка source). BACKUP_ROOT: для `/home/lb/bb_backup` sha256 conf после записи — `b8bfda0d…` (на копии).
++- Ошибки по ходу: (1) в журнале сборщика «файла не» (обрезка строки) — исправлено, сборщик перезапущен, манифест тот же; (2) в своём проверочном скрипте сбился отступ — поправил, на набор не влияло.
++- 05:37 r7 ПК отдельно: 78 PASS; r7 Pi отдельно: 35 PASS. 05:39–05:53 все тесты по одному (`run_all_tests_r7.ps1`, WSL через обёртку `nice -n 19 ionice -c3`): r5 стенд 515, r5 Pi 228, r5 образ 144, r6 ПК 304, r6 Pi 100, r7 ПК 78, r7 Pi 35 — FAIL 0, всего 1404; ssh только подделка (156 из 156).
++- 05:53–06:06 мутации ПК на копии в черновике: без порчи FAIL 0, 11 из 11 пойманы ровно там, где ждали. 06:03 мутации Pi в WSL: без порчи FAIL 0, 10 из 10. Папки прогонов — в черновиках сессии (scratchpad), не удалены; `__pycache__` в наборе нет.
++- Последними: `DIFF_r6_r7.txt` и `SHA256SUMS.txt` (`proverka_r7\make_sums_diff_r7.ps1`), потом проверка всех строк SHA256SUMS и повторная сверка r6 (235 из 235).
++- Ошибка по ходу (первой версии r7; исправлена): `proverka_r7\make_sums_diff_r7.ps1` падал на сортировке путей («Failed to compare two elements»: строки из функции приходили обёрнутыми, вперемешку с простой строкой). Он успел записать `DIFF_r6_r7.txt` без `SHA256SUMS.txt`; этот неполный DIFF перенесён в черновики, в скрипте добавлено приведение к `[string[]]`, суммы и DIFF написаны заново.
++- 06:11 повторный прогон r7 ПК на итоговом наборе (после README, PROGRESS и правки скрипта сумм): PASS 78, FAIL 0. Остальные наборы тестов эти файлы не меняют (K3 разрешает README и PROGRESS; в скрипте сумм только приведение типа и комментарий, BOM на месте).
+
+===== diff -u r6/README.md r7/README.md
+--- "C:\\Users\\User\\Documents\\Claude local\\bench_kit_20261112_r6\\README.md"	2026-11-12 22:24:23.825251100 +0400
++++ "C:\\Users\\User\\Documents\\Claude local\\bench_kit_20261113_r7\\README.md"	2026-11-13 06:10:05.985325700 +0400
+@@ -1,3 +1,85 @@
++# r7 (13.11): образ r2j для Pi, BACKUP_ROOT одной строкой, шаг 25 «ложные номера меток»
++
++**ПОПРАВКА (13.11, 05:30 по часам ПК; моя ошибка в первой версии r7, 01:13–03:00):** payload v1 (63 файла, манифест `3431f125…`) собран по колонке «на дроне a45a264» манифеста образа. Это git, а не настоящий дрон. По копии файлов дрона 12.11 (`drone_backup_kit_20261111\out\drone_backup_20261112_102053`) с payload v1 после 05 сборка 13 упала бы (нет `src/python/qos_relay.py`, а CMakeLists r2j его ставит), а сверки 09/15 не сошлись бы (3 launch-файла и `set_params.py` на дроне другие). **Исправлено в v2: 68 файлов, манифест `61e6c5a01bb01f339fc12d3f0361a60b135b3aec3534be46b913d506c2988347`** (раздел 1). Прежние версии — байт в байт в `_aside\r7_v1_0300\`.
++
++Claude (помощник чата 1, ЧАСТЬ 2 workflow). Первая версия — 01:13–~03:00; она не дописала `DIFF_r6_r7.txt` и `SHA256SUMS.txt` (скорее всего, кончился лимит). Продолжение после перезапуска — с 05:17 по часам ПК: проверка всего, что сделано, правка состава payload, строже итог шага 25, тесты заново, суммы. `bench_kit_20261113_r7` = копия `bench_kit_20261112_r6` плюс добавки ниже. Лежит рядом с r6 и `kit_20261109_r4`: так требуют пути шагов (01 ищет `..\kit_20261109_r4`, тест R1). **Вся сессия, начиная с шага 3, идёт из этой одной папки** (`ОТКРЫТО.md`, п. 3). К дрону не подключался, ни один .cmd на дроне не запускался, в сеть не ходил; r4, r5, r6, QGC r10, реестр, СТАТУС, копию дрона 12.11 и чужие папки только читал. Метки: **доказано** (файл, код или тест), **скорее всего**, **возможно**.
++
++## Что изменилось против r6 (подробно — `DIFF_r6_r7.txt`)
++- Копия r6 сверена с его SHA256SUMS (`7498ee24…`): 235 из 235 (**доказано**, повторено в 05:17). Файлы r6 в r7 не менялись, кроме `README.md` (этот раздел) и `PROGRESS.md` (раздел r7 в конце) — тест K3. SHA256SUMS r6 — в `_aside\SHA256SUMS_r6_copy.txt`, новый `SHA256SUMS.txt` написан заново.
++- **Добавлено:** `image_r2j\image_manifest.final.tsv` и `image_r2j\payload\…` (68 файлов), `PAYLOAD_SOURCES_r2j.tsv`, `NOT_IN_PAYLOAD_r2j.txt`, `BUILD_LOG_payload_r2j.txt`; `image_r2j\backup_root_r7.ps1`; шаг 25: `25_metki_nomera.cmd`, `run_r7_metki.ps1`, `pi\r7_marker_ids.sh`, `cards\КАРТОЧКА_25_МЕТКИ_НОМЕРА.md`; тесты `tests\run_tests_r7.ps1`, `tests\run_tests_r7_pi.sh`, `tests\fake_ssh_r7.cs`, `tests\pystub_r7\`; `proverka_r7\` (сборщик payload, прогон всех тестов, мутации, суммы); `_aside\r7_v1_0300\` (первая версия r7: 14 исходников и документов скопированы, 14 выводов перенесены).
++- Ворота, проверки и принятые скрипты не менялись: `check_gates.ps1`, `check_gates_r2j_cam.ps1`, `image_install.sh`, `image_rollback.sh`, `image_target.conf`, все .cmd и .ps1 r5/r6 — байт в байт r6 (K3, B1).
++
++## 1. Образ r2j для Pi: манифест и payload (блокер блока В снят)
++- **Манифест** `image_r2j\image_manifest.final.tsv`: sha256 **`61e6c5a01bb01f339fc12d3f0361a60b135b3aec3534be46b913d506c2988347`**, 68 строк «путь<TAB>sha256», пути от DEST_ROOT=/home/lb, LF, без TBD. **Флаг S2/S3 чат 1 выписывает именно на эту сумму** (`ОБРАЗ_MANIFEST_SHA256` в `image_r2j\gates\S2_S3_PASSED.txt`) — после решения владельца по `ВОПРОС_S2S3.md`. Сумма v1 (`3431f125…`) больше не годится.
++- **Сборщик** `proverka_r7\make_payload_r2j.py` v2 — переделка `make_saved_r2h.py` (так собирали r2h) под r2j: только читает источники, новые файлы пишет, существующие обязаны совпасть байт в байт. Проверяет: SHA256SUMS образа `14fbcf74…` (+ все его строки и все 572 строки MANIFEST_SHA256.txt), `image_manifest_r2.tsv` `0c02e391…`, hover r6 по его SHA256SUMS.txt, 5 исходников MAVROS по `mavros_bp02_sources.tsv`, копию дрона 12.11 (sha256 `FILES_SHA256.txt` `17a70747…` и `home_lb.tar.gz` `dfb9938d…` записаны в её `BACKUP_OK.txt`); потом списки набора. Журнал — `image_r2j\BUILD_LOG_payload_r2j.txt`.
++- **Состав (68 файлов) и почему:**
++  - 13 файлов, которые r2j **меняет** против колонки a45a264: `CMakeLists.txt`, `package.xml`, `examples/drone.py`, `examples/flight/flight.py` (0,9 м, `b69cc5e7…`), `flight_marker.py`, `flight_marker_loop.py`, `examples/flight_profile.py`, `launch/bumblebee.launch.py`, `launch/main_camera.launch.py`, `launch/second_camera.launch.py` (место камер по эталону), `src/cpp/simple_offboard.cpp`, `src/python/aruco_detect.py`, `src/python/vpe_fix.py`;
++  - 43 файла, которые r2j **добавляет**: `launch/mavros_scoped_config.py`, `src/cpp/script_lease.h`, `src/cpp/state_link.h`, `src/python/setpoint_freshness.py` и 39 файлов `test/…` (как в r2h; сборка 13 идёт с `BUILD_TESTING=OFF`);
++  - `src/python/camera_fix.py` по умолчанию `4a15d699` — нужен обязательно: на дроне 12.11 стоит другой (`74539b21`, копия дрона и `bench_pi_state_20261112_105523.txt`), без этой строки 09 не сойдётся (INSTALL_SHA256_r2j ждёт 4a15d699);
++  - скрипт висения hover r6 → `ros2_ws/src/bumblebee/examples/hover_marker0.py` (`a11b195c…`);
++  - 5 исходников MAVROS bp02 (тег backport-02, d63a236) — справочная копия `image_r2j_ref/mavros_bp02_d63a236/…`, вне `~/bench_ws` (шаги сборки 11 и 13 требуют там своих пустых каталогов); на сборку не влияет;
++  - **v2: 5 файлов образа, которые на настоящем дроне не равны r2j** (копия 12.11), а без них не сходятся проверки самого набора: `launch/aruco.launch.py`, `launch/led.launch.py`, `launch/simulator.launch.py` (RUNTIME_PY, сверки 09 и 15) и `src/python/set_params.py` (INSTALL_SHA256, 09) — на дроне они без шапки лицензии, по работе те же; `src/python/qos_relay.py` — на дроне в `src/python` его нет, а CMakeLists r2j (стр. 146) его ставит и launch r2j его запускает.
++- **Как найдено (доказано):** модель «дрон после 05» = файлы дрона по копии 12.11 (`FILES_SHA256.txt`) + строки манифеста; на ней проверки набора: CPP_SOURCES (13, 15), RUNTIME_PY launch и FCU (09, 15), python-узлы INSTALL_SHA256 (09), файлы `install(PROGRAMS)` из CMakeLists r2j. С v1 — 6 несхождений, с v2 — 0 (тест P24, сборщик). Что CMake с `install(PROGRAMS)` на отсутствующем файле падает на шаге установки — **доказано** малым контрольным проектом CMake в WSL (без файла install код 1 «file INSTALL cannot find», с файлом код 0); что colcon при этом даст «package failed» и 13 скажет СТОП — **скорее всего**.
++- **Не входят** (`NOT_IN_PAYLOAD_r2j.txt`): `scripts/fcu_detect.py` — на дроне остаётся исправленный `5932a00a` (на дроне 12.11 он и стоит), в src образа лежит прежний `ee174fd1` (правило набора, гейт и установщик откажут, тесты P5, P16); 269 файлов, равных в колонке a45a264 и в r2j; 48 файлов вне `ros2_ws/src`. **Из этих 269 на дроне 12.11 отличаются 54, и они не ставятся** — разбор по байтам `home_lb.tar.gz` (доказано сборщиком): 31 — только шапка лицензии (комментарии; среди них службы `scripts/led_default.py`, `wifi_fallback.sh`, `wifi_5ghz_diag.sh` — их не трогаем); 11 — тесты, которых на дроне нет (сборка без тестов); 10 — пакет `bumblebee_bridge` (r2j его не меняет, байтов в src образа нет); `README.md` пакета; `config/mavros_params.yaml` пакета (launch r2j берёт `/home/lb/mavros_params.yaml`, он на дроне = r2j `abce12eb`; CMakeLists r2j config не ставит). Учёт строк сходится: 56 + камера 1 + 5 добавок + fcu_detect 1 + 269 + 48 = 380 строк манифеста образа.
++- **Сверка байт в байт (доказано тестами и отдельной проверкой в WSL):** 62 файла payload = `src` образа r2j и колонке sha256_fixed_image (P12); hover = `/work/c6_hover_script_r6_20261110/hover_marker0.py` (P17); MAVROS = `/work/ws_mavros214_bp02/src/mavros-source` (P18); полнота — все 56 строк образа, которые r2j меняет или добавляет, есть в манифесте (P13); добавки ровно 5 (P14); списки набора покрыты (P19–P21), модель «дрон после 05» сходится (P24).
++- **Гейт 05 (доказано тестом на копии r7):** без флага и с TBD — отказ ровно по двум причинам: нет флага S2/S3 и BACKUP_ROOT (G2). С флагом теста на sha этого манифеста — отказ ТОЛЬКО по BACKUP_ROOT (G3). С BACKUP_ROOT в копии — **код 0** (G4). Настоящий r7 сейчас: нет флага, нет свежей 01, BACKUP_ROOT TBD (G1).
++- **Установка на настоящем `image_install.sh` (доказано тестом в WSL, поддельный корень):** 68 файлов легли с sha манифеста, в резерве 18 прежних и 50 новых, исправленный `fcu_detect.py` не тронут; откат `image_rollback.sh` без метки вернул «дрон» байт в байт (I3–I6).
++- **Чего ждать в журнале 05 на настоящем дроне (скорее всего, если `~/ros2_ws/src` с 12.11 не меняли):** по копии 12.11 из 68 файлов на дроне есть 18 (все 18 другие, чем в r2j), 50 новых; строка `=== backup <BACKUP_ROOT>/<метка>: 18 old files, 50 new files`, потом `BB_IMAGE_INSTALL_DONE <метка> files=68`. Другие числа — сказать чату 1 до сборки 13.
++- Заметка (не новое, `_ПОПРАВКА_20261111_drone_py.md`): службы wifi-manager, notify-manager, led-default берут `drone.py` прямо из src — после 05 и ближайшей загрузки они работают на drone.py r2j (`fa6abf8b`). В плане сессии это закрывают 01, 09, 10 и 20 после загрузки (шаги 24–26).
++
++## 2. BACKUP_ROOT — одна строка, по слову владельца
++- Значение живёт в одной строке `image_r2j\image_target.conf`: `BACKUP_ROOT=TBD`. Её читают 05 и 06 (на Pi — `image_install.sh`, `image_rollback.sh`) и 05c/06c (резерв варианта — `BACKUP_ROOT/r2j_cam`). Других мест нет (тест B2). Файл = r6 байт в байт (B1, sha256 `8717f1a8…`). Предложение чата 1 — `/home/lb/bb_backup`; решает владелец (11.11: «Решу у дрона»). В копии дрона 12.11 файлов в `/home/lb/bb_backup` нет (папку создаст сам `image_install.sh`, `mkdir -p`).
++- **Шаги без неё отказывают (доказано тестами):** 05 — на ПК, гейт, к дрону не обращается (G3, G7); 05c и 06c — на ПК, гейт варианта (G6); 06 — ПК BACKUP_ROOT не проверяет: идёт на дрон (проверка имени, `/tmp/imgrb_N`, копирует 2 файла), и скрипт на Pi отказывает до любых изменений: «=== STOP: DEST_ROOT or BACKUP_ROOT is TBD» (I2, I2b, на настоящем `image_rollback.sh`). 06 до 05 в плане нет.
++- **Как задать (только чат 1 и только после слова владельца):** `powershell -NoProfile -ExecutionPolicy Bypass -File image_r2j\backup_root_r7.ps1 -Set /home/lb/bb_backup -OwnerWords "<слова владельца>"`. Меняет только эту строку (остальные байты те же), прежний файл — в `image_r2j\_aside_conf_<время>\`, запись со словами владельца и sha256 до/после — в `image_r2j\BACKUP_ROOT_ЗАПИСЬ.txt`. Отказывает, если строка уже задана, если нет слов, если путь негоден: не абсолютный или с другими знаками, чем `A-Za-z0-9_.-/` (их требует гейт варианта; `image_install.sh` читает файл командой «.» в bash), с «..», «//» или «/» в конце, короче двух уровней, в `/tmp`, `/var/tmp`, `/run`, `/dev`, `/proc`, `/sys`, равен DEST_ROOT или внутри `~/ros2_ws` и `~/bench_ws` (B4–B9, на копиях). Без ключей — только проверка: код 0 задан и годен, 1 TBD, 2 негоден или строк не одна.
++- **Для значения `/home/lb/bb_backup` после записи sha256 `image_target.conf` будет `b8bfda0d0aa538fc373c18cc712da934953ac9acd5468b45e5db0615cec9f153`** (проверено на копии в черновике, 05:39). Ожидаемо: `sha256sum -c SHA256SUMS.txt` покажет FAILED только у `image_r2j/image_target.conf`; тесты состояния «TBD» (r7 B1, B3, B6, B9, G1–G3, G6, G7, K3, K4; r5 A46; r6 S16, G1) после записи скажут, что строка изменилась — это не ошибка набора. Флаг S2/S3 привязан к манифесту, а не к этому файлу: запись BACKUP_ROOT его не ломает.
++
++## 3. Шаг 25 `25_metki_nomera.cmd` — ТОЛЬКО ЧТЕНИЕ, ложные номера меток (карточки — `cards\КАРТОЧКА_25_МЕТКИ_НОМЕРА.md`)
++- Первая строка «ТОЛЬКО ЧТЕНИЕ»; имя ПК; имя дрона (`BB-TestDrone` перед каждой фазой и первой строкой скрипта Pi); ответы не перезаписываются (проверка до обращения к дрону). Вопросы «наберите 0 / 5 / 10 / 15» задаёт .cmd (`set /p`, как в r6), `run_r7_metki.ps1` вызывается по фазам pre → rec ×4 → final, всегда со вводом из `nul`.
++- На Pi (`pi\r7_marker_ids.sh`): только подписка rclpy на `/mavros/state` и `/aruco_detect/markers`; ничего не публикует (`/aruco_detect/wake` не трогает), ros2 CLI не вызывает (демона ros2 не будет — требование «ros2 только с `--no-daemon`» выполнено строже), файлов не создаёт, sudo нет. Отказ, если дрон взведён, нет связи с FCU или `/mavros/state` молчит; запись обрывается, если дрон взвели во время записи. **v2:** окружение ROS как у стека и как в шагах r6 (профиль, jazzy, 4 известные строки `source` из `~/start_bumblebee.sh` — там `ros2_ws/install/setup.bash` с пакетом `aruco_pose`, `/etc/bumblebee/ros.env` — домен ROS стека, UDPv4); посторонние строки не исполняются (тест M19).
++- Сначала проверка 4 с. Потом 4 точки по 10 с: номер и 4 угла каждой метки каждого кадра (`out\metki_nomera_<время>_pNNcm.txt`). Итог (`out\metki_nomera_<время>.txt`, последняя строка `# VERDICT`): ONLY_ID0 (код 0: в КАЖДОЙ точке прочитан номер 0 и других нет) / FALSE_ID «ЛОЖНЫЙ НОМЕР» — номер не 0 хотя бы в одной точке (5) / NOT_CHECKED (6: детектор молчит, в точке нет сообщений **или метка 0 там ни разу не прочитана** — v2, строже; было «код 0 с пометкой») / NOT_STARTED (3) / ERROR (4).
++- **Главное (доказано по коду и по копии файлов дрона 12.11, на дроне не проверено):** без взвода детектор спит и номеров не выдаёт. На дроне стоит `aruco_detect.py` `7eb7bdf3` (не `25ec291e` из колонки a45a264 — поправка к первой версии r7): стр. 186 `gate_by_flight_state` = true; его `aruco.launch.py` отличается от r2j только шапкой лицензии и параметр не меняет. В r2j (`66f061ec`) так же, плюс 5 с после `/aruco_detect/wake`. Кадры детектор берёт только при взводе, в OFFBOARD или (r2j) после wake. Поэтому шаг 25 «только чтение, без взвода» **скорее всего** покажет «НЕ ПРОВЕРЕНО: детектор молчит» через ~20 с — честно, без ложного «только 0». Что делать — решает чат 1 / владелец (открытые вопросы, п. 1).
++
++## 4. Поправки из проверки плана (`ОТКРЫТО.md`), касающиеся кода набора
++- Разобраны п. 0–15. Кода набора касаются: п. 2 и п. 4 (сделано: разделы 1 и 2), п. 3 (место набора: проверено тестами R1, R2) и п. 6 (`pi\pi_state.sh` шага 01 зовёт ros2 без `--no-daemon`).
++- **П. 6 — правку НЕ делал.** Почему: демон запускают и `ros2 node list`, и три `ros2 topic echo` (**доказано** по коду ros2cli Jazzy). Сверка настроек r4, которую 01 зовёт следом (`kit_20261109_r4\params_check\params_read.sh`, стр. 14 и 18), сама зовёт `ros2 service list` и `ros2 topic echo /parameter_events` без `--no-daemon` и, **возможно**, опирается на уже тёплый демон. Убрать демон из 01 — значит поменять условия сверки «из таблицы MAVROS», которая и так блокер (`ОТКРЫТО.md` п. 1). Предложение — после разбора таблицы MAVROS (часть 3), на r8, с проверкой на дроне.
++- Остальное — вне кода набора (QGC r10 / r11, `kit_20261109_r4`, `s1b_diag`) или решения владельца и чата 1. Ворота и проверки не трогал.
++
++## 5. Тесты r7 (без дрона; ssh и scp — подделки; в WSL — `nice -n 19 ionice -c3`, один поток)
++Прогон после правок v2: `proverka_r7\run_all_tests_r7.ps1 -WslSandbox /tmp`, 05:39–05:53 по часам ПК, итоги `proverka_r7\tests_r7_svodka.txt`, вывод каждого — `proverka_r7\tests_*_console.txt` (прогон первой версии, 02:33–02:47, — в `_aside\r7_v1_0300\proverka_r7\`). Тесты r5 и r6 — без единой правки (байт в байт r6).
++| Тесты | Итог |
++|---|---|
++| r5 стенд `tests\run_tests_bench.ps1` | PASS 515, FAIL 0 (в r6 было 497; плюс 18 проверок кодировки S4 новых .ps1 и .sh r7: 9 рабочих и 9 их прежних копий в `_aside\r7_v1_0300\`) |
++| r5 Pi `tests\run_tests_pi.ps1` | PASS 228, FAIL 0 (как в r6) |
++| r5 образ `tests\run_tests_image.ps1` | PASS 144, FAIL 0 (как в r6; песочницы New-Kit теперь копируют и настоящий payload r7 — гейт смотрит только строки своего манифеста) |
++| r6 ПК `tests\run_tests_r6.ps1` | PASS 304, FAIL 0 (как в r6; S16 «файлы r5 байт в байт» проходит — r7 их не менял; S7/S8 смотрят и новые .py payload — чисто) |
++| r6 Pi `tests\run_tests_r6_pi.sh` (WSL) | PASS 100, FAIL 0 (как в r6) |
++| r7 ПК `tests\run_tests_r7.ps1` (новые) | PASS 78, FAIL 0 (77 первой версии с правкой под 68 файлов и строже N14, плюс P24) |
++| r7 Pi `tests\run_tests_r7_pi.sh` (новые, WSL) | PASS 35, FAIL 0 (34 + M19) |
++| **Всего** | **1404 PASS, 0 FAIL** |
++| мутации ПК `proverka_r7\mutation_check_r7_pc.ps1` (копия набора в черновике) | без порчи FAIL 0; 11 порч из 11 пойманы ровно в ожидаемых проверках (`mutation_check_r7_pc.txt`): прежние 9 (M8 и M9 теперь ловит и P24) + M10 «нет qos_relay.py» (P1, P3, P12, P14, P22, P24) + M11 «точка без номера 0 даёт „только 0“» (N14) |
++| мутации Pi `proverka_r7\mutation_check_r7_pi.sh` (WSL) | без порчи FAIL 0; 10 из 10 пойманы ровно в ожидаемых проверках (`mutation_check_r7_pi.txt`): прежние 9 + P10 «из start_bumblebee.sh исполняется любая строка source» (M19) |
++
++- Новые тесты r7 ПК (`tests\run_tests_r7.ps1`, 78): K1–K5 (копия r6, лишних файлов нет, out\ пуст), R1–R2 (место набора), P1–P24 (манифест и payload, сверка с источниками в WSL через `\\wsl.localhost`, P24 — модель «дрон после 05» по копии дрона 12.11 с контролем v1), T0, G1–G7 (гейты 05/05c/06c, 05 без обращения к дрону), B1–B9 (BACKUP_ROOT), N1–N25 (шаг 25 на подделке ssh), S1–S4 (кодировки, нет pgrep/pkill, адреса дрона, паролей, ключей, почты).
++- Новые тесты r7 Pi (`tests\run_tests_r7_pi.sh`, 35, WSL): M0–M19 (`r7_marker_ids.sh` на поддельном rclpy: имя хоста, аргументы, детектор спит / работает / ложный номер 38 / взведён / взвели во время записи / нет связи / нет `aruco_pose`, окружение как у стека; ни издателей, ни ros2 CLI, ни sudo, ни файлов в HOME), I1–I6 (настоящие `image_install.sh` и `image_rollback.sh` с настоящим payload r7: 68 файлов, 18 прежних в резерве, 50 новых, откат байт в байт).
++- Настоящий ssh не вызывался: во всех 156 запусках шагов в тестах ПК путь ssh — только подделка `…\tests\run_*\fake\ssh.exe`, упоминаний системного OpenSSH в выводах тестов 0 (`tests_r7_svodka.txt`). Папки прогонов перенесены из набора в черновики сессии (не удалены).
++
++## 6. Не проверено (честно)
++- Всё на настоящем Pi. Шаг 25: что `rclpy` на дроне даёт `get_publishers_info_by_topic` / `get_subscriptions_info_by_topic` (в Jazzy есть — **скорее всего**), сколько секунд идёт каждая фаза.
++- Состав payload v2 опирается на копию файлов дрона 12.11 10:21. Если на дроне с тех пор что-то меняли в `~/ros2_ws/src`, сверки 13, 09, 15 это поймают (они сверяют sha), но блок В тогда встанет. После 12.11 10:21 шагов, меняющих `~/ros2_ws/src`, в журналах набора нет (**скорее всего** — смотрел `bench_kit_20261111_r4\out`).
++- Установка payload на настоящий дрон: только на поддельном корне WSL с настоящими `image_install.sh` и `image_rollback.sh`. Сборка r2j на «дроне после 05» целиком не повторялась (тяжело рядом с серией Симулятора) — только модель по суммам и контроль CMake.
++- Что r2j полетит лучше старого образа: это зачёт С8 и выезды, не набор.
++
++## 7. Открытые вопросы (через чат 1)
++1. **Шаг 25 без взвода, скорее всего, данных не даст** (раздел 3). Варианты на равных; без взвода (его делает только владелец) или без пробуждения детектора номеров не будет; решает чат 1 / владелец: А) во время стенда Г (взвод без винтов пультом, шаги 28–29) детектор работает, и `04_vibratsiya.cmd` (ТОЛЬКО ЧТЕНИЕ) уже пишет `marker_ids_seen` — номера настоящей камеры там, где стоит дрон, пока он взведён (по плану около 30 с до самоотключения — **скорее всего**); Б) только на r2j — будить детектор, как 02a/03 (`МЕНЯЕТ ДРОН (косвенно)`: поза может дойти до EKF2), и во время этого запускать 25; В) стендовый детектор в `/bench`, как 22 (`МЕНЯЕТ ДРОН: временно`, своё разрешение); Г) оставить проверку Gazebo.
++2. BACKUP_ROOT — слово владельца (раздел 2).
++3. Флаг S2/S3 — решение владельца, потом флаг на sha манифеста `61e6c5a0…` (не на `3431f125…` первой версии).
++4. Гейт 05 всё равно ждёт сверку 01 «СОВПАДАЕТ … из таблицы MAVROS» (`ОТКРЫТО.md` п. 1) — r7 её не чинит.
++5. `pi_state.sh` с `--no-daemon` — после разбора таблицы MAVROS (раздел 4).
++6. Настоящий дрон не равен колонке a45a264 манифеста образа в 57 файлах `ros2_ws/src` (копия 12.11). Для r7 это закрыто добавками, но тот же вопрос будет у любого следующего образа: «на дроне» в манифестах образов — это git. Предложение: в следующих сборках образов колонку «на дроне» брать из копии дрона.
++7. Независимая проверка r7 (правило 12): что смотреть — состав и сверка payload (P1–P24, сборщик v2, `NOT_IN_PAYLOAD_r2j.txt`), BACKUP_ROOT (B1–B9), шаг 25 (N1–N25, M0–M19), что r6 не тронут (K1–K5), мутации.
++
++---
++
+ # r6 (12.11): нагрузка Pi, камера полных строк, правки ступени 1
+ Claude (помощник-сборщик, задача B по заданию чата 1), 12.11.2026, около 21:00 по часам ПК. `bench_kit_20261112_r6` = копия `bench_kit_20261112_r5` без `out\` (там было пусто; здесь `out\` тоже пустая) плюс добавления ниже. r5 и r4 НЕ тронуты (правило 12): в r5 только читал; копия r6 до правок сверена с SHA256SUMS r5 — 135 из 135. **К дрону этот набор не подключался, ни один .cmd на дроне не запускался; Claude их не запускает** — двойной щелчок владельца. Владельцу ничего не ставится без его «да»: все шаги «МЕНЯЕТ ДРОН» r6 открываются только файлом-разрешением в `gates\` (создаёт только чат 1 после слов владельца; сборщик их не создавал). Метки: **доказано** (файл, код или тест), **скорее всего**, **возможно**.
+ Основа: разборы `/work/pi_load_20261112/{P1,V1,P2,V2}`, процедура `camera_fullrow_01/PI_PERF_PROCEDURE_proposal.md` (ред. 3), образ `/work/fixed_image_r2jf_20261112` и его проверка `/work/review_v14_20261112/R` (П4).

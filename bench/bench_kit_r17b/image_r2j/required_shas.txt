@@ -1,0 +1,10 @@
+# Обязательный состав образа r2j для check_gates.ps1 (поручение чата 1, 10.11). Эти суммы сверяются с image_manifest.final.tsv перед установкой.
+# HOVER_R6_SHA256: скрипт висения hover r6, /work/c6_hover_script_r6_20261110/hover_marker0.py (a11b195c…13f7).
+# CAMERA_DEFAULT_SHA256: прежний camera_fix.py (4a15d699…): по умолчанию в образе, проверен в Gazebo.
+# CAMERA_VARIANT_SHA256: вариант dabd5076…; в основной манифест не входит (отдельная папка camera_variant_dabd5076, только если владелец выберет).
+# FLIGHT_PY_SHA256: examples/flight/flight.py образа r2j (Ж3, ed352ff1…): на него ссылается takeoff.conf.
+# MAVROS bp02: список mavros_bp02_sources.tsv лежит рядом: в манифесте должны быть все 5 исходников (колонка sha256_bp02).
+HOVER_R6_SHA256=a11b195ce1507607967ff6a7402726d9eef7b4f12850a9e864f5ae27d1f513f7
+CAMERA_DEFAULT_SHA256=4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310
+CAMERA_VARIANT_SHA256=dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83
+FLIGHT_PY_SHA256=b69cc5e72509bbe2f141e48844b999e3a046ac6a78d28484239536b426c807b3

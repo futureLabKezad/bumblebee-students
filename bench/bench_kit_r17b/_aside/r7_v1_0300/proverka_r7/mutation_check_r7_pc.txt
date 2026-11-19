@@ -1,0 +1,12 @@
+﻿# mutation_check_r7_pc.ps1 -Work C:\Users\User\AppData\Local\Temp\claude\de720d79c195c1ef\c2a634de-2fc8-461a-85ee-fb373457ed8c\scratchpad\mut_pc_3: начало 2026-11-13 02:47:51 по часам ПК
+MUT M0 (без порчи): ИТОГ r7: PASS 77, FAIL 0; FAIL: 
+MUT M1 (детектор молчит, а шаг идёт дальше (нет НЕ ПРОВЕРЕНО при msgs=0; фаза rec сама откажет без удачной проверки, поэтому ловит N5)): поймано; FAIL: N5  [порча: run_r7_metki.ps1 («if ($m0 -eq 0) {…», мест 1)]
+MUT M2 (номер не 0 не считается ложным): поймано; FAIL: N10, N12  [порча: run_r7_metki.ps1 («if ([int]$Matches[1] -eq 0) { $seen0 = $true }…», мест 1)]
+MUT M3 (фаза rec запускается без «< nul» (PowerShell мог бы съесть ответы окна)): поймано; FAIL: N2  [порча: 25_metki_nomera.cmd («-Phase rec -Stamp %STAMP% -Cm %2 < nul…», мест 1)]
+MUT M4 (нет отказа перезаписи до обращения к дрону): поймано; FAIL: N18, N20  [порча: run_r7_metki.ps1 («{ $null = BB-NewOutFile $outDir $n }   # не перезаписывать…», мест 1)]
+MUT M5 (нет сверки числа строк MN_MSG с msgs): поймано; FAIL: N15  [порча: run_r7_metki.ps1 («if ($nMsg -ne $msgs)…», мест 1)]
+MUT M6 (BACKUP_ROOT в /tmp принимается): поймано; FAIL: B4, B5, B6, B7  [порча: image_r2j\backup_root_r7.ps1 («foreach ($s in '/tmp', '/var/tmp'…», мест 1)]
+MUT M7 (BACKUP_ROOT вписан в набор без слова владельца): поймано; FAIL: B1, B3, B6, B9, G1, G2, G3, G6, G7, K3  [порча: image_r2j\image_target.conf («BACKUP_ROOT=TBD…», мест 1)]
+MUT M8 (в манифесте и payload нет state_link.h (файл r2j, нужна пересборка)): поймано; FAIL: P1, P12, P13, P19, P22, P3  [порча: строка и файл state_link.h убраны]
+MUT M9 (fcu_detect.py образа (прежний) положен в payload и манифест): поймано; FAIL: B8, G1, G2, G3, G4, P1, P12, P2, P3, P5  [порча: fcu_detect.py добавлен]
+# конец 2026-11-13 02:58:43; ИТОГ: все порчи пойманы ровно в ожидаемых проверках, без порчи FAIL 0

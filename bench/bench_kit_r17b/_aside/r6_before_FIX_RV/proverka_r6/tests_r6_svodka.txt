@@ -1,0 +1,7 @@
+# прогон тестов r6, начало 2026-11-12 20:46:29 (часы ПК); обёртка wsl: C:\Users\User\AppData\Local\Temp\bb_r6_wslnice_e4fdbf80\wsl.exe
+r5_bench: код 0, ИТОГ: PASS 488, FAIL 0, 321 с
+r5_pi: код 0, ИТОГ: PASS 228, FAIL 0, 100 с
+r5_image: код 0, ИТОГ: PASS 144, FAIL 0, 89 с
+r6_pc: код 0, ИТОГ r6: PASS 299, FAIL 0, 188 с
+r6_pi: код 0, ИТОГ r6 Pi: PASS 90, FAIL 0 (песочница /work/kit_r6_20261112/B/r6pi_AJA3zU), 3 с
+# конец 2026-11-12 20:58:11

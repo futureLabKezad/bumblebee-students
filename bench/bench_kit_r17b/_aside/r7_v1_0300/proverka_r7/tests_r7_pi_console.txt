@@ -1,0 +1,35 @@
+PASS M0 bash -n r7_marker_ids.sh
+PASS M0b встроенный python компилируется
+PASS M1 первая строка-комментарий ТОЛЬКО ЧТЕНИЕ, проверка hostname первой командой
+PASS M2 в коде нет sudo, rm, mv, cp, mkdir, tee, touch, chmod, systemctl, reboot, записи в файл
+PASS M3 в коде нет издателей, клиентов служб, /aruco_detect/wake, ros2 CLI, pgrep/pkill
+PASS M4 подписки только /mavros/state и /aruco_detect/markers
+PASS M5 чужое имя хоста: код 1, STOP в stderr, в stdout пусто, python не запускался
+PASS M6 плохие аргументы «xx 2 pre»: код 4, python не запускался
+PASS M6 плохие аргументы «pre 1 pre»: код 4, python не запускался
+PASS M6 плохие аргументы «pre 11 pre»: код 4, python не запускался
+PASS M6 плохие аргументы «rec 4 p00cm»: код 4, python не запускался
+PASS M6 плохие аргументы «rec 31 p00cm»: код 4, python не запускался
+PASS M6 плохие аргументы «rec 10 p0;cm»: код 4, python не запускался
+PASS M6 плохие аргументы «rec ten p00cm»: код 4, python не запускался
+PASS M6 плохие аргументы «rec 10 »: код 4, python не запускался
+PASS M7 детектор спит (pre): код 0, MN_STATE connected=True armed=False, MN_DETECTOR camera_subscription=no msgs=0, конец BB_R7MN_DONE rc=0
+PASS M8 заглушка, а не настоящий rclpy: узел bb_r7_marker_ids, подписки 2, издателей 0, shutdown
+PASS M9 ros2, sudo, systemctl не вызывались; в HOME ничего не появилось
+PASS M10 дрон взведён: код 3, MN_REFUSED armed, окна записи не было
+PASS M11 нет связи с FCU: код 3, MN_REFUSED fcu_not_connected
+PASS M12 /mavros/state молчит 8 с: код 3, MN_REFUSED no_mavros_state
+PASS M13 детектор не спит, запись 5 с: строки MN_MSG с номером и 4 углами, MN_END считает их, номера только 0
+PASS M14 ложный номер 38 в записи: MN_MSG id=38 и в MN_END ids=0:..,38:..
+PASS M15 pre при работающем детекторе: строк MN_MSG нет, msgs > 0, camera_subscription=yes
+PASS M16 дрон взвели во время записи: код 3, MN_REFUSED armed_during, MN_END нет
+PASS M17 подписка детектора на камеру есть, а сообщений нет: msgs=0 (на ПК это НЕ ПРОВЕРЕНО)
+PASS M18 нет aruco_pose.msg: код 4, MN_ERROR markers_import_failed
+PASS I1 настоящий image_target.conf (BACKUP_ROOT=TBD): image_install.sh отказывает до любых изменений (код 1, STOP TBD)
+PASS I2 настоящий image_target.conf (TBD): image_rollback.sh (06) отказывает до любых изменений (код 1, STOP TBD)
+PASS I2b то же с явной меткой резерва: отказ TBD
+PASS I3 установка r7 на поддельный корень: код 0, BB_IMAGE_INSTALL_DONE files=63, в резерве 14 прежних и 49 новых
+PASS I4 после установки все 63 файла на месте с sha256 манифеста
+PASS I5 исправленный fcu_detect.py на «дроне» не тронут, hover r6 и flight.py r2j стоят
+PASS I6 откат (06 без метки): код 0, restored=14 moved_aside=49, «дрон» байт в байт как до установки
+ИТОГ r7 Pi: PASS 34, FAIL 0 (песочница /tmp/r7pi_Kg0hXg)

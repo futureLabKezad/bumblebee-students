@@ -1,0 +1,9 @@
+./mavros/lib/libmavros.so
+./mavros/lib/libmavros_plugins.so
+./mavros/lib/mavros/mavros_node
+./mavros/share/ament_index/resource_index/mavros__pluginlib__plugin/mavros
+./mavros/share/ament_index/resource_index/package_run_dependencies/mavros
+./mavros/share/ament_index/resource_index/packages/mavros
+./mavros/share/ament_index/resource_index/parent_prefix_path/mavros
+./mavros/share/ament_index/resource_index/rclcpp_components/mavros
+./mavros/share/mavros/mavros_plugins.xml

@@ -1,0 +1,12 @@
+# DIFF_r17a_r17b.txt (Claude, 19.11.2026): diff -u bench_kit_20261119_r17a -> bench_kit_20261119_r17b по изменённым файлам; новые файлы - списком в конце с sha256. out/ пуст в обоих. SHA256SUMS.txt пересчитан.
+--- r17a/params_check/approved_changes.txt
++++ r17b/params_check/approved_changes.txt
+@@ -37,3 +37,4 @@
+ CA_ROTOR3_PY	0.2262	2026-11-13	владелец 11.11 «везде реальные размеры надо»; 13.11 ~08:56 «Ставить сегодня» (исключение: зачёт 4075 не сдан); 13.11 ~18:59 «Нажимай ты» — Open/Ok нажал чат 1 ~19:27; файл 20EC_после_группа5_13-11_1927.params, check_card After 4 Done 1,3,2 (основа B_frozen_plus_g5_1526, protected_g5) код 0
+ CA_ROTOR3_PZ	-0.016	2026-11-13	владелец 11.11 «везде реальные размеры надо»; 13.11 ~08:56 «Ставить сегодня» (исключение: зачёт 4075 не сдан); 13.11 ~18:59 «Нажимай ты» — Open/Ok нажал чат 1 ~19:27; файл 20EC_после_группа5_13-11_1927.params, check_card After 4 Done 1,3,2 (основа B_frozen_plus_g5_1526, protected_g5) код 0
+ BAT1_V_DIV	9.71	2026-11-13	владелец 13.11 ~16:22 «2 пункт делаем»; 13.11 ~18:59 «Нажимай ты» — Open/Ok (~19:30) и Reboot (~19:31) нажал чат 1; поставлено 13.11 ~19:31, файл 20EC_после_группа7_13-11_1933.params, diff_params --expect BAT1_V_DIV=18.1:9.71 код 0
++COM_RC_OVERRIDE	3	2026-11-19	решение владельца 19.11 14:21 «COM_RC_OVERRIDE = 3? 2» (да, без Gazebo; стики перехватывают и в OFFBOARD → Position); поставил владелец в QGC 19.11 14:37; сверено чатом 1 по 01 r14 (params_bench_20261119_143717.params: COM_RC_OVERRIDE 3, COM_RC_STICK_OV 30)
+# новые файлы (нет в r17a):
+7e74d2c216714ccc103993095be1b66cb0828f4912f7c2fb117234d5ea1b42ce  README_r17b.md
+f6b7b73b5028a2676843ef772d3c9f217b02ddbaecc7ee9a9805e5ee349f2bce  proverka_r17b/progon_1450/tests_r17b_console.txt
+dcaf60ad7fa45561f7a8987ceec577e96da7d03915469b9c542e1fc4fe973932  tests/run_tests_r17b.ps1

@@ -1,0 +1,5 @@
+# DIFF r8 -> r9 (Claude, chat 1, 2026-11-13 17:07; r8 as it is now, without out\). Files compared: 416
+CHANGED  params_check/params_read.sh  r8 0f8894e1d8089441fb332fb941c7666db56978ffc6ac1897ce6f670a79e6aeb3 -> r9 55f6b19d0490972b3476028eaef6c80d3268b05a712950c6ecc99fea483bc940
+NEW      README_r9.md  r9 3bc802bb3d755e6032a80511495fe62107bd331b3768e89bbf1344c1ff2b3a41
+CHANGED  SHA256SUMS.txt  (regenerated for r9; see its own sha in СТАТУС/журнал)
+NEW      DIFF_r8_r9.txt  (this file)

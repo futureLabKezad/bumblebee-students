@@ -1,0 +1,297 @@
+# DIFF_r9_r11.txt (Claude, 16.11.2026): diff -u bench_kit_20261113_r9 -> bench_kit_20261116_r11 по изменённым файлам; новые файлы - списком в конце. Не скопированы из r9: out/ (пусто), gates/OVERLAY_MAVROS_APPROVED.txt, gates/OVERLAY_BUMBLEBEE_APPROVED.txt, image_r2j/gates/S2_S3_PASSED.txt.
+--- r9/run_07_takeoff.ps1
++++ r11/run_07_takeoff.ps1
+@@ -1,7 +1,7 @@
+ ﻿# run_07_takeoff.ps1 (Claude, 10.11.2026) - ЗАГОТОВКА. МЕНЯЕТ ДРОН: ВЗЛЁТ, моторы запустятся скриптом полёта на Pi. Запускается ТОЛЬКО из 07_vzlet_zagotovka.cmd двойным щелчком владельца.
+ # Claude этот файл не запускает (правило 1 и решение владельца 10.11 «запуск скрипта - вариант 2»). Условия запуска проверяются здесь, до любого обращения к дрону:
+ #   takeoff.conf заполнен (путь и sha256 скрипта, без TBD); gates\TAKEOFF_APPROVED.txt создан чатом 1 после слов владельца о шаге 14 и называет тот же sha и те же аргументы (АРГУМЕНТЫ=); свободных параметров у .cmd нет;
+-#   свежая (не старше 30 мин) сверка настроек «СОВПАДАЕТ» из набора r4; (21:50, S1) успешные 09 и 10 после последнего 16/17 или сборки, не старше 180 мин; подтверждения мер безопасности; отсчёт не меньше 10 с.
++#   свежая (не старше 30 мин) сверка настроек «СОВПАДАЕТ» из набора r4 (r11: или «СОВПАДАЕТ (гироскоп сдвинулся: N, запись)» - решение владельца 16.11); (21:50, S1) успешные 09 и 10 после последнего 16/17 или сборки, не старше 180 мин; подтверждения мер безопасности; отсчёт не меньше 10 с.
+ # 20:10 (решение чата 1): скрипт полёта берётся ИЗ ОВЕРЛЕЯ /home/lb/bench_ws/r2j/src/bumblebee/examples/ и перед отсчётом проверяется (только чтением), что drone.py, который он импортирует (sys.path.insert) и который лежит рядом, равен r2j (DRONE_PY_SHA256 в takeoff.conf); иначе код 4.
+ # Коды выхода: 0 скрипт отработал (код 0 на Pi); 1 скрипт на Pi завершился с ошибкой или был прерван; 4 условия не выполнены, к дрону не обращались либо ошибка связи.
+ param(
+@@ -70,7 +70,9 @@
+     $age = ((Get-Date) - $rep.LastWriteTime).TotalMinutes
+     if ($age -gt $maxAge) { No ('последняя сверка настроек старая: ' + [int]$age + ' мин, нужна не старше ' + $MaxParamsAgeMin) }
+     $first = Get-Content -LiteralPath $rep.FullName -Encoding UTF8 -TotalCount 1
+-    if ($first -notmatch '^=== СОВПАДАЕТ: прочитано (\d+) из \1, отличий нет \(из таблицы MAVROS \1, из запасного потока 0\)') { No ('последняя сверка не «СОВПАДАЕТ полностью из таблицы MAVROS»: ' + $first) }
++    # r11 (решение владельца 16.11 «Не стоп, только запись»): кроме строгого «СОВПАДАЕТ» (как в r9) принимается только точный вид оценщика r11
++    # «СОВПАДАЕТ (гироскоп сдвинулся: N, запись) ... других отличий нет (из таблицы MAVROS N, из запасного потока 0)»: отличались ТОЛЬКО CAL_GYRO0..3_XOFF/YOFF/ZOFF.
++    if ($first -notmatch '^=== СОВПАДАЕТ: прочитано (\d+) из \1, отличий нет \(из таблицы MAVROS \1, из запасного потока 0\)' -and $first -notmatch '^=== СОВПАДАЕТ \(гироскоп сдвинулся: [1-9]\d*, запись\): прочитано (\d+) из \1, других отличий нет \(из таблицы MAVROS \1, из запасного потока 0\)') { No ('последняя сверка не «СОВПАДАЕТ полностью из таблицы MAVROS»: ' + $first) }
+     if ([IO.File]::ReadAllText($rep.FullName) -match 'AllowStreamFallback') { No 'отчёт сверки сделан с -AllowStreamFallback, не годится' }
+ }
+ # 3b. (решение чата 1, 21:50, S1) свежие УСПЕШНЫЕ сверки 09 (что исполняется, install_check) и 10 (какой MAVROS, mavros_check) ПОСЛЕ последнего подключения/отключения оверлея (16/17), сборки/отката сборки (13, 14, 11, 12) или установки/отката образа (05, 05v, 06: out\install_r2j_*.log, rollback_r2j_*.log, install_camera_dabd5076_*.log); не старше 180 минут.
+--- r9/params_check/compare_params.ps1
++++ r11/params_check/compare_params.ps1
+@@ -1,6 +1,8 @@
+ ﻿# compare_params.ps1 (Claude, 09.11.2026) - ТОЛЬКО ЧТЕНИЕ файлов на ПК. К дрону не подключается.
+ # Сравнивает события /parameter_events (из params_read.sh) с утверждённым набором: основа + одобренные правки.
+ # Коды выхода: 0 совпало полностью; 2 СТОП (есть отличия, Ж6); 3 сверка неполная; 4 ошибка (нет файла, отказ перезаписать).
++# r11 (16.11.2026, решение владельца «Не стоп, только запись»): отличия только в CAL_GYRO0..3_XOFF/YOFF/ZOFF - не СТОП, а запись (блок «Гироскоп сдвинулся»);
++#   если других отличий нет - код 0 и первая строка «=== СОВПАДАЕТ (гироскоп сдвинулся: N, запись): ...». Любое другое отличие, в том числе CAL_ACC*, - СТОП, как раньше.
+ param(
+     [Parameter(Mandatory = $true)][string]$Events,
+     [Parameter(Mandatory = $true)][string]$OutPrefix,
+@@ -173,6 +175,7 @@
+ $missing = New-Object Collections.Generic.List[string]
+ $approvedOk = New-Object Collections.Generic.List[string]
+ $unknown = New-Object Collections.Generic.List[string]   # A-4: общие имена с компонентом 125, значение отличается
++$gyro = New-Object Collections.Generic.List[string]      # r11: сдвиг поправок гироскопа - запись, не СТОП
+ $gotCount = 0
+ 
+ foreach ($n in $expectedNames) {
+@@ -187,6 +190,13 @@
+         if ($appr.ContainsKey($n)) { $approvedOk.Add(("{0}: {1} (одобрено {2}; {3})" -f $n, $dtxt, $appr[$n].When, $appr[$n].Who)) }
+         continue
+     }
++    # r11 (решение владельца 16.11 «Не стоп, только запись»): поправки гироскопа CAL_GYRO0..3_XOFF/YOFF/ZOFF PX4 переписывает сам (SENS_IMU_AUTOCAL) - запись, не СТОП.
++    # Только эти 12 имён; CAL_ACC*, CAL_GYRO*_ID/PRIO/ROT и всё остальное - как раньше. Общие с компонентом 125 имена (CAL_GYRO0_*) - тоже запись, с пометкой.
++    if ($n -cmatch '^CAL_GYRO[0-3]_[XYZ]OFF$') {
++        $g125 = ''; if ($shared.ContainsKey($n)) { $g125 = '   [имя есть и у компонента 125: значение могло прийти от него]' }
++        $gyro.Add(("{0}: ждали {1} ({2}), стало {3}{4}" -f $n, $expT, $src, $dtxt, $g125))
++        continue
++    }
+     $tags = ''
+     if ($prof.ContainsKey($n)) {
+         $hit = @($prof[$n] | Where-Object { Same $_.T $b.Ty $d.K $d.V })
+@@ -256,6 +266,7 @@
+     $code = 0
+     $verdict = 'ЧЕРНОВИК, НЕ ДЛЯ ГЕЙТОВ (-AllowStreamFallback): отличий нет, прочитано ' + $gotCount + ' из ' + $total + ', но ' + $streamOnly + ' значений только из запасного потока (из таблицы MAVROS ' + $tableHit + ')'
+ }
++elseif ($gyro.Count -gt 0) { $code = 0; $verdict = 'СОВПАДАЕТ (гироскоп сдвинулся: ' + $gyro.Count + ', запись): прочитано ' + $gotCount + ' из ' + $total + ', других отличий нет (из таблицы MAVROS ' + $tableHit + ', из запасного потока ' + $streamOnly + '); у ' + $indist.Count + ' имён значения компонентов 1 и 125 в основе равны, по ним компонент 1 не подтверждён' }
+ else { $code = 0; $verdict = 'СОВПАДАЕТ: прочитано ' + $gotCount + ' из ' + $total + ', отличий нет (из таблицы MAVROS ' + $tableHit + ', из запасного потока ' + $streamOnly + '); у ' + $indist.Count + ' имён значения компонентов 1 и 125 в основе равны, по ним компонент 1 не подтверждён' }
+ 
+ $stamp = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+@@ -284,6 +295,12 @@
+     foreach ($l in $diffs) { $rep.Add($l) }
+     $rep.Add('')
+ }
++if ($gyro.Count -gt 0) {
++    $rep.Add('--- Гироскоп сдвинулся (запись, не стоп): ' + $gyro.Count + ' ---')
++    foreach ($l in $gyro) { $rep.Add($l) }
++    $rep.Add('Решение владельца 16.11: «Не стоп, только запись». Любое другое отличие, в том числе CAL_ACC*, - СТОП, как раньше.')
++    $rep.Add('')
++}
+ if ($unknown.Count -gt 0) {
+     $rep.Add('--- UNKNOWN: ВОЗМОЖНА ПОДМЕНА КОМПОНЕНТОМ 125 (' + $unknown.Count + '), это НЕ СТОП и НЕ совпадение ---')
+     foreach ($l in $unknown) { $rep.Add($l) }
+@@ -337,6 +354,7 @@
+     else { $now = 'Сверка настроек НЕ завершена: прочитано ' + $gotCount + ' из ' + $total + '. Повторить.' }
+ }
+ elseif ($AllowStreamFallback -and $streamOnly -gt 0) { $now = 'ЧЕРНОВИК (-AllowStreamFallback): значения частично из запасного потока, это НЕ подтверждённое совпадение.' }
++elseif ($gyro.Count -gt 0) { $now = 'Сверка настроек: совпадает, гироскоп сдвинулся у ' + $gyro.Count + ' (запись, не стоп: ' + (($gyro | ForEach-Object { $_.Split(':')[0] }) -join ', ') + '), прочитано ' + $gotCount + ' из ' + $total + '.' }
+ else { $now = 'Сверка настроек: совпадает, прочитано ' + $gotCount + ' из ' + $total + ' (по ' + $indist.Count + ' именам компонент 1 не подтверждён, значения 1 и 125 равны).' }
+ 
+ # ---------- файл .params в формате QGC ----------
+--- r9/takeoff.conf
++++ r11/takeoff.conf
+@@ -1,10 +1,12 @@
+-# takeoff.conf - скрипт полёта для 07_vzlet_zagotovka.cmd (шаг 14). Заполнено по критериям Ж3 (КРИТЕРИИ_УТВЕРЖДЕНЫ_20261109.md: «Ж3. Скрипт flight.py ... высота как задано в скрипте ± 0,15 м») и поручению чата 1 (19:19); ВЛАДЕЛЕЦ ПОДТВЕРЖДАЕТ. Взлёт всё равно заблокирован: нужен gates\TAKEOFF_APPROVED.txt от чата 1 после слов владельца.
+-# SCRIPT_REMOTE_PATH: полный путь скрипта на Pi, вида /home/lb/.../имя.py (без пробелов и «..»). ИЗ ОВЕРЛЕЯ (решение чата 1, 20:10): копия исходников пакета, которую делает 13_sborka_bumblebee_r2j.cmd из ros2_ws/src/bumblebee, то есть /home/lb/bench_ws/r2j/src/bumblebee/examples/flight/flight.py; файл тот же, что flight.py образа r2j (sha ниже). Скрипты hover r6 и flight_marker*.py берутся из того же каталога examples/ оверлея.
+-# SCRIPT_SHA256: sha256 этого файла на Pi (64 символа 0-9a-f); .cmd сверяет его по ssh перед отсчётом и требует такой же в gates\TAKEOFF_APPROVED.txt. Равен sha256 flight.py в /work/fixed_image_r2j_20261111/src/bumblebee/examples/flight/flight.py.
+-# У flight.py командных аргументов нет (высота задана в самом скрипте); SCRIPT_ARGS пустые.
+-# Для скрипта висения hover r6 (Ж4, /work/c6_hover_script_r6_20261110/hover_marker0.py) SCRIPT_SHA256 равен a11b195ce1507607967ff6a7402726d9eef7b4f12850a9e864f5ae27d1f513f7; файл попадает на Pi установкой образа (строка манифеста image_r2j), в takeoff.conf его впишет чат 1 для Ж4.
+-SCRIPT_REMOTE_PATH=/home/lb/bench_ws/r2j/src/bumblebee/examples/flight/flight.py
+-SCRIPT_SHA256=b69cc5e72509bbe2f141e48844b999e3a046ac6a78d28484239536b426c807b3
+-# DRONE_PY_SHA256: sha256 drone.py образа r2j (fa6abf8b…). 07 перед отсчётом проверяет только чтением на Pi, что drone.py, который импортирует скрипт (в flight.py стоит жёсткий sys.path.insert на /home/lb/ros2_ws/src/bumblebee/examples) и который лежит рядом со скриптом в оверлее, РОВНО этот; иначе СТОП.
++# takeoff.conf - скрипт полёта для 07_vzlet_zagotovka.cmd (шаг 14). Набор r11 (Claude, 16.11.2026): под примеры КАРТЫ REAL 16.11 (/work/field_real_20261116/scripts_final_r2 (aruco_z_test.py - из scripts_final), карта map_final.txt 545e8e46…0826). Скрипт для взлёта ВЛАДЕЛЕЦ ПОДТВЕРЖДАЕТ своими словами: взлёт всё равно заблокирован, пока нет gates\TAKEOFF_APPROVED.txt от чата 1 с тем же СКРИПТ_SHA256.
++# Один conf = один скрипт (07 читает только этот файл, повтор ключа затирает прежний). Готовые варианты лежат в takeoff_presets\ (README_r11.md): чат 1 копирует нужный сюда целиком и пишет разрешение с тем же sha.
++# Активен: flight_marker.py карты real (взлёт 0,9 м, метки 0 -> 2 -> 1 -> 0 по карте map_final.txt). Его копия и sha256 - real_map_20261116\ этого набора.
++# ДО установки карты real на дрон этот conf не взлетит: 07 перед отсчётом сверит sha256 файла на Pi, там будет flight_marker.py r2j (1e0063fb…), - СТОП код 4, к моторам не обращались. До установки берите пресет r2j (takeoff_presets\r2j_*.conf).
++# Скрипт карты real сверяет свою карту с картой детектора (drone.set_aruco_map): если на дроне map.txt не карта real - отказ до взвода.
++# SCRIPT_REMOTE_PATH: полный путь скрипта на Pi в оверлее /home/lb/bench_ws/r2j/src/bumblebee/examples/ (решение чата 1 13.11 20:10), без пробелов и «..».
++SCRIPT_REMOTE_PATH=/home/lb/bench_ws/r2j/src/bumblebee/examples/flight/flight_marker.py
++SCRIPT_SHA256=28992fe4df6bb404a2d403e001b0f2e8e6a3985c4d5a0681dd6d441b97c0ed7a
++# DRONE_PY_SHA256: sha256 drone.py образа r2j (fa6abf8b…). Скрипты карты real импортируют drone.py из /home/lb/ros2_ws/src/bumblebee/examples (sys.path.insert), drone.py не менялся. 07 перед отсчётом только чтением проверяет на Pi, что drone.py по этому пути и рядом со скриптом РОВНО этот; иначе СТОП.
+ DRONE_PY_SHA256=fa6abf8b545b356ecdd5291417625ee77b58ef862fe7f3b00486dc8ef72d0c9c
+-SCRIPT_ARGS=
+\ No newline at end of file
++# У скрипта нет аргументов командной строки.
++SCRIPT_ARGS=
+--- r9/lib/bb_lists.ps1
++++ r11/lib/bb_lists.ps1
+@@ -52,6 +52,30 @@
+     if ($o.Count -lt 2 -or @($o | Where-Object { $_ -match '  FCU  ' }).Count -ne 1) { BB-Stop 'в списке RT должен быть ровно один FCU (fcu_detect.py) и launch-файлы' 4 }
+     return ,$o
+ }
++# r11 (16.11.2026): вторые допустимые sha256 примеров полёта карты real (image_r2j\EXAMPLES_REAL_20261116.tsv: sha256 TAB путь). Только для сверок «что стоит на дроне» - 09 и 15;
++# сборка 13 их не берёт. Вход - список «sha256  путь  флаг» (BL-CppList или список run_install_check.ps1); выход - тот же список, где у путей из файла поле sha = «sha_r2j,sha_real».
++function BL-ApplyRealAlt([string]$here, $list) {
++    $p = Join-Path $here 'image_r2j\EXAMPLES_REAL_20261116.tsv'
++    if (-not (Test-Path -LiteralPath $p)) { BB-Stop ('нет списка ' + $p) 4 }
++    $alt = @{}
++    foreach ($l in [IO.File]::ReadAllLines($p)) {
++        if ($l.Trim() -eq '' -or $l.StartsWith('#')) { continue }
++        $f = $l.Split("`t")
++        if ($f.Count -ne 2 -or $f[0] -cnotmatch '^[0-9a-f]{64}$' -or $f[1] -cnotmatch '^ros2_ws/src/bumblebee/examples/[A-Za-z0-9_./-]{1,100}\.py$' -or $f[1] -match '\.\.' -or $alt.ContainsKey($f[1])) { BB-Stop ('строка списка примеров real не «sha256 TAB ros2_ws/src/bumblebee/examples/....py» или путь повторяется: ' + $l) 4 }
++        $alt[$f[1]] = $f[0]
++    }
++    $o = New-Object Collections.Generic.List[string]; $used = 0
++    foreach ($e in $list) {
++        $f = ([string]$e).Split([string[]]@('  '), [StringSplitOptions]::None)
++        if ($f.Count -eq 3 -and $alt.ContainsKey($f[1])) {
++            if ($f[2] -ne '-' -or $f[0] -cnotmatch '^[0-9a-f]{64}$') { BB-Stop ('пример real для строки, которая не «sha256  путь  -»: ' + $e) 4 }
++            $o.Add($f[0] + ',' + $alt[$f[1]] + '  ' + $f[1] + '  ' + $f[2]); $used++
++        }
++        else { $o.Add([string]$e) }
++    }
++    if ($used -ne $alt.Count) { BB-Stop ('в ' + $p + ' есть путь, которого нет в списке C++ и примеров r2j (CPP_SOURCES_r2j.tsv)') 4 }
++    return ,$o
++}
+ # sha256 скрипта висения hover r6 из image_r2j\required_shas.txt (HOVER_R6_SHA256): одна строка для подстановки вместо #@@HOVER@@ (r3, сверка hover в 13)
+ function BL-HoverSha([string]$here) {
+     $p = Join-Path $here 'image_r2j\required_shas.txt'
+--- r9/run_install_check.ps1
++++ r11/run_install_check.ps1
+@@ -27,6 +27,7 @@
+     if ($f.Count -ne 3 -or $f[0] -cnotmatch '^[0-9a-f]{64}$' -or $f[1] -cnotmatch '^[A-Za-z0-9_./-]{1,150}$' -or $f[1] -match '\.\.' -or $f[2] -cnotmatch '^[R-]$') { BB-Stop ('строка списка C++ не sha256 TAB путь TAB R|-: ' + $l) 4 }
+     $cpp.Add($f[0] + '  ' + $f[1] + '  ' + $f[2])
+ }
++$cpp = BL-ApplyRealAlt $here $cpp   # r11 (16.11): flight_marker.py и flight_marker_loop.py - r2j ИЛИ карта real (image_r2j\EXAMPLES_REAL_20261116.tsv), остальное строго r2j
+ $rt = BL-RtList $here   # решение чата 1 21:50 (S2): launch-файлы и fcu_detect.py по sha256
+ if ($py.Count -lt 1 -or $cpp.Count -lt 1 -or $bins.Count -lt 1) { BB-Stop 'список пуст (python-узлов, C++ исходников или бинарников)' 4 }
+ $tpl = Join-Path $here 'pi\install_check.sh'
+--- r9/run_fingerprint.ps1
++++ r11/run_fingerprint.ps1
+@@ -9,7 +9,7 @@
+ BB-AssertPc
+ $outDir = BB-OutDir $here
+ $stamp = (Get-Date).ToString('yyyyMMdd_HHmmss')
+-$cpp = BL-CppList $here; $py = BL-PyList $here; $mv = BL-MavrosSrcList $here; $rt = BL-RtList $here   # S2 (чат 1, 21:50): launch и fcu_detect.py
++$cpp = BL-ApplyRealAlt $here (BL-CppList $here); $py = BL-PyList $here; $mv = BL-MavrosSrcList $here; $rt = BL-RtList $here   # S2 (чат 1, 21:50): launch и fcu_detect.py
+ $ssh = BB-FindSsh
+ $gens = @{
+     bumblebee = BL-Generate (Join-Path $here 'pi\overlay_fingerprint.sh') @{ LIST = $py; CPP = $cpp; RT = $rt } $outDir ('fingerprint_bumblebee_' + $stamp + '.generated.sh')
+--- r9/pi/install_check.sh
++++ r11/pi/install_check.sh
+@@ -49,13 +49,15 @@
+   got=$(sha256sum "$D/$name" 2>/dev/null | cut -c1-64)
+   if [ "$got" = "$want" ]; then ok=$((ok+1)); echo "INSTALL_FILE $name OK"; else diff=$((diff+1)); echo "INSTALL_FILE $name DIFF got=$got want=$want"; fi
+ done <<< "$LIST"
++# r11 (16.11): у двух примеров полёта want = «sha_r2j,sha_real» (image_r2j\EXAMPLES_REAL_20261116.tsv, карта real): совпадение с любым - OK, второе помечается REAL_MAP; у остальных строк want один, как в r9
++shamatch() { [ -n "$1" ] || return 1; case ",$2," in *",$1,"*) return 0;; esac; return 1; }
+ cok=0; cdiff=0; cmiss=0; newest=0
+ while read -r want path flag; do
+   case "$want" in ''|\#*) continue;; esac
+   f="$HOME/$path"
+   if [ ! -f "$f" ]; then echo "CPP_SRC $path MISSING want=$want"; cmiss=$((cmiss+1)); continue; fi
+   got=$(sha256sum "$f" 2>/dev/null | cut -c1-64)
+-  if [ "$got" = "$want" ]; then cok=$((cok+1)); echo "CPP_SRC $path OK $flag"; else cdiff=$((cdiff+1)); echo "CPP_SRC $path DIFF got=$got want=$want"; fi
++  if shamatch "$got" "$want"; then cok=$((cok+1)); vmark=""; [ "$got" = "${want%%,*}" ] || vmark=" REAL_MAP"; echo "CPP_SRC $path OK $flag$vmark"; else cdiff=$((cdiff+1)); echo "CPP_SRC $path DIFF got=$got want=$want"; fi
+   if [ "$flag" = "R" ]; then m=$(stat -c %Y "$f" 2>/dev/null || echo 0); [ "$m" -gt "$newest" ] && newest=$m; fi
+ done <<< "$CPP"
+ bok=0; bmiss=0; stale=0
+--- r9/pi/overlay_fingerprint.sh
++++ r11/pi/overlay_fingerprint.sh
+@@ -44,6 +44,8 @@
+     if [ "$got" = "$want" ]; then pok=$((pok+1)); echo "PY_NODE $name OK"; else pbad=$((pbad+1)); echo "PY_NODE $name DIFF got=$got want=$want"; fi
+   done <<< "$LIST"
+ fi
++# r11 (16.11): у двух примеров полёта want = «sha_r2j,sha_real» (image_r2j\EXAMPLES_REAL_20261116.tsv, карта real): совпадение с любым - OK, второе помечается REAL_MAP; у остальных строк want один, как в r9
++shamatch() { [ -n "$1" ] || return 1; case ",$2," in *",$1,"*) return 0;; esac; return 1; }
+ sok=0; sbad=0; newest=0
+ while read -r want path flag; do
+   case "$want" in ''|\#*) continue;; esac
+@@ -51,7 +53,7 @@
+   f="$SRCBASE/$rel"
+   if [ ! -f "$f" ]; then echo "SRC $rel MISSING"; sbad=$((sbad+1)); continue; fi
+   got=$(sha256sum "$f" 2>/dev/null | cut -c1-64)
+-  if [ "$got" = "$want" ]; then sok=$((sok+1)); echo "SRC $rel OK $flag"; else sbad=$((sbad+1)); echo "SRC $rel DIFF got=$got want=$want"; fi
++  if shamatch "$got" "$want"; then sok=$((sok+1)); vmark=""; [ "$got" = "${want%%,*}" ] || vmark=" REAL_MAP"; echo "SRC $rel OK $flag$vmark"; else sbad=$((sbad+1)); echo "SRC $rel DIFF got=$got want=$want"; fi
+   if [ "$flag" = "R" ]; then m=$(stat -c %Y "$f" 2>/dev/null || echo 0); [ "$m" -gt "$newest" ] && newest=$m; fi
+ done <<< "$CPP"
+ nb=0; stale=0
+--- r9/run_r8_metki.ps1
++++ r11/run_r8_metki.ps1
+@@ -28,6 +28,7 @@
+ $TOL = 0.15                                       # м: «поза дальше 0,15 м от рулетки» - СТОП
+ $MAP_FIXED = @(0..20 | Where-Object { $_ -ne 17 })   # номера карты поля 20EC (map.txt, копия дрона 12.11, sha256 528b5adb...): 0-20 без 17
+ $MAP_SHA_1211 = '528b5adb467dc91e819e0c4cb9a5ff44439319fff23c3293799b8ee3fe43e611'
++$MAP_SHA_REAL_1611 = '545e8e4617f4405cf7b9234f302c249ce60592c0b5487f02520f109d292a0826'   # r11: карта real 16.11 (map_final.txt, копия real_map_20261116\): те же номера 0-20 без 17; только подпись в сводке
+ $inv = [Globalization.CultureInfo]::InvariantCulture
+ $base = 'metki_nomera_' + $Stamp
+ $sumFile = Join-Path $outDir ($base + '.txt')
+@@ -87,7 +88,8 @@
+         if ($mm.Groups[3].Value -ne 'none') { foreach ($x in ($mm.Groups[3].Value -split ',')) { if ($x -match '^-?\d+$') { $mapIds += [int]$x } } }
+         $mz = [regex]::Match($mm.Groups[4].Value, '^(-?[0-9.]+),(-?[0-9.]+),(-?[0-9.]+)$')
+         if ($mz.Success) { $m0 = @((D $mz.Groups[1].Value), (D $mz.Groups[2].Value)) }
+-        if ($mm.Groups[2].Value -ne $MAP_SHA_1211) { $mapNote = ' карта на дроне не та, что в копии 12.11 (sha256 ' + $mm.Groups[2].Value.Substring(0, 8) + '...)' }
++        if ($mm.Groups[2].Value -eq $MAP_SHA_REAL_1611) { $mapNote = ' карта на дроне - карта real 16.11 (map_final.txt, sha256 545e8e46...)' }
++        elseif ($mm.Groups[2].Value -ne $MAP_SHA_1211) { $mapNote = ' карта на дроне не та, что в копии 12.11 (sha256 ' + $mm.Groups[2].Value.Substring(0, 8) + '...)' }
+     }
+     if ($null -eq $m0) { $flags.Add('NO_MAP') }
+     # номера
+--- r9/cards/КАРТОЧКИ_ШАГОВ_СТЕНДА.md
++++ r11/cards/КАРТОЧКИ_ШАГОВ_СТЕНДА.md
+@@ -161,6 +161,8 @@
+ ## Карточка 21 из 22: ВЗЛЁТ (ЗАГОТОВКА, шаг 14)
+ **Меры безопасности (обязательны):** сетка или привязь; два человека; палец на аварийном выключателе; винты только после проверки без винтов. **Причина рывка 04.11 неизвестна.**
+ **Скрипт полёта берётся из оверлея** (`/home/lb/bench_ws/r2j/src/bumblebee/examples/…`), а перед отсчётом 07 только чтением проверяет на Pi, что `drone.py`, который этот скрипт импортирует (в нём жёстко прописан путь в `~/ros2_ws/src/bumblebee/examples`) и который лежит рядом с ним, РОВНО r2j; иначе СТОП, взлёта нет.
++**Какой скрипт (набор r11, 16.11):** в `takeoff.conf` стоит `flight_marker.py` карты real 16.11; готовые варианты (3 карты real, 4 образа r2j) лежат в `takeoff_presets\`, нужный ставит чат 1 вместе с разрешением. Скрипты карты real взлетают, только когда на дроне уже стоит карта real; иначе окно скажет СТОП до отсчёта (sha скрипта на Pi другой) или скрипт откажет до взвода (карта детектора другая).
++**Перед взводом (обязательно, батарея подключена, винты по мерам безопасности):** поставьте дрон точно на метку 0 — центр дрона над центром метки, нос как при замерах (карточка 8). Откройте видео нижней камеры на ПК (как в карточке 10) и посмотрите кадр: метка 0 видна в кадре ЦЕЛИКОМ и не у края. Если метка у края, обрезана или её не видно — переставьте дрон и посмотрите ещё раз; не взлетайте, пока метка 0 не в кадре целиком. Почему: в Gazebo при сдвиге старта на 8 см метка 0 уходила к краю кадра и не распознавалась (факт Gazebo, на дроне не проверялось). Видео потом можно закрыть.
+ **Сделайте:** двойной щелчок по `07_vzlet_zagotovka.cmd`. Окно спросит по очереди `NET`, `TWO`, `KILL`, `YES`. После `YES` идёт отсчёт не меньше 10 секунд; в это время можно закрыть окно (Ctrl+C).
+ **После шага (до запуска):** Батарея — ПОДКЛЮЧЕНА; Пульт — ВКЛ; Газ — ВНИЗУ; дрон в сетке.
+ **Что будет:** красная надпись «ВЗЛЁТ», отсчёт, затем на дроне запускается скрипт полёта и МОТОРЫ запустятся. Окно пишет журнал `out\takeoff_*.log`. После скрипта оно сначала только чтением проверяет, что дрон разоружён (`run_armcheck.ps1`): если дрон взведён или состояние не прочитано, настройки НЕ читаются, окно пишет «ВЗВЕДЁН», код 5, и вы разоружаете дрон и отключаете батарею; если разоружён, оно ещё только чтением забирает журнал Pi за время полёта (`out\takeoff_*_journal.txt`) и читает настройки ещё раз. Скрипт полёта и его аргументы заданы заранее и привязаны к разрешению чата 1, свободных аргументов у окна нет.
+--- r9/tests/run_tests_bench.ps1
++++ r11/tests/run_tests_bench.ps1
+@@ -524,7 +524,7 @@
+ $listLines = @([IO.File]::ReadAllLines((Join-Path $Kit 'image_r2j\INSTALL_SHA256_r2j.txt')) | Where-Object { $_ -match '^[0-9a-f]{64}\s' })
+ $pyLines = @($listLines | Where-Object { $_ -match '\.py$' }); $binNames = @($listLines | Where-Object { $_ -notmatch '\.py$' } | ForEach-Object { ($_ -split '\s+')[1] })
+ $cppLines = @([IO.File]::ReadAllLines((Join-Path $Kit 'image_r2j\CPP_SOURCES_r2j.tsv')) | Where-Object { $_ -notmatch '^#' -and $_.Trim() -ne '' })
+-Check 'R4' '09: на Pi уходит pi\install_check.sh с тремя списками: 10 python-узлов (sha256 и имя), 16 строк (11 C++ и файлов сборки, 5 скриптов полёта) (sha256, путь, флаг), 6 бинарных узлов (только имена); строк-заглушек нет' ($gen.Count -eq 1 -and $pyLines.Count -eq 10 -and $cppLines.Count -eq 16 -and $binNames.Count -eq 6 -and @($pyLines | Where-Object { $gtxt.Contains(($_ -replace '\s+', '  ')) }).Count -eq 10 -and @($cppLines | Where-Object { $f = $_.Split("`t"); $gtxt.Contains($f[0] + '  ' + $f[1] + '  ' + $f[2]) }).Count -eq 16 -and @($binNames | Where-Object { $gtxt -match ('(?m)^' + [regex]::Escape($_) + '\s*$') }).Count -eq 6 -and -not ($gtxt -match '(?m)^#@@(LIST|CPP|BINS|RT)@@\s*$') -and $gtxt.Contains('BB_INSTALL_MARK')) ('gen=' + $gen.Count + ' py=' + $pyLines.Count + ' cpp=' + $cppLines.Count + ' bin=' + $binNames.Count)
++Check 'R4' '09: на Pi уходит pi\install_check.sh с тремя списками: 10 python-узлов (sha256 и имя), 16 строк (11 C++ и файлов сборки, 5 скриптов полёта) (sha256, путь, флаг; r11: у flight_marker.py и flight_marker_loop.py sha256 r2j,real - ровно 2 строки), 6 бинарных узлов (только имена); строк-заглушек нет' ($gen.Count -eq 1 -and $pyLines.Count -eq 10 -and $cppLines.Count -eq 16 -and $binNames.Count -eq 6 -and @($pyLines | Where-Object { $gtxt.Contains(($_ -replace '\s+', '  ')) }).Count -eq 10 -and @($cppLines | Where-Object { $f = $_.Split("`t"); $gtxt -match ('(?m)^' + $f[0] + '(,[0-9a-f]{64})?  ' + [regex]::Escape($f[1]) + '  ' + [regex]::Escape($f[2]) + '$') }).Count -eq 16 -and ([regex]::Matches($gtxt, '(?m)^[0-9a-f]{64},[0-9a-f]{64}  ')).Count -eq 2 -and @($binNames | Where-Object { $gtxt -match ('(?m)^' + [regex]::Escape($_) + '\s*$') }).Count -eq 6 -and -not ($gtxt -match '(?m)^#@@(LIST|CPP|BINS|RT)@@\s*$') -and $gtxt.Contains('BB_INSTALL_MARK')) ('gen=' + $gen.Count + ' py=' + $pyLines.Count + ' cpp=' + $cppLines.Count + ' bin=' + $binNames.Count)
+ Check 'R4' '09: бинарные узлы НЕ сверяются по sha256 с r2j: их суммы в скрипт не передаются (ни одна сумма x86-бинарника r2j в скрипте не стоит)' (@($listLines | Where-Object { $_ -notmatch '\.py$' } | Where-Object { $gtxt.Contains(($_ -split '\s+')[0]) }).Count -eq 0) ''
+ Check 'R4' '09: в списке C++ ровно 5 файлов с флагом R (CMakeLists.txt, package.xml, script_lease.h, simple_offboard.cpp, state_link.h): r2j меняет C++ против образа на дроне' (@($cppLines | Where-Object { $_.Split("`t")[2] -eq 'R' }).Count -eq 5 -and ($cppLines -join ' ') -match 'state_link\.h\tR' -and ($cppLines -join ' ') -match 'simple_offboard\.cpp\tR' -and ($cppLines -join ' ') -match 'script_lease\.h\tR') ''
+ $rtLines = @([IO.File]::ReadAllLines((Join-Path $Kit 'image_r2j\RUNTIME_PY_r2j.tsv')) | Where-Object { $_ -notmatch '^#' -and $_.Trim() -ne '' })
+@@ -949,7 +949,8 @@
+ $ordR = [IO.File]::ReadAllText((Join-Path $Kit 'cards\ПОРЯДОК_СО_СБОРКАМИ.md'))
+ Check 'V5' 'ПОРЯДОК_СО_СБОРКАМИ.md: после установки образа и включения шаг 18_sostoyanie_sluzhb.cmd (только чтение) и карточка замера рулеткой упомянуты' ($ordR -match '18_sostoyanie_sluzhb\.cmd' -and $ordR -match 'КАРТОЧКА_ЗАМЕРА_РУЛЕТКОЙ') ''
+ # файлы набора в песочнице вне tests не менялись тестами
+-Check 'Z1' 'настоящие takeoff.conf и gates\ набора: скрипт Ж3 flight.py ИЗ ОВЕРЛЕЯ (путь /home/lb/bench_ws/r2j/..., sha256 b69cc5e7… (0,9 м), DRONE_PY_SHA256 fa6abf8b…, аргументов нет, пометка «ВЛАДЕЛЕЦ ПОДТВЕРЖДАЕТ»), TAKEOFF_APPROVED.txt нет' (([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match '(?m)^SCRIPT_REMOTE_PATH=/home/lb/bench_ws/r2j/src/bumblebee/examples/flight/flight\.py\s*$' -and ([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match '(?m)^SCRIPT_SHA256=b69cc5e72509bbe2f141e48844b999e3a046ac6a78d28484239536b426c807b3\s*$' -and ([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match '(?m)^DRONE_PY_SHA256=fa6abf8b545b356ecdd5291417625ee77b58ef862fe7f3b00486dc8ef72d0c9c\s*$' -and ([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match '(?m)^SCRIPT_ARGS=\s*$' -and ([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match 'ВЛАДЕЛЕЦ ПОДТВЕРЖДАЕТ' -and -not (Test-Path (Join-Path $Kit 'gates\TAKEOFF_APPROVED.txt'))) ''
++# r11 (16.11): takeoff.conf под пример карты real - flight_marker.py 28992fe4…; flight.py r2j - в takeoff_presets\r2j_flight.conf (тесты r11 P2-P6)
++Check 'Z1' 'настоящие takeoff.conf и gates\ набора: r11 - flight_marker.py КАРТЫ REAL ИЗ ОВЕРЛЕЯ (путь /home/lb/bench_ws/r2j/..., sha256 28992fe4… (0,9 м), DRONE_PY_SHA256 fa6abf8b…, аргументов нет, пометка «ВЛАДЕЛЕЦ ПОДТВЕРЖДАЕТ»), TAKEOFF_APPROVED.txt нет' (([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match '(?m)^SCRIPT_REMOTE_PATH=/home/lb/bench_ws/r2j/src/bumblebee/examples/flight/flight_marker\.py\s*$' -and ([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match '(?m)^SCRIPT_SHA256=28992fe4df6bb404a2d403e001b0f2e8e6a3985c4d5a0681dd6d441b97c0ed7a\s*$' -and ([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match '(?m)^DRONE_PY_SHA256=fa6abf8b545b356ecdd5291417625ee77b58ef862fe7f3b00486dc8ef72d0c9c\s*$' -and ([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match '(?m)^SCRIPT_ARGS=\s*$' -and ([IO.File]::ReadAllText((Join-Path $Kit 'takeoff.conf'))) -match 'ВЛАДЕЛЕЦ ПОДТВЕРЖДАЕТ' -and -not (Test-Path (Join-Path $Kit 'gates\TAKEOFF_APPROVED.txt'))) ''
+ $env:PATH = $oldPath; $env:COMPUTERNAME = $realPc
+ Note ''
+ Note ('ИТОГ: PASS ' + $script:pass + ', FAIL ' + $script:fail)
+
+# НОВЫЕ ФАЙЛЫ r11:
+README_r11.md
+image_r2j/EXAMPLES_REAL_20261116.tsv
+proverka_r11/OLD_TESTS_CHANGED.txt
+proverka_r11/after/tests_r11_pc_console.txt
+proverka_r11/after/tests_r11_pi_console.txt
+proverka_r11/after/tests_r5_bench_console.txt
+proverka_r11/after/tests_r5_image_console.txt
+proverka_r11/after/tests_r5_pi_console.txt
+proverka_r11/after/tests_r6_pc_console.txt
+proverka_r11/after/tests_r6_pi_console.txt
+proverka_r11/after/tests_r7_pc_console.txt
+proverka_r11/after/tests_r7_pi_console.txt
+proverka_r11/after/tests_r8_pc_console.txt
+proverka_r11/after/tests_r8_pi_console.txt
+proverka_r11/after/tests_svodka.txt
+proverka_r11/baseline_r9copy/tests_r5_bench_console.txt
+proverka_r11/baseline_r9copy/tests_r5_image_console.txt
+proverka_r11/baseline_r9copy/tests_r5_pi_console.txt
+proverka_r11/baseline_r9copy/tests_r6_pc_console.txt
+proverka_r11/baseline_r9copy/tests_r6_pi_console.txt
+proverka_r11/baseline_r9copy/tests_r7_pc_console.txt
+proverka_r11/baseline_r9copy/tests_r7_pi_console.txt
+proverka_r11/baseline_r9copy/tests_r8_pc_console.txt
+proverka_r11/baseline_r9copy/tests_r8_pi_console.txt
+proverka_r11/baseline_r9copy/tests_svodka.txt
+proverka_r11/run_all_tests_r11.ps1
+real_map_20261116/SHA256_ИСТОЧНИК.txt
+real_map_20261116/aruco_z_test.py
+real_map_20261116/flight_marker.py
+real_map_20261116/flight_marker_loop.py
+real_map_20261116/map_final.txt
+takeoff_presets/r2j_flight.conf
+takeoff_presets/r2j_flight_marker.conf
+takeoff_presets/r2j_flight_marker_loop.conf
+takeoff_presets/r2j_hover_marker0.conf
+takeoff_presets/real_aruco_z_test.conf
+takeoff_presets/real_flight_marker.conf
+takeoff_presets/real_flight_marker_loop.conf
+tests/run_tests_r11.ps1
+tests/run_tests_r11_pi.sh

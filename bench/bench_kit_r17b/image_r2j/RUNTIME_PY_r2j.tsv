@@ -1,0 +1,11 @@
+# Launch-файлы пакета bumblebee и scripts/fcu_detect.py образа r2j (создан генератором gen_lists_from_manifest.py из /work/fixed_image_r2j_20261111/image_manifest_r2.tsv, sha256 манифеста 0c02e391c6763ec24aba026512a4caf89e348f3a3507a637423c0d665a345c33). Колонки: sha256 TAB вид TAB путь.
+# LAUNCH = файл launch/<имя> в install пакета, который реально берёт «ros2 launch bumblebee bumblebee.launch.py» (<префикс>/share/bumblebee/<путь>; в 09 префикс от ros2 pkg prefix, в 15 префикс оверлея r2j).
+# FCU = файл, который запускает start_bumblebee.sh до MAVROS по ПОЛНОМУ пути /home/lb/ros2_ws/src/bumblebee/scripts/fcu_detect.py (путь от HOME). Это ИСПРАВЛЕНИЕ ПОРТА fcu_detect_fix_01 (на дроне с 05.11 14:10, sha256 из колонки образа): в src образа лежит ПРЕЖНИЙ a45a264 (ee174fd1...), образом fcu_detect.py НЕ ставится (решение чата 1, 22:00). Ждём исправленный; прежний = DIFF = СТОП.
+9b146360c193cbcd8791c17d6a9ab97333267d93e11efae4484d47fdac21af9e	LAUNCH	launch/aruco.launch.py
+62be01dbb13305bca321d538690252863dedadb8a376e65e54d9f6c15116bf15	LAUNCH	launch/bumblebee.launch.py
+af918808e7f3de0c081b13d456d77981c86c10f460db08dc908e16b24e9af9a8	LAUNCH	launch/led.launch.py
+c11080f1daaf3eb7e0d849032e036cb971ed0f4cbb2dfc52f3f45c38027842dc	LAUNCH	launch/main_camera.launch.py
+c4f578a0c9630b8ab375a97b04ccb1df352c2402a81e21fab48678f67ee3b5da	LAUNCH	launch/mavros_scoped_config.py
+ba60175962087d71949dafeec1829442c2bffda2ab27e514930c7b31204ecf27	LAUNCH	launch/second_camera.launch.py
+8d064649a966b9e8591b4dd0de6915d386728ef592e1d9b82848208df8aafc66	LAUNCH	launch/simulator.launch.py
+5932a00afc79e421a7bb26a7e84564cf106afdcbc009642c7e872ab86b839bf5	FCU	ros2_ws/src/bumblebee/scripts/fcu_detect.py

@@ -1,0 +1,8 @@
+# R2M_CAM_20261117.tsv (Claude, 17.11.2026, набор r14). Вторые допустимые sha256 камеры варианта r2m_cam: образ /work/image_r2m_cam_20261117 (install = src),
+# пакет drone_pkg_r2m_cam_20261117 (files\camera_fix.py, files\bumblebee.launch.py; ставит оба файла в оверлей ~/bench_ws/r2j/install/bumblebee, шаги 44/45; строки взяты из dlya_naborov_09_15.txt пакета).
+# Колонки: sha256 TAB вид TAB имя. PY - python-узел из INSTALL_SHA256_r2j.txt (r2j 4a15d699...); LAUNCH - строка RUNTIME_PY_r2j.tsv (r2j 62be01db...).
+# Читают ТОЛЬКО сверки «что стоит на дроне» - 09 (run_install_check.ps1, pi\install_check.sh) и 15 (run_fingerprint.ps1, pi\overlay_fingerprint.sh): для этих двух строк совпадение
+# с r2j ИЛИ r2m_cam - OK, второе помечается R2M_CAM; оба файла должны быть одного варианта (оба r2j или оба r2m_cam). Ровно 2 строки; остальные узлы и launch-файлы - строго, как в r13.
+# Сборка 13, 09c/15c, 22, 24a/24b, гейты 05/05c этот файл не читают.
+e133481dd3c46bb49691bd40716a08b3e2418e3ab80acc7118569c7a8d74d7e1	PY	camera_fix.py
+5c867929421f7b5fa4d8f4a6d4816258afe7d0d9e196c04a612ee9a97b4ca483	LAUNCH	launch/bumblebee.launch.py

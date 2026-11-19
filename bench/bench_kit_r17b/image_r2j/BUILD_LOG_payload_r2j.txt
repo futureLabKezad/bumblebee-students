@@ -1,0 +1,5 @@
+источники OK: образ r2j SHA256SUMS 14fbcf74 (строк 4 сходятся), MANIFEST_SHA256.txt (строк 572 сходятся), image_manifest_r2.tsv 0c02e391; hover r6 a11b195c (его SHA256SUMS.txt, строк 8 сходятся); копия дрона 12.11: FILES_SHA256.txt 17a7074704a3289e и home_lb.tar.gz dfb9938d0f171c67 записаны в её BACKUP_OK.txt, файлов home/lb в списке 8697
+модель «дрон после 05» (копия 12.11 + payload): без добавок не сходится 6 проверок набора, с 5 добавками - все сходятся (CPP_SOURCES, RUNTIME_PY, INSTALL_SHA256 python, install(PROGRAMS) 10 файлов, hover)
+на дроне 12.11 не равны r2j и не ставятся: 54 (документ README пакета, на работу не влияет 1; другой пакет 10; копия в пакете 1; нет на дроне 11; отличается только шапкой лицензии 31)
+payload: 68 файлов {'changed': 13, 'new': 43, 'camera': 1, 'hover': 1, 'MAVROS': 5, 'drone1211-changed': 4, 'drone1211-absent': 1} (было в payload и совпало байт в байт: 68, добавлено: 0); не в payload: fcu 1, равных в колонке a45a264 269, вне ros2_ws/src 48; строк в манифесте образа 380
+image_manifest.final.tsv sha256 61e6c5a01bb01f339fc12d3f0361a60b135b3aec3534be46b913d506c2988347 (строк файлов: 68)

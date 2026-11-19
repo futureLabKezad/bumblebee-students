@@ -1,0 +1,10 @@
+# прогон тестов r7, начало 2026-11-13 02:33:22 (часы ПК); обёртка wsl: C:\Users\User\AppData\Local\Temp\bb_r7_wslnice_ae3d759c\wsl.exe
+r5_bench: код 0, ИТОГ: PASS 506, FAIL 0, 313 с
+r5_pi: код 0, ИТОГ: PASS 228, FAIL 0, 97 с
+r5_image: код 0, ИТОГ: PASS 144, FAIL 0, 77 с
+r6_pc: код 0, ИТОГ r6: PASS 304, FAIL 0, 188 с
+r6_pi: код 0, ИТОГ r6 Pi: PASS 100, FAIL 0 (песочница /tmp/r6pi_c6oNSX), 14 с
+r7_pc: код 0, ИТОГ r7: PASS 77, FAIL 0, 64 с
+r7_pi: код 0, ИТОГ r7 Pi: PASS 34, FAIL 0 (песочница /tmp/r7pi_Kg0hXg), 29 с
+ssh в выводах запусков шагов: 156 строк «ssh: путь»; в журналах подделок: 2; не подделка: 0; упоминаний System32\OpenSSH в выводах тестов: 0
+# конец 2026-11-13 02:47:27

@@ -1,0 +1,8 @@
+# Шаблон. Настоящий файл называется image_manifest.final.tsv и не содержит TBD. Его собирает чат 1.
+# Колонки: путь относительно DEST_ROOT (/home/lb, см. image_target.conf; то есть ros2_ws/src/bumblebee/..., без префикса drone/)<TAB>sha256 файла из payload<TAB>необязательно режим (755, 644).
+# Состав образа r2j (поручение чата 1, 10.11): все файлы образа r2j из его SHA256SUMS/MANIFEST (путь и sha берёт чат 1 из /work/fixed_image_r2j_20261111) и сверх того:
+#   1) скрипт висения hover r6: sha256 a11b195ce1507607967ff6a7402726d9eef7b4f12850a9e864f5ae27d1f513f7 (источник /work/c6_hover_script_r6_20261110/hover_marker0.py); sha сверяется и при загрузке на Pi, и после установки (image_install.sh);
+#   2) MAVROS bp02: все 5 исходников (mavros_bp02_sources.tsv, колонка sha256_bp02); сборок для Pi нет (MAVROS_ORIGIN.md); где исходники лежат на дроне, решает чат 1; flight.py (Ж3) sha256 b69cc5e72509bbe2f141e48844b999e3a046ac6a78d28484239536b426c807b3 (examples/flight/flight.py образа r2j);
+#   3) камера: camera_fix.py ПО УМОЛЧАНИЮ прежний, sha256 4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310 (проверен в Gazebо). Вариант dabd5076... в этот манифест НЕ входит: он лежит отдельной папкой camera_variant_dabd5076 и ставится только если владелец выберет.
+# check_gates.ps1 проверяет пункты 1-3 по sha256.
+ros2_ws/src/bumblebee/scripts/example.py	TBD

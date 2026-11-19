@@ -1,0 +1,230 @@
+PASS P1 bash -n для vision_measure.sh и pi_state.sh, py_compile встроенного python
+PASS P2 функция: steady_30hz_no_gaps
+PASS P2 функция: one_gap_1.2s
+PASS P2 функция: gap_exactly_0.5_not_counted
+PASS P2 функция: empty
+PASS P2 функция: start_delay_and_end_silence
+PASS P2 функция: outside_window_ignored
+PASS P2 функция: latency
+PASS P2 функция: latency_empty
+PASS P2 функция: throttled_zero
+PASS P2 функция: throttled_flags
+PASS P2 функция: throttled_garbage
+PASS P2 функция: pid_ticks_with_spaces_in_comm
+PASS P2 функция: proc_stat
+PASS P2 функция: scan_finds_detector_and_vpe
+PASS P2 функция: scan_skips_own_script_and_editor
+PASS P2 функции: прогнано не меньше 14 проверок
+PASS P3 main: дрон взведён (measure): REFUSED armed, rc 3, ни одного издателя не создано (детектор не будился)
+PASS P3 main: нет связи MAVROS с FCU: REFUSED fcu_not_connected, rc 3, издателей нет
+PASS P3 main: /mavros/state молчит 8 с: REFUSED no_mavros_state, rc 3, издателей нет
+PASS P4 main: дрон не взведён, будить детектор: rc 0, единственный издатель /aruco_detect/wake, Bool true раз в секунду (4-7 сообщений за 6 с)
+PASS P4 main: поток меток считается (около 20 Гц от поддельного детектора)
+PASS P4 main: кадры камеры считаются без разбора сообщений (около 24 Гц)
+PASS P4 main: задержка меток около 50 мс, метка в кадре в 100 процентах, id 0
+PASS P4 main: найден топик зрения /mavros/mavros/pose_cov (в заглушке 0 сообщений: заглушка vpe_fix не воспроизводит) и пометка про disarmed (warm-up) из vpe_fix.py, функция _evaluate_gate
+PASS P4 main: есть замер нагрузки SAMPLE и итоги SUMMARY (длительность, cpu, температура, троттлинг, процессы)
+PASS P4 main: WAKE=0: издателей нет, «META wake off», сообщений в wake не уходит
+PASS P5 main: режим vibration, дрон взведён владельцем: замер идёт (rc 0), издателей нет, взведённое состояние записано
+PASS P5 код: нет create_client, create_service, ActionClient (только подписки и один издатель)
+PASS P6 оболочка: длительность 5 с отклонена (нужно 10..1800)
+PASS P6 оболочка: длительность 99999 отклонена
+PASS P6 оболочка: длительность abc отклонена
+PASS P6 оболочка: метка с пробелом отклонена
+PASS P6 оболочка: метка x;y отклонена
+PASS P6 оболочка: режим fly отклонён
+PASS P6 оболочка: WAKE=2 отклонён
+PASS P6 оболочка: не тот хост (hostname не подменён): STOP, до python не дошло
+PASS P6 оболочка: корректные аргументы доходят до запуска (META script ...)
+PASS P7 arm_state.sh: armed=false, connected=true: «BB_ARM connected=true armed=false» и BB_ARM_STATE_DONE
+PASS P7 arm_state.sh: armed=true читается как armed=true
+PASS P7 arm_state.sh: регистр не важен (True -> true)
+PASS P7 arm_state.sh: непонятный ответ -> armed=? (не false)
+PASS P7 arm_state.sh: пустой ответ -> armed=?
+PASS P7 arm_state.sh: connected=false печатается как есть
+PASS P7 arm_state.sh: не тот хост: STOP, ответа BB_ARM нет
+PASS P7 arm_state.sh: синтаксис bash -n
+PASS P8 функция: gap_counts_steady_no_gaps
+PASS P8 функция: gap_counts_one_gap_1.2s
+PASS P8 функция: gap_counts_three_gaps
+PASS P8 функция: gap_counts_exactly_0.4_not_counted
+PASS P8 функция: gap_counts_empty
+PASS P8 функция: gap_counts_outside_window_ignored
+PASS P8 функции gap_counts: прогнано 6 проверок
+PASS P9 main (r2): markers_used считается, один пропуск «значение >= 1» больше 0,4 с и больше 1,0 с (в заглушке нули 1,5-2,6 с), нулевых сообщений больше 0
+PASS P9 main (r2): кадры image_raw_yuv считаются отдельно от image_raw (около 24 Гц), в сводке строка camera_image_raw_yuv
+PASS P9 main (r2): для топика зрения есть строка vision_pose_pauses с over_0.4s (в заглушке сообщений нет: 0)
+PASS P9 main (r2): по-прежнему единственный издатель или ни одного (WAKE=0: издателей нет)
+PASS P10 bash -n для battery_check.sh и journal_window.sh, py_compile встроенного python батареи
+PASS P11 функция: text_low_battery
+PASS P11 функция: text_critical
+PASS P11 функция: text_failsafe
+PASS P11 функция: text_voltage
+PASS P11 функция: text_unrelated
+PASS P11 функция: stats_ignores_nan
+PASS P11 функция: stats_empty
+PASS P11 функция: find_topic_by_suffix_and_type
+PASS P11 функция: find_topic_wrong_type_not_found
+PASS P11 функция: param_value_int_double_bool_unset
+PASS P11 функция: params_list_has_the_asked_names
+PASS P11 функции батареи: прогнано 11 проверок
+PASS P12 main батареи: rc 0, издателей нет, напряжение 16.20 в сводке, 9 из 11 настроек прочитаны (двух нет в таблице заглушки), BAT1_N_CELLS 4, BAT1_V_EMPTY 3.5, BAT1_V_CHARGED 4.05
+PASS P12 main батареи: настройки, которых нет в таблице, названы «not_in_MAVROS_table», а не выдуманы; сообщений о батарее среди текстов PX4 нет
+PASS P12 main батареи: один вызов чтения настроек, темы найдены по суффиксу, состояние дрона записано
+PASS P12 main батареи: сообщение PX4 «Low battery» попало в сводку с пометкой battery_related=yes и счётчиком 1
+PASS P12 main батареи: сервис настроек не отвечает: сказано словами, настройки 0 из 11, rc 0
+PASS P12 код battery_check.sh: нет издателей, ParamSet, ParamPull, команд, режимов и записи
+PASS P13 battery_check.sh: длительность 5 с отклонена (нужно 10..300)
+PASS P13 battery_check.sh: длительность abc отклонена
+PASS P13 battery_check.sh: длительность 999 отклонена
+PASS P13 battery_check.sh: не тот хост: STOP, до python не дошло
+PASS P14 journal_window.sh: окно 300 с: journalctl вызван с --since «300 seconds ago» и -u bumblebee, в вывод попали строки шлюза и детектора, посторонняя строка отброшена, BB_JOURNAL_DONE rc=0
+PASS P14 journal_window.sh: окно 30 с отклонено (нужно 60..1800)
+PASS P14 journal_window.sh: окно abc отклонено, journalctl не вызывался
+PASS P14 journal_window.sh: не тот хост: STOP, journalctl не вызывался
+PASS P15 journal_vision_pauses.py: на синтетическом журнале 2 закрытых периода (2,50 и 0,60 с), самый длинный 2.50, сумма 3.10, первая публикация в OFFBOARD сразу (0.00), resume 1, переключений профиля 1
+PASS P15 journal_vision_pauses.py: шлюз так и остался закрытым до конца журнала: период назван открытым, длина считается до последней строки (6 с)
+PASS P15 journal_vision_pauses.py: в журнале нет строк шлюза с OFFBOARD: сказано «не измеримо», а не «0 пауз»
+PASS P15 journal_vision_pauses.py: нет файла: ERROR и код 2
+PASS P18 bash -n для install_check.sh и mavros_check.sh
+PASS P19 install_check.sh: всё совпало: python OK x2, C++ исходники OK x2, бинарники не старше изменённых исходников: итог ok=2 diff=0 missing=0 ... stale=0, префикс назван, BB_INSTALL_CHECK_DONE
+PASS P19 install_check.sh: python-узел изменён: «INSTALL_FILE b.py DIFF», итог ok=1 diff=1
+PASS P19 install_check.sh: python-узла нет: «INSTALL_FILE b.py MISSING», missing=1
+PASS P19 install_check.sh: C++ исходник (не R) изменён: «CPP_SRC y.cpp DIFF», cpp_ok=1 cpp_diff=1, stale не растёт (флаг «-» не считается)
+PASS P19 install_check.sh: C++ исходника нет: «CPP_SRC y.cpp MISSING», cpp_missing=1
+PASS P19 install_check.sh: бинарник старше изменённого исходника (флаг R): «INSTALL_BIN simple_offboard ... STALE», stale=1
+PASS P19 install_check.sh: бинарника нет: «INSTALL_BIN shell MISSING», bin_missing=1
+PASS P19 install_check.sh: launch-файл в install, который исполняется, отличается: «RT_FILE LAUNCH ... DIFF», BB_RTPY ok=1 diff=1
+PASS P19 install_check.sh: launch-файла нет: «RT_FILE LAUNCH ... MISSING», missing=1
+PASS P19 install_check.sh: fcu_detect.py на Pi прежний (не исправленный): «RT_FILE FCU ... DIFF», diff=1
+PASS P19 install_check.sh: fcu_detect.py на Pi нет: MISSING, missing=1
+PASS P19 install_check.sh: ros2 не знает пакет bumblebee: noprefix=1, файлы не проверяются
+PASS P19 install_check.sh: не тот хост: STOP, ни одной сверки
+PASS P19 install_check.sh: подключает как запуск службы ТОЛЬКО четыре известные строки source из start_bumblebee.sh (ros2_ws, r2j найдены и подключены), постороннюю строку и строку с «; touch» не выполняет
+PASS P19 install_check.sh: в коде нет записи, publisher, ParamSet, команд (только sha256sum, stat, find, ros2 pkg prefix)
+PASS P20 mavros_check.sh: 5 исходников совпали, коммит из mavros_src_mode.txt, активный префикс из bench_ws, версия пакета: итог src_ok=5, BB_MAVROS_CHECK_DONE
+PASS P20 mavros_check.sh: один исходник изменён: «DIFF», src_ok=4 src_diff=1
+PASS P20 mavros_check.sh: исходника нет: «MISSING», src_missing=1
+PASS P20 mavros_check.sh: активен MAVROS из /opt/ros (apt): префикс назван как есть
+PASS P20 mavros_check.sh: нет mavros_src_mode.txt и нет git: «MAVROS_SRC_MODE none», «MAVROS_GIT_HEAD none» (коммит не выдумывается)
+PASS P20 mavros_check.sh: не тот хост: STOP, ничего не читалось
+PASS P20 mavros_check.sh: в коде нет записи и сборки (нет colcon, cmake, make, git checkout/fetch/pull, apt, pip), git только rev-parse и describe
+PASS P21 bash -n для mavros_build_precheck.sh и mavros_build_aside.sh
+PASS P22 precheck: всё в порядке (служба не active, mavros и incoming нет, диск 20000 МБ, сборок нет): BB_MBPRE_RESULT OK, состояние apt и префикс напечатаны
+PASS P22 precheck: служба bumblebee активна: STOP с просьбой остановить самому (sudo не вызывается скриптом)
+PASS P22 precheck: мало места (100 МБ): STOP
+PASS P22 precheck: идёт colcon: STOP
+PASS P22 precheck: ~/bench_ws/mavros уже есть: STOP (ничего не перезаписывается)
+PASS P22 precheck: ~/bench_ws/incoming/rc3_mavros уже есть: STOP
+PASS P22 precheck: не тот хост: STOP, ничего не читалось
+PASS P22 precheck: в коде нет записи и остановки служб (нет rm, mv, cp, tee, mkdir, touch, chmod, sudo, systemctl stop/start/restart, colcon, cmake)
+PASS P23 aside: перенос в сторону: BB_ASIDE_DONE, ~/bench_ws/mavros больше нет на месте, но файл f.cpp лежит в _aside_mavros_<метка>; число файлов до и после ОДИНАКОВОЕ (ничего не удалено); чужой файл и start_bumblebee.sh не тронуты
+PASS P23 aside: start_bumblebee.sh подключает оверлей bench_ws/mavros: STOP, ничего не перенесено (папка на месте)
+PASS P23 aside: идёт сборка (colcon): STOP, ничего не перенесено
+PASS P23 aside: нечего переносить (нет ~/bench_ws/mavros): STOP
+PASS P23 aside: не тот хост: STOP, ничего не перенесено
+PASS P23 aside: в коде нет удаления (нет rm, rmdir, shred, unlink, find -delete) и нет sudo; только mv и mkdir
+PASS P24 bash -n для шести скриптов шагов 13-17
+PASS P25 bb_build_precheck: исходники равны r2j (4 из 4), службы нет, ~/bench_ws/r2j нет, диск, нет сборок: BB_BBPRE_RESULT OK
+PASS P25 bb_build_precheck: служба bumblebee активна: STOP с просьбой остановить самому
+PASS P25 bb_build_precheck: исходник не равен r2j: STOP «сначала 05_install_r2j»
+PASS P25 bb_build_precheck: исходника нет: STOP
+PASS P25 bb_build_precheck: hover r6 нет в examples: STOP «нет_hover_r6», BBPRE hover_r6 found=0
+PASS P25 bb_build_precheck: в examples лежит другой hover (sha не тот): STOP
+PASS P25 bb_build_precheck: hover r6 под другим именем (sha тот же): принимается, found=1 (сверка по sha256, а не по имени)
+PASS P26 bb_build: hover r6 нет в исходниках: BB_BBBUILD_STOP «hover r6», копия не создана (W_EXISTS=no)
+PASS P26 bb_build: код проверяет hover r6 дважды: в исходниках образа и в копии оверлея (W/src/bumblebee/examples)
+PASS P25 bb_build_precheck: ~/bench_ws/r2j уже есть: STOP
+PASS P25 bb_build_precheck: есть ~/.colcon/defaults.yaml: STOP
+PASS P25 bb_build_precheck: идёт colcon: STOP
+PASS P25 bb_build_precheck: не тот хост: STOP, ничего не читалось
+PASS P25 bb_build_precheck: в коде нет записи и остановки служб (нет rm, mv, cp, tee, mkdir, touch, chmod, sudo, colcon build, systemctl stop/start)
+PASS P26 bb_build: служба активна: BB_BBBUILD_STOP, ничего не создано (~/bench_ws/r2j нет)
+PASS P26 bb_build: исходник не равен r2j: STOP до копирования (~/bench_ws/r2j не создан)
+PASS P26 bb_build: ~/bench_ws/r2j уже есть: STOP, содержимое не тронуто (ничего не перезаписывается)
+PASS P26 bb_build: журнал build_r2j_1.log уже есть: STOP, не перезаписан
+PASS P26 bb_build: есть ~/.colcon/defaults.yaml: STOP
+PASS P26 bb_build: идёт другая сборка (make): STOP
+PASS P26 bb_build: не тот хост: STOP, ничего не делалось
+PASS P26 bb_build: в коде одна сборка пакета bumblebee в чистом окружении (colcon build --packages-select bumblebee, MAKEFLAGS=-j2, env -i), нет rm, mv, sudo, systemctl stop/start, apt, записи в ros2_ws и start_bumblebee.sh (тексты сообщений в кавычках не считаются)
+PASS P27 bb_build_aside: BB_BBASIDE_DONE, ~/bench_ws/r2j и журнал в _aside_bb_r2j_<метка>, ~/ros2_ws (прежняя сборка) и чужие файлы не тронуты
+PASS P27 bb_build_aside: оверлей r2j подключён в start_bumblebee.sh: STOP, ничего не перенесено
+PASS P27 bb_build_aside: идёт сборка: STOP, ничего не перенесено
+PASS P27 bb_build_aside: нечего переносить: STOP
+PASS P27 bb_build_aside: не тот хост: STOP, ничего не перенесено
+PASS P27 bb_build_aside: в коде нет удаления (rm, rmdir, shred, unlink, -delete) и sudo; только mv и mkdir
+PASS P28 overlay_fingerprint bumblebee: все файлы install с sha256, python OK x2, исходники OK x2, бинарники не старше исходников: py_ok=2 src_ok=2 bin=2 stale=0
+PASS P28 overlay_fingerprint bumblebee: бинарник старше изменённого исходника: BIN ... STALE, stale=1
+PASS P28 overlay_fingerprint bumblebee: python-узел изменён: PY_NODE b.py DIFF, py_bad=1
+PASS P28 overlay_fingerprint bumblebee: C++ исходник копии изменён: SRC DIFF, src_bad=1
+PASS P28 overlay_fingerprint bumblebee: launch-файл оверлея изменён: RT_FILE LAUNCH ... DIFF, BB_FP_RT diff=1
+PASS P28 overlay_fingerprint bumblebee: fcu_detect.py на Pi прежний: RT_FILE FCU ... DIFF, diff=1
+PASS P28 overlay_fingerprint bumblebee: fcu_detect.py нет: MISSING, missing=1
+PASS P28 overlay_fingerprint bumblebee: launch-файла в оверлее нет: MISSING, missing=1
+PASS P28 overlay_fingerprint mavros: 3 бинарника, источник MAVROS, не старше: bin=3 stale=0 src_ok=2
+PASS P28 overlay_fingerprint mavros: libmavros.so старше исходников: STALE, stale=1
+PASS P28 overlay_fingerprint: оверлей не собран: noinstall=1, без отпечатков
+PASS P28 overlay_fingerprint: цель «evil» отклонена
+PASS P28 overlay_fingerprint: в коде нет записи (rm, mv, cp, tee, mkdir, touch, chmod, sudo, colcon, перенаправления в файл)
+PASS P29 overlay_connect mavros: BB_CONN_DONE; добавлена РОВНО одна строка (ничего не удалено), сразу после строки ros2_ws; копии .before и .after сохранены; права 755
+PASS P29 overlay_connect bumblebee при уже подключённом MAVROS: строка r2j встаёт ПОСЛЕ строки MAVROS (порядок ros2_ws, MAVROS, bumblebee), добавлена одна строка
+PASS P29 overlay_connect bumblebee без MAVROS-строки: r2j сразу после ros2_ws
+PASS P29 overlay_connect: служба активна: STOP, start_bumblebee.sh не менялся (ADDED=0), копий нет
+PASS P29 overlay_connect: строка этого оверлея уже есть: STOP, файл не менялся
+PASS P29 overlay_connect: после снятия отпечатков в оверлее появился лишний файл: STOP «лишние или пропавшие», start_bumblebee.sh не менялся
+PASS P29 overlay_connect: файл оверлея изменён после снятия отпечатков (число файлов то же): STOP «файлы оверлея не равны отпечаткам» с суммами и строками FPGOT, start_bumblebee.sh не менялся
+PASS P29 overlay_connect: сумма списка, посчитанная НА ПК (PowerShell, порядковая сортировка), принимается Pi (та же сумма по sort LC_ALL=C): BB_CONN_DONE
+PASS P29 overlay_connect: в скрипте нет суммы списка (FPHASH): STOP, start_bumblebee.sh не менялся
+PASS P29 overlay_connect: оверлей не собран: STOP, файл не менялся
+PASS P29 overlay_connect: строка ros2_ws встречается дважды: STOP
+PASS P29 overlay_connect: цель «evil» отклонена
+PASS P29 overlay_connect: в коде нет rm, sudo, systemctl stop/start, reboot; файл заменяется только через .bbnew и mv -f после копии (тексты сообщений в кавычках не считаются)
+PASS P30 overlay_disconnect: после подключения откат возвращает start_bumblebee.sh ПОБАЙТНО как до (cmp), папка копии помечена RESTORED, BB_DISC_DONE
+PASS P30 overlay_disconnect: после подключения файл изменили вручную: STOP, откат не делается (файл остался как есть)
+PASS P30 overlay_disconnect: повторный откат, когда подключён один оверлей: STOP «все копии уже откачены»
+PASS P30 overlay_disconnect: подключены ДВА оверлея (MAVROS, потом bumblebee): первый откат снимает bumblebee (MAVROS остаётся), второй снимает MAVROS и файл ПОБАЙТНО как до всего (cmp), третий: STOP «все копии уже откачены»; обе копии с RESTORED
+PASS P30 overlay_disconnect: нет копий: STOP «нечего откатывать»
+PASS P30 overlay_disconnect: служба активна: STOP, файл не менялся
+PASS P30 overlay_disconnect: в коде нет rm, sudo, systemctl stop/start; копии не удаляются (тексты сообщений в кавычках не считаются)
+PASS P31 bash -n для flight_gate.sh и start_script_check.sh
+PASS P32 flight_gate: скрипт из оверлея с жёстким sys.path.insert на ros2_ws/src: drone.py там и рядом в оверлее равны r2j: BB_FG_RESULT OK (FG_DIR OK, FG_NEAR OK x2)
+PASS P32 flight_gate: drone.py в каталоге импорта (ros2_ws/src) СТАРЫЙ, а в оверлее новый: STOP (именно этот файл импортирует скрипт)
+PASS P32 flight_gate: в каталоге импорта нет drone.py: STOP «нет_drone.py_в_…»
+PASS P32 flight_gate: drone.py рядом со скриптом в оверлее не r2j (а в каталоге импорта r2j): STOP «drone.py_рядом_не_r2j»
+PASS P32 flight_gate: в скрипте нет sys.path.insert и drone.py в папке скрипта нет: STOP (Python его бы не нашёл или взял бы чужой)
+PASS P32 flight_gate: нет sys.path.insert, drone.py лежит в папке самого скрипта и равен r2j: OK
+PASS P32 flight_gate: две строки sys.path.insert, во второй каталоге drone.py чужой: STOP, первая OK и вторая DIFF названы
+PASS P32 flight_gate: скрипта нет на Pi: STOP «скрипта_нет»
+PASS P32 flight_gate: путь скрипта не /home/lb/...py: отклонён, ничего не читалось
+PASS P32 flight_gate: ожидаемая сумма не 64 hex: отклонена
+PASS P32 flight_gate: не тот хост: STOP, ничего не читалось
+PASS P33 start_script_check: печатает sha256 и размер start_bumblebee.sh, число строк ros2_ws (1), число строк оверлеев (0), все строки source с номерами, BB_SSC_DONE
+PASS P33 start_script_check: с подключённым оверлеем overlay_lines 1
+PASS P33 start_script_check: файла нет: «SSC missing», без sha
+PASS P16 ulog_stand_report: armed_periods_one
+PASS P16 ulog_stand_report: armed_periods_open_until_end
+PASS P16 ulog_stand_report: armed_periods_none
+PASS P16 ulog_stand_report: pauses_two_over_0.4
+PASS P16 ulog_stand_report: pauses_exactly_0.4_not_counted
+PASS P16 ulog_stand_report: pauses_too_few_samples
+PASS P16 ulog_stand_report: counter_changes_size_5cm
+PASS P16 ulog_stand_report: counter_changes_wrap_255_to_0
+PASS P16 ulog_stand_report: share_true_half
+PASS P16 ulog_stand_report: прогнано 9 проверок
+PASS P17 ulog_stand_report на настоящем журнале Gazebo (c7marker_01 из T41): hover_thrust_estimate нет, dist_bottom до 0.980, сбросы xy считаются, посадка: ground_contact около 2.9 с, landed около 3.6 с, выключение около 4.1 с после касания пола (как в таблице T41)
+PASS P34 bash -n для services_check.sh
+PASS P34 services_check: три службы active, перезапусков 0, журнал без ошибок: SVC x3, BB_SVC_RESULT active=3 errors=0 restarts=0 denied=0, BB_SVC_DONE
+PASS P34 services_check: journalctl вызывается с -u <служба>, --since "-10 min" и --no-pager для каждой из трёх служб; systemctl только is-active и show
+PASS P34 services_check: notify-manager не active (inactive): SVC ... inactive, active=2
+PASS P34 services_check: led-default failed: active=2
+PASS P34 services_check: wifi-manager activating (ещё не active): active=2
+PASS P34 services_check: в журнале notify-manager Traceback и ImportError: SVC_ERRORS notify-manager 2, errors=2
+PASS P34 services_check: «Failed with result» в журнале считается ошибкой: SVC_ERRORS led-default 1
+PASS P34 services_check: обычная остановка и запуск службы в журнале НЕ ошибка: errors=0
+PASS P34 services_check: led-default перезапускался сам 3 раза: SVC_RESTARTS led-default 3, restarts=3
+PASS P34 services_check: нет прав читать журнал: SVC_JOURNAL ... access=denied, denied=1 (проверить нечем)
+PASS P34 services_check: «insufficient permissions»: access=denied
+PASS P34 services_check: не тот хост: STOP, ни одной службы не читалось
+PASS P34 services_check: в коде нет sudo, rm, mv, cp, tee, mkdir, touch, chmod, reboot, systemctl stop/start/restart/kill/enable/disable/reset-failed/daemon-reload, journalctl --vacuum/--rotate/--flush (только чтение)
+
+ИТОГ: PASS 228, FAIL 0

@@ -1,0 +1,185 @@
+# DIFF_r14_r16.txt (Claude, 18.11.2026): diff -u bench_kit_20261117_r14 -> bench_kit_20261118_r16 по изменённым файлам; новые файлы - списком в конце с sha256. out/ пуст в обоих. SHA256SUMS.txt пересчитан.
+--- r14/lib/bb_lists.ps1
++++ r16/lib/bb_lists.ps1
+@@ -103,6 +103,41 @@
+     if ($used -ne 1) { BB-Stop ('в списке python-узлов (INSTALL_SHA256_r2j.txt) нет ровно одной строки aruco_detect.py для jd2 (найдено ' + $used + ')') 4 }
+     return ,$o
+ }
++# r16 (18.11.2026): вариант В1 - допустимые sha256 для aruco_detect.py и vpe_fix.py (image_r2j\POSEFIX_V1_20261118.tsv: sha256 TAB имя, ровно 2 строки; пакет drone_pkg_posefix_v1_20261118).
++# Только для 09 и 15, ПОСЛЕ BL-ApplyJd2Alt. Вход: у aruco_detect.py ровно «sha_r2j,sha_jd2», у vpe_fix.py ровно одно sha (r2j); выход: aruco «r2j,jd2,v1», vpe «r2j,v1» (порядок важен: скрипт Pi
++# ставит метку по совпавшему sha). Строго: в файле ровно 2 строки - aruco_detect.py и vpe_fix.py по одной (с учётом регистра), sha 64 hex, v1 не равен r2j (и jd2 у aruco); в списке ровно
++# одна строка каждого узла; остальные узлы не меняются. Иначе код 4 до связи с дроном.
++function BL-ApplyV1Alt([string]$here, $list) {
++    $p = Join-Path $here 'image_r2j\POSEFIX_V1_20261118.tsv'
++    if (-not (Test-Path -LiteralPath $p)) { BB-Stop ('нет списка ' + $p) 4 }
++    $alt = @{}; $rows = 0
++    foreach ($l in [IO.File]::ReadAllLines($p)) {
++        if ($l.Trim() -eq '' -or $l.StartsWith('#')) { continue }
++        $f = $l.Split("`t"); $rows++
++        if ($f.Count -ne 2 -or $f[0] -cnotmatch '^[0-9a-f]{64}$' -or ($f[1] -cne 'aruco_detect.py' -and $f[1] -cne 'vpe_fix.py') -or $rows -gt 2) { BB-Stop ('строка списка В1 не «sha256 TAB aruco_detect.py|vpe_fix.py» или строк больше двух: ' + $l) 4 }
++        foreach ($k in @($alt.Keys)) { if ($k -ceq $f[1]) { BB-Stop ('в списке В1 узел повторяется: ' + $l) 4 } }
++        $alt[$f[1]] = $f[0]
++    }
++    if ($rows -ne 2 -or $alt.Count -ne 2) { BB-Stop ('в ' + $p + ' должно быть ровно 2 строки (aruco_detect.py и vpe_fix.py), а их ' + $rows) 4 }
++    $o = New-Object Collections.Generic.List[string]; $usedA = 0; $usedV = 0
++    foreach ($e in $list) {
++        $f = ([string]$e).Split([string[]]@('  '), [StringSplitOptions]::None)
++        if ($f.Count -eq 2 -and $f[1] -ceq 'aruco_detect.py') {
++            if ($f[0] -cnotmatch '^[0-9a-f]{64},[0-9a-f]{64}$') { BB-Stop ('строка aruco_detect.py не «sha_r2j,sha_jd2  aruco_detect.py» (сначала BL-ApplyJd2Alt): ' + $e) 4 }
++            $two = $f[0].Split(','); $v = $alt['aruco_detect.py']
++            if ($v -ceq $two[0] -or $v -ceq $two[1]) { BB-Stop ('sha В1 aruco_detect.py равен sha r2j или jd2: ' + $v) 4 }
++            $o.Add($f[0] + ',' + $v + '  ' + $f[1]); $usedA++
++        }
++        elseif ($f.Count -eq 2 -and $f[1] -ceq 'vpe_fix.py') {
++            $v = $alt['vpe_fix.py']
++            if ($f[0] -cnotmatch '^[0-9a-f]{64}$' -or $f[0] -ceq $v) { BB-Stop ('строка vpe_fix.py r2j не «sha256  vpe_fix.py» или sha В1 vpe_fix.py равен sha r2j: ' + $e) 4 }
++            $o.Add($f[0] + ',' + $v + '  ' + $f[1]); $usedV++
++        }
++        else { $o.Add([string]$e) }
++    }
++    if ($usedA -ne 1 -or $usedV -ne 1) { BB-Stop ('в списке python-узлов (INSTALL_SHA256_r2j.txt) нет ровно одной строки aruco_detect.py и одной vpe_fix.py для В1 (найдено ' + $usedA + ' и ' + $usedV + ')') 4 }
++    return ,$o
++}
+ # r14 (17.11.2026): вторые допустимые sha256 камеры варианта r2m_cam (image_r2j\R2M_CAM_20261117.tsv: sha256 TAB вид TAB имя; ровно 2 строки - «PY camera_fix.py» и «LAUNCH launch/bumblebee.launch.py»;
+ # пакет drone_pkg_r2m_cam_20261117, образ /work/image_r2m_cam_20261117). Только для сверок «что стоит на дроне» - 09 и 15, по образцу BL-ApplyJd2Alt. Строго: ровно эти 2 строки, sha 64 hex,
+ # sha r2m_cam не равен r2j, в списке ровно одна строка этого узла (пути); остальные строки не меняются. Скрипт Pi подписывает второе значение R2M_CAM (метка по имени узла и пути).
+--- r14/pi/install_check.sh
++++ r16/pi/install_check.sh
+@@ -45,6 +45,8 @@
+ # r11 (16.11): у двух примеров полёта want = «sha_r2j,sha_real» (image_r2j\EXAMPLES_REAL_20261116.tsv, карта real): совпадение с любым - OK, второе помечается REAL_MAP; у остальных строк want один, как в r9
+ # r13 (17.11): определение shamatch поднято сюда без изменений - оно нужно уже циклу python-узлов (LIST)
+ shamatch() { [ -n "$1" ] || return 1; case ",$2," in *",$1,"*) return 0;; esac; return 1; }
++# r15 (18.11, перенесено в r16): метка по СОВПАВШЕМУ sha. shalab <got> <sha1,sha2,...> <метка1,метка2,...> печатает метку того места, где got (1-е место - r2j, его метка пустая); не совпало - код 1
++shalab() { local i=1 s; for s in $(printf '%s' "$2" | tr ',' ' '); do if [ -n "$1" ] && [ "$s" = "$1" ]; then printf '%s' "$3" | cut -d, -f"$i"; return 0; fi; i=$((i+1)); done; return 1; }
+ ok=0; diff=0; miss=0
+ while read -r want name; do
+   case "$want" in ''|\#*) continue;; esac
+@@ -52,8 +54,10 @@
+   got=$(sha256sum "$D/$name" 2>/dev/null | cut -c1-64)
+   # r13 (17.11): у aruco_detect.py want = «sha_r2j,sha_jd2» (image_r2j\POSEFIX_JD2_20261117.tsv, детектор меток варианта jd2): совпадение с любым - OK, второе помечается POSEFIX_JD2
+   # r14 (17.11): у camera_fix.py want = «sha_r2j,sha_r2m_cam» (image_r2j\R2M_CAM_20261117.tsv): второе помечается R2M_CAM. Метка - по ИМЕНИ узла; у всех других узлов принимается только первое sha (r2j)
+-  case "$name" in aruco_detect.py) w="$want"; lab=" POSEFIX_JD2";; camera_fix.py) w="$want"; lab=" R2M_CAM";; *) w="${want%%,*}"; lab="";; esac
+-  if shamatch "$got" "$w"; then ok=$((ok+1)); vmark=""; [ "$got" = "${w%%,*}" ] || vmark="$lab"; echo "INSTALL_FILE $name OK$vmark"; else diff=$((diff+1)); echo "INSTALL_FILE $name DIFF got=$got want=$want"; fi
++  # r16 (18.11): у aruco_detect.py want = «r2j,jd2,v1», у vpe_fix.py «r2j,v1» (image_r2j\POSEFIX_V1_20261118.tsv). Берётся не больше 3 sha у aruco, 2 у vpe_fix и camera_fix, 1 у остальных; метка - по СОВПАВШЕМУ sha:
++  # r2j - без метки, jd2 - POSEFIX_JD2, v1 - POSEFIX_V1, r2m_cam - R2M_CAM
++  case "$name" in aruco_detect.py) w=$(printf '%s' "$want" | cut -d, -f1-3); labs=",POSEFIX_JD2,POSEFIX_V1";; vpe_fix.py) w=$(printf '%s' "$want" | cut -d, -f1-2); labs=",POSEFIX_V1";; camera_fix.py) w=$(printf '%s' "$want" | cut -d, -f1-2); labs=",R2M_CAM";; *) w="${want%%,*}"; labs="";; esac
++  if lab=$(shalab "$got" "$w" "$labs"); then ok=$((ok+1)); vmark=""; [ -n "$lab" ] && vmark=" $lab"; echo "INSTALL_FILE $name OK$vmark"; else diff=$((diff+1)); echo "INSTALL_FILE $name DIFF got=$got want=$want"; fi
+ done <<< "$LIST"
+ cok=0; cdiff=0; cmiss=0; newest=0
+ while read -r want path flag; do
+--- r14/pi/overlay_fingerprint.sh
++++ r16/pi/overlay_fingerprint.sh
+@@ -38,6 +38,8 @@
+ # r11 (16.11): у двух примеров полёта want = «sha_r2j,sha_real» (image_r2j\EXAMPLES_REAL_20261116.tsv, карта real): совпадение с любым - OK, второе помечается REAL_MAP; у остальных строк want один, как в r9
+ # r13 (17.11): определение shamatch поднято сюда без изменений - оно нужно уже циклу python-узлов (LIST)
+ shamatch() { [ -n "$1" ] || return 1; case ",$2," in *",$1,"*) return 0;; esac; return 1; }
++# r15 (18.11, перенесено в r16): метка по СОВПАВШЕМУ sha. shalab <got> <sha1,sha2,...> <метка1,метка2,...> печатает метку того места, где got (1-е место - r2j, его метка пустая); не совпало - код 1
++shalab() { local i=1 s; for s in $(printf '%s' "$2" | tr ',' ' '); do if [ -n "$1" ] && [ "$s" = "$1" ]; then printf '%s' "$3" | cut -d, -f"$i"; return 0; fi; i=$((i+1)); done; return 1; }
+ pok=0; pbad=0
+ if [ "$T" = bumblebee ]; then
+   while read -r want name; do
+@@ -46,8 +48,10 @@
+     got=$(sha256sum "$BIND/$name" 2>/dev/null | cut -c1-64)
+     # r13 (17.11): у aruco_detect.py want = «sha_r2j,sha_jd2» (image_r2j\POSEFIX_JD2_20261117.tsv, детектор меток варианта jd2): совпадение с любым - OK, второе помечается POSEFIX_JD2
+     # r14 (17.11): у camera_fix.py want = «sha_r2j,sha_r2m_cam» (image_r2j\R2M_CAM_20261117.tsv): второе помечается R2M_CAM. Метка - по ИМЕНИ узла; у всех других узлов принимается только первое sha (r2j)
+-    case "$name" in aruco_detect.py) w="$want"; lab=" POSEFIX_JD2";; camera_fix.py) w="$want"; lab=" R2M_CAM";; *) w="${want%%,*}"; lab="";; esac
+-    if shamatch "$got" "$w"; then pok=$((pok+1)); vmark=""; [ "$got" = "${w%%,*}" ] || vmark="$lab"; echo "PY_NODE $name OK$vmark"; else pbad=$((pbad+1)); echo "PY_NODE $name DIFF got=$got want=$want"; fi
++    # r16 (18.11): у aruco_detect.py want = «r2j,jd2,v1», у vpe_fix.py «r2j,v1» (image_r2j\POSEFIX_V1_20261118.tsv). Берётся не больше 3 sha у aruco, 2 у vpe_fix и camera_fix, 1 у остальных; метка - по СОВПАВШЕМУ sha:
++    # r2j - без метки, jd2 - POSEFIX_JD2, v1 - POSEFIX_V1, r2m_cam - R2M_CAM
++    case "$name" in aruco_detect.py) w=$(printf '%s' "$want" | cut -d, -f1-3); labs=",POSEFIX_JD2,POSEFIX_V1";; vpe_fix.py) w=$(printf '%s' "$want" | cut -d, -f1-2); labs=",POSEFIX_V1";; camera_fix.py) w=$(printf '%s' "$want" | cut -d, -f1-2); labs=",R2M_CAM";; *) w="${want%%,*}"; labs="";; esac
++    if lab=$(shalab "$got" "$w" "$labs"); then pok=$((pok+1)); vmark=""; [ -n "$lab" ] && vmark=" $lab"; echo "PY_NODE $name OK$vmark"; else pbad=$((pbad+1)); echo "PY_NODE $name DIFF got=$got want=$want"; fi
+   done <<< "$LIST"
+ fi
+ sok=0; sbad=0; newest=0
+--- r14/run_fingerprint.ps1
++++ r16/run_fingerprint.ps1
+@@ -11,6 +11,7 @@
+ $stamp = (Get-Date).ToString('yyyyMMdd_HHmmss')
+ $cpp = BL-ApplyRealAlt $here (BL-CppList $here); $py = BL-PyList $here; $mv = BL-MavrosSrcList $here; $rt = BL-RtList $here   # S2 (чат 1, 21:50): launch и fcu_detect.py
+ $py = BL-ApplyJd2Alt $here $py   # r13 (17.11): aruco_detect.py - r2j ИЛИ детектор меток варианта jd2 (image_r2j\POSEFIX_JD2_20261117.tsv, метка POSEFIX_JD2), остальные python-узлы строго r2j
++$py = BL-ApplyV1Alt $here $py   # r16 (18.11): вариант В1 - aruco_detect.py «r2j,jd2,v1» и vpe_fix.py «r2j,v1» (image_r2j\POSEFIX_V1_20261118.tsv, метка POSEFIX_V1), оба узла одного варианта
+ $py = BL-ApplyR2mPyAlt $here $py; $rt = BL-ApplyR2mRtAlt $here $rt   # r14 (17.11): camera_fix.py и launch/bumblebee.launch.py - r2j ИЛИ камера r2m_cam (image_r2j\R2M_CAM_20261117.tsv, метка R2M_CAM), оба одного варианта; остальное строго r2j
+ $ssh = BB-FindSsh
+ $gens = @{
+@@ -42,7 +43,9 @@
+     $expBin = $(if ($t -eq 'bumblebee') { 6 } else { 3 })   # правка по проверке 10.11 (S3): бинарники по overlay_fingerprint.sh (bumblebee: simple_offboard, camera_markers, optical_flow_node, rc, shell, vpe_publisher; MAVROS: 3), неполная сборка не даёт OK
+     $r2mN = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^PY_NODE camera_fix\.py OK R2M_CAM$' -or $_ -cmatch '^RT_FILE LAUNCH launch/bumblebee\.launch\.py OK R2M_CAM$' }).Count   # r14: оба файла r2m_cam (2) или ни одного (0)
+     if ($r2mN -eq 1) { Write-Host ('  ' + $t + ': R2M_CAM только у ОДНОГО из двух файлов (camera_fix.py и launch/bumblebee.launch.py должны быть одного варианта) - пакет r2m_cam стоит не целиком.') }
+-    $okT = ($v[0] -gt 0 -and $v[2] -eq 0 -and $v[1] -eq $expPy -and $v[4] -eq 0 -and $v[3] -eq $expSrc -and $v[5] -eq $expBin -and $v[6] -eq 0 -and $rtDiff -eq 0 -and $rtMiss -eq 0 -and $rtOk -eq $expRt -and ($r2mN -eq 0 -or $r2mN -eq 2))
++    $v1N = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^PY_NODE aruco_detect\.py OK POSEFIX_V1$' -or $_ -cmatch '^PY_NODE vpe_fix\.py OK POSEFIX_V1$' }).Count   # r16: оба узла В1 (2) или ни одного (0)
++    if ($v1N -eq 1) { Write-Host ('  ' + $t + ': POSEFIX_V1 только у ОДНОГО из двух узлов (aruco_detect.py и vpe_fix.py должны быть одного варианта) - вариант В1 стоит не целиком.') }
++    $okT = ($v[0] -gt 0 -and $v[2] -eq 0 -and $v[1] -eq $expPy -and $v[4] -eq 0 -and $v[3] -eq $expSrc -and $v[5] -eq $expBin -and $v[6] -eq 0 -and $rtDiff -eq 0 -and $rtMiss -eq 0 -and $rtOk -eq $expRt -and ($r2mN -eq 0 -or $r2mN -eq 2) -and ($v1N -eq 0 -or $v1N -eq 2))
+     $fpFile = BB-NewOutFile $outDir ('fingerprint_' + $t + '_' + $stamp + '.txt')
+     $hdr = @(('# отпечатки оверлея ' + $t + ' на Pi, ' + (Get-Date).ToString('s') + ', ТОЛЬКО ЧТЕНИЕ (шаг 15)'), ('# VERDICT ' + $(if ($okT) { 'OK' } else { 'NOT_OK' })), ('# ' + (($raw -split "`r?`n" | Where-Object { $_ -match '^BB_FP_RESULT ' } | Select-Object -First 1))), ('# ' + ($raw -split "`r?`n" | Where-Object { $_ -match '^BB_FP_RT ' } | Select-Object -First 1)))
+     $body = @($raw -split "`r?`n" | Where-Object { $_ -match '^FP_FILE [0-9a-f]{64} ' } | ForEach-Object { $_.Substring(8, 64) + '  ' + $_.Substring(73) })
+--- r14/run_install_check.ps1
++++ r16/run_install_check.ps1
+@@ -30,6 +30,7 @@
+ $cpp = BL-ApplyRealAlt $here $cpp   # r11 (16.11): flight_marker.py и flight_marker_loop.py - r2j ИЛИ карта real (image_r2j\EXAMPLES_REAL_20261116.tsv), остальное строго r2j
+ $rt = BL-RtList $here   # решение чата 1 21:50 (S2): launch-файлы и fcu_detect.py по sha256
+ $py = BL-ApplyJd2Alt $here $py   # r13 (17.11): aruco_detect.py - r2j ИЛИ детектор меток варианта jd2 (image_r2j\POSEFIX_JD2_20261117.tsv, метка POSEFIX_JD2), остальные python-узлы строго r2j
++$py = BL-ApplyV1Alt $here $py   # r16 (18.11): вариант В1 - aruco_detect.py «r2j,jd2,v1» и vpe_fix.py «r2j,v1» (image_r2j\POSEFIX_V1_20261118.tsv, метка POSEFIX_V1), оба узла одного варианта
+ $py = BL-ApplyR2mPyAlt $here $py; $rt = BL-ApplyR2mRtAlt $here $rt   # r14 (17.11): camera_fix.py и launch/bumblebee.launch.py - r2j ИЛИ камера r2m_cam (image_r2j\R2M_CAM_20261117.tsv, метка R2M_CAM), оба одного варианта; остальное строго r2j
+ if ($py.Count -lt 1 -or $cpp.Count -lt 1 -or $bins.Count -lt 1) { BB-Stop 'список пуст (python-узлов, C++ исходников или бинарников)' 4 }
+ $tpl = Join-Path $here 'pi\install_check.sh'
+@@ -62,16 +63,19 @@
+ $rtOk = 0; $rtDiff = 0; $rtMiss = 0; if ($mr.Success) { $rtOk = [int]$mr.Groups[1].Value; $rtDiff = [int]$mr.Groups[2].Value; $rtMiss = [int]$mr.Groups[3].Value }
+ $okN = $v[0]; $diffN = $v[1]; $missN = $v[2]; $nop = $v[3]; $cok = $v[4]; $cdiff = $v[5]; $cmiss = $v[6]; $bok = $v[7]; $bmiss = $v[8]; $stale = $v[9]
+ $r2mN = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^INSTALL_FILE camera_fix\.py OK R2M_CAM$' -or $_ -cmatch '^RT_FILE LAUNCH launch/bumblebee\.launch\.py OK R2M_CAM$' }).Count   # r14: оба файла r2m_cam (2) или ни одного (0); один из двух - пакет стоит не целиком
++$v1N = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^INSTALL_FILE aruco_detect\.py OK POSEFIX_V1$' -or $_ -cmatch '^INSTALL_FILE vpe_fix\.py OK POSEFIX_V1$' }).Count   # r16: оба узла В1 (2) или ни одного (0); один из двух - В1 стоит не целиком
+ Write-Host ''
+-if ($nop -eq 0 -and $diffN -eq 0 -and $missN -eq 0 -and $okN -eq $py.Count -and $cdiff -eq 0 -and $cmiss -eq 0 -and $cok -eq $cpp.Count -and $bmiss -eq 0 -and $bok -eq $bins.Count -and $stale -eq 0 -and $rtDiff -eq 0 -and $rtMiss -eq 0 -and $rtOk -eq $rt.Count -and ($r2mN -eq 0 -or $r2mN -eq 2)) {
++if ($nop -eq 0 -and $diffN -eq 0 -and $missN -eq 0 -and $okN -eq $py.Count -and $cdiff -eq 0 -and $cmiss -eq 0 -and $cok -eq $cpp.Count -and $bmiss -eq 0 -and $bok -eq $bins.Count -and $stale -eq 0 -and $rtDiff -eq 0 -and $rtMiss -eq 0 -and $rtOk -eq $rt.Count -and ($r2mN -eq 0 -or $r2mN -eq 2) -and ($v1N -eq 0 -or $v1N -eq 2)) {
+     Add-Content -LiteralPath $rawFile -Value '# VERDICT OK' -Encoding UTF8   # S1 (чат 1, 21:50): 07 проверяет эту строку
+     Write-Host ('Готово: python-узлы (' + $okN + ') и C++ исходники (' + $cok + ') совпали с r2j, launch-файлы и fcu_detect.py (' + $rtOk + ') совпали с r2j, бинарные узлы (' + $bok + ') не старше изменённых исходников. Файл: ' + $rawFile)
+     $jd2N = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^INSTALL_FILE aruco_detect\.py OK POSEFIX_JD2$' }).Count   # r13: строка INSTALL_FILE ... OK POSEFIX_JD2 (детектор меток варианта jd2)
+     if ($jd2N -gt 0) { Write-Host ('  POSEFIX_JD2: детектор меток варианта jd2 вместо r2j (aruco_detect.py из image_r2j\POSEFIX_JD2_20261117.tsv, пакет drone_pkg_posefix_jd2_20261117) - строк ' + $jd2N + '. Допускается набором r13; vpe_fix.py и остальные узлы - r2j.') }
++    if ($v1N -eq 2) { Write-Host '  POSEFIX_V1: вариант В1 вместо r2j (aruco_detect.py и vpe_fix.py из image_r2j\POSEFIX_V1_20261118.tsv, пакет drone_pkg_posefix_v1_20261118) - оба узла. Допускается набором r16; остальные узлы - r2j.' }
+     if ($r2mN -eq 2) { Write-Host '  R2M_CAM: камера варианта r2m_cam вместо r2j (camera_fix.py и launch/bumblebee.launch.py из image_r2j\R2M_CAM_20261117.tsv, пакет drone_pkg_r2m_cam_20261117) - оба файла. Допускается набором r14; остальные узлы и launch-файлы - r2j.' }
+     exit 0
+ }
+ Add-Content -LiteralPath $rawFile -Value '# VERDICT NOT_OK' -Encoding UTF8
++if ($v1N -eq 1) { Write-Host '  POSEFIX_V1: на Pi только ОДИН из двух узлов варианта В1 (aruco_detect.py и vpe_fix.py должны быть оба В1 или оба не В1) - вариант В1 стоит не целиком. Это СТОП.' }
+ if ($r2mN -eq 1) { Write-Host '  R2M_CAM: на Pi только ОДИН из двух файлов r2m_cam (camera_fix.py и launch/bumblebee.launch.py должны быть оба r2j или оба r2m_cam) - пакет r2m_cam стоит не целиком. Это СТОП.' }
+ Write-Host '  СТОП: на Pi исполняется НЕ то, что в образе r2j (расхождение, нет файла, нет install или пакет не пересобран). Скажите Claude, ничего не запускайте.  ' -ForegroundColor White -BackgroundColor Red
+ Write-Host ('  python: совпало ' + $okN + ' из ' + $py.Count + ', отличается ' + $diffN + ', нет ' + $missN + '; C++ исходники: совпало ' + $cok + ' из ' + $cpp.Count + ', отличается ' + $cdiff + ', нет ' + $cmiss + '; бинарники: ' + $bok + ' из ' + $bins.Count + ', нет ' + $bmiss + ', СТАРШЕ исходников ' + $stale + '; launch и fcu_detect (по sha256): совпало ' + $rtOk + ' из ' + $rt.Count + ', отличается ' + $rtDiff + ', нет ' + $rtMiss + '; нет префикса ' + $nop + '. Файл: ' + $rawFile)
+# новые файлы (нет в r14):
+8bcfb4c41e524c69ddf1d63e69760efd8e31c4567ffc4509d179ef2cae555a25  README_r16.md
+4f2bcbbb105ca82b908083f0e0df65a43fd4cb6288b29c4a4573e67ce0ea218e  image_r2j/POSEFIX_V1_20261118.tsv
+2ada24049f7e563176a0f654e8cd335c84385466d7477b61b1fd6229b7d3fcca  proverka_r16/after_r16copy/tests_r11_pc_console.txt
+0d7880ffe748159ad2d12099a166e376fc13240dd6bdaf1fb627a448a962e7f3  proverka_r16/after_r16copy/tests_r11_pi_console.txt
+bb2918dc65199f329092a88d1b73179f69d0013604c08a8dcac168c41a01f3ea  proverka_r16/after_r16copy/tests_r13_pc_console.txt
+e4c2d30e45e4394b27f048dfe85fa817f5a9c4a62c6a2714649eb1881aec3bbd  proverka_r16/after_r16copy/tests_r13_pi_console.txt
+3a313606e8d668e51b5a7421c583d647b2c542fafe7602fb3ecc67d0a88d8f2a  proverka_r16/after_r16copy/tests_r14_pc_console.txt
+cc2a2510210564155be2316c31d854df2dec49893124e881fccca54a8fac34a9  proverka_r16/after_r16copy/tests_r14_pi_console.txt
+887b5b65f9ae08f79503876f30cf770cc7741eff13d13f153be8f1f8d8db390d  proverka_r16/after_r16copy/tests_r16_pc_console.txt
+ebe254aafb0230ef60f06fb4ba55a50d9a29d37c7aaa29675aae8c50bcd1d911  proverka_r16/after_r16copy/tests_r16_pi_console.txt
+5317b6b338e8e20ad68378942a845bf7524212a5ade1ccc5af8dfc821e530fcd  proverka_r16/after_r16copy/tests_r5_bench_console.txt
+760e97f03667794cd73faa0fed0926111dead3617154e7f7daf7f45f92c5cb25  proverka_r16/after_r16copy/tests_r5_image_console.txt
+18cde5d51e3d593c737cee4dfbfb28c6c22c1dfb9569a5a49cc934cf0405d810  proverka_r16/after_r16copy/tests_r5_pi_console.txt
+890ad8b93e0e459187044ae18d1891210dde3bd8304fa647e0e955f01a469252  proverka_r16/after_r16copy/tests_r6_pc_console.txt
+3fde81c329a95325633024743c9a8f500c89f03d37417ff22914e425958f48c2  proverka_r16/after_r16copy/tests_r6_pi_console.txt
+df19b82fb8b92aeb07617101f73201174201612f3194c708588461616590ea27  proverka_r16/after_r16copy/tests_r7_pc_console.txt
+404cac960af335535b6b943fefbf1713ed27fb4641606296c4e0f1983c00e467  proverka_r16/after_r16copy/tests_r7_pi_console.txt
+bb3e463f6d429977acce73f4b32e1a943248914622ad52cbc5f4619c3e686278  proverka_r16/after_r16copy/tests_r8_pc_console.txt
+999c4a26dbf630a4b855f089dba0f1d3662ff34ff0238d4df747f85d22d4b337  proverka_r16/after_r16copy/tests_r8_pi_console.txt
+7fe7108116e90b2534373c01ec0a06c748737b1150affe73f8302dc777dfa713  proverka_r16/after_r16copy/tests_svodka.txt
+91fce4d61662ccd0f409b6d78d3a9c3b255e427edbfda4478b7705c85f03c9e2  proverka_r16/kontrol/Y10_pc.txt
+43853450957bfc37c184d7f3b98853971d736b7b58a90a1059b5d3843f0d9648  proverka_r16/kontrol/Y11_pc.txt
+3c999f2b378e95930f3133af8bf20332f148a154d48fecbd6a1b399c1e2d1ff8  proverka_r16/kontrol/Y12_pc.txt
+92d2adf351dadfdbd3ac4c48515726d5bd282a6e2a5a6694ab6eeb1020b46128  proverka_r16/kontrol/Y13_pc.txt
+700a84543d2b7a17ab45e05032c23e7aad87ec5d07dbdae8e9704393838fb3c0  proverka_r16/kontrol/Y1_pc.txt
+bfb0fc41dc73bf54c2710c41151e673a8900db33498167592ee9697709c3c57b  proverka_r16/kontrol/Y2_pc.txt
+60ad6a0610b83c3039d13541600f5ea3d4677f64765a19e749bfbfb26257af22  proverka_r16/kontrol/Y3_pc.txt
+a9b155ed42f1dc4f80556e4f5e770be6131ae8c8901c974cc1433e3ee6002bce  proverka_r16/kontrol/Y4_pi.txt
+e10838c3730d9527945f06ff41eb5ad61188c0b78d40d7dac168086d5c916685  proverka_r16/kontrol/Y5_pi.txt
+fcde6108df294d08e4276dfbb4de52830ace8d51c0218942a3dd8d3fd43e8d03  proverka_r16/kontrol/Y6_pi.txt
+a81434fc53d7041940b2998a936c3c2c44aad3b0a4961b4085576e2c373bec42  proverka_r16/kontrol/Y7_pi.txt
+75a9e69222599b0484f2459521ec9bd5c67ba8361579438b5fc8eb9c2a590b8c  proverka_r16/kontrol/Y8_pc.txt
+3562aa997648f7f533e9a694a206f6fbc841589490e682e967880d63cf7f2070  proverka_r16/kontrol/Y9_pc.txt
+20fa9cc4da0416c9bc81dd4684bba5ed541f6da1dfb2c652dec1e8e289492985  proverka_r16/kontrol/kontrol_svodka.txt
+3ced2755cce5947c3e8149f3c4194ae5adf669f5e5684deb19366bc4302049f0  proverka_r16/kontrol_oslablenij_r16.ps1
+395197e228ce02b3d3f2221a3be7efe5fb21acc87ce05e3594cbd95c52e05548  proverka_r16/run_all_tests_r16.ps1
+e96d71bdef16192af42eb7da541a904c92e1833adb14ebf2cecab8aa3ad4e5aa  tests/r16_wsl_tree.sh
+57e52e7f9314e1319dd8de5c25a3aa2676ffa0e518aa397d44ed5a0a18c8d7c1  tests/run_tests_r16.ps1
+0267326c808529847f97fdb96766066438cd407f5f5e3bd456254006cb474c01  tests/run_tests_r16_pi.sh

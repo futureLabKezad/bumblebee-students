@@ -1,0 +1,212 @@
+# DIFF_r17_r17a.txt (Claude, 19.11.2026): diff -u bench_kit_20261119_r17 -> bench_kit_20261119_r17a по изменённым файлам; новые файлы - списком в конце с sha256. out/ не сравнивается (в r17 там отчёты владельца 09 и 15 от 19.11 13:55, в r17a пусто). SHA256SUMS.txt пересчитан.
+--- r17/03_v_rukakh.cmd
++++ r17a/03_v_rukakh.cmd
+@@ -1,7 +1,7 @@
+ @echo off
+ chcp 65001 >nul
+ echo МЕНЯЕТ ДРОН (косвенно): журнал зрения 2 минуты, пока дрон у вас в руках над полем с метками. Дрон не взведён, моторы не запускаются, винты не нужны. Параметры и команды в PX4 не пишутся. Что меняется: на Pi детектор меток будится сообщением в /aruco_detect/wake раз в секунду, и vpe_fix в r2j на НЕвзведённом дроне передаёт позу по меткам в MAVROS (/mavros/mavros/pose_cov, таймер 30 Гц; vpe_fix.py, функция _evaluate_gate, по коду), то есть зрение может дойти до EKF2 (зависит от EKF2_EV_CTRL; на дроне не проверялось). Зачем: замер нагрузки и задержки зрения. Как остановить: закрыть окно или Ctrl+C, детектор засыпает примерно через 5 с. Файл пишет журнал на ПК.
+-rem 03_v_rukakh.cmd (Claude, 10.11.2026). Шаг 12, пункт 3 задания T31. Три места: 1 центр на метке 0, 2 камера над меткой 0, 3 на 8 см позади.
++rem 03_v_rukakh.cmd (Claude, 10.11.2026; r17a 19.11: код 5 = нет строк joint rms, не «Готово»). Шаг 12, пункт 3 задания T31. Три места: 1 центр на метке 0, 2 камера над меткой 0, 3 на 8 см позади.
+ cd /d "%~dp0"
+ set "MSG="
+ if /i not "%COMPUTERNAME%"=="DESKTOP-H5CPN8E" (set "MSG=это не тот компьютер, нужен DESKTOP-H5CPN8E. Ничего не сделано." & goto die)
+@@ -20,7 +20,7 @@
+ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run_measure.ps1" -Label %LABEL% -DurationSec 120 -Mode measure -Wake 1 -Place %LABEL% -CameraHeightCm "%HH%"
+ set RC=%ERRORLEVEL%
+ echo.
+-if "%RC%"=="0" (echo Готово: журнал записан. Скажите Claude.) else if "%RC%"=="3" (echo Журнал НЕ начат: дрон взведён или нет связи с полётным контроллером. Скажите Claude.) else (echo Не получилось. Скажите Claude.)
++if "%RC%"=="0" (echo Готово: журнал записан. Скажите Claude.) else if "%RC%"=="3" (echo Журнал НЕ начат: дрон взведён или нет связи с полётным контроллером. Скажите Claude.) else if "%RC%"=="5" (echo СТОП: журнал записан, но НЕТ ДАННЫХ JOINT RMS = НЕ ЛЕТАТЬ ДО РЕШЕНИЯ ВЛАДЕЛЬЦА. Скажите Claude.) else (echo Не получилось. Скажите Claude.)
+ if not defined BB_NO_PAUSE pause
+ exit /b %RC%
+ :die
+--- r17/09_sverka_install.cmd
++++ r17a/09_sverka_install.cmd
+@@ -10,7 +10,7 @@
+ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run_install_check.ps1"
+ set RC=%ERRORLEVEL%
+ echo.
+-if "%RC%"=="0" (echo Готово: install на Pi совпал с образом r2j. Скажите Claude.) else if "%RC%"=="5" (echo СТОП: на Pi исполняется не то, что в образе r2j. Ничего не запускать, скажите Claude.) else (echo Не получилось. Скажите Claude.)
++if "%RC%"=="0" (echo Готово: сверка install прошла. Что стоит на Pi - r2j или допущенный вариант POSEFIX_V11, R2M_CAM, POSEFIX_JD2 - смотрите в строках выше. Скажите Claude.) else if "%RC%"=="5" (echo СТОП: на Pi исполняется не то, что в образе r2j. Ничего не запускать, скажите Claude.) else (echo Не получилось. Скажите Claude.)
+ if not defined BB_NO_PAUSE pause
+ exit /b %RC%
+ :die
+--- r17/pi/vision_measure.sh
++++ r17a/pi/vision_measure.sh
+@@ -17,6 +17,8 @@
+ source /etc/profile.d/bumblebee-ros.sh < /dev/null 2>/dev/null
+ source /opt/ros/jazzy/setup.bash < /dev/null 2>/dev/null
+ START=$(date +%s)
++# r17a: stack log size before run; BB_TEST_LOG only in WSL tests
++LOGF="${BB_TEST_LOG:-/tmp/bumblebee.log}"; LOG0=$(stat -c %s "$LOGF" 2>/dev/null || echo -1)
+ find /home/lb -maxdepth 8 \( -name aruco_detect.py -o -name vpe_fix.py -o -name camera_fix.py \) -path '*bumblebee*' 2>/dev/null | head -9 | while IFS= read -r f; do echo "META image_file $(sha256sum "$f" 2>/dev/null | cut -c1-64) $f"; done
+ echo "META script vision_measure.sh dur=$DUR label=$LABEL mode=$MODE wake=$WAKE start_epoch=$START date=$(date '+%F %T')"
+ export BB_BENCH_MAIN=1
+@@ -427,8 +429,19 @@
+ echo "META python_exit $PYRC"
+ # журнал bumblebee за время замера (если разрешён доступ); только чтение
+ if [ "$PYRC" = "0" ]; then
+-  JOUT=$(journalctl -u bumblebee --since "@$START" --no-pager -o cat 2>&1 | grep -E 'detection ACTIVE|detection IDLE|publish=|rejected pose|reseed|vpe_fix:|SIGSEGV|Traceback|Exception|died|exited|respawn|restart|process has died|joint' | cut -c1-220 | head -80)
+-  if [ -n "$JOUT" ]; then printf '%s\n' "$JOUT" | while IFS= read -r l; do echo "J $l"; done; else echo "J (в журнале bumblebee за время замера нужных строк нет или доступ к журналу закрыт)"; fi
++  JALL=$(journalctl -u bumblebee --since "@$START" --no-pager -o cat 2>&1 | grep -E 'detection ACTIVE|detection IDLE|publish=|rejected pose|reseed|vpe_fix:|SIGSEGV|Traceback|Exception|died|exited|respawn|restart|process has died' | cut -c1-220)
++  JN=$(printf '%s' "$JALL" | grep -c .)
++  if [ -n "$JALL" ]; then printf '%s\n' "$JALL" | head -80 | while IFS= read -r l; do echo "J $l"; done; else echo "J (в журнале bumblebee за время замера нужных строк нет или доступ к журналу закрыт)"; fi
++  [ "$JN" -gt 80 ] && echo "J_CUT shown=80 total=$JN"
++  # r17a: joint rms from stack log, new bytes only, read only
++  if [ -f "$LOGF" ] && [ "$LOG0" -ge 0 ]; then
++    [ "$(stat -c %s "$LOGF" 2>/dev/null || echo 0)" -lt "$LOG0" ] && { echo "JR_NOTE log shrank, reading all"; LOG0=0; }
++    JRALL=$(tail -c +$((LOG0 + 1)) "$LOGF" 2>/dev/null | grep -a -E 'joint (PnP )?rms median|map mismatch cleared' | cut -c1-220)
++    JRN=$(printf '%s' "$JRALL" | grep -c .)
++    [ "$JRN" -gt 0 ] && printf '%s\n' "$JRALL" | head -60 | sed 's/^/JR /'
++    [ "$JRN" -gt 60 ] && echo "JR_CUT shown=60 total=$JRN"
++    echo "JR_COUNT $JRN"
++  else echo "JR_NOLOG"; fi
+ fi
+ echo "BB_BENCH_DONE rc=$PYRC"
+ exit "$PYRC"
+--- r17/run_fingerprint.ps1
++++ r17a/run_fingerprint.ps1
+@@ -44,7 +44,7 @@
+     $r2mN = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^PY_NODE camera_fix\.py OK R2M_CAM$' -or $_ -cmatch '^RT_FILE LAUNCH launch/bumblebee\.launch\.py OK R2M_CAM$' }).Count   # r14: оба файла r2m_cam (2) или ни одного (0)
+     if ($r2mN -eq 1) { Write-Host ('  ' + $t + ': R2M_CAM только у ОДНОГО из двух файлов (camera_fix.py и launch/bumblebee.launch.py должны быть одного варианта) - пакет r2m_cam стоит не целиком.') }
+     $v1N = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^PY_NODE aruco_detect\.py OK POSEFIX_V11$' -or $_ -cmatch '^PY_NODE vpe_fix\.py OK POSEFIX_V11$' }).Count   # r17: оба узла В1.1 (2) или ни одного (0)
+-    if (@($raw -split "`r?`n" | Where-Object { $_ -cmatch '^PY_NODE aruco_detect\.py DIFF got=890dafbfde99541a0742e26acc81e5f5a222390e7b8244e31fbbfc8f4ccc4338 ' }).Count -gt 0) { Write-Host ('  ' + $t + ': на дроне стоит В1 (aruco_detect.py 890dafbf...), он больше не допускается - нужен откат 49 (пакет drone_pkg_posefix_v1x_20261119), потом установка В1.1 (48).') }
++    if (@($raw -split "`r?`n" | Where-Object { $_ -cmatch '^PY_NODE aruco_detect\.py DIFF got=890dafbfde99541a0742e26acc81e5f5a222390e7b8244e31fbbfc8f4ccc4338 ' }).Count -gt 0) { Write-Host ('  ' + $t + ': на дроне стоит В1 (aruco_detect.py 890dafbf...), он больше не допускается - нужен откат 49_otkat_posefix_v1.cmd из заготовки _aside_20261119\drone_pkg_posefix_v1_20261118 (49 пакета v1x при В1 откажет), потом установка В1.1: 48 из drone_pkg_posefix_v1x_20261119.') }
+     if ($v1N -eq 1) { Write-Host ('  ' + $t + ': POSEFIX_V11 только у ОДНОГО из двух узлов (aruco_detect.py и vpe_fix.py должны быть одного варианта) - вариант В1.1 стоит не целиком.') }
+     $okT = ($v[0] -gt 0 -and $v[2] -eq 0 -and $v[1] -eq $expPy -and $v[4] -eq 0 -and $v[3] -eq $expSrc -and $v[5] -eq $expBin -and $v[6] -eq 0 -and $rtDiff -eq 0 -and $rtMiss -eq 0 -and $rtOk -eq $expRt -and ($r2mN -eq 0 -or $r2mN -eq 2) -and ($v1N -eq 0 -or $v1N -eq 2))
+     $fpFile = BB-NewOutFile $outDir ('fingerprint_' + $t + '_' + $stamp + '.txt')
+--- r17/run_install_check.ps1
++++ r17a/run_install_check.ps1
+@@ -67,8 +67,10 @@
+ $oldV1 = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^INSTALL_FILE aruco_detect\.py DIFF got=890dafbfde99541a0742e26acc81e5f5a222390e7b8244e31fbbfc8f4ccc4338 ' }).Count   # r17: на дроне детектор В1 (r16), он больше не допускается
+ Write-Host ''
+ if ($nop -eq 0 -and $diffN -eq 0 -and $missN -eq 0 -and $okN -eq $py.Count -and $cdiff -eq 0 -and $cmiss -eq 0 -and $cok -eq $cpp.Count -and $bmiss -eq 0 -and $bok -eq $bins.Count -and $stale -eq 0 -and $rtDiff -eq 0 -and $rtMiss -eq 0 -and $rtOk -eq $rt.Count -and ($r2mN -eq 0 -or $r2mN -eq 2) -and ($v1N -eq 0 -or $v1N -eq 2)) {
+-    Add-Content -LiteralPath $rawFile -Value '# VERDICT OK' -Encoding UTF8   # S1 (чат 1, 21:50): 07 проверяет эту строку
+-    Write-Host ('Готово: python-узлы (' + $okN + ') и C++ исходники (' + $cok + ') совпали с r2j, launch-файлы и fcu_detect.py (' + $rtOk + ') совпали с r2j, бинарные узлы (' + $bok + ') не старше изменённых исходников. Файл: ' + $rawFile)
++    if ($v1N -eq 2) { Add-Content -LiteralPath $rawFile -Value '# POSEFIX_V11: на дроне В1.1 (детектор + vpe_fix)' -Encoding UTF8 }   # r17a (19.11, проверка wf_2a438f6b): строка и в файле отчёта, до «# VERDICT OK»
++    Add-Content -LiteralPath $rawFile -Value '# VERDICT OK' -Encoding UTF8   # S1 (чат 1, 21:50): 07 проверяет эту строку (она последняя)
++    $varOk = (@($raw -split "`r?`n" | Where-Object { $_ -cmatch '^INSTALL_FILE aruco_detect\.py OK POSEFIX_JD2$' }).Count -gt 0 -or $v1N -eq 2 -or $r2mN -eq 2)   # r17a: есть допущенный вариант - не писать «совпали с r2j» без оговорки
++    Write-Host ('Готово: python-узлы (' + $okN + ') и C++ исходники (' + $cok + ') совпали с r2j' + $(if ($varOk) { ' и допущенными вариантами (какими - строки ниже)' } else { '' }) + ', launch-файлы и fcu_detect.py (' + $rtOk + ') совпали с r2j, бинарные узлы (' + $bok + ') не старше изменённых исходников. Файл: ' + $rawFile)
+     $jd2N = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^INSTALL_FILE aruco_detect\.py OK POSEFIX_JD2$' }).Count   # r13: строка INSTALL_FILE ... OK POSEFIX_JD2 (детектор меток варианта jd2)
+     if ($jd2N -gt 0) { Write-Host ('  POSEFIX_JD2: детектор меток варианта jd2 вместо r2j (aruco_detect.py из image_r2j\POSEFIX_JD2_20261117.tsv, пакет drone_pkg_posefix_jd2_20261117) - строк ' + $jd2N + '. Допускается набором r13; vpe_fix.py и остальные узлы - r2j.') }
+     if ($v1N -eq 2) { Write-Host '  POSEFIX_V11: на дроне В1.1 (детектор + vpe_fix)' }   # r17: однозначная строка (решение владельца 19.11)
+@@ -76,7 +78,7 @@
+     exit 0
+ }
+ Add-Content -LiteralPath $rawFile -Value '# VERDICT NOT_OK' -Encoding UTF8
+-if ($oldV1 -gt 0) { Write-Host '  СТОП: на дроне стоит В1 (aruco_detect.py 890dafbf...), он больше не допускается - нужен откат 49 (пакет drone_pkg_posefix_v1x_20261119), потом установка В1.1 (48). Скажите Claude.' -ForegroundColor White -BackgroundColor Red }
++if ($oldV1 -gt 0) { Write-Host '  СТОП: на дроне стоит В1 (aruco_detect.py 890dafbf...), он больше не допускается - нужен откат 49_otkat_posefix_v1.cmd из заготовки _aside_20261119\drone_pkg_posefix_v1_20261118 (49 пакета v1x при В1 откажет), потом установка В1.1: 48 из drone_pkg_posefix_v1x_20261119. Скажите Claude.' -ForegroundColor White -BackgroundColor Red }
+ if ($v1N -eq 1) { Write-Host '  POSEFIX_V11: на Pi только ОДИН из двух узлов варианта В1.1 (aruco_detect.py и vpe_fix.py должны быть оба В1.1 или оба не В1.1) - вариант В1.1 стоит не целиком. Это СТОП.' }
+ if ($r2mN -eq 1) { Write-Host '  R2M_CAM: на Pi только ОДИН из двух файлов r2m_cam (camera_fix.py и launch/bumblebee.launch.py должны быть оба r2j или оба r2m_cam) - пакет r2m_cam стоит не целиком. Это СТОП.' }
+ Write-Host '  СТОП: на Pi исполняется НЕ то, что в образе r2j (расхождение, нет файла, нет install или пакет не пересобран). Скажите Claude, ничего не запускайте.  ' -ForegroundColor White -BackgroundColor Red
+--- r17/run_measure.ps1
++++ r17a/run_measure.ps1
+@@ -1,6 +1,7 @@
+ ﻿# run_measure.ps1 (Claude, 10.11.2026) - замер зрения на Pi (pi\vision_measure.sh). Запускается из 02a/02b/03/04 .cmd.
+ # Моторы не взводит, параметры и команды в PX4 не пишет. Единственное действие на Pi: при -Wake 1 будит детектор меток (топик /aruco_detect/wake).
+-# Коды выхода: 0 замер закончен; 3 замер НЕ начат по безопасности (дрон взведён в режиме measure или нет связи с FCU); 4 ошибка.
++# Коды выхода: 0 замер закончен; 3 замер НЕ начат по безопасности (дрон взведён в режиме measure или нет связи с FCU); 4 ошибка;
++# 5 (r17a, только шаг 03) замер закончен и записан, но строк детектора «joint rms median» за замер нет = НЕ ЛЕТАТЬ ДО РЕШЕНИЯ ВЛАДЕЛЬЦА.
+ param(
+     [string]$Label = 'zamer',
+     [int]$DurationSec = 300,
+@@ -53,20 +54,35 @@
+ foreach ($l in (BB-PickLines $raw 'META')) { $sum.Add($l) }
+ foreach ($l in (BB-PickLines $raw 'SUMMARY')) { $sum.Add($l) }
+ # r17 (19.11, решение владельца, поправка по проверке review_v11_20261119): только для шага 03 (метки hand_*) - частота детектора меток из уже посчитанного hz_all
+-# (строка SUMMARY markers_used скрипта Pi; markers_msgs и vision_pose частотой детектора НЕ считаются) и строки детектора «joint rms median» из журнала bumblebee
+-# (vision_measure.sh собирает их фильтром «joint»); порога нет; ничего дополнительно не будится и не читается
++# (строка SUMMARY markers_used скрипта Pi; markers_msgs и vision_pose частотой детектора НЕ считаются); порога нет; ничего дополнительно не будится
++# r17a (19.11, MAJOR проверки wf_2a438f6b): строки детектора «joint rms median» - не из journald (стек пишет в /tmp/bumblebee.log), а из строк JR скрипта Pi
++# (новые байты /tmp/bumblebee.log с начала замера, только чтение). Детектор пишет эту строку, только если за последние 2 с было >=10 решений по >=2 меткам
++# карты сразу, и не чаще раза в 5 с. «MAP != FIELD?» выделяется красным. Обрезка вывода помечается. Нет строк - код 5 (не «Готово»).
+ $is03 = ($Label -cmatch '^hand_(center|camera_over|back8)$')
+ $noJoint = $false
++$jrMap = @()
+ if ($is03) {
+     $hzLine = @(BB-PickLines $raw 'SUMMARY' | Where-Object { $_ -cmatch '^SUMMARY markers_used msgs=\d+ .* hz_all=([0-9]+(\.[0-9]+)?)\s*$' }) | Select-Object -First 1
+     $detHz = $null; if ($hzLine -and $hzLine -cmatch ' hz_all=([0-9]+(\.[0-9]+)?)\s*$') { $detHz = [double]::Parse($Matches[1], [Globalization.CultureInfo]::InvariantCulture) }
+     if ($null -ne $detHz) { $sum.Add('ЧАСТОТА ДЕТЕКТОРА: ' + $detHz.ToString('0.0#', [Globalization.CultureInfo]::GetCultureInfo('ru-RU')) + ' кадр/с (по /aruco_detect/markers_used)') }
+     else { $sum.Add('ЧАСТОТА ДЕТЕКТОРА: нет данных - сообщений /aruco_detect/markers_used за замер не было (детектор спал или не запущен)') }
+     $sum.Add('В1.1 проверялся в Gazebo при 6,1 кадр/с; любое число заметно ≠ 6,1 — сказать владельцу до полёта')
+-    $jr = @($raw -split "`r?`n" | Where-Object { $_.StartsWith('J ') -and $_ -cmatch 'joint (PnP )?rms median' })
+-    $sum.Add('JOINT RMS (строки детектора «joint rms median» за замер): ' + $jr.Count)
+-    foreach ($l in $jr) { $sum.Add('  ' + $l) }
+-    if ($jr.Count -eq 0) { $noJoint = $true; $sum.Add('НЕТ ДАННЫХ JOINT RMS = НЕ ЛЕТАТЬ ДО РЕШЕНИЯ ВЛАДЕЛЬЦА') }
++    $jrAll = BB-PickLines $raw 'JR'
++    $jr = @($jrAll | Where-Object { $_ -cmatch 'joint (PnP )?rms median' })
++    $jrMap = @($jrAll | Where-Object { $_ -cmatch 'MAP != FIELD\?' })
++    $jrNoLog = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^JR_NOLOG\s*$' })
++    $jrNote = @($raw -split "`r?`n" | Where-Object { $_ -cmatch '^JR_NOTE ' })
++    $jrCnt = @(BB-PickLines $raw 'JR_COUNT' | Where-Object { $_ -cmatch '^JR_COUNT \d+\s*$' })
++    $jrCut = @(BB-PickLines $raw 'JR_CUT' | Where-Object { $_ -cmatch '^JR_CUT shown=\d+ total=\d+\s*$' })
++    $sum.Add('JOINT RMS (строки детектора «joint rms median» из /tmp/bumblebee.log за замер): ' + $jr.Count)
++    if ($jrCut.Count -gt 0 -and $jrCut[0] -cmatch '^JR_CUT shown=(\d+) total=(\d+)') { $sum.Add('  ВЫВОД ОБРЕЗАН: на Pi показаны первые ' + $Matches[1] + ' из ' + $Matches[2] + ' строк детектора про joint rms (остальные - только в /tmp/bumblebee.log на Pi)') }
++    if ($jrNote.Count -gt 0) { $sum.Add('  журнал стека /tmp/bumblebee.log стал короче, чем до замера (перезапуск стека?): прочитан весь (JR_NOTE)') }
++    foreach ($l in $jrAll) { if ($l -cmatch 'MAP != FIELD\?') { $sum.Add('  >>> MAP != FIELD? >>> ' + $l) } else { $sum.Add('  ' + $l) } }
++    if ($jrMap.Count -gt 0) { $sum.Add('MAP != FIELD? - детектор считает, что карта меток не совпадает с полем; строк: ' + $jrMap.Count + '. Сказать Claude до полёта.') }
++    if ($jrNoLog.Count -gt 0) { $noJoint = $true; $sum.Add('  журнал стека /tmp/bumblebee.log на Pi не найден или его размер до замера не прочитан (JR_NOLOG)') }
++    elseif ($jrCnt.Count -eq 0) { $noJoint = $true; $sum.Add('  скрипт Pi не прислал строку JR_COUNT - журнал /tmp/bumblebee.log не прочитан') }
++    if ($jr.Count -eq 0) { $noJoint = $true }
++    if ($noJoint) { $sum.Add('НЕТ ДАННЫХ JOINT RMS = НЕ ЛЕТАТЬ ДО РЕШЕНИЯ ВЛАДЕЛЬЦА') }
+ }
+ $ev = BB-PickLines $raw 'EVENT'
+ $sum.Add('События во время замера: ' + $ev.Count)
+@@ -76,13 +92,22 @@
+ foreach ($l in ($smp | Select-Object -First 3)) { $sum.Add('  ' + $l) }
+ $jl = @($raw -split "`r?`n" | Where-Object { $_.StartsWith('J ') })
+ $sum.Add('Строки журнала bumblebee за время замера: ' + $jl.Count)
++# r17a: обрезка помечается - на Pi (head -80, строка J_CUT) и в сводке (первые 40)
++$jCut = @(BB-PickLines $raw 'J_CUT' | Where-Object { $_ -cmatch '^J_CUT shown=\d+ total=\d+\s*$' })
++if ($jCut.Count -gt 0 -and $jCut[0] -cmatch '^J_CUT shown=(\d+) total=(\d+)') { $sum.Add('  ВЫВОД ОБРЕЗАН: на Pi показаны первые ' + $Matches[1] + ' из ' + $Matches[2] + ' строк журнала') }
++if ($jl.Count -gt 40) { $sum.Add('  ВЫВОД ОБРЕЗАН: в сводке первые 40 из ' + $jl.Count + ', все - в сыром файле') }
+ foreach ($l in ($jl | Select-Object -First 40)) { $sum.Add('  ' + $l) }
+ [IO.File]::WriteAllText($sumFile, (($sum -join "`r`n") + "`r`n"), (BB-Utf8NoBom))
+ Write-Host ''
+-foreach ($l in $sum) { Write-Host $l }
++foreach ($l in $sum) { if ($l.StartsWith('  >>> MAP != FIELD?') -or $l.StartsWith('MAP != FIELD?')) { Write-Host $l -ForegroundColor White -BackgroundColor Red } else { Write-Host $l } }
+ Write-Host ''
+ if ($is03) { Write-Host ('  ' + (@($sum | Where-Object { $_.StartsWith('ЧАСТОТА ДЕТЕКТОРА: ') })[0]) + '. В1.1 проверялся в Gazebo при 6,1 кадр/с; любое число заметно ≠ 6,1 — сказать владельцу до полёта.  ') -ForegroundColor Black -BackgroundColor Yellow; Write-Host '' }
+-if ($noJoint) { Write-Host '  НЕТ ДАННЫХ JOINT RMS = НЕ ЛЕТАТЬ ДО РЕШЕНИЯ ВЛАДЕЛЬЦА (в журнале детектора нет строк «joint rms median»).  ' -ForegroundColor White -BackgroundColor Red; Write-Host '' }
++if ($jrMap.Count -gt 0) { Write-Host ('  MAP != FIELD? - детектор ' + $jrMap.Count + ' раз(а) написал, что карта меток не совпадает с полем. Сказать Claude до полёта.  ') -ForegroundColor White -BackgroundColor Red; Write-Host '' }
+ Write-Host ('Сводка: ' + $sumFile)
+ Write-Host ('Сырые данные: ' + $rawFile)
++if ($noJoint) {
++    Write-Host ''
++    Write-Host '  НЕТ ДАННЫХ JOINT RMS = НЕ ЛЕТАТЬ ДО РЕШЕНИЯ ВЛАДЕЛЬЦА (в /tmp/bumblebee.log за замер нет строк детектора «joint rms median»). Журнал записан.  ' -ForegroundColor White -BackgroundColor Red
++    exit 5
++}
+ exit 0
+# новые файлы (нет в r17):
+74b3611d30676e5a5d8cbabba269f3e778320c72cf6f99f5a123470c38b8b1b5  README_r17a.md
+1698905b1612739094360356004f49bc780045708cb14482124b5452c9314b6f  proverka_r17a/kontrol_1431_svodka.txt
+06904a2af1311c38ff6179452b300e79264b243a9cbc331e245acb41f0a60dc5  proverka_r17a/kontrol_1439_povtor_X3_X4_X16_X17_X19_svodka.txt
+ca4635211609e5fa6454c59bffd3631da057976f45aa39e1878aae2c29305c41  proverka_r17a/kontrol_oslablenij_r17a.ps1
+8f5f26ae009119aec9b856aab25a5df97c1026b442d879a8ac860c81e2546187  proverka_r17a/progon1_polnyj_1406/tests_r11_pc_console.txt
+a50b5d5738199996049163dd10d52b1c5d31f1a180c3c000ed035a7b7d5f7f99  proverka_r17a/progon1_polnyj_1406/tests_r11_pi_console.txt
+54ac8f30cac0ad207d923a45ac76f26621106a5282e85e211d9ca2cbaccc061e  proverka_r17a/progon1_polnyj_1406/tests_r13_pc_console.txt
+745e000c0090cda0a39c8be9d23b3e0dfbdd6415332cc54942199414d495d8c5  proverka_r17a/progon1_polnyj_1406/tests_r13_pi_console.txt
+7ecfe18b145e0c145e9f3b22472d9127ac1dd03a75244d3906aaddb8b6b03a74  proverka_r17a/progon1_polnyj_1406/tests_r14_pc_console.txt
+bc81cfcc78e76ad8bc62746c022b381034204f0318f62ec7963f2cd09b1f8477  proverka_r17a/progon1_polnyj_1406/tests_r14_pi_console.txt
+cc2eae35e47ab888cbedf55d91e035ad6a43d77146bfebdcf9b1f3f34da24657  proverka_r17a/progon1_polnyj_1406/tests_r16_pc_console.txt
+f3fa7c44aed1b17f4acf257eed2aa44e16f1e694b95e4215faa28da38138df14  proverka_r17a/progon1_polnyj_1406/tests_r16_pc_stderr.txt
+d99ffd2cdb78532e541afbaa6501f1b3460d51c8845cdb627d68440680a046ec  proverka_r17a/progon1_polnyj_1406/tests_r16_pi_console.txt
+bbfeff1bea874024a0a6c1664c3b7aba133cda8beb02042927b4dccffdbebe36  proverka_r17a/progon1_polnyj_1406/tests_r17_pc_console.txt
+170b36800aa9d4b8dbc6d914e08bad3fa599830ef75266a38af118bfca2edde1  proverka_r17a/progon1_polnyj_1406/tests_r17_pi_console.txt
+06afd8c0dcd5f67cb22d38a5ea2d6feb1880694b52386072033f18ec2d3b00af  proverka_r17a/progon1_polnyj_1406/tests_r17a_pc_console.txt
+376bb2c7b050a2905a6eecfe166f68fe4830a45d53e491992015228f785155b5  proverka_r17a/progon1_polnyj_1406/tests_r17a_pi_console.txt
+0ea014c95730cf82ebb2d735a69269832bf96ee8b780cdc2e6e496d4d3b546aa  proverka_r17a/progon1_polnyj_1406/tests_r5_bench_console.txt
+12ec8227eb2ba37df99b2532bfa4425aa715f9e5bbf81114e208f208500a0063  proverka_r17a/progon1_polnyj_1406/tests_r5_image_console.txt
+18cde5d51e3d593c737cee4dfbfb28c6c22c1dfb9569a5a49cc934cf0405d810  proverka_r17a/progon1_polnyj_1406/tests_r5_pi_console.txt
+2bbfcda9872ba494cddc07142d56b6f7b5fca5db8ae7aa7e8e4f2f29d0e1a2e0  proverka_r17a/progon1_polnyj_1406/tests_r6_pc_console.txt
+910426fb3eb33144840e7987d6eefbc2275a33cd2840b921ae885e6226786b49  proverka_r17a/progon1_polnyj_1406/tests_r6_pi_console.txt
+2fbc65cd186dc231426232de83bd91d20146347d30cc8d4208b28f1975ce591c  proverka_r17a/progon1_polnyj_1406/tests_r7_pc_console.txt
+01c80517ab0119aa8660b3b033bc2605265c3a5d0d26ac368edb689dde011fcf  proverka_r17a/progon1_polnyj_1406/tests_r7_pi_console.txt
+c67ba4b1c923bffc63b3767b45a4011bcadb1eff717f94dc2043b353f59942fc  proverka_r17a/progon1_polnyj_1406/tests_r8_pc_console.txt
+ac67886c9ce083086856f00df3b9d9863c09804ccd486ad177205ad0efdd58c0  proverka_r17a/progon1_polnyj_1406/tests_r8_pi_console.txt
+b1ea5be660c695735d0d56b0a87cff372d04a604c685410456de76ff63db06c7  proverka_r17a/progon1_polnyj_1406/tests_svodka.txt
+37376f88da246810e4f0e5d5a22b6deaf790108fea5f0a2a9572e385694d0cf9  proverka_r17a/progon2_tolko_r17a_1438/tests_r17a_pc_console.txt
+90a0dee8eb4118c91e8712d6f686a13ce13daf5f71d369015ddff04273cbe3d6  proverka_r17a/progon2_tolko_r17a_1438/tests_r17a_pi_console.txt
+b462263f63fa9094d13e782e454ee03646d59e5e680601faafd9063c1cee257f  proverka_r17a/run_all_tests_r17a.ps1
+5a1ede45db74ec57e61cd0bb94673733a86e80933d43c70cc3ca46f6930ae0e0  tests/r17a_wsl_vm.sh
+1bb13a6f84ac1247dda055dc47235caf2c5aa8f923c91ea2c85879049cf267e4  tests/run_tests_r17a.ps1
+6d6d73d311757c178a62f5c7d0672ab664dc2f512aea9490d35ac49eccdae792  tests/run_tests_r17a_pi.sh

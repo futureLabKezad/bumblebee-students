@@ -1,0 +1,78 @@
+PASS K1 список r6 лежит в _aside, sha256 = 7498ee24... (SHA256SUMS принятого r6)
+PASS K2 все 235 файлов r6 есть в r7
+PASS K3 файлы r6 в r7 байт в байт как в r6, кроме README.md и PROGRESS.md (раздел r7 сверху)
+PASS K4 новых файлов в r7 - только ожидаемые (payload по манифесту, шаг 25, BACKUP_ROOT, тесты, proverka_r7, суммы)
+PASS K5 папка out\ в r7 есть и пуста (ответы сессии лягут сюда)
+PASS R1 01 из r7 находит набор r4 рядом (C:\Users\User\Documents\Claude local\kit_20261109_r4\params_check\params_check.cmd): шаг 3 не даст СТОП «нет набора r4 рядом»
+PASS R2 набор r7 лежит рядом с r6 и kit_20261109_r4 (не внутри СЕССИЯ_20261113)
+PASS P1 манифест: UTF-8 без BOM, только LF, без TBD; 63 строки «путь<TAB>sha256» (режим не задан, как у r2h)
+PASS P2 пути без «..», «.», «//», пробелов и «\», не абсолютные; каждый путь один раз; строки отсортированы (по байтам, как sorted() сборщика)
+PASS P3 payload = ровно строки манифеста (плюс README.md r6): лишних и недостающих нет
+PASS P4 sha256 каждого файла payload = строке манифеста
+PASS P5 fcu_detect.py нет ни в манифесте, ни в payload (на дроне остаётся исправленный 5932a00a)
+PASS P6 flight.py Ж3 (b69cc5e7..., FLIGHT_PY_SHA256) - ровно ros2_ws/src/bumblebee/examples/flight/flight.py
+PASS P7 hover r6 (a11b195c..., HOVER_R6_SHA256) - examples/hover_marker0.py
+PASS P8 camera_fix.py ровно один: src/python, камера по умолчанию 4a15d699 (не вариант dabd5076)
+PASS P9 все 5 исходников MAVROS bp02 (sha256_bp02) - справочная копия image_r2j_ref/mavros_bp02_d63a236/ (вне ~/bench_ws)
+PASS P10 все прочие пути - только ros2_ws/src/bumblebee/... (DEST_ROOT=/home/lb)
+PASS P11 образ r2j доступен для сверки: \\wsl.localhost\Ubuntu-24.04\work\fixed_image_r2j_20261111; sha256 SHA256SUMS = 14fbcf74..., image_manifest_r2.tsv = 0c02e391...
+PASS P12 файлы payload из образа байт в байт = src образа r2j, и sha = колонке sha256_fixed_image его манифеста (57 файлов)
+PASS P13 полнота: все строки образа под drone/ros2_ws/src/, которые r2j меняет или добавляет против дрона a45a264 (56), есть в манифесте
+PASS P14 из строк, равных на дроне и в r2j, в манифесте только camera_fix.py по умолчанию (явно, как в r2h)
+PASS P15 не из манифеста образа - только hover r6 и 5 исходников MAVROS
+PASS P16 в образе fcu_detect.py: колонка образа = исправленный 5932a00a, а в src лежит прежний ee174fd1 - поэтому он не ставится
+PASS P17 hover r6 в payload байт в байт = /work/c6_hover_script_r6_20261110/hover_marker0.py
+PASS P18 исходники MAVROS в payload байт в байт = /work/ws_mavros214_bp02/src/mavros-source (тег backport-02)
+PASS P19 CPP_SOURCES_r2j.tsv: все 5 строк R (пересборка) в payload с той же sha; ни одна строка списка не лежит в payload с другой sha
+PASS P20 RUNTIME_PY_r2j.tsv: launch-файлы в payload с той же sha (bumblebee, main_camera, second_camera, mavros_scoped_config), строка FCU не в payload
+PASS P21 INSTALL_SHA256_r2j.txt: aruco_detect.py, vpe_fix.py, setpoint_freshness.py, camera_fix.py в payload src/python с той же sha
+PASS P22 PAYLOAD_SOURCES_r2j.tsv = манифесту (63 строки): changed 13, new 43, camera 1, hover 1, MAVROS 5
+PASS P23 NOT_IN_PAYLOAD_r2j.txt: fcu_detect (1), 48 файлов вне ros2_ws/src, 274 равных на дроне
+PASS T0 в PATH первыми стоят подделки ssh и scp (настоящий OpenSSH в тестах не вызывается)
+PASS G1 настоящий r7 (без копии): гейт 05 отказывает: нет флага S2/S3, нет сверки, BACKUP_ROOT (TBD); про манифест и payload замечаний нет
+PASS G2 копия r7, свежая сверка: отказ ровно по двум причинам - нет флага S2/S3 и BACKUP_ROOT (TBD)
+PASS G3 та же копия + флаг теста на sha этого манифеста: отказ ТОЛЬКО по BACKUP_ROOT (TBD) - без строки владельца 05 не пойдёт
+PASS G4 та же копия + BACKUP_ROOT в копии: гейт 05 = код 0 (манифест и payload r7 проходят все проверки состава: flight.py, hover r6, камера, MAVROS, без fcu_detect)
+PASS G5 контроль: изменённый файл payload (drone.py) - гейт 05 отказывает (sha не сходится)
+PASS G6 гейт варианта камеры (05c/06c), режим install, настоящий r7: отказ, среди причин - BACKUP_ROOT (TBD)
+PASS G6 гейт варианта камеры (05c/06c), режим rollback, настоящий r7: отказ, среди причин - BACKUP_ROOT (TBD)
+PASS G7 05 из песочницы r7 с флагом теста и свежей сверкой, BACKUP_ROOT = TBD: код 1, «условия не выполнены», к дрону не обращались (ни ssh, ни scp)
+PASS B1 image_r2j\image_target.conf r7 = r6 байт в байт: ровно одна строка BACKUP_ROOT=TBD и DEST_ROOT=/home/lb
+PASS B2 значение BACKUP_ROOT задаётся только в image_r2j\image_target.conf (05, 06, 05c, 06c читают эту одну строку)
+PASS B3 backup_root_r7.ps1 без ключей на настоящем r7: код 1 «не задан (TBD)», файл не изменён
+PASS B4 -Set с негодным значением (11 случаев: /tmp, DEST_ROOT, ros2_ws, bench_ws, относительный, пробел, ;, .., / в конце, короткий, $()): код 2, файл тот же
+PASS B5 -Set без слов владельца: код 2, файл тот же
+PASS B6 -Set по слову владельца (на копии): код 0, изменилась ровно одна строка (BACKUP_ROOT=/home/lb/bb_backup), прежний файл в _aside_conf_*, запись со словами и sha до/после
+PASS B7 после записи: проверка - код 0 «задан и годен»; второй -Set - отказ (код 2, менять только новым решением владельца)
+PASS B8 копия после -Set + флаг теста: гейт 05 = код 0 (строка, записанная инструментом, гейт проходит)
+PASS B9 две строки BACKUP_ROOT= в файле: проверка - код 2 «должна быть ровно одна»
+PASS N1 25: UTF-8 без BOM, CRLF; строки 1-2 @echo off и chcp 65001; первая строка «ТОЛЬКО ЧТЕНИЕ:», про моторы, без < > | & ^ % и без скобок
+PASS N2 25: проверка имени ПК и файлов до запуска; нет ssh, scp, sudo; один set /p; каждый вызов run_r7_metki.ps1 со вводом из nul (4 фазы)
+PASS N3 25: чужой ПК - код 4, к дрону не обращались
+PASS N4 25: на связи не bumblebee-20ec - код 4, скрипт на Pi не послан
+PASS N5 25: детектор спит (msgs=0 за 4 с) - код 6 НЕ ПРОВЕРЕНО, точки не записывались (2 вызова: имя дрона и проверка), вердикт NOT_CHECKED
+PASS N6 25: на Pi ушёл ровно pi\r7_marker_ids.sh (тот же текст, LF) с аргументами «pre 4 pre»; первая строка сводки - ТОЛЬКО ЧТЕНИЕ
+PASS N7 25: дрон взведён - код 3 НЕ НАЧАТО, вердикт NOT_STARTED, точки не записывались
+PASS N8 25: детектор работает, 4 точки только с номером 0 - код 0, ONLY_ID0; перед каждой точкой снова проверка имени дрона
+PASS N9 25: аргументы на Pi «rec 10 p00cm» ... «rec 10 p15cm»; сырые ответы каждой точки - в out\metki_nomera_*_pNNcm.txt
+PASS N10 25: в точке 10 см номер 38 - код 5, FALSE_ID, строка точки «ЛОЖНЫЙ НОМЕР: номер 38 — 7 раз», в окне ЛОЖНЫЙ НОМЕР
+PASS N11 25: набрано не то число перед точкой 5 см - запись остановлена: код 6, NOT_CHECKED, записана только точка 0 см
+PASS N12 25: ложный номер 9 в 5 см, потом остановка (ввод кончился) - код 5 FALSE_ID (ложный номер не теряется)
+PASS N13 25: в точке 15 см детектор не выдал ни одного сообщения - код 6 NOT_CHECKED (не «только 0»)
+PASS N14 25: в точке 5 см кадры есть, а метка 0 ни разу не прочитана - код 0 с пометкой (это не ложный номер)
+PASS N15 25: в ответе Pi строк MN_MSG не столько, сколько msgs в MN_END - код 4, ERROR (не «только 0»), дальше не пошли
+PASS N16 25: ответ проверки без BB_R7MN_DONE - код 4, сырой ответ переименован в .FAILED.txt
+PASS N17 25: на Pi нет aruco_pose (MN_ERROR) - код 4, ERROR
+PASS N18 25: файл ответа этой метки времени уже есть - код 4, «не перезаписываю», к дрону не обращались
+PASS N19 25: метка -Stamp не ГГГГММДД_ЧЧММСС - код 4, к дрону не обращались
+PASS N20 run_r7_metki.ps1: первая строка ТОЛЬКО ЧТЕНИЕ; BB-AssertPc и отказ перезаписи до обращения к дрону; BB-TestDrone до скрипта Pi; scp нет
+PASS N21 25: фаза rec без удачной проверки (нет сводки) - код 4, к дрону не обращались
+PASS N22 25: точка 5 см раньше точки 0 см - код 4 (порядок 0, 5, 10, 15), к дрону не обращались
+PASS N23 25: сдвиг не 0/5/10/15 - код 4, к дрону не обращались
+PASS N24 25: итог при одной записанной точке из 4 - код 4, ERROR (не «только 0»)
+PASS N25 25: после итога сводка закрыта - фаза stop ничего не дописывает, код 4
+PASS S1 кодировки новых файлов (67): .ps1 с BOM, .sh только LF, .cmd CRLF без BOM (как требуют тесты r5 S4 и r6 S1)
+PASS S2 мои новые файлы (9, кроме тестов и payload): нет pgrep, pkill, killall вне комментариев (правило 13)
+PASS S3 мои новые файлы: нет адреса дрона, паролей, ключей, адресов почты (адрес дрона - только в lib\bb_common.ps1 r6)
+PASS S4 payload (48 файлов кода из образа): нет pgrep -f / pkill -f и адреса дрона (их ловят и тесты r6 S7b/S8)
+ИТОГ r7: PASS 77, FAIL 0

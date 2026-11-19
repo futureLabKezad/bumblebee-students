@@ -1,0 +1,11 @@
+# Launch-файлы и fcu_detect.py для сверок 09c и 15c варианта «r2j + камера полных строк» (создан gen_lists_r2jcam.py, 2026-11-12 20:10:55).
+# Это RUNTIME_PY_r2j.tsv (sha256 440b41d29ce8a10a4f9743864d14a3b3d9cfd29115b175a1a2f6f39ba957096a) с ОДНОЙ заменённой строкой: launch/bumblebee.launch.py 62be01db -> 5f0954d8 (full_rows: главная True, вторая False).
+# Колонки: sha256 TAB вид TAB путь (LAUNCH: <install>/share/bumblebee/<путь>; FCU: путь от HOME, исправленный fcu_detect 5932a00a, как в r2j).
+9b146360c193cbcd8791c17d6a9ab97333267d93e11efae4484d47fdac21af9e	LAUNCH	launch/aruco.launch.py
+5f0954d82ba7b8034e169fa60c99edd8cd501921e923faa5f10f795ccf388294	LAUNCH	launch/bumblebee.launch.py
+af918808e7f3de0c081b13d456d77981c86c10f460db08dc908e16b24e9af9a8	LAUNCH	launch/led.launch.py
+c11080f1daaf3eb7e0d849032e036cb971ed0f4cbb2dfc52f3f45c38027842dc	LAUNCH	launch/main_camera.launch.py
+c4f578a0c9630b8ab375a97b04ccb1df352c2402a81e21fab48678f67ee3b5da	LAUNCH	launch/mavros_scoped_config.py
+ba60175962087d71949dafeec1829442c2bffda2ab27e514930c7b31204ecf27	LAUNCH	launch/second_camera.launch.py
+8d064649a966b9e8591b4dd0de6915d386728ef592e1d9b82848208df8aafc66	LAUNCH	launch/simulator.launch.py
+5932a00afc79e421a7bb26a7e84564cf106afdcbc009642c7e872ab86b839bf5	FCU	ros2_ws/src/bumblebee/scripts/fcu_detect.py

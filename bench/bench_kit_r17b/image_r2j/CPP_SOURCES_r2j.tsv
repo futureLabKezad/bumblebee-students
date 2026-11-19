@@ -1,0 +1,17 @@
+# C++ исходники и файлы сборки пакета bumblebee из образа r2j (колонки: sha256_fixed_image, путь относительно DEST_ROOT=/home/lb, R = r2i меняет файл против образа на дроне a45a264: нужна пересборка пакета на Pi). Источник: /work/fixed_image_r2j_20261111/image_manifest_r2.tsv (sha256 файла манифеста: 0c02e391c6763ec24aba026512a4caf89e348f3a3507a637423c0d665a345c33). Создан генератором gen_lists_from_manifest.py. ПЛЮС скрипты полёта examples/ образа с флагом «-» (drone.py, flight.py, flight_marker.py, flight_marker_loop.py, flight_profile.py): их sha256 на Pi и в копии оверлея тоже обязаны совпасть, потому что скрипты полёта берут drone.py оттуда (sys.path.insert).
+f4b45d19dd6a62d58490724fcafcfe56ee45bc1963838b671d17d333bf70d59a	ros2_ws/src/bumblebee/CMakeLists.txt	R
+c71fbd601a3407781f72621f194e672929e2847b1797ef13fee49a04a11014f1	ros2_ws/src/bumblebee/package.xml	R
+07cd942165f6da4e92d9774a71815604134067d978e5bcf14ff3d8db2d101f86	ros2_ws/src/bumblebee/src/cpp/camera_markers.cpp	-
+8e3e061882597c5699f14289a0c7d3e865bceb0bb593b5f469b3c48449f0f9bd	ros2_ws/src/bumblebee/src/cpp/led.cpp	-
+c9b0685af9741260d439a1f23abb23c8790b260d48779ffc21fecd2aa4541115	ros2_ws/src/bumblebee/src/cpp/optical_flow.cpp	-
+7f050d59ec5b16d52f0c3f9ae0acfd915bf67b0bb428f96235cfdbb2dfe01e8b	ros2_ws/src/bumblebee/src/cpp/rc.cpp	-
+38337d2a12edd59c162c250d3967b6b6c7b0d8973ccb1b9b9a18642f07c333ae	ros2_ws/src/bumblebee/src/cpp/script_lease.h	R
+da38424f0c46e9b708dddf58678595a9dafa23d9c64dd8147976ae9dc237c143	ros2_ws/src/bumblebee/src/cpp/shell.cpp	-
+0d22da25fabb2fc482edef3189117f8a910d1917c8f34929a64b31049d9e1f96	ros2_ws/src/bumblebee/src/cpp/simple_offboard.cpp	R
+fe1ae55da7370547b5deede42db605fbfde54a20a6fbd658f1f9bec99b2c318c	ros2_ws/src/bumblebee/src/cpp/state_link.h	R
+ce30558836938f8176c738eaa95c49a4194cbc8454bf4f543e63305982616f81	ros2_ws/src/bumblebee/src/cpp/vpe_publisher.cpp	-
+fa6abf8b545b356ecdd5291417625ee77b58ef862fe7f3b00486dc8ef72d0c9c	ros2_ws/src/bumblebee/examples/drone.py	-
+b69cc5e72509bbe2f141e48844b999e3a046ac6a78d28484239536b426c807b3	ros2_ws/src/bumblebee/examples/flight/flight.py	-
+1e0063fb3557a516767122a3031d38678be10e58efb2cc07a3e83df538e529fb	ros2_ws/src/bumblebee/examples/flight/flight_marker.py	-
+7f36db429eb26f7e878aa16ee7998b883eeaa00e184b5a5c5dc07544318e1d1d	ros2_ws/src/bumblebee/examples/flight/flight_marker_loop.py	-
+5b8e2a12a91445a1aba867fc22d84a8fd884a50ebd835da008a31c737633695b	ros2_ws/src/bumblebee/examples/flight_profile.py	-

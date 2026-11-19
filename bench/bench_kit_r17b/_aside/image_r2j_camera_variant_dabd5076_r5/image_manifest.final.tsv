@@ -1,0 +1,2 @@
+# Вариант камеры (только если владелец выберет). Путь относительно DEST_ROOT: как у остальных файлов образа r2j без префикса drone/ (подтверждает чат 1 вместе с DEST_ROOT).
+ros2_ws/src/bumblebee/src/python/camera_fix.py	dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83

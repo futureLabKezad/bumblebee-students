@@ -1,0 +1,5 @@
+# Вариант «r2j + камера полных строк» (r2jf): путь от DEST_ROOT=/home/lb TAB sha256 [TAB режим]. src - для будущих сборок, install оверлея r2j - то, что исполняется.
+ros2_ws/src/bumblebee/src/python/camera_fix.py	dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83
+ros2_ws/src/bumblebee/launch/bumblebee.launch.py	5f0954d82ba7b8034e169fa60c99edd8cd501921e923faa5f10f795ccf388294
+bench_ws/r2j/install/bumblebee/lib/bumblebee/camera_fix.py	dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83	755
+bench_ws/r2j/install/bumblebee/share/bumblebee/launch/bumblebee.launch.py	5f0954d82ba7b8034e169fa60c99edd8cd501921e923faa5f10f795ccf388294

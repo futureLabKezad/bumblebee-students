@@ -1,0 +1,4 @@
+источники OK: образ r2j SHA256SUMS 14fbcf74 (строк 4 сходятся), MANIFEST_SHA256.txt (строк 572 сходятся), image_manifest_r2.tsv 0c02e391; hover r6 a11b195c (его SHA256SUMS.txt, строк 8 сходятся)
+списки набора: CPP_SOURCES 10 в payload + 6 равны на дроне; RUNTIME launch 4 в payload + 3 равны на дроне; FCU не в payload; python-узлы INSTALL_SHA256 4 в payload + 6 равны на дроне; required_shas.txt = константы сборщика
+payload: 63 файлов {'changed': 13, 'new': 43, 'camera': 1, 'hover': 1, 'MAVROS': 5}; не в payload: fcu 1, равных 274, вне ros2_ws/src 48; строк в манифесте образа 380
+image_manifest.final.tsv sha256 3431f12500f1a1de623668130ddd53d580f16de85d276422f91bf37543c8dbed (строк файлов: 63)

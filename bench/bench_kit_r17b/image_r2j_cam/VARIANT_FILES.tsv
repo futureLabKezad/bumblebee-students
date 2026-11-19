@@ -1,0 +1,5 @@
+# Места на Pi, которые меняет вариант (путь от HOME=/home/lb) TAB sha256 r2j (до) TAB sha256 варианта (после). Создан gen_lists_r2jcam.py, 2026-11-12 20:10:55.
+ros2_ws/src/bumblebee/src/python/camera_fix.py	4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310	dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83
+ros2_ws/src/bumblebee/launch/bumblebee.launch.py	62be01dbb13305bca321d538690252863dedadb8a376e65e54d9f6c15116bf15	5f0954d82ba7b8034e169fa60c99edd8cd501921e923faa5f10f795ccf388294
+bench_ws/r2j/install/bumblebee/lib/bumblebee/camera_fix.py	4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310	dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83
+bench_ws/r2j/install/bumblebee/share/bumblebee/launch/bumblebee.launch.py	62be01dbb13305bca321d538690252863dedadb8a376e65e54d9f6c15116bf15	5f0954d82ba7b8034e169fa60c99edd8cd501921e923faa5f10f795ccf388294

@@ -1,0 +1,10 @@
+# Источник варианта «r2j + камера полных строк» (создан gen_lists_r2jcam.py, 2026-11-12 20:10:55 по часам ПК).
+образ: /work/fixed_image_r2jf_20261112
+sha256 файла SHA256SUMS образа: fecff13322dcf885781cbafe9815e12ba7f677810c657171d6593f525f3493ae (строк 2306)
+sha256 image_manifest_r2.tsv образа: 121a227aac420cd6cbb80381551d599f7f4763f26df04685c3bbec913bda6e94
+camera_fix.py (src и install образа): dabd507659933d082541069cbeed4fab5a8bab814a26ea5fef249e3dcb214e83
+bumblebee.launch.py (src и install/share образа): 5f0954d82ba7b8034e169fa60c99edd8cd501921e923faa5f10f795ccf388294
+r2j: camera_fix.py 4a15d6997ff14752e6228b5c55cbc4665428c692b305fc25eb0e8cc26d9e1310, bumblebee.launch.py 62be01dbb13305bca321d538690252863dedadb8a376e65e54d9f6c15116bf15
+проверено: остальные python-узлы (9) и launch-файлы (6) install образа r2jf равны спискам r2j набора
+INSTALL_SHA256_r2j.txt sha256 9059848023f201972f87fc512d12fd5737d1989bb49689412d09142d0463a315; RUNTIME_PY_r2j.tsv sha256 440b41d29ce8a10a4f9743864d14a3b3d9cfd29115b175a1a2f6f39ba957096a
+из образа взяты только два файла; его setup.sh и прочее install НЕ используются (проверка v14 R, П4: POSIX setup.sh r2jf указывает на install r2j)

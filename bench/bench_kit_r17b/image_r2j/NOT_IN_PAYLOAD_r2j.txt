@@ -1,0 +1,106 @@
+# строки image_manifest_r2.tsv (0c02e391) не в payload и почему
+drone/ros2_ws/src/bumblebee/scripts/fcu_detect.py	fcu_detect: на дроне остаётся исправленный 5932a00a (правило набора, чат 1 10.11 22:00; на дроне 12.11: 5932a00a)
+drone/README.md	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/VERSION	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/image/make_release_image.sh	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/image/ssh-hostkeys.conf	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/image/verify_release_image.sh	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/apt/99-bumblebee-no-auto-upgrades	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/camera/camera_info/main_camera_320x240.yaml	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/camera/camera_info/main_camera_640x480.yaml	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/camera/camera_info/main_camera_640x96.yaml	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/camera/camera_info/main_camera_960x720.yaml	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/camera/camera_info/second_camera_320x240.yaml	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/camera/ov5647_aruco.json	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/i2c_recover.sh	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/mavros_params.yaml	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/networkmanager/conf.d/zz-bumblebee-wifi-powersave.conf	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/networkmanager/dispatcher.d/90-bumblebee-identity	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/networkmanager/dispatcher.d/99-hotspot-fallback	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/nginx/bumblebee	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/profile.d/bumblebee-ros.sh	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/start_bumblebee.sh	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/sudoers.d/wifi-manager	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/sysctl.d/60-bumblebee-dds.conf	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/bumblebee-clock-jump.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/bumblebee-clock-jump.timer	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/bumblebee-identity-recheck.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/bumblebee-identity-recheck.timer	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/bumblebee-identity.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/bumblebee-ros-watchdog.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/bumblebee.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/bumblebee.service.d/delay.conf	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/bumblebee.service.d/stack-domain.conf	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/i2c-recover.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/led-default.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/notify-manager.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/ros-env.conf	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/sys_metrics.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/wifi-manager.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/systemd/wifi-watchdog.service	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/udev/50-ttyAMA0-dialout.rules	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/udev/99-bumblebee-cameras.rules	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/udev/99-i2c.rules	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/udev/99-px4fmu.rules	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/system/udev/99-serial.rules	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/tools/MANIFEST	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/tools/check_drone.sh	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/tools/deploy.sh	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/tools/install_on_drone.sh	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+drone/tools/make_bundle.sh	вне drone/ros2_ws/src/: рабочее место на дроне не DEST_ROOT/путь
+# плюс 274 строк под drone/ros2_ws/src/, где sha в колонке a45a264 == sha в r2j (из них 5 взяты в payload добавками v2)
+# v2: из них на НАСТОЯЩЕМ дроне (копия 12.11, FILES_SHA256.txt 17a7074704a3289e) не равны r2j и НЕ ставятся (54) - путь, sha на дроне, sha r2j, разбор по байтам home_lb.tar.gz:
+drone/ros2_ws/src/bumblebee/README.md	НА_ДРОНЕ_ИНАЧЕ	ff0dd773	82361b04	документ README пакета, на работу не влияет
+drone/ros2_ws/src/bumblebee/config/mavros_params.yaml	НА_ДРОНЕ_ИНАЧЕ	0bf384ca	abce12eb	копия в пакете (в r2j есть строка play_tune); launch r2j берёт /home/lb/mavros_params.yaml (на дроне = r2j), CMakeLists r2j config не ставит
+drone/ros2_ws/src/bumblebee/examples/animations/__init__.py	НА_ДРОНЕ_ИНАЧЕ	e3b0c442	edac1e77	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/flight/aruco_z_test.py	НА_ДРОНЕ_ИНАЧЕ	0aa4a161	44963213	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/flight/example_flight.py	НА_ДРОНЕ_ИНАЧЕ	eb5acdf2	80667d48	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/flight/navigate_wait.py	НА_ДРОНЕ_ИНАЧЕ	b5c99cc5	94344bb7	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/flight/red_circle.py	НА_ДРОНЕ_ИНАЧЕ	8164fc26	d0e2a5ec	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/camera.py	НА_ДРОНЕ_ИНАЧЕ	96585ef6	69d699f6	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/check_aruco.py	НА_ДРОНЕ_ИНАЧЕ	d16f90bb	3d8d4ba5	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/get_telemetry.py	НА_ДРОНЕ_ИНАЧЕ	89c926ea	a3c2818b	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/gps.py	НА_ДРОНЕ_ИНАЧЕ	9a974112	29a52965	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/led_default.py	НА_ДРОНЕ_ИНАЧЕ	f3a94333	5af1d4e5	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/led_strip.py	НА_ДРОНЕ_ИНАЧЕ	7a228a59	d6ef3a40	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/motor_test.py	НА_ДРОНЕ_ИНАЧЕ	f0266cc2	ba1f7f7d	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/play_tunes.py	НА_ДРОНЕ_ИНАЧЕ	a2b04506	3c66c68d	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/preflight.py	НА_ДРОНЕ_ИНАЧЕ	058a506b	252f1d19	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/servo.py	НА_ДРОНЕ_ИНАЧЕ	8132e7ec	c285a9c0	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/set_params.py	НА_ДРОНЕ_ИНАЧЕ	4d02b510	30713139	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/subscriber.py	НА_ДРОНЕ_ИНАЧЕ	84c41b61	5da36d9e	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/examples/misc/wheel.py	НА_ДРОНЕ_ИНАЧЕ	3a8bc288	bfdceb4c	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/scripts/led_default.py	НА_ДРОНЕ_ИНАЧЕ	9f0077fc	a56a2642	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/scripts/set_origin.py	НА_ДРОНЕ_ИНАЧЕ	315772f4	c802edc0	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/scripts/tts_buzzer.py	НА_ДРОНЕ_ИНАЧЕ	a1202251	3ec8483a	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/scripts/wifi_5ghz_diag.sh	НА_ДРОНЕ_ИНАЧЕ	ed6ddbf2	896e0d30	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/scripts/wifi_fallback.sh	НА_ДРОНЕ_ИНАЧЕ	bb99908c	488c3477	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/src/autotest/autotest_aruco.py	НА_ДРОНЕ_ИНАЧЕ	8ea9cd13	8f2d1073	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/src/autotest/autotest_flight.py	НА_ДРОНЕ_ИНАЧЕ	0599ca7f	958b2e20	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/src/autotest/autotest_led.py	НА_ДРОНЕ_ИНАЧЕ	f28ac979	ad5b6809	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/src/autotest/util.py	НА_ДРОНЕ_ИНАЧЕ	4059634b	fe244069	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/src/bumblebee/__init__.py	НА_ДРОНЕ_ИНАЧЕ	2de23454	c486b13c	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/src/python/aruco_metrics_record.py	НА_ДРОНЕ_ИНАЧЕ	6fb564e2	de343340	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/test/basic.py	НА_ДРОНЕ_ИНАЧЕ	e82d9b58	428c7a57	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/test/offboard.py	НА_ДРОНЕ_ИНАЧЕ	470b2262	8b660de4	отличается только шапкой лицензии (комментарии), работа та же
+drone/ros2_ws/src/bumblebee/test/test_clock_jump.py	НА_ДРОНЕ_ИНАЧЕ	нет	23447396	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_fcu_detect.py	НА_ДРОНЕ_ИНАЧЕ	нет	4134fec9	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_install_on_drone.py	НА_ДРОНЕ_ИНАЧЕ	нет	ce766470	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_notify_manager.py	НА_ДРОНЕ_ИНАЧЕ	нет	f9afe248	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_ros_domain.py	НА_ДРОНЕ_ИНАЧЕ	нет	96b61877	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_ros_mjpeg_server.py	НА_ДРОНЕ_ИНАЧЕ	нет	dae860aa	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_ros_watchdog.py	НА_ДРОНЕ_ИНАЧЕ	нет	e623381d	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_set_identity.py	НА_ДРОНЕ_ИНАЧЕ	нет	fd123154	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_wifi_manager.py	НА_ДРОНЕ_ИНАЧЕ	нет	d3869f5d	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_wifi_manager_safety.py	НА_ДРОНЕ_ИНАЧЕ	нет	e3dc729b	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee/test/test_wifi_watchdog.py	НА_ДРОНЕ_ИНАЧЕ	нет	62afbb69	нет на дроне: тест (сборка 13 с BUILD_TESTING=OFF, на работу не влияет)
+drone/ros2_ws/src/bumblebee_bridge/launch/bumblebee_bridge.launch.py	НА_ДРОНЕ_ИНАЧЕ	e4bf0b33	eb2e8910	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)
+drone/ros2_ws/src/bumblebee_bridge/nodes/bumblebee_start.py	НА_ДРОНЕ_ИНАЧЕ	af15b0a0	37fe68a5	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)
+drone/ros2_ws/src/bumblebee_bridge/nodes/example.py	НА_ДРОНЕ_ИНАЧЕ	a8b9b18c	d271ac11	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)
+drone/ros2_ws/src/bumblebee_bridge/nodes/example2.py	НА_ДРОНЕ_ИНАЧЕ	219b91bc	ab824c93	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)
+drone/ros2_ws/src/bumblebee_bridge/nodes/node.py	НА_ДРОНЕ_ИНАЧЕ	14851fbf	fedfec4f	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)
+drone/ros2_ws/src/bumblebee_bridge/nodes/remote_control.py	НА_ДРОНЕ_ИНАЧЕ	9bd8e313	a8d5d66b	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)
+drone/ros2_ws/src/bumblebee_bridge/setup.py	НА_ДРОНЕ_ИНАЧЕ	e85f7e4f	cbdb9c16	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)
+drone/ros2_ws/src/bumblebee_bridge/src/bumblebee_bridge/__init__.py	НА_ДРОНЕ_ИНАЧЕ	e3b0c442	edac1e77	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)
+drone/ros2_ws/src/bumblebee_bridge/src/bumblebee_bridge/bumblebee_start.py	НА_ДРОНЕ_ИНАЧЕ	2fd116cf	5ee173fe	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)
+drone/ros2_ws/src/bumblebee_bridge/src/bumblebee_bridge/hardware.py	НА_ДРОНЕ_ИНАЧЕ	dcae453f	8eee724b	другой пакет (в src образа только bumblebee, байтов r2j нет; r2j его не меняет)

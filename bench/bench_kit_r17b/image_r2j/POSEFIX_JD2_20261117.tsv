@@ -1,0 +1,7 @@
+# POSEFIX_JD2_20261117.tsv (Claude, 17.11.2026, набор r13). Второе допустимое sha256 для python-узла aruco_detect.py из INSTALL_SHA256_r2j.txt: детектор меток варианта jd2
+# (/work/c6_fix_20261117/image_r2jd2: install/bumblebee/lib/bumblebee/aruco_detect.py и src/bumblebee/src/python/aruco_detect.py одинаковые; пакет drone_pkg_posefix_jd2_20261117, files\jd2\aruco_detect.py;
+# vpe_fix.py у jd2 тот же, что у r2j). Колонки: sha256 TAB имя (имя как в INSTALL_SHA256_r2j.txt).
+# Читают ТОЛЬКО сверки «что стоит на дроне» - 09 (run_install_check.ps1, pi\install_check.sh) и 15 (run_fingerprint.ps1, pi\overlay_fingerprint.sh): для aruco_detect.py совпадение
+# с r2j ИЛИ с jd2 - OK, второе помечается POSEFIX_JD2. Ровно одна строка, только aruco_detect.py; vpe_fix.py, camera_fix.py и остальные узлы - строго r2j, как в r11.
+# Старый вариант jd (c1891f2a...) НЕ допускается. Сборка 13, 09c/15c, 22, 24a/24b, гейты 05/05c этот файл не читают.
+b89bfb4327a184f5327ae83fa1e84752f0a2deac2a5a6ea5744bbb857072a915	aruco_detect.py
