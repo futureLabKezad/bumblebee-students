@@ -1,8 +1,9 @@
 # EXPERIMENT: pose fix jd2 (joint pose from several markers)
 
 **Status: EXPERIMENT — NOT passed Gazebo series C6 (hover over one marker:
-~1 in 5–8 runs at 6.1 fps, 5 FAIL of 10 at 7.6 fps). Approved by the owner as
-an exception for the drone 20EC on 2026-11-18. Do not use for students' flights.**
+1 FAIL of 5 valid runs at 6.1 fps, series stopped at that FAIL; 5 FAIL of 10
+at 7.6 fps). Not verified. Approved by the owner as an exception for the drone
+20EC on 2026-11-18. Do not use for students' flights. Never merge into `main`.**
 
 - Not installed on the drone yet: on 2026-11-18 the installation stopped after
   its first step (propellers off), and nothing else was installed up to
