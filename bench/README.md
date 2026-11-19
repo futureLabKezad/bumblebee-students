@@ -10,7 +10,7 @@ writes PX4 parameters; passwords and sudo are typed by the owner.
   (10.255.254.26). For another drone or PC it refuses by design; a version for that
   drone is needed.
 - Not published here: `out/` (reports of runs on the drone) and `proverka_*`
-  (test-run outputs). `SHA256SUMS.txt` still lists them: check with
-  `sha256sum -c --ignore-missing SHA256SUMS.txt`.
+  (test-run outputs). They are not in `SHA256SUMS.txt`; check the kit with
+  `sha256sum -c SHA256SUMS.txt` inside `bench_kit_r17b/`.
 - What changed between kit versions: `DIFF_*.txt` and `README_r*.md` (in Russian).
 - r17b = r17a + the owner's approved `COM_RC_OVERRIDE 3` in `params_check/approved_changes.txt`.
