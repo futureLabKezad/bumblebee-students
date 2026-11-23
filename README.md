@@ -38,6 +38,8 @@ All the information you need — setup instructions, code examples, and assignme
 
 👉 **[Open Bumblebee Students Wiki](https://github.com/futureLabKezad/bumblebee-students/wiki)**
 
+📄 **Software Description** — what runs on the drone, the `drone.py` API, the simulator and the versions: [English](docs/SOFTWARE.md) · [Русский](docs/SOFTWARE_RU.md)
+
 ## Repository Structure
 
 ```
@@ -51,6 +53,7 @@ bumblebee-students/
 ├── system-images-for-bumblebee/     # Raspberry Pi SD card images for the drone
 ├── PX4_bin/                         # PX4 firmware binaries for the flight controller
 ├── PX4_parameters/                  # PX4 parameter snapshots
+├── docs/                            # Software Description (EN, RU)
 ├── kezadArucoMap/                   # ArUco marker map of the KEZAD polygon
 └── README.md                        # This file
 ```
