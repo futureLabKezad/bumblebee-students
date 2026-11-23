@@ -28,6 +28,8 @@ cd ~/ros2_ws
 colcon build --symlink-install --packages-select bumblebee
 ```
 
+**Change the default password after the first boot** (`passwd` on the drone): every drone made from the image starts with the same one.
+
 How it all fits together: [System Architecture](https://github.com/futureLabKezad/bumblebee-students/wiki/System‐Architecture) · [Launch Pipeline](https://github.com/futureLabKezad/bumblebee-students/wiki/Launch‐Pipeline) · [System Services](https://github.com/futureLabKezad/bumblebee-students/wiki/System‐Services)
 
 ## Drone name and ROS domain
