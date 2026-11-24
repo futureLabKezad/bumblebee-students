@@ -31,6 +31,8 @@ jobs:
       - name: Unit and socket tests (screen decisions, rosbridge and MJPEG clients)
         working-directory: gcs/macos
         run: swift test
+      - name: Python for the Flight section inside the app (Pyodide from npm, SHA-512 pinned in fetch_pyodide.py)
+        run: python3 gcs/web/fetch_pyodide.py
       - name: Build release app bundle (Apple Silicon + Intel)
         working-directory: gcs/macos
         run: ./build_app.sh release
@@ -60,6 +62,8 @@ jobs:
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
         with:
           dotnet-version: '10.0.x'
+      - name: Python for the Flight section inside the app (Pyodide from npm, SHA-512 pinned in fetch_pyodide.py)
+        run: python gcs/web/fetch_pyodide.py
       - name: Build the Flight web module (gcs/web/dist goes next to the exe as Web\)
         run: python gcs/web/build_html.py
       - name: Publish self-contained app (no .NET needed on the PC)

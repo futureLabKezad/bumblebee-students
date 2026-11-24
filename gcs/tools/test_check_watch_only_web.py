@@ -70,6 +70,14 @@ class WebModule(unittest.TestCase):
     def test_flight_template_passes_and_names_only_the_six(self):
         with open(TEMPLATE, encoding='utf-8') as f:
             text = f.read()
+        # 1.4 (Flight studio): the page script lives in gcs/web/studio/*.js; the check covers all of it
+        studio = os.path.join(os.path.dirname(TEMPLATE), 'studio')
+        for name in sorted(os.listdir(studio)):
+            if name.endswith('.js'):
+                with open(os.path.join(studio, name), encoding='utf-8') as f:
+                    js = f.read()
+                self.assertEqual(problems(js, name), [], name)
+                text += '\n' + js
         self.assertEqual(problems(text), [])
         found = {m.group(1) for m in cw.API_LITERAL_JS.finditer(text)}
         self.assertEqual(found, set(SIX))

@@ -5,6 +5,40 @@ Versioning follows [SemVer](https://semver.org/); each release has a tag `vX.Y.Z
 a release page in the [wiki](https://github.com/futureLabKezad/bumblebee-students/wiki)
 and downloadable builds.
 
+## GCS 1.4.0 — not released yet (branch `feat/gcs-1.4-flight-studio`)
+
+Ground station **Bumblebee GCS 1.4.0** (Mac and Windows). Drone code, the mission
+server and PX4 parameters are unchanged; the app talks to the drone exactly as 1.3.0.
+
+### Flight Studio (the Flight section)
+- **Program editor**: Python colouring, line numbers, completion of the `drone.`
+  commands with their parameters (Ctrl+Space), the command's help under the
+  editor, auto-indent, Ctrl+/ comments. The code check runs while you type: the
+  line is marked and every message says **how to fix** it.
+- **3D flight preview**, right next to the program: the field, the markers with
+  their IDs, the path coloured by how many markers the camera sees, the drone,
+  the camera frame on the floor, the guard border. Play, pause, ×1/×5/×20, 3D /
+  top / side / follow views. **Live**: the flight is simulated again a second
+  after you stop typing or change the map.
+- **Pre-flight check**: one list of what will go wrong, why and how to prevent
+  it — every guard refusal, closeness to the guard border, flying outside the
+  markers, the rangefinder under PX4's 1 m threshold, markers lost on the way,
+  flight time against the budget, no `require_map`, sharp turns, flying tail
+  first. Click a problem to jump to its line or to that moment of the flight.
+- **Marker map**: exact distances between two markers (type the distance or
+  Δx/Δy in cm or m), rulers to the nearest markers, a grid from a template
+  (rows, columns, steps, side, first ID), duplicate IDs marked, Undo.
+- The simulated drone speeds up and slows down smoothly (never faster than the
+  command or the PX4 G2 profile); leg times are the same as in 1.3.0.
+- A new look in the spirit of Apple's Human Interface Guidelines. Dark by default;
+  light or automatic (as the system) with the ◐/☀/☾ button. Python (Pyodide) is inside the app: no internet needed.
+
+### Known limits
+- The simulation is simplified (no wind, no vision or EKF errors) and its timing
+  is fitted to Gazebo (on a route outside the fitting it was ~10 % longer than
+  Gazebo), not measured on the drone.
+- The macOS build is checked by CI only.
+
 ## GCS 1.3.0 — 2026-11-19
 
 Ground station **Bumblebee GCS 1.3.0** (Mac and Windows), release `gcs-v1.3.0`.

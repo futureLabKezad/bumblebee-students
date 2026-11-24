@@ -1,0 +1,2 @@
+# built by build_html.py and fetch_pyodide.py (CI builds them; Pyodide is 14 MB)
+dist/

@@ -43,6 +43,40 @@ DEFAULTS = {
 }
 
 
+# PX4 limits of the G2 profile (the same on 20EC, 2503 and e6b1 after G1-G6): the simulated drone
+# never moves faster than these. The guards (0.10 m/s) are stricter, so normally they do not bite.
+PX4_PROFILE = {'xy_mps': 0.25, 'up_mps': 1.0, 'down_mps': 0.4, 'takeoff_mps': 0.8, 'jerk': 1.5}
+
+
+def leg_fractions(d, T, speed, dt, steps):
+    """Fraction of a straight leg of length d done after each of `steps` steps of dt (index 0..steps).
+
+    Velocity: a smooth ramp up to the cruise speed (jerk-limited: ramp time 2*sqrt(v/jerk)),
+    cruise, a ramp down; then the drone holds the point until T. Without `speed` the leg is
+    spread over the whole T (as in 1.3, but with soft ends)."""
+    if d < 1e-9 or steps <= 0:
+        return [1.0] * (steps + 1)
+    v = float(speed) if speed and speed > 0 else d / T
+    tr = 2.0 * math.sqrt(v / PX4_PROFILE['jerk'])
+    tm = min(T, d / v + tr)
+    if tm < 2 * tr:
+        tr = tm / 2.0
+    vc = d / max(1e-9, tm - tr)
+
+    def vel(t):
+        if t >= tm:
+            return 0.0
+        u = min(1.0, t / tr, (tm - t) / tr) if tr > 0 else 1.0
+        return vc * u * u * (3 - 2 * u)
+
+    out, s = [0.0], 0.0
+    for k in range(1, steps + 1):
+        s += vel((k - 0.5) * dt) * dt
+        out.append(s)
+    total = out[-1] or 1.0
+    return [min(1.0, f / total) for f in out]
+
+
 class ProgramStopped(BaseException):
     """The simulated drone ended the program (guard landing, time limit).
     BaseException on purpose: "except Exception" in the student’s program must
@@ -211,11 +245,16 @@ class FakeDrone:
         self.armed = False
         self._sample(force=True)
 
-    def _move_to(self, x, y, z, duration):
+    def _move_to(self, x, y, z, duration, speed=None):
+        """Move along the straight line in `duration` s (the fitted leg time). 1.4 (24.11): the
+        drone no longer slides at an even pace -- it speeds up to `speed`, cruises, slows down
+        and waits at the point for the rest of the time (how the leg overhead looks in Gazebo).
+        Same path and the same total time as 1.3; only where the drone is inside the leg changed."""
         x0, y0, z0 = self.x, self.y, self.z
         steps = max(1, int(round(duration / self.cfg['dt'])))
+        frac = leg_fractions(math.dist((x0, y0, z0), (x, y, z)), steps * self.cfg['dt'], speed, self.cfg['dt'], steps)
         for k in range(1, steps + 1):
-            a = k / steps
+            a = frac[k]
             self.x, self.y, self.z = x0 + a * (x - x0), y0 + a * (y - y0), z0 + a * (z - z0)
             if not self._inside(self.x, self.y):
                 self.event('error', 'the drone is leaving the field (%.2f, %.2f); the guard lands the drone' % (self.x, self.y))
@@ -297,7 +336,7 @@ class FakeDrone:
         self.event('info', 'arming and takeoff to %.2f m' % height)
         self._wait(self.cfg['arm_delay_s'])
         target = self.z + height
-        self._move_to(self.x, self.y, target, height / self.cfg['climb_mps'])
+        self._move_to(self.x, self.y, target, height / self.cfg['climb_mps'], self.cfg['climb_mps'])
         self._wait(self.cfg['climb_hold_s'])
         return True
 
@@ -326,7 +365,7 @@ class FakeDrone:
                           self.cfg['nav_timeout_s'])
             self.event('warn', '%s: did not arrive within %.0f s (too slow or too far)' % (what, self.cfg['nav_timeout_s']))
             return False
-        self._move_to(x, y, z, duration)
+        self._move_to(x, y, z, duration, speed)
         return True
 
     # default speed 0.10 m/s: the tested speed (drone.py has 0.5 -> refused by the guard)
@@ -380,7 +419,7 @@ class FakeDrone:
             tx, ty = float(x), float(y)
             if self._inside(tx, ty):
                 d = math.hypot(tx - self.x, ty - self.y)
-                self._move_to(tx, ty, self.z, d / v + 0.5)
+                self._move_to(tx, ty, self.z, d / v + 0.5, v)
             else:
                 self.event('warn', 'landing point (%s, %s) is outside the field; landing where it is' % (_num(tx), _num(ty)))
         self._descend()
