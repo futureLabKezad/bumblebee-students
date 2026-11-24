@@ -243,7 +243,8 @@ function toggleComment() {
 let lintSeq = 0;
 function lintSoon(ms) { clearTimeout(lintTimer); lintTimer = setTimeout(lint, ms); }
 async function lint() {
-  if (!state.ready || state.busy) return;
+  if (!state.ready) return;                         // startPython() lints when Python is back
+  if (state.busy) { lintSoon(800); return; }         // review 2, m4: try again after the simulation, not never
   const my = ++lintSeq, text = code.value;
   let r; try { r = await api('check_code_hints', [text], 15000); } catch (e) { return; }
   if (my !== lintSeq || text !== code.value) return;

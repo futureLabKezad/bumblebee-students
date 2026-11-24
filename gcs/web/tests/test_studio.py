@@ -234,6 +234,16 @@ class SameLimitsAsTheDrone(unittest.TestCase):
     pointing at the package's file, the copy is also checked against it. Never skipped (review 24.11, M7)."""
     COPY = os.path.join(WEB, 'testdata', 'bb_mission_0.2.0_guards.py')
     GUARDS = os.environ.get('BB_MISSION_GUARDS', '')
+    # SHA256 of guards.py in the bb_mission 0.2.0 package (drone_pkg_bb_mission_20261123). Byte for byte:
+    # .gitattributes keeps testdata/ out of line-ending conversion (review 2, 24.11, S2 and m7).
+    PACKAGE_SHA256 = '97407d3cc74686dd9c31000f0597ba50c07306b622f97290386548f3afdf77fc'
+
+    def test_copy_is_pinned_to_the_package_hash(self):
+        import hashlib
+        with open(self.COPY, 'rb') as f:
+            data = f.read()
+        self.assertEqual(hashlib.sha256(data).hexdigest(), self.PACKAGE_SHA256,
+                         'testdata copy is not the bb_mission 0.2.0 guards.py (%d bytes, %d CR)' % (len(data), data.count(b'\r')))
 
     def test_copy_is_the_package_file(self):
         if not self.GUARDS:

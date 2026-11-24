@@ -148,6 +148,12 @@ def review(source, mp, cam, res, budget_s=None):
                             'fix': "Put drone.require_map('%s') near the top." % (mp.get('name') or 'field')}))
 
     air = _airborne(trace, z_rest)
+    # review 2, 24.11, m1: a program that never takes off was «Ready: no problems found» with nothing to say.
+    # Info only: what makes the verdict is the owner's criteria, not changed here.
+    if not air and 'takeoff' not in chk.get('used', []):
+        findings.append(_f({'level': 'info', 'code': 'NO_TAKEOFF', 'title': 'the program does not take off',
+                            'why': 'Nothing flew in the simulation, so there is nothing to check in the air.',
+                            'fix': 'Start the flight with drone.takeoff(height=0.9).'}))
     if air:
         # edge of the field
         best, at, outside = _edge(mp, trace, z_rest, margin)

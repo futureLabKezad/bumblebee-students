@@ -1,0 +1,6 @@
+# Byte copies of files that live on the drone: never convert line endings on checkout
+# (core.autocrlf=true on Windows made the guards.py copy CRLF and the byte check red; review 2, 24.11, S2).
+gcs/web/testdata/** -text
+# Shared with the bb_mission package on the drone byte for byte: keep LF in every checkout.
+gcs/web/bbflight/codecheck.py text eol=lf
+gcs/web/bbflight/bbmap.py text eol=lf

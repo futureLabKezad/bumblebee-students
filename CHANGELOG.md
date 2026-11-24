@@ -5,7 +5,29 @@ Versioning follows [SemVer](https://semver.org/); each release has a tag `vX.Y.Z
 a release page in the [wiki](https://github.com/futureLabKezad/bumblebee-students/wiki)
 and downloadable builds.
 
-## GCS 1.4.0 — not released yet (branch `feat/gcs-1.4-flight-studio`)
+## GCS 1.4.1 — not released yet (branch `fix/gcs-1.4.1`)
+
+Fixes from the second independent review of 1.4.0. Drone code, the mission server, PX4 parameters
+and the drone block of the page (`studio/60_drone.js`) are unchanged.
+
+- **Stop with Live on really stops.** Before, Live started the same program again about a second after
+  Stop, over and over. Now a stopped program is not simulated again until you change the program, the map
+  or the camera, or press ▶ Simulate.
+- **STOP / land and the flight events are on every tab** (top of the right column), as in 1.3.0; they were
+  only on the Drone tab in 1.4.0.
+- The byte copy of the drone's `guards.py` keeps its exact bytes on Windows checkouts (`.gitattributes`),
+  and its SHA256 is pinned in the test: the "same limits as the drone" check is green again and stricter.
+- A program without `takeoff` gets an info line "the program does not take off".
+- Problem pins in 3D disappear with the simulation they belong to.
+- The code check runs again after a simulation instead of being skipped.
+- Tabs: arrow keys, Home and End; tab panels are labelled for screen readers.
+- Readability: the selected autocomplete line and the warning icon in the dark theme have enough
+  contrast; the right column fits the window without its own scrollbar on a 900 px high screen.
+- Texts: STOP help no longer says "always works" (the app's STOP and CH8 on the RC do); "How close is
+  this to the real drone?" says the speed shape inside a leg was not compared with Gazebo.
+- Mac build number 5 (1.4.0 kept 4 from 1.3.0).
+
+## GCS 1.4.0 — 24.11.2026 (tag `gcs-v1.4.0`)
 
 Ground station **Bumblebee GCS 1.4.0** (Mac and Windows). Drone code, the mission
 server and PX4 parameters are unchanged; the app talks to the drone exactly as 1.3.0.

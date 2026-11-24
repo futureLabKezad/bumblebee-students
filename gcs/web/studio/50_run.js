@@ -11,10 +11,16 @@ $('btncheck').onclick = async () => {
 // page sends no budget). The simulation uses the same number; it is not adjustable (review 24.11, K1).
 const DRONE_BUDGET_S = 300;
 const SIM_TIMEOUT_MS = 30000;      // a stuck program (endless loop, one huge line) is killed after 30 s
+// What is simulated: the program, the map and the camera. After Stop, Live does not start the same
+// text again by itself (review 2, 24.11, S1: Stop -> Python restart -> Live re-ran it every ~1 s).
+const simKey = () => code.value + '\u0000' + mapJSON() + '\u0000' + ($('cam').value || 'gazebo');
 async function runSim(auto) {
   const ul = $('codemsgs');
   if (!state.ready) { if (!auto) { ul.innerHTML = ''; addMsg(ul, 'error', 'Python is not ready yet'); } return; }
   if (state.busy) { if (auto) autoSimSoon(800); else state.wantSim = true; return; }
+  if (auto && state.stoppedKey !== undefined && state.stoppedKey === simKey()) return;   // stopped by the user, nothing changed since
+  if (!auto) state.stoppedKey = undefined;                                              // ▶ Simulate: run it again on purpose
+  state.runKey = simKey();
   // review 24.11, d4: a live run shows Stop and its status only if it takes longer than 1.5 s
   const busyNote = setTimeout(() => { if (state.busy) { $('btnstop').hidden = false; setStatus(auto ? 'live: simulating…' : 'simulating…'); } }, auto ? 1500 : 0);
   $('btnsim').disabled = !auto; state.busy = true; state.stopReason = '';
@@ -30,7 +36,9 @@ async function runSim(auto) {
     }
   } catch (e) {
     ul.innerHTML = '';
-    if (state.stopReason === 'user') addMsg(ul, 'info', 'Simulation stopped.');   // review 24.11, m3
+    if (state.stopReason === 'user') {   // review 24.11, m3; review 2, S1
+      addMsg(ul, 'info', 'Simulation stopped.' + ($('live').checked ? ' Live will simulate again after your next change; ▶ Simulate runs it now.' : ''));
+    }
     else {
       addMsg(ul, 'error', 'Simulation stopped: ' + e.message + '. Looks like an endless loop or a very long computation.', 0, 'Give every loop an end (for i in range(...), or a break).');
       if (auto) { $('live').checked = false; addMsg(ul, 'warn', 'Live simulation is switched off until you press ▶ Simulate.'); }
@@ -52,7 +60,7 @@ function autoSimSoon(ms) {
   autoTimer = setTimeout(() => runSim(true), ms === undefined ? 1200 : ms);   // with code errors it only lists them (fast)
 }
 $('live').onchange = () => { store.set('live', $('live').checked ? '1' : '0'); if ($('live').checked) autoSimSoon(100); };
-$('btnstop').onclick = () => { state.stopReason = 'user'; restartPython('stopped with the Stop button'); };
+$('btnstop').onclick = () => { state.stopReason = 'user'; state.stoppedKey = state.runKey; restartPython('stopped with the Stop button'); };
 const VERDICT = {
   ready: ['Ready: no problems found in the simulation.', 'The real drone can still differ: wind, light on the markers, battery.'],
   check: ['Check the warnings before flying.', 'The drone will fly this program, but something may go wrong. Each warning below says how to fix it.'],

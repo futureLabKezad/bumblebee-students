@@ -7,7 +7,7 @@
 <style>
 :root {
   --bg: #f2f2f7; --panel: #ffffff; --panel2: #fbfbfd; --ink: #1d1d1f; --muted: #6e6e73; --line: #e3e3e8; --fill: rgba(118, 118, 128, 0.12);
-  --accent: #0071e3; --accent-ink: #ffffff; --err: #d70015; --warn: #b25000; --ok: #1a7f37; --info: #6e6e73;
+  --accent: #0071e3; --accent-ink: #ffffff; --warn-ink: #ffffff; --err: #d70015; --warn: #b25000; --ok: #1a7f37; --info: #6e6e73;
   --err-bg: rgba(215, 0, 21, 0.08); --warn-bg: rgba(255, 149, 0, 0.12); --ok-bg: rgba(52, 199, 89, 0.12);
   --red: rgba(255, 59, 48, 0.42); --yellow: rgba(255, 204, 0, 0.50); --green: rgba(52, 199, 89, 0.40);
   --blind: rgba(17, 24, 39, 0.70); --hatch: rgba(255, 59, 48, 0.95); --seen: #1a9e5a;
@@ -20,7 +20,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #000000; --panel: #1c1c1e; --panel2: #232326; --ink: #f5f5f7; --muted: #98989d; --line: #38383a; --fill: rgba(118, 118, 128, 0.24);
-    --accent: #0a84ff; --accent-ink: #ffffff; --err: #ff453a; --warn: #ff9f0a; --ok: #30d158; --info: #98989d;
+    --accent: #0a84ff; --accent-ink: #ffffff; --warn-ink: #1c1c1e; --err: #ff453a; --warn: #ff9f0a; --ok: #30d158; --info: #98989d;
     --err-bg: rgba(255, 69, 58, 0.14); --warn-bg: rgba(255, 159, 10, 0.14); --ok-bg: rgba(48, 209, 88, 0.14);
     --red: rgba(255, 69, 58, 0.55); --yellow: rgba(255, 214, 10, 0.50); --green: rgba(48, 209, 88, 0.45);
     --blind: rgba(0, 0, 0, 0.80); --hatch: rgba(255, 105, 97, 0.95); --seen: #30d158;
@@ -33,7 +33,7 @@
 }
 :root[data-theme="dark"] {
   --bg: #000000; --panel: #1c1c1e; --panel2: #232326; --ink: #f5f5f7; --muted: #98989d; --line: #38383a; --fill: rgba(118, 118, 128, 0.24);
-  --accent: #0a84ff; --accent-ink: #ffffff; --err: #ff453a; --warn: #ff9f0a; --ok: #30d158; --info: #98989d;
+  --accent: #0a84ff; --accent-ink: #ffffff; --warn-ink: #1c1c1e; --err: #ff453a; --warn: #ff9f0a; --ok: #30d158; --info: #98989d;
   --err-bg: rgba(255, 69, 58, 0.14); --warn-bg: rgba(255, 159, 10, 0.14); --ok-bg: rgba(48, 209, 88, 0.14);
   --red: rgba(255, 69, 58, 0.55); --yellow: rgba(255, 214, 10, 0.50); --green: rgba(48, 209, 88, 0.45);
   --blind: rgba(0, 0, 0, 0.80); --hatch: rgba(255, 105, 97, 0.95); --seen: #30d158;
@@ -51,7 +51,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 -app
 header { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 14px; padding: 10px 18px; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(180%) blur(18px); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 header h1 { font-size: 17px; font-weight: 600; margin: 0; letter-spacing: -0.01em; white-space: nowrap; }
 .seg { display: inline-flex; background: var(--fill); border-radius: 9px; padding: 2px; gap: 2px; }
-.seg button { border: 0; background: transparent; color: var(--ink); padding: 5px 14px; border-radius: 7px; font: 500 13px/1.2 inherit; cursor: pointer; }
+.seg button { border: 0; background: transparent; color: var(--ink); padding: 5px 14px; border-radius: 7px; font: inherit; font-size: 13px; font-weight: 500; line-height: 1.2; cursor: pointer; }
 .seg button[aria-pressed="true"] { background: var(--panel); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); }
 .spacer { flex: 1; }
 .pill { font-size: 12px; color: var(--muted); padding: 3px 10px; border-radius: 99px; background: var(--fill); white-space: nowrap; }
@@ -112,7 +112,8 @@ textarea.txt { width: 100%; min-height: 110px; font-size: 12px; border-radius: 8
 #ac { position: absolute; z-index: 10; min-width: 240px; max-width: 520px; max-height: 260px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18); font-size: 13px; padding: 4px; }
 #ac div { padding: 4px 8px; border-radius: 6px; cursor: pointer; display: flex; gap: 10px; align-items: baseline; }
 #ac div.on { background: var(--accent); color: var(--accent-ink); }
-#ac div.on small { color: var(--accent-ink); opacity: .85; }
+#ac div.on small { color: var(--accent-ink); }   /* review 2, d3: full white on the accent, no opacity */
+#ac small { font-size: 12px; }
 #ac small { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #sigbar { font-size: 12px; color: var(--muted); min-height: 18px; margin-top: 6px; }
 #sigbar b { color: var(--ink); font-weight: 600; }
@@ -126,7 +127,7 @@ textarea.txt { width: 100%; min-height: 110px; font-size: 12px; border-radius: 8
 .find li { border-radius: 10px; padding: 8px 10px 8px 34px; margin: 6px 0; position: relative; background: var(--panel2); border: 1px solid var(--line); }
 .find li::before { position: absolute; left: 10px; top: 8px; width: 16px; height: 16px; border-radius: 50%; font: 700 11px/16px system-ui; text-align: center; color: #fff; }
 .find li.error::before { content: "!"; background: var(--err); }
-.find li.warn::before { content: "!"; background: var(--warn); }
+.find li.warn::before { content: "!"; background: var(--warn); color: var(--warn-ink); }   /* review 2, d4 */
 .find li.info::before { content: "i"; background: var(--info); }
 .find .tt { font-weight: 600; }
 .find .why { color: var(--muted); font-size: 12px; margin-top: 2px; }
@@ -147,7 +148,8 @@ textarea.txt { width: 100%; min-height: 110px; font-size: 12px; border-radius: 8
 .kv span { color: var(--muted); } .kv b { font-weight: 600; }
 /* ---------- 3D view ---------- */
 #viewwrap { position: relative; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); background: var(--panel2); }
-#view3d { width: 100%; height: min(62vh, 620px); min-height: 380px; display: block; touch-action: none; cursor: grab; }
+/* review 2, d1: the right column (Drone bar + 3D + player + chart + legend) fits the window, no second scrollbar */
+#view3d { width: 100%; height: clamp(260px, calc(100vh - 500px), 620px); display: block; touch-action: none; cursor: grab; }
 #view3d.drag { cursor: grabbing; }
 .overlay { position: absolute; display: flex; gap: 6px; align-items: center; }
 #viewbtns { top: 10px; left: 10px; }
@@ -182,15 +184,18 @@ tr.dup td { background: var(--err-bg); }
 .checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
 .checks label { color: var(--ink); font-size: 13px; }
 #srvstate { font-size: 13px; }
+#flightbar { padding: 10px 16px; }
+#flightbar .msgs:empty { display: none; }
+#liveevents { max-height: 132px; overflow: auto; }
 </style>
 </head>
 <body>
 <header>
   <h1>Flight Studio</h1>
   <div class="seg" role="tablist" id="tabs" aria-label="Sections">
-    <button role="tab" data-tab="program" aria-pressed="true" aria-selected="true">Program</button>
-    <button role="tab" data-tab="map" aria-pressed="false" aria-selected="false">Map</button>
-    <button role="tab" data-tab="drone" aria-pressed="false" aria-selected="false">Drone</button>
+    <button role="tab" id="tabbtn-program" data-tab="program" aria-controls="tab-program" aria-pressed="true" aria-selected="true">Program</button>
+    <button role="tab" id="tabbtn-map" data-tab="map" aria-controls="tab-map" aria-pressed="false" aria-selected="false" tabindex="-1">Map</button>
+    <button role="tab" id="tabbtn-drone" data-tab="drone" aria-controls="tab-drone" aria-pressed="false" aria-selected="false" tabindex="-1">Drone</button>
   </div>
   <span class="spacer"></span>
   <span id="pystatus" class="pill">Loading Python…</span>
@@ -202,7 +207,7 @@ tr.dup td { background: var(--err-bg); }
 <main>
 <div class="col" id="leftcol">
   <!-- ================= PROGRAM ================= -->
-  <div class="tabpane" id="tab-program">
+  <div class="tabpane" id="tab-program" role="tabpanel" aria-labelledby="tabbtn-program">
     <section class="card">
       <div class="row" style="margin-top:0">
         <h2 style="margin:0">Program</h2><span class="spacer"></span>
@@ -243,7 +248,7 @@ tr.dup td { background: var(--err-bg); }
   </div>
 
   <!-- ================= MAP ================= -->
-  <div class="tabpane" id="tab-map" hidden>
+  <div class="tabpane" id="tab-map" role="tabpanel" aria-labelledby="tabbtn-map" hidden>
     <section class="card">
       <div class="row" style="margin-top:0">
         <h2 style="margin:0">Marker map</h2><span class="spacer"></span>
@@ -336,7 +341,7 @@ tr.dup td { background: var(--err-bg); }
   </div>
 
   <!-- ================= DRONE ================= -->
-  <div class="tabpane" id="tab-drone" hidden>
+  <div class="tabpane" id="tab-drone" role="tabpanel" aria-labelledby="tabbtn-drone" hidden>
     <section class="card" id="dronecard">
       <h2>Drone: map and mission</h2>
       <p class="note">Through the mission server on the drone (bb_mission). The app itself never arms and sends no setpoints: it asks the server, which runs the program under the guards. Simulate first: the Program tab must show no errors.</p>
@@ -359,17 +364,26 @@ tr.dup td { background: var(--err-bg); }
       <div class="row">
         <button id="takeoff" class="primary" disabled>TAKEOFF…</button>
         <button id="takeoff2" hidden>Yes, take off</button>
-        <button id="dronestop" class="danger">STOP / land</button>
         <span id="tokstate" class="note"></span>
       </div>
-      <ul class="msgs" id="dronemsgs"></ul>
-      <ul class="msgs" id="liveevents"></ul>
+      <p class="note">STOP, the drone’s answers and the flight events are at the top right, on every tab.</p>
     </section>
   </div>
 </div>
 
 <!-- ================= 3D (always visible) ================= -->
 <div class="col" id="rightcol">
+  <!-- review 2, 24.11, S3: STOP and the live flight are on the page on every tab, as in 1.3.0 (same ids; 60_drone.js unchanged) -->
+  <section class="card" id="flightbar" aria-label="Drone flight">
+    <div class="row" style="margin:0">
+      <h2 style="margin:0">Drone</h2>
+      <span class="note" style="margin:0">mission server · RC CH8 always stops</span>
+      <span class="spacer"></span>
+      <button id="dronestop" class="danger">STOP / land</button>
+    </div>
+    <ul class="msgs" id="dronemsgs" aria-live="polite"></ul>
+    <ul class="msgs" id="liveevents" aria-live="polite"></ul>
+  </section>
   <section class="card">
     <div class="row" style="margin-top:0"><h2 style="margin:0">Flight preview</h2><span class="spacer"></span>
       <div class="seg" id="views"><button data-view="free" aria-pressed="true">3D</button><button data-view="top" aria-pressed="false">Top</button><button data-view="side" aria-pressed="false">Side</button><button data-view="follow" aria-pressed="false">Follow</button></div>
@@ -395,7 +409,7 @@ tr.dup td { background: var(--err-bg); }
       <span><i class="sw" style="background:var(--ok)"></i>≥2.5 markers</span>
     </div>
     <p class="note">Drag to turn the view, scroll to zoom, right-drag to move it.</p>
-    <details><summary>How close is this to the real drone?</summary><p class="note">A simplified model, not Gazebo: no wind, no vision or EKF errors, no physics. Leg times are fitted to Gazebo runs; on a route not used for the fitting the simulation was about 10 % longer than Gazebo. Speeds never go above the PX4 G2 profile. None of this was measured on the real drone.</p></details>
+    <details><summary>How close is this to the real drone?</summary><p class="note">A simplified model, not Gazebo: no wind, no vision or EKF errors, no physics. Leg times are fitted to Gazebo runs; on a route not used for the fitting the simulation was about 10 % longer than Gazebo. Speeds never go above the PX4 G2 profile. How the speed changes inside a leg (speed up, hold, slow down) follows that profile but was not compared with Gazebo positions, so the time of a red-zone stretch can be off by a few seconds. None of this was measured on the real drone.</p></details>
   </section>
 </div>
 </main>

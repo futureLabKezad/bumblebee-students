@@ -43,7 +43,7 @@ DOCS = {
     'get_pos': ('telemetry', 'get_pos() -> (x, y, z)', 'Where the drone is now, map frame, metres.', 'get_pos()'),
     'print_pos': ('telemetry', 'print_pos(phase="INFO")', 'Print the position into the log.', 'print_pos()'),
     # --- safety ---
-    'enable_safe_interrupt': ('safety', 'enable_safe_interrupt()', 'Kept for old programs; STOP always works anyway.',
+    'enable_safe_interrupt': ('safety', 'enable_safe_interrupt()', 'Kept for old programs; STOP of the app and CH8 on the RC work without it.',
                               'enable_safe_interrupt()'),
     'should_land': ('safety', 'should_land', 'True when STOP was pressed: end your loop and land.', 'should_land'),
     'check_flight_profile': ('safety', 'check_flight_profile(profile_name) -> (ok, total, problems)',

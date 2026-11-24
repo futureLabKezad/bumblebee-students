@@ -248,7 +248,8 @@ class FakeDrone:
     def _move_to(self, x, y, z, duration, speed=None):
         """Move along the straight line in `duration` s (the fitted leg time). 1.4 (24.11): the
         drone no longer slides at an even pace -- it speeds up to `speed`, cruises, slows down
-        and waits at the point for the rest of the time (how the leg overhead looks in Gazebo).
+        and waits at the point for the rest of the time. The shape follows the PX4 G2 profile; it was
+        NOT compared with Gazebo positions (review 2, 24.11, m8) -- only the total leg time is fitted.
         Same path and the same total time as 1.3; only where the drone is inside the leg changed."""
         x0, y0, z0 = self.x, self.y, self.z
         steps = max(1, int(round(duration / self.cfg['dt'])))

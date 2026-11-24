@@ -63,6 +63,7 @@ function poly3(pts, fill, stroke) {
 }
 function circle3(cx, cy, cz, r, n) { const out = []; for (let i = 0; i < n; i++) { const a = 2 * Math.PI * i / n; out.push([cx + r * Math.cos(a), cy + r * Math.sin(a), cz]); } return out; }
 function render3d() {
+  state.pins = [];   // review 2, m2: no clickable problem pins once the simulation is gone; rebuilt below when it is shown
   const dpr = window.devicePixelRatio || 1; W3 = v3.clientWidth; H3 = v3.clientHeight;
   if (W3 < 10 || H3 < 10) return;
   if (v3.width !== Math.round(W3 * dpr) || v3.height !== Math.round(H3 * dpr)) { v3.width = Math.round(W3 * dpr); v3.height = Math.round(H3 * dpr); }
@@ -123,7 +124,6 @@ function render3d() {
     }
     g3.globalAlpha = 1;
     // problems on the path: click one to jump there
-    state.pins = [];
     for (const f of (r.preflight ? r.preflight.findings : [])) {
       if (f.t === null || f.t === undefined || f.level === 'info') continue;
       const q = sampleAt(f.t); if (!q) continue;

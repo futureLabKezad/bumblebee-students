@@ -49,8 +49,10 @@ self.onmessage = async (e) => {
 let worker = null, seq = 0;
 const pending = new Map();
 function setStatus(text, bad) { const p = $('pystatus'); p.textContent = text; p.classList.toggle('bad', !!bad); }
+let workerUrl = null;   // one Blob URL for every restart (review 2, m3: a new URL per restart was never revoked)
 function makeWorker() {
-  worker = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' })));
+  if (!workerUrl) workerUrl = URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' }));
+  worker = new Worker(workerUrl);
   worker.onmessage = (e) => {
     const p = pending.get(e.data && e.data.id); if (!p) return;
     pending.delete(e.data.id); clearTimeout(p.timer);
@@ -98,13 +100,25 @@ function addMsg(ul, level, text, line, fix) {
 // ---------- tabs and theme ----------
 function showTab(name) {
   state.tab = name;
-  for (const b of document.querySelectorAll('#tabs button')) { b.setAttribute('aria-pressed', String(b.dataset.tab === name)); b.setAttribute('aria-selected', String(b.dataset.tab === name)); }
+  for (const b of document.querySelectorAll('#tabs button')) {
+    const on = b.dataset.tab === name;
+    b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
+  }
   for (const p of document.querySelectorAll('.tabpane')) p.hidden = p.id !== 'tab-' + name;
   store.set('tab', name);
   if (name === 'map') { state.view = null; draw(); }
   if (name === 'program') renderEditor();
 }
 for (const b of document.querySelectorAll('#tabs button')) b.onclick = () => showTab(b.dataset.tab);
+// review 2, m6: arrow keys, Home and End move between the tabs (WAI-ARIA tabs pattern)
+$('tabs').addEventListener('keydown', (e) => {
+  const btns = [...document.querySelectorAll('#tabs button')], i = btns.indexOf(document.activeElement);
+  if (i < 0) return;
+  const j = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: btns.length - 1 }[e.key];
+  if (j === undefined) return;
+  e.preventDefault();
+  const b = btns[(j + btns.length) % btns.length]; showTab(b.dataset.tab); b.focus();
+});
 const THEMES = ['auto', 'light', 'dark'];
 function applyTheme(t) {
   if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
