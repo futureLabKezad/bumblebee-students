@@ -104,7 +104,7 @@ class Pages(TempDirs):
 
 class Pyodide(TempDirs):
     def test_the_page_and_the_fetcher_name_the_same_version(self):
-        template = read(os.path.join(WEB, 'flight_template.html'))
+        template = read(os.path.join(WEB, 'flight_template.html')) + build_html.studio_js()   # 1.4: the script is in studio/*.js
         self.assertEqual(re.findall(r'npm/pyodide@([0-9.]+)/', template), [fetch_pyodide.VERSION])
         self.assertIn('pyodide-%s.tgz' % fetch_pyodide.VERSION, fetch_pyodide.URL)
 

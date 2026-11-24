@@ -7,7 +7,7 @@ Results never contain NaN or Infinity (JSON.parse would fail): they become null.
 import json
 import math
 
-from . import bbmap, codecheck, coverage, simrun
+from . import bbmap, codecheck, coverage, hints, preflight, simrun
 from .fakedrone import start_heading
 
 GRID_MAX_CELLS = 20000      # review item 14: a typo like 2900 instead of 2.900 must not hang the page
@@ -135,6 +135,28 @@ def heat_point(map_json, x, y, takeoff_height, cam_name='gazebo', turn_deg=0.0):
 
 def check_code(source):
     return _out(codecheck.check(source))
+
+
+def check_code_hints(source):
+    """check_code() plus a «how to fix» for every message (Flight studio, 1.4)."""
+    r = codecheck.check(source)
+    for item in r['errors'] + r['warnings']:
+        item['fix'] = hints.fix_for(item['text'])
+    return _out(r)
+
+
+def studio(source, map_json, cam_name='gazebo', cfg_json='{}'):
+    """simulate() plus the pre-flight review (Flight studio, 1.4): 'preflight' = preflight.review()."""
+    res = json.loads(simulate(source, map_json, cam_name, cfg_json))
+    if 'error' in res and 'check' not in res:
+        return _out(res)
+    try:
+        mp = _map(map_json)
+        budget = float(json.loads(cfg_json or '{}').get('time_budget_s', 0) or 0) or None
+    except (bbmap.MapError, ValueError, TypeError):
+        mp, budget = {'markers': []}, None
+    res['preflight'] = preflight.review(source, mp, coverage.camera(cam_name), res, budget)
+    return _out(res)
 
 
 def simulate(source, map_json, cam_name='gazebo', cfg_json='{}'):

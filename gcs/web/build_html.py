@@ -37,7 +37,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import fetch_pyodide  # noqa: E402
-from bbflight import bbmap, codecheck  # noqa: E402
+from bbflight import apidoc, bbmap, codecheck  # noqa: E402
 
 # Only this one package of the CDN, not the whole host (any npm package and GitHub repo lives there).
 CDN = 'https://cdn.jsdelivr.net/npm/pyodide@%s/' % fetch_pyodide.VERSION
@@ -74,6 +74,20 @@ def csp(html, local_pyodide):
     ])
 
 
+def studio_js():
+    """The page script: gcs/web/studio/*.js in name order (Flight studio 1.4). One inline script,
+    so the embedded page keeps a single hash in its policy."""
+    parts = []
+    for p in sorted(glob.glob(os.path.join(HERE, 'studio', '*.js'))):
+        text = read(p)
+        if re.search(r'</script|<!--', text, re.I):
+            raise SystemExit('%s: "</script" or "<!--" would break the inline <script>' % os.path.basename(p))
+        parts.append('// ===== %s =====\n%s' % (os.path.basename(p), text))
+    if not parts:
+        raise SystemExit('no gcs/web/studio/*.js files')
+    return '\n'.join(parts)
+
+
 def build(out_dir=None):
     out_dir = out_dir or os.path.join(HERE, 'dist')
     os.makedirs(out_dir, exist_ok=True)
@@ -84,12 +98,14 @@ def build(out_dir=None):
     examples = {name: read(os.path.join(HERE, 'examples', name)) for name in EXAMPLES}
     mp = bbmap.from_map_txt(read(os.path.join(HERE, 'testdata', 'map_final.txt')), name='field_real')
     template = read(os.path.join(HERE, 'flight_template.html'))
+    docs = {'commands': apidoc.docs(), 'groups': apidoc.GROUPS, 'words': apidoc.PY_WORDS}
     local_pyodide = os.path.exists(os.path.join(out_dir, 'pyodide', 'pyodide.js'))
     written = []
     for name, config in (('flight.html', {'embedded': False, 'pyodide': ''}),
                          ('flight_embedded.html', {'embedded': True, 'pyodide': 'pyodide/' if local_pyodide else ''})):
         html = template
-        for key, val in (('/*__PY_FILES__*/', js_json(py)), ('/*__EXAMPLES__*/', js_json(examples)),
+        for key, val in (('/*__STUDIO_JS__*/', studio_js()), ('/*__API_DOCS__*/', js_json(docs)),
+                         ('/*__PY_FILES__*/', js_json(py)), ('/*__EXAMPLES__*/', js_json(examples)),
                          ('/*__DEFAULT_MAP__*/', js_json(json.loads(bbmap.to_json(mp)))), ('/*__CONFIG__*/', js_json(config))):
             if html.count(key) != 1:
                 raise SystemExit('placeholder %s must be in the template exactly once' % key)
@@ -115,6 +131,6 @@ if __name__ == '__main__':
     print('Pyodide:', 'local copy (dist/pyodide), the embedded page needs no internet' if local
           else 'from %s (the embedded page needs internet; run fetch_pyodide.py for an offline copy)' % CDN)
     if not local:
-        template = read(os.path.join(HERE, 'flight_template.html'))
+        template = read(os.path.join(HERE, 'flight_template.html')) + studio_js()
         if template.count("'%s'" % CDN) != 1:
             raise SystemExit('the template must load Pyodide from %s (the address its policy allows)' % CDN)
