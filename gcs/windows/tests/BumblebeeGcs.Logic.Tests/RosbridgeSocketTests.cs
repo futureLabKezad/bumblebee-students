@@ -149,9 +149,19 @@ public class RosbridgeSocketTests
     public async Task NoServer_IsNoDrone_WithOneCollapsedLine()
     {
         var port = FreePort();
+        // How long THIS machine takes to refuse a connect to a closed local port. Windows Server (CI) refuses
+        // at once; Windows 11 sends the SYN twice more first (2.06 s here, 25.11.2026; with those retries
+        // switched off on the same port: 0 ms). The app is right to wait for the refusal, so the wait below
+        // counts it: attempt 3 fails after 3 refusals + 2 reconnect delays. The margin stays the 3 s it was
+        // (9 s = 2 x 3 s + 3 s with an instant refusal); every assertion is unchanged.
+        var refusal = RefusalSeconds(port);
+        Assert.True(refusal < 4.0, $"a closed local port was refused only after {refusal:F1} s: that is the client's 5 s connect timeout, not a refusal");
         using var h = new Harness(port);
         h.Connect();
-        await h.WaitFor(s => s.Messages.Entries.Count == 1 && s.Messages.Entries[0].Text.Contains("attempt 3"), 9,
+        // 9 is the old number, on purpose not read from RosbridgeClient.ReconnectDelayMs: a longer reconnect
+        // delay in the app must still fail here, as before.
+        await h.WaitFor(s => s.Messages.Entries.Count == 1 && s.Messages.Entries[0].Text.Contains("attempt 3"),
+            9 + 3 * refusal,
             "three failed attempts in one line");
         Assert.Equal(LinkState.NoDrone, h.Read(s => s.Link));
         var text = h.Read(s => s.Messages.Entries[0].Text);
@@ -172,6 +182,23 @@ public class RosbridgeSocketTests
         var topics = server.ClientTexts.Select(t => JsonDocument.Parse(t).RootElement.GetProperty("topic").GetString()).ToList();
         Assert.Contains("/mavros/state", topics);
         Assert.Contains("/mavros/battery", topics);
+    }
+
+    /// <summary>Seconds until the OS refuses a plain TCP connect to a closed port on 127.0.0.1 (the worst of two tries).</summary>
+    private static double RefusalSeconds(int port)
+    {
+        var worst = 0.0;
+        for (var i = 0; i < 2; i++)
+        {
+            using var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var start = MonoClock.Now;
+            var refused = false;
+            try { s.Connect(IPAddress.Loopback, port); }
+            catch (SocketException e) when (e.SocketErrorCode == SocketError.ConnectionRefused) { refused = true; }
+            Assert.True(refused, $"port {port} on 127.0.0.1 is not closed: the test needs a port nobody listens on");
+            worst = Math.Max(worst, MonoClock.Now - start);
+        }
+        return worst;
     }
 
     private static int FreePort()
